@@ -9,7 +9,6 @@ import psycopg
 from pydantic import BaseModel
 
 log = getLogger(__name__)
-log.addHandler(logging.StreamHandler(sys.stdout))
 log.level = logging.DEBUG
 
 
@@ -53,13 +52,13 @@ class PgDatabase(Database):
 
     def connect_to_database(self):
         return self.driver.connect(
+            autocommit=True,
             host=os.getenv("DB_HOST"),
             port=os.getenv("DB_PORT"),
             user=os.getenv("DB_USERNAME"),
             password=os.getenv("DB_PASSWORD"),
             dbname=os.getenv("DB_NAME")
         )
-
 
 def init_db():
     with PgDatabase() as db:
@@ -83,23 +82,24 @@ def drop_tables() -> None:
 
 def create_user(user: UserInternal) -> bool:
     with PgDatabase() as db:
-        try:
-            db.connection.execute(
-                """
-                INSERT INTO users (id, name, lastname, email, hashed_password)
-                VALUES (%s, %s, %s, %s, %s)
-                """,
-                (user.id, user.name, user.lastname, user.email, user.hashed_password)
-            )
-        except psycopg.errors.UniqueViolation:
-            return False
+      try:
+          db.connection.execute(
+              """
+              INSERT INTO users (id, name, lastname, email, hashed_password)
+              VALUES (%s, %s, %s, %s, %s)
+              """,
+              (user.id, user.name, user.lastname, user.email, user.hashed_password)
+          )
+      except psycopg.errors.UniqueViolation as e:
+          log.error(e)
+          return False
 
     log.info("User inserted successfully")
-    log.debug(f"User {user.model_dump()} created successfully")
+    log.debug(f"Inserted following User:", user.model_dump())
     return True
 
 
-def get_user(email: str) -> UserInternal:
+def get_user(email: str) -> UserInternal | None:
     with PgDatabase() as db:
         result = db.connection.execute(
             "SELECT id, name, lastname, email, hashed_password FROM users WHERE email=%s",
@@ -110,5 +110,5 @@ def get_user(email: str) -> UserInternal:
             return None
 
         user = UserInternal.model_construct(**dict(zip(["id", "name", "lastname", "email", "hashed_password"], result)))
-        log.debug(f"User {user.model_dump()} retrieved successfully")
+        log.debug(f"Retrieved User succesfully:  {user.model_dump()} ")
         return user

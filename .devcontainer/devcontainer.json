@@ -2,7 +2,7 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/postgres
 {
 	"name": "Python 3 & PostgreSQL",
-	"dockerComposeFile": "docker-compose.yml",
+	"dockerComposeFile": "./docker-compose.yml",
 	"service": "app",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
@@ -14,11 +14,14 @@
 	// "forwardPorts": [5000, 5432],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	 "postCreateCommand": "pip install --user -r ./MediaManager/src/requirements.txt",
+	"postCreateCommand": "pip install --user -r ./MediaManager/src/requirements.txt",
 
 	// Configure tool-specific properties.
   "customizations" : {
     "jetbrains" : {
+      "settings": {
+        "com.intellij:app:HttpConfigurable.use_proxy_pac": true
+      },
       "backend" : "PyCharm"
     }
   },
