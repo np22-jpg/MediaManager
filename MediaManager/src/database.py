@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 from abc import ABC, abstractmethod
 from logging import getLogger
 from uuid import uuid4
@@ -13,12 +12,18 @@ log.level = logging.DEBUG
 
 
 class User(BaseModel):
+    """
+    User model
+    """
     name: str
     lastname: str
     email: str
 
 
 class UserInternal(User):
+    """"
+    Internal user model, assumes the password is already hashed, when a new instance is created
+    """
     id: str = str(uuid4())
     hashed_password: str
 
@@ -81,6 +86,11 @@ def drop_tables() -> None:
 
 
 def create_user(user: UserInternal) -> bool:
+    """
+
+    :param user: user to create, password must already be hashed
+    :return:  True if user was created, False otherwise
+    """
     with PgDatabase() as db:
       try:
           db.connection.execute(
@@ -100,6 +110,11 @@ def create_user(user: UserInternal) -> bool:
 
 
 def get_user(email: str) -> UserInternal | None:
+    """
+
+    :param email:  the users email address
+    :return:  if user was found its is returned, otherwise None
+    """
     with PgDatabase() as db:
         result = db.connection.execute(
             "SELECT id, name, lastname, email, hashed_password FROM users WHERE email=%s",

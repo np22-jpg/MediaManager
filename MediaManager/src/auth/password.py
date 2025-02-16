@@ -3,21 +3,19 @@ from typing import Annotated
 
 import bcrypt
 import jwt
-from fastapi import Depends, FastAPI, HTTPException, status, APIRouter
+from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
-from passlib.context import CryptContext
 from pydantic import BaseModel
 
 import database
-from database import UserInternal, User
+from database import UserInternal
 
 # to get a string like this run:
 # openssl rand -hex 32
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
 
 fake_users_db = {
     "johndoe": {
@@ -58,13 +56,19 @@ def get_password_hash(password):
     )
 
 
-def authenticate_user(email: str, password: str) -> UserInternal:
+def authenticate_user(email: str, password: str) -> bool | UserInternal:
+    """
+
+    :param email: email of the user
+    :param password:  password of the user
+    :return:  if authentication succeeds, returns the user object with added name and lastname, otherwise  or if the user doesn't exist returns False
+    """
     user = database.get_user(email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
         return False
-    return user
+    return True
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -97,11 +101,12 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise credentials_exception
     return user
 
+
 @app.post("/token")
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
-    print("post:",form_data.username, form_data.password)
+    print("post:", form_data.username, form_data.password)
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(

@@ -2,7 +2,6 @@ import logging
 
 from fastapi import APIRouter
 from fastapi import Depends
-from pydantic import BaseModel
 
 import database
 from auth.password import authenticate_user, get_password_hash
@@ -14,6 +13,9 @@ router = APIRouter(
 
 
 class CreateUser(User):
+    """"
+    The Usermodel, but with an additional non-hashed password. attribute
+    """
     password: str
 
 log = logging.getLogger(__name__)
