@@ -28,12 +28,12 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 log = logging.getLogger(__name__)
-log.level = logging.DEBUG
-log.addHandler(logging.StreamHandler())
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/token")
 
 router = APIRouter()
 
-async def get_current_user(token: str) -> UserInternal:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInternal:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -63,7 +63,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

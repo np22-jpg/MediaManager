@@ -9,7 +9,6 @@ import database
 from auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, Token, router
 from database import UserInternal
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 
@@ -46,7 +45,6 @@ def authenticate_user(email: str, password: str) -> bool | UserInternal:
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
-    print("post:", form_data.username, form_data.password)
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(

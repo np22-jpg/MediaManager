@@ -10,8 +10,6 @@ from psycopg.rows import dict_row
 from pydantic import BaseModel
 
 log = getLogger(__name__)
-log.level = logging.DEBUG
-log.addHandler(logging.StreamHandler())
 
 
 class User(BaseModel):
