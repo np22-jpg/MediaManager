@@ -7,7 +7,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 import database
 from auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, Token, router
-from database import UserInternal
+from database import  user
+from database.user import  User, UserInternal
 
 
 def verify_password(plain_password, hashed_password):
@@ -31,7 +32,7 @@ def authenticate_user(email: str, password: str) -> bool | UserInternal:
     :param password:  password of the user
     :return:  if authentication succeeds, returns the user object with added name and lastname, otherwise  or if the user doesn't exist returns False
     """
-    user = database.get_user(email=email)
+    user = database.user.get_user(email=email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):

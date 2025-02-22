@@ -4,12 +4,15 @@ import sys
 import uvicorn
 from fastapi import FastAPI
 
+import database
 from auth import password
 from routers import users
 
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s -  %(levelname)s - module: %(name)s - %(funcName)s(): %(message)s",
                     stream=sys.stdout)
+
+database.init_db()
 
 app = FastAPI(root_path="/api/v1")
 app.include_router(users.router, tags=["users"])

@@ -8,8 +8,8 @@ from jwt.exceptions import InvalidTokenError
 from pydantic import BaseModel
 
 import database
-from database import UserInternal
-
+import  database.user
+from database.user import UserInternal
 
 class Token(BaseModel):
     access_token: str
@@ -52,7 +52,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInternal:
     except InvalidTokenError:
         log.warning("received invalid token: " + token)
         raise credentials_exception
-    user = database.get_user(uid=token_data.uid)
+    user = database.user.get_user(uid=token_data.uid)
     if user is None:
         log.debug("user not found")
         raise credentials_exception
