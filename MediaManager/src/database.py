@@ -1,11 +1,9 @@
-import logging
 import os
 from abc import ABC, abstractmethod
 from logging import getLogger
 from uuid import uuid4
 
 import psycopg
-from annotated_types.test_cases import cases
 from psycopg.rows import dict_row
 from pydantic import BaseModel
 
@@ -108,7 +106,7 @@ def create_user(user: UserInternal) -> bool:
             return False
 
     log.info("User inserted successfully")
-    log.debug(f"Inserted following User: "+ user.model_dump())
+    log.debug(f"Inserted following User: " + user.model_dump())
     return True
 
 
@@ -124,9 +122,9 @@ def get_user(email: str = None, uid: str = None) -> UserInternal | None:
     with PgDatabase() as db:
         if email is not None and uid is None:
             result = db.connection.execute(
-                    "SELECT id, name, lastname, email, hashed_password FROM users WHERE email=%s",
-                    (email,)
-                ).fetchone()
+                "SELECT id, name, lastname, email, hashed_password FROM users WHERE email=%s",
+                (email,)
+            ).fetchone()
         if uid is not None:
             result = db.connection.execute(
                 "SELECT id, name, lastname, email, hashed_password FROM users WHERE id=%s",
@@ -135,6 +133,7 @@ def get_user(email: str = None, uid: str = None) -> UserInternal | None:
 
         if result is None:
             return None
-        user = UserInternal(id = result["id"], name = result["name"], lastname = result["lastname"], email = result["email"], hashed_password = result["hashed_password"])
+        user = UserInternal(id=result["id"], name=result["name"], lastname=result["lastname"], email=result["email"],
+                            hashed_password=result["hashed_password"])
         log.debug(f"Retrieved User succesfully:  {user.model_dump()} ")
         return user

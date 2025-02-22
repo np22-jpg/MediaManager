@@ -2,14 +2,12 @@ from datetime import timedelta
 from typing import Annotated
 
 import bcrypt
-from fastapi import Depends, HTTPException, status, APIRouter
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 
 import database
 from auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, Token, router
 from database import UserInternal
-
-
 
 
 def verify_password(plain_password, hashed_password):
