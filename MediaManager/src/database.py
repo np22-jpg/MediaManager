@@ -5,10 +5,13 @@ from logging import getLogger
 from uuid import uuid4
 
 import psycopg
+from annotated_types.test_cases import cases
+from psycopg.rows import dict_row
 from pydantic import BaseModel
 
 log = getLogger(__name__)
 log.level = logging.DEBUG
+log.addHandler(logging.StreamHandler())
 
 
 class User(BaseModel):
@@ -62,8 +65,10 @@ class PgDatabase(Database):
             port=os.getenv("DB_PORT"),
             user=os.getenv("DB_USERNAME"),
             password=os.getenv("DB_PASSWORD"),
-            dbname=os.getenv("DB_NAME")
+            dbname=os.getenv("DB_NAME"),
+            row_factory=dict_row
         )
+
 
 def init_db():
     with PgDatabase() as db:
@@ -92,38 +97,46 @@ def create_user(user: UserInternal) -> bool:
     :return:  True if user was created, False otherwise
     """
     with PgDatabase() as db:
-      try:
-          db.connection.execute(
-              """
-              INSERT INTO users (id, name, lastname, email, hashed_password)
-              VALUES (%s, %s, %s, %s, %s)
-              """,
-              (user.id, user.name, user.lastname, user.email, user.hashed_password)
-          )
-      except psycopg.errors.UniqueViolation as e:
-          log.error(e)
-          return False
+        try:
+            db.connection.execute(
+                """
+                INSERT INTO users (id, name, lastname, email, hashed_password)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (user.id, user.name, user.lastname, user.email, user.hashed_password)
+            )
+        except psycopg.errors.UniqueViolation as e:
+            log.error(e)
+            return False
 
     log.info("User inserted successfully")
-    log.debug(f"Inserted following User:", user.model_dump())
+    log.debug(f"Inserted following User: "+ user.model_dump())
     return True
 
 
-def get_user(email: str) -> UserInternal | None:
+def get_user(email: str = None, uid: str = None) -> UserInternal | None:
     """
+    either specify the email or uid to search for the user, if both parameters are provided the uid will be used
+
 
     :param email:  the users email address
-    :return:  if user was found its is returned, otherwise None
+    :param uid:  the users id
+    :return:  if user was found it a UserInternal object is returned, otherwise None
     """
     with PgDatabase() as db:
-        result = db.connection.execute(
-            "SELECT id, name, lastname, email, hashed_password FROM users WHERE email=%s",
-            (email,)
-        ).fetchone()
+        if email is not None and uid is None:
+            result = db.connection.execute(
+                    "SELECT id, name, lastname, email, hashed_password FROM users WHERE email=%s",
+                    (email,)
+                ).fetchone()
+        if uid is not None:
+            result = db.connection.execute(
+                "SELECT id, name, lastname, email, hashed_password FROM users WHERE id=%s",
+                (uid,)
+            ).fetchone()
 
         if result is None:
             return None
-
-        user = UserInternal.model_construct(**dict(zip(["id", "name", "lastname", "email", "hashed_password"], result)))
+        user = UserInternal(id = result["id"], name = result["name"], lastname = result["lastname"], email = result["email"], hashed_password = result["hashed_password"])
         log.debug(f"Retrieved User succesfully:  {user.model_dump()} ")
         return user

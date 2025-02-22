@@ -8,8 +8,7 @@ from auth import password
 app = FastAPI()
 
 app.include_router(users.router, tags=["users"])
-app.include_router(password.app, tags=["authentication"])
-
+app.include_router(password.router, tags=["authentication"])
 
 
 if __name__ == "__main__":

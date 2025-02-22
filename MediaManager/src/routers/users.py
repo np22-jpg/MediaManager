@@ -6,8 +6,10 @@ from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
 import database
-from auth.password import authenticate_user, get_password_hash
+from auth import get_current_user
+from auth.password import get_password_hash
 from database import User, UserInternal
+from routers import log
 
 router = APIRouter(
     prefix="/users",
@@ -22,9 +24,6 @@ class CreateUser(User):
     The Usermodel, but with an additional non-hashed password. attribute
     """
     password: str
-
-log = logging.getLogger(__name__)
-log.level = logging.DEBUG
 
 @router.post("/",status_code=201, responses = {
     409: {"model":  Message, "description": "User with provided email already exists"},
@@ -44,15 +43,15 @@ async def create_user(
 
 
 
-@router.get("/me", response_model=User)
+@router.get("/me")
 async def read_users_me(
-        current_user: User = Depends(authenticate_user),
+        current_user: UserInternal = Depends(get_current_user),
 ):
-    return current_user
+    return JSONResponse(status_code=200, content=current_user.model_dump())
 
 
 @router.get("/me/items")
 async def read_own_items(
-        current_user: User = Depends(authenticate_user),
+        current_user: User = Depends(get_current_user),
 ):
-    return [{"item_id": "Foo", "owner": current_user.username}]
+    return [{"item_id": "Foo", "owner": current_user.name}]
