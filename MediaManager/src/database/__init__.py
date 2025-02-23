@@ -1,8 +1,9 @@
 import logging
-import os
 
 import psycopg
 from psycopg.rows import dict_row
+
+import config
 
 log = logging.getLogger(__name__)
 
@@ -16,11 +17,11 @@ class PgDatabase:
     def connect_to_database(self):
         return self.driver.connect(
             autocommit=True,
-            host=os.getenv("DB_HOST"),
-            port=os.getenv("DB_PORT"),
-            user=os.getenv("DB_USERNAME"),
-            password=os.getenv("DB_PASSWORD"),
-            dbname=os.getenv("DB_NAME"),
+            host=config.db.host,
+            port=config.db.port,
+            user=config.db.user,
+            password=config.db.password,
+            dbname=config.db.dbname,
             row_factory=dict_row
         )
 

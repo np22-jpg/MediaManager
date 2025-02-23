@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Annotated
 
 import bcrypt
@@ -6,8 +5,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 import database
-from auth import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, Token, router
-from database import  users
+from auth import create_access_token, Token, router
+from database import users
 from database.users import UserInternal
 
 
@@ -51,8 +50,5 @@ async def login_for_access_token(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.id}, expires_delta=access_token_expires
-    )
+    access_token = create_access_token(data={"sub": user.id})
     return Token(access_token=access_token, token_type="bearer")
