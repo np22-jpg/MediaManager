@@ -9,8 +9,9 @@ from pydantic import BaseModel
 
 import config
 import database
-import  database.users
+import database.users
 from database.users import UserInternal
+
 
 class Token(BaseModel):
     access_token: str
@@ -19,6 +20,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     uid: str | None = None
+
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +37,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInternal:
     )
     log.debug("token: " + token)
     try:
-        payload = jwt.decode(token, config.auth.jwt_signing_key, algorithms=[config.auth.jwt_algorithm])
+        payload = jwt.decode(token, config.auth.jwt_signing_key, algorithms=[config.auth.jwt_signing_algorithm])
         log.debug("jwt payload: " + payload.__str__())
         user_uid: str = payload.get("sub")
         log.debug("jwt payload sub (user uid): " + user_uid)
@@ -60,5 +62,5 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=config.auth.jwt_access_token_lifetime)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, config.auth.jwt_signing_key, algorithm=config.auth.jwt_algorithm)
+    encoded_jwt = jwt.encode(to_encode, config.auth.jwt_signing_key, algorithm=config.auth.jwt_signing_algorithm)
     return encoded_jwt
