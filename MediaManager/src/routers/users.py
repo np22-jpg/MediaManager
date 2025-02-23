@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 import database
 from auth import get_current_user
 from auth.password import get_password_hash
-from database.user import UserInternal, User
+from database.users import UserInternal, User
 from routers import log
 
 router = APIRouter(
@@ -34,7 +34,7 @@ async def create_user(
 ):
     internal_user = UserInternal(name=user.name, lastname=user.lastname, email=user.email,
                                  hashed_password=get_password_hash(user.password))
-    if database.user.create_user(internal_user):
+    if database.users.create_user(internal_user):
         log.info("Created new user", internal_user.model_dump())
         return internal_user
     else:

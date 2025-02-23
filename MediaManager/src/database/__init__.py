@@ -7,7 +7,7 @@ from psycopg.rows import dict_row
 log = logging.getLogger(__name__)
 
 
-class PgDatabase():
+class PgDatabase:
     """PostgreSQL Database context manager using psycopg"""
 
     def __init__(self) -> None:
@@ -35,8 +35,8 @@ class PgDatabase():
 def init_db():
     log.info("Initializing database")
 
-    from database import tv, user
-    user.init_table()
+    from database import tv, users
+    users.init_table()
     tv.init_table()
 
     log.info("Tables initialized successfully")

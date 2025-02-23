@@ -73,7 +73,7 @@ def get_user(email: str = None, uid: str = None) -> UserInternal | None:
         user = UserInternal(id=result["id"].__str__(), name=result["name"], lastname=result["lastname"],
                             email=result["email"],
                             hashed_password=result["hashed_password"])
-        log.debug(f"Retrieved User succesfully:  {user.model_dump()} ")
+        log.debug(f"Retrieved User successfully:  {user.model_dump()} ")
         return user
 
 
