@@ -2,7 +2,6 @@ from uuid import uuid4
 
 import psycopg
 from pydantic import BaseModel
-from pydantic import UUID4
 
 from database import PgDatabase, log
 
@@ -71,12 +70,14 @@ def get_user(email: str = None, uid: str = None) -> UserInternal | None:
 
         if result is None:
             return None
-        user = UserInternal(id=result["id"].__str__(), name=result["name"], lastname=result["lastname"], email=result["email"],
+        user = UserInternal(id=result["id"].__str__(), name=result["name"], lastname=result["lastname"],
+                            email=result["email"],
                             hashed_password=result["hashed_password"])
         log.debug(f"Retrieved User succesfully:  {user.model_dump()} ")
         return user
 
-def init_db():
+
+def init_table():
     with PgDatabase() as db:
         db.connection.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -87,4 +88,4 @@ def init_db():
                 hashed_password TEXT NOT NULL
             );
         """)
-    log.info("User Table initialized successfully")
+    log.info("users Table initialized successfully")

@@ -1,13 +1,11 @@
 import logging
 import os
-from logging import getLogger
 
 import psycopg
 from psycopg.rows import dict_row
 
 log = logging.getLogger(__name__)
 
-log.debug("servas")
 
 class PgDatabase():
     """PostgreSQL Database context manager using psycopg"""
@@ -25,6 +23,7 @@ class PgDatabase():
             dbname=os.getenv("DB_NAME"),
             row_factory=dict_row
         )
+
     def __enter__(self):
         self.connection = self.connect_to_database()
         return self
@@ -32,15 +31,18 @@ class PgDatabase():
     def __exit__(self, exception_type, exc_val, traceback):
         self.connection.close()
 
+
 def init_db():
     log.info("Initializing database")
-    from database import user
-    user.init_db()
+
+    from database import tv, user
+    user.init_table()
+    tv.init_table()
+
     log.info("Tables initialized successfully")
 
-init_db()
+
 def drop_tables() -> None:
     with PgDatabase() as db:
         db.connection.execute("DROP TABLE IF EXISTS users CASCADE;")
         log.info("User Table dropped")
-
