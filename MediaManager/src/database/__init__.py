@@ -40,9 +40,3 @@ def init_db():
     tv.init_table()
 
     log.info("Tables initialized successfully")
-
-
-def drop_tables() -> None:
-    with PgDatabase() as db:
-        db.connection.execute("DROP TABLE IF EXISTS users CASCADE;")
-        log.info("User Table dropped")
