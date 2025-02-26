@@ -1,9 +1,10 @@
 import logging
 
 import psycopg
+from fastapi import Depends
 from psycopg.rows import dict_row
 
-import config
+from config import DbConfig, get_db_config
 
 log = logging.getLogger(__name__)
 
@@ -14,14 +15,14 @@ class PgDatabase:
     def __init__(self) -> None:
         self.driver = psycopg
 
-    def connect_to_database(self):
+    def connect_to_database(self,  config: DbConfig = DbConfig()):
         return self.driver.connect(
             autocommit=True,
-            host=config.db.host,
-            port=config.db.port,
-            user=config.db.user,
-            password=config.db.password,
-            dbname=config.db.dbname,
+            host=config.host,
+            port=config.port,
+            user=config.user,
+            password=config.password,
+            dbname=config.dbname,
             row_factory=dict_row
         )
 

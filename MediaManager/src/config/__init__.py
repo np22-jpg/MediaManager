@@ -33,22 +33,24 @@ class AuthConfig(BaseModel):
     def jwt_signing_key(self):
         return self._jwt_signing_key
 
-db: DbConfig = DbConfig()
-indexer: IndexerConfig = IndexerConfig()
-auth: AuthConfig = AuthConfig()
+def get_db_config() -> DbConfig:
+    return DbConfig()
+
+
 
 log = logging.getLogger(__name__)
 
 def load_config():
-    db = DbConfig()
-    log.info(f"loaded config: DbConfig: {db.__str__()}")
-    indexer = IndexerConfig()
-    log.info(f"loaded config: IndexerConfig: {indexer.__str__()}")
-    auth = AuthConfig()
-    log.info(f"loaded config: AuthConfig: {auth.__str__()}")
+    log.info(f"loaded config: DbConfig: {DbConfig().__str__()}")
+    log.info(f"loaded config: IndexerConfig: {IndexerConfig().__str__()}")
+    log.info(f"loaded config: AuthConfig: {AuthConfig().__str__()}")
 
 
 if __name__ == "__main__":
+    db: DbConfig = DbConfig()
+    indexer: IndexerConfig = IndexerConfig()
+    auth: AuthConfig = AuthConfig()
+
     print(db.__str__())
     print(indexer.__str__())
     print(auth.__str__())
