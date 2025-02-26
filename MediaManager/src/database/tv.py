@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, List
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel
@@ -8,62 +8,87 @@ from database import PgDatabase, log
 
 # NOTE: use tmdbsimple for api calls
 
+class Episode(BaseModel):
+    number: int
+    title: str
+
+class Season(BaseModel):
+    number: int
+    episodes: List[Episode]
+
+    def get_episode_count(self)-> int:
+        return self.episodes.__len__()
+
 class Show(BaseModel):
     id: UUID = uuid4()
     external_id: int
     indexer: Literal["tmdb"]
     name: str
-    number_of_episodes: int
-    number_of_seasons: int
-    origin_country: list[str]
-    original_language: str
-    status: str
-    first_air_date: str
+    seasons: List[Season]
 
-def save_show(show: Show) -> None:
-    with PgDatabase() as db:
-        db.connection.execute("""
-            INSERT INTO tv_shows (
+    def get_season_count(self)-> int:
+        return self.seasons.__len__()
+
+    def get_episode_count(self) -> int:
+        episode_count = 0
+        for season in self.seasons:
+            episode_count += season.get_episode_count()
+        return episode_count
+
+    def save_show(self) -> None:
+        with PgDatabase() as db:
+            db.connection.execute("""
+            INSERT INTO tv_show (
                 id,
                 external_id,
                 indexer,
                 name,
-                number_of_episodes,
-                number_of_seasons,
-                origin_country,
-                original_language,
-                status,
-                first_air_date
-                )VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+                episode_count,
+                season_count
+                )VALUES(%s,%s,%s,%s,%s,%s);
                 """,
-                              (show.id,
-                               show.external_id,
-                               show.indexer,
-                               show.name,
-                               show.number_of_episodes,
-                               show.number_of_seasons,
-                               show.origin_country,
-                               show.original_language,
-                               show.status,
-                               show.first_air_date
-                               )
-                              )
-        log.info("added show: "+show.__str__())
+                                  (self.id,
+                                   self.external_id,
+                                   self.indexer,
+                                   self.name,
+                                    self.get_episode_count(),
+                                   self.get_season_count(),
+                                   )
+                                  )
+            log.info("added show: " + self.__str__())
 
+
+# TODO: add NOT NULL and default values to DB
 
 def init_table():
     with PgDatabase() as db:
         db.connection.execute("""
-            CREATE TABLE IF NOT EXISTS tv_shows (
+            CREATE TABLE IF NOT EXISTS tv_show (
                 id UUID PRIMARY KEY,
-                external_id NUMERIC,
+                external_id TEXT,
                 indexer TEXT,
                 name TEXT,
-                number_of_episodes INTEGER,
-                number_of_seasons INTEGER,
-                origin_country TEXT[],
-                original_language TEXT,
-                status TEXT,
-                first_air_date TEXT
+                episode_count INTEGER,
+                season_count INTEGER
             );""")
-    log.info("tv_shows Table initialized successfully")
+        log.info("tv_show Table initialized successfully")
+        db.connection.execute("""
+            CREATE TABLE IF NOT EXISTS tv_season (
+                show_id UUID  REFERENCES tv_show(id),
+                season_number INTEGER,
+                episode_count INTEGER,
+                CONSTRAINT PK_season PRIMARY KEY (show_id,season_number)
+
+            );""")
+        log.info("tv_seasonTable initialized successfully")
+        db.connection.execute("""
+            CREATE TABLE IF NOT EXISTS tv_episode (
+                season  INTEGER,
+                show_id uuid,
+                episode_number INTEGER,
+                title TEXT,
+                CONSTRAINT PK_episode PRIMARY KEY (season,show_id,episode_number),
+                FOREIGN KEY (season, show_id) REFERENCES tv_season(season_number,show_id)
+
+            );""")
+        log.info("tv_episode Table initialized successfully")

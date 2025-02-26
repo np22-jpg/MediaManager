@@ -1,10 +1,9 @@
 import logging
 
 import psycopg
-from fastapi import Depends
 from psycopg.rows import dict_row
 
-from config import DbConfig, get_db_config
+from config import DbConfig
 
 log = logging.getLogger(__name__)
 
