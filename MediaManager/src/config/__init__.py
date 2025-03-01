@@ -16,6 +16,10 @@ class DbConfig(BaseModel):
     def password(self):
         return self._password
 
+class TvConfig(BaseModel):
+    api_key: str = os.getenv("TMDB_API_KEY")
+
+
 
 class IndexerConfig(BaseModel):
     default_indexer: Literal["tmdb"] = os.getenv("INDEXER") or "tmdb"
@@ -44,6 +48,7 @@ def load_config():
     log.info(f"loaded config: DbConfig: {DbConfig().__str__()}")
     log.info(f"loaded config: IndexerConfig: {IndexerConfig().__str__()}")
     log.info(f"loaded config: AuthConfig: {AuthConfig().__str__()}")
+    log.info(f"loaded config: TvConfig: {TvConfig().__str__()}")
 
 
 if __name__ == "__main__":

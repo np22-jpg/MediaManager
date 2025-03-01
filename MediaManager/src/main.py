@@ -6,6 +6,7 @@ from fastapi import FastAPI
 
 import config
 import database
+import tv.router
 from auth import password
 from routers import users
 
@@ -18,6 +19,7 @@ database.init_db()
 app = FastAPI(root_path="/api/v1")
 app.include_router(users.router, tags=["users"])
 app.include_router(password.router, tags=["authentication"])
+app.include_router(tv.router.router, tags=["tv"])
 
 
 

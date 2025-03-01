@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta, timezone
+from typing import Annotated
 
 import jwt
 from fastapi import Depends, HTTPException, status, APIRouter
@@ -29,12 +30,13 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/token")
 router = APIRouter()
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), config = Depends(AuthConfig)) -> UserInternal:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInternal:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    config = AuthConfig()
     log.debug("token: " + token)
     try:
         payload = jwt.decode(token, config.jwt_signing_key, algorithms=[config.jwt_signing_algorithm])
@@ -55,8 +57,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme), config = Depends
     return user
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None, config = Depends(AuthConfig)):
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
+    config = AuthConfig()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
