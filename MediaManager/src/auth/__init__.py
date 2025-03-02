@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
 
 import jwt
 from fastapi import Depends, HTTPException, status, APIRouter
@@ -8,10 +7,10 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pydantic import BaseModel
 
-import database
-import database.users
 from config import AuthConfig
+from database import SessionDependency
 from database.users import UserInternal
+
 
 
 class Token(BaseModel):
@@ -30,7 +29,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/token")
 router = APIRouter()
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInternal:
+async def get_current_user(db: SessionDependency, token: str = Depends(oauth2_scheme)) -> UserInternal:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -38,6 +37,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInternal:
     )
     config = AuthConfig()
     log.debug("token: " + token)
+
     try:
         payload = jwt.decode(token, config.jwt_signing_key, algorithms=[config.jwt_signing_algorithm])
         log.debug("jwt payload: " + payload.__str__())
@@ -49,10 +49,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInternal:
     except InvalidTokenError:
         log.warning("received invalid token: " + token)
         raise credentials_exception
-    user = database.users.get_user(uid=token_data.uid)
+
+    user: UserInternal | None = db.get(UserInternal, token_data.uid)
+
     if user is None:
         log.debug("user not found")
         raise credentials_exception
+
     log.debug("received user: " + user.__str__())
     return user
 

@@ -1,43 +1,28 @@
 import logging
+from typing import Any, Generator, Annotated
 
-import psycopg
-from psycopg.rows import dict_row
+from fastapi import Depends
+from sqlmodel import create_engine, SQLModel, Session
 
+import config
 from config import DbConfig
 
 log = logging.getLogger(__name__)
+config: DbConfig = config.get_db_config()
+
+db_url = "postgresql+psycopg" + "://" + config.user + ":" + config.password + "@" + config.host + ":" + str(
+    config.port) + "/" + config.dbname
+
+engine = create_engine(db_url, echo=True)
 
 
-class PgDatabase:
-    """PostgreSQL Database context manager using psycopg"""
-
-    def __init__(self) -> None:
-        self.driver = psycopg
-
-    def connect_to_database(self,  config: DbConfig = DbConfig()):
-        return self.driver.connect(
-            autocommit=True,
-            host=config.host,
-            port=config.port,
-            user=config.user,
-            password=config.password,
-            dbname=config.dbname,
-            row_factory=dict_row
-        )
-
-    def __enter__(self):
-        self.connection = self.connect_to_database()
-        return self
-
-    def __exit__(self, exception_type, exc_val, traceback):
-        self.connection.close()
+def init_db() -> None:
+    SQLModel.metadata.create_all(engine)
 
 
-def init_db():
-    log.info("Initializing database")
+def get_session() -> Generator[Session, Any, None]:
+    with Session(engine) as session:
+        yield session
 
-    from database import tv, users
-    users.init_table()
-    tv.init_table()
+SessionDependency = Annotated[Session, Depends(get_session)]
 
-    log.info("Tables initialized successfully")
