@@ -1,3 +1,5 @@
 .idea
 venv
 MediaManager.iml
+MediaManager/res
+MediaManager/res/.env
