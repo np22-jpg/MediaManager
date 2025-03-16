@@ -10,7 +10,7 @@ from sqlmodel import Session, select
 import database
 from auth import create_access_token, Token, router
 from database import users, SessionDependency
-from database.users import UserInternal
+from database.users import User
 
 
 def verify_password(plain_password, hashed_password):
@@ -24,14 +24,14 @@ def get_password_hash(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
-def authenticate_user(db: SessionDependency, email: str, password: str) -> bool | UserInternal:
+def authenticate_user(db: SessionDependency, email: str, password: str) -> bool | User:
     """
 
     :param email: email of the user
     :param password:  password of the user
     :return:  if authentication succeeds, returns the user object with added name and lastname, otherwise  or if the user doesn't exist returns False
     """
-    user: UserInternal | None = db.exec(select(UserInternal).where(UserInternal.email == email)).first()
+    user: User | None = db.exec(select(User).where(User.email == email)).first()
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
