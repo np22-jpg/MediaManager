@@ -3,7 +3,6 @@ from typing import List
 from uuid import UUID
 
 import psycopg.errors
-import sqlalchemy
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlmodel import select
@@ -67,12 +66,15 @@ def add_show(db: SessionDependency, show_id: int, metadata_provider: str = "tmdb
 
     return show
 
+
 @router.delete("/{show_id}", status_code=status.HTTP_200_OK)
 def delete_show(db: SessionDependency, show_id: UUID):
     db.delete(db.get(Show, show_id))
     db.commit()
 
-@router.patch("/{show_id}/{season}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)], response_model=Show)
+
+@router.patch("/{show_id}/{season}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
+              response_model=Show)
 def add_season(db: SessionDependency, show_id: UUID, season: int):
     """
     adds requested flag to a season
@@ -84,7 +86,9 @@ def add_season(db: SessionDependency, show_id: UUID, season: int):
     db.refresh(season)
     return season
 
-@router.delete("/{show_id}/{season}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)], response_model=Show)
+
+@router.delete("/{show_id}/{season}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
+               response_model=Show)
 def delete_season(db: SessionDependency, show_id: UUID, season: int):
     """
     removes requested flag from a season
@@ -95,6 +99,7 @@ def delete_season(db: SessionDependency, show_id: UUID, season: int):
     db.commit()
     db.refresh(season)
     return season
+
 
 @router.get("/show", dependencies=[Depends(auth.get_current_user)], response_model=List[Show])
 def get_shows(db: SessionDependency):
