@@ -14,12 +14,11 @@ class NFO(BaseModel):
     season: int
 
 
-
 def get_season(nfo: str) -> int | None:
     responses: List[ChatResponse] = []
     parsed_responses: List[int] = []
 
-    for i in range(0, 4):
+    for i in range(0, 5):
         responses.append(chat(
             model='qwen2.5:0.5b',
             format=NFO.model_json_schema(),
@@ -27,7 +26,8 @@ def get_season(nfo: str) -> int | None:
                 {
                     'role': 'user',
                     'content':
-                        "which season does a torrent with the following NFO contain, output a season number, the season number is an integer? output in json please" +
+                        "Tell me which season the torrent with this description contains?" +
+                        " output a season number in json format, the season number is an integer" +
                         nfo
                 },
             ]))
