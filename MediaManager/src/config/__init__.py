@@ -20,7 +20,6 @@ class TvConfig(BaseModel):
     api_key: str = os.getenv("TMDB_API_KEY")
 
 
-
 class IndexerConfig(BaseModel):
     default_indexer: Literal["tmdb"] = os.getenv("INDEXER") or "tmdb"
     _default_indexer_api_key: str = os.getenv("INDEXER_API_KEY")
@@ -36,6 +35,11 @@ class AuthConfig(BaseModel):
     @property
     def jwt_signing_key(self):
         return self._jwt_signing_key
+
+
+class MachineLearningConfig(BaseModel):
+    model_name: str = os.getenv("OLLAMA_MODEL_NAME") or "qwen2.5:0.5b"
+
 
 def get_db_config() -> DbConfig:
     return DbConfig()

@@ -3,11 +3,10 @@ import logging
 from collections import Counter
 from typing import List
 
-from ollama import ChatResponse
-from ollama import chat
+from ollama import ChatResponse, chat
 from pydantic import BaseModel
 
-log = logging.getLogger(__name__)
+import config
 
 
 class NFO(BaseModel):
@@ -20,7 +19,7 @@ def get_season(nfo: str) -> int | None:
 
     for i in range(0, 5):
         responses.append(chat(
-            model='qwen2.5:0.5b',
+            model=config.model_name,
             format=NFO.model_json_schema(),
             messages=[
                 {
@@ -44,3 +43,7 @@ def get_season(nfo: str) -> int | None:
     most_common = Counter(parsed_responses).most_common(1)
     log.debug(f"extracted season number: {most_common} from nfo: {nfo}")
     return most_common[0][0]
+
+
+config = config.MachineLearningConfig()
+log = logging.getLogger(__name__)

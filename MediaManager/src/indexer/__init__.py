@@ -1,16 +1,27 @@
+import re
 from typing import Literal
 
-from pydantic import BaseModel, HttpUrl
-
-from indexer.prowlarr import Prowlarr
+from pydantic import BaseModel, HttpUrl, computed_field
 
 
 class IndexerQueryResult(BaseModel):
     title: str
     download_url: HttpUrl
     seeders: int
-    protocol: Literal["usenet", "torrent"]
     flags: list[str]
+
+    @computed_field
+    @property
+    def quality(self) -> Literal['high', 'medium', 'low']:
+        high_quality_pattern = r'\b(4k|4K)\b'
+        medium_quality_pattern = r'\b(1080p|1080P)\b'
+
+        if re.search(high_quality_pattern, self.title):
+            return 'high'
+        elif re.search(medium_quality_pattern, self.title):
+            return 'medium'
+        else:
+            return 'low'
 
     def __gt__(self, other) -> bool:
         if self.seeders > other.seeders:
@@ -33,12 +44,12 @@ class GenericIndexer(object):
         if url:
             self.url = url
         else:
-            raise ValueError("indexer url must not be None")
+            raise ValueError('indexer url must not be None')
 
         if name:
             self.name = name
         else:
-            raise ValueError("indexer name must not be None")
+            raise ValueError('indexer name must not be None')
 
     def get_search_results(self, query: str) -> list[IndexerQueryResult]:
         """
