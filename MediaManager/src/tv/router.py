@@ -10,8 +10,9 @@ from tmdbsimple import TV, TV_Seasons
 
 import auth
 from database import SessionDependency
+from database.tv import Episode, Season, Show
 from routers.users import Message
-from tv import Episode, Season, Show, log, tmdb
+from tv import log, tmdb
 
 router = APIRouter(
     prefix="/tv",

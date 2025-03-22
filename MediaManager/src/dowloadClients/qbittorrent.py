@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlmodel import Session
 
 from database import engine
-from dowloadClients import SeasonTorrents
+from database.tv import Season
 from dowloadClients.genericDownloadClient import GenericDownloadClient
 
 # Configure logging
@@ -38,7 +38,7 @@ class QbittorrentClient(GenericDownloadClient):
         finally:
             self.api_client.auth_log_out()
 
-    def download(self, torrent: SeasonTorrents):
+    def download(self, torrent: Season):
         log.info(f"Attempting to download torrent: {torrent.url} with tag {torrent.id}+{torrent.season_number}")
         answer = self.api_client.torrents_add(category="MediaManager",
                                               urls=torrent.url,
@@ -50,7 +50,7 @@ class QbittorrentClient(GenericDownloadClient):
             log.error(f"Failed to download torrent. API response: {answer}")
             raise RuntimeError(f"Failed to download torrent, API-Answer isn't 'Ok.'; API Answer: {answer}")
 
-    def get_torrent_status(self, torrent: SeasonTorrents) -> SeasonTorrents:
+    def get_torrent_status(self, torrent: Season) -> Season:
         log.info(f"Fetching status for torrent: {torrent.id}+{torrent.season_number}")
         info = self.api_client.torrents_info(tag=f"{torrent.id}+{torrent.season_number}")
 
