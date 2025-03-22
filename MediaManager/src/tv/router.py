@@ -11,7 +11,7 @@ from tmdbsimple import TV, TV_Seasons
 import auth
 from database import SessionDependency
 from routers.users import Message
-from tv import Show, tmdb, log, Season, Episode
+from tv import Episode, Season, Show, log, tmdb
 
 router = APIRouter(
     prefix="/tv",
@@ -25,11 +25,20 @@ router = APIRouter(
              })
 def add_show(db: SessionDependency, show_id: int, metadata_provider: str = "tmdb"):
     show_metadata = TV(show_id).info()
+
+    # For some shows the first_air_date isn't known, therefore it needs to be nullable
+    year: str | None = show_metadata["first_air_date"]
+    if year:
+        year: int = int(year.split('-')[0])
+    else:
+        year = None
+
     show = Show(
         external_id=show_id,
         metadata_provider=metadata_provider,
         name=show_metadata["name"],
-        overview=show_metadata["overview"]
+        overview=show_metadata["overview"],
+        year=year,
     )
 
     log.info("Adding show: " + json.dumps(show.model_dump(), default=str))
