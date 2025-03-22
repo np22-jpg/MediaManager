@@ -37,6 +37,9 @@ class AuthConfig(BaseModel):
         return self._jwt_signing_key
 
 
+class DownloadClientConfig(BaseModel):
+    client: Literal['qbit'] = os.getenv("DOWNLOAD_CLIENT") or "qbit"
+
 class MachineLearningConfig(BaseModel):
     model_name: str = os.getenv("OLLAMA_MODEL_NAME") or "qwen2.5:0.5b"
 
