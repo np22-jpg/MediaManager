@@ -1,43 +1,161 @@
-from typing import Annotated
+import json
+import pprint
+from typing import List
 from uuid import UUID
 
 import psycopg.errors
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from sqlmodel import select
+from tmdbsimple import TV, TV_Seasons
 
 import auth
-from database.users import User, UserInternal
-from tv import Show, get_all_shows, tmdb, log, get_show
+import dowloadClients
+import indexer
+from database import SessionDependency
+from database.tv import Episode, Season, Show
+from routers.users import Message
+from tv import log, tmdb
 
 router = APIRouter(
     prefix="/tv",
 )
 
 
-@router.post("/show",  status_code=201,dependencies=[Depends(auth.get_current_user)])
-def post_add_show_route(show_id: int, metadata_provider: str = "tmdb"):
-    show: Show = Show(external_id=show_id, metadata_provider=metadata_provider, name="temp_name_set_in_post_show_route")
-    show.get_data_from_tmdb()
+class ShowDetails(BaseModel):
+    show: Show
+    seasons: list[Season]
+
+
+@router.post("/show", status_code=status.HTTP_201_CREATED, dependencies=[Depends(auth.get_current_user)],
+             responses={
+                 status.HTTP_201_CREATED: {"model": Show, "description": "Successfully created show"},
+                 status.HTTP_409_CONFLICT: {"model": Message, "description": "Show already exists"},
+             })
+def add_show(db: SessionDependency, show_id: int, metadata_provider: str = "tmdb"):
+    show_metadata = TV(show_id).info()
+
+    # For some shows the first_air_date isn't known, therefore it needs to be nullable
+    year: str | None = show_metadata["first_air_date"]
+    if year:
+        year: int = int(year.split('-')[0])
+    else:
+        year = None
+
+    show = Show(
+        external_id=show_id,
+        metadata_provider=metadata_provider,
+        name=show_metadata["name"],
+        overview=show_metadata["overview"],
+        year=year,
+    )
+
+    log.info("Adding show: " + json.dumps(show.model_dump(), default=str))
+    db.add(show)
+    db.commit()
+
+    for season in show_metadata["seasons"]:
+        season_metadata = TV_Seasons(tv_id=show_metadata["id"], season_number=season["season_number"]).info()
+        db.add(Season(
+            show_id=show.id,
+            number=int(season_metadata["season_number"]),
+            name=season_metadata["name"],
+            overview=season_metadata["overview"],
+            external_id=int(season_metadata["id"]))
+        )
+        db.commit()
+
+        for episode in season_metadata["episodes"]:
+            db.add(Episode(
+                show_id=show.id,
+                season_number=int(season_metadata["season_number"]),
+                title=episode["name"],
+                number=int(episode["episode_number"]),
+                external_id=int(episode["id"]),
+            ))
 
     try:
-        show.save_show()
-    except psycopg.errors.UniqueViolation:
+        db.commit()
+        db.refresh(show)
+    except psycopg.errors.UniqueViolation as e:
+        log.debug(e)
         log.info("Show already exists " + show.__str__())
-        return show
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": "Show already exists"})
+
     return show
 
-@router.post("/{show_id}/{season}", status_code=201,dependencies=[Depends(auth.get_current_user)])
-def post_add_season_route(show_id: UUID, season: int):
-    show = get_show(show_id)
-    show.add_season(season)
-    show.save_show()
-    return get_show(show_id)
 
-@router.get("/show")
-def get_shows_route():
-    return get_all_shows()
+@router.delete("/{show_id}", status_code=status.HTTP_200_OK)
+def delete_show(db: SessionDependency, show_id: UUID):
+    db.delete(db.get(Show, show_id))
+    db.commit()
+
+
+@router.patch("/{show_id}/{season}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
+              response_model=Season)
+def add_season(db: SessionDependency, season_id: UUID):
+    """
+    adds requested flag to a season
+    """
+    season = db.get(Season, season_id)
+    season.requested = True
+
+    if season.requested == True and season.torrent_status is None:
+        torrents = indexer.search(season.show.name + " " + season.number.__str__())
+        log.info("Found torrents: " + pprint.pformat(json.dumps(torrents, default=str)))
+        torrents.sort()
+        log.info("Found torrents: " + pprint.pformat(json.dumps(torrents, default=str)))
+
+        torrent_filepath = torrents[0].download()
+        season.torrent_filepath = torrent_filepath
+
+        db.add(season)
+        db.commit()
+        db.refresh(season)
+        log.info("Selected Torrent: " + pprint.pformat(json.dumps(torrents[0], default=str)))
+        season = dowloadClients.client.download(torrent=season)
+
+
+    db.add(season)
+    db.commit()
+    db.refresh(season)
+
+    return season
+
+
+@router.delete("/{show_id}/{season}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
+               response_model=Show)
+def delete_season(db: SessionDependency, show_id: UUID, season: int):
+    """
+    removes requested flag from a season
+    """
+    season = db.get(Season, (show_id, season))
+    season.requested = False
+    db.add(season)
+    db.commit()
+    db.refresh(season)
+    return season
+
+
+@router.get("/", dependencies=[Depends(auth.get_current_user)], response_model=List[Show])
+def get_shows(db: SessionDependency):
+    return db.exec(select(Show)).unique().fetchall()
+
+
+@router.get("/{show_id}", dependencies=[Depends(auth.get_current_user)], response_model=ShowDetails)
+def get_show(db: SessionDependency, show_id: UUID):
+    shows = db.execute(select(Show, Season).where(Show.id == show_id).join(Season).order_by(Season.number)).fetchall()
+    seasons = []
+    for show in shows:
+        seasons.append(show[1])
+
+    shows = db.execute(select(Show, Season).where(Show.id == show_id).join(Season).order_by(Season.number))
+
+    return ShowDetails(show=shows.first()[0], seasons=seasons)
+
 
 @router.get("/search")
-def search_show_route(query: str):
+def search_show(query: str):
     search = tmdb.Search()
     return search.tv(query=query)
-

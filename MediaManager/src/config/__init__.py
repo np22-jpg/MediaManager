@@ -16,14 +16,20 @@ class DbConfig(BaseModel):
     def password(self):
         return self._password
 
+
 class TvConfig(BaseModel):
     api_key: str = os.getenv("TMDB_API_KEY")
-
 
 
 class IndexerConfig(BaseModel):
     default_indexer: Literal["tmdb"] = os.getenv("INDEXER") or "tmdb"
     _default_indexer_api_key: str = os.getenv("INDEXER_API_KEY")
+
+
+class ProwlarrConfig(BaseModel):
+    enabled: bool = bool(os.getenv("PROWLARR_ENABLED")) or True
+    api_key: str = os.getenv("PROWLARR_API_KEY")
+    url: str = os.getenv("PROWLARR_URL")
 
 
 class AuthConfig(BaseModel):
@@ -37,12 +43,28 @@ class AuthConfig(BaseModel):
     def jwt_signing_key(self):
         return self._jwt_signing_key
 
+
+class QbittorrentConfig(BaseModel):
+    host: str = os.getenv("QBITTORRENT_HOST") or "localhost"
+    port: int = os.getenv("QBITTORRENT_PORT") or 8080
+    username: str = os.getenv("QBITTORRENT_USERNAME") or "admin"
+    password: str = os.getenv("QBITTORRENT_PASSWORD") or "adminadmin"
+
+
+class DownloadClientConfig(BaseModel):
+    client: Literal['qbit'] = os.getenv("DOWNLOAD_CLIENT") or "qbit"
+
+
+class MachineLearningConfig(BaseModel):
+    model_name: str = os.getenv("OLLAMA_MODEL_NAME") or "qwen2.5:0.5b"
+
+
 def get_db_config() -> DbConfig:
     return DbConfig()
 
 
-
 log = logging.getLogger(__name__)
+
 
 def load_config():
     log.info(f"loaded config: DbConfig: {DbConfig().__str__()}")

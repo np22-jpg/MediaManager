@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    volumes:
+      - .\MediaManager\res\postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: MediaManager
+      POSTGRES_DB: MediaManager
+      POSTGRES_PASSWORD: MediaManager
+    ports:
+      - "5432:5432"
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - .\MediaManager\res\prowlarr:/config
+    ports:
+      - "9696:9696"
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - .\MediaManager\res\ollama:/root/.ollama
+    ports:
+      - "11434:11434"

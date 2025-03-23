@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from config import AuthConfig
 from database import SessionDependency
-from database.users import UserInternal
+from database.users import User
 
 
 
@@ -29,7 +29,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/token")
 router = APIRouter()
 
 
-async def get_current_user(db: SessionDependency, token: str = Depends(oauth2_scheme)) -> UserInternal:
+async def get_current_user(db: SessionDependency, token: str = Depends(oauth2_scheme)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -50,7 +50,7 @@ async def get_current_user(db: SessionDependency, token: str = Depends(oauth2_sc
         log.warning("received invalid token: " + token)
         raise credentials_exception
 
-    user: UserInternal | None = db.get(UserInternal, token_data.uid)
+    user: User | None = db.get(User, token_data.uid)
 
     if user is None:
         log.debug("user not found")

@@ -12,7 +12,7 @@ class UserBase(SQLModel):
 class UserPublic(UserBase):
     id: UUID = Field(primary_key=True, default_factory=uuid.uuid4)
 
-class UserInternal(UserPublic, table=True):
+class User(UserPublic, table=True):
     hashed_password: str
 
 class UserCreate(UserBase):

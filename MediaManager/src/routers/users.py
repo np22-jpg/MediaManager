@@ -7,14 +7,14 @@ from starlette.responses import JSONResponse
 from auth import get_current_user
 from auth.password import get_password_hash
 from database import SessionDependency, get_session
-from database.users import UserInternal, UserCreate, UserPublic
+from database.users import User, UserCreate, UserPublic
 from routers import log
 
 router = APIRouter(
     prefix="/users",
 )
 
-
+# TODO: remove from users.py
 class Message(BaseModel):
     message: str
 
@@ -28,8 +28,8 @@ async def create_user(
         db: SessionDependency,
         user: UserCreate = Depends(UserCreate),
 ):
-    internal_user = UserInternal(name=user.name, lastname=user.lastname, email=user.email,
-                                 hashed_password=get_password_hash(user.password))
+    internal_user = User(name=user.name, lastname=user.lastname, email=user.email,
+                         hashed_password=get_password_hash(user.password))
     db.add(internal_user)
     try:
         db.commit()
@@ -43,13 +43,13 @@ async def create_user(
 
 @router.get("/me")
 async def read_users_me(
-        current_user: UserInternal = Depends(get_current_user),
+        current_user: User = Depends(get_current_user),
 ):
     return JSONResponse(status_code=200, content=current_user.model_dump())
 
 
 @router.get("/me/items")
 async def read_own_items(
-        current_user: UserInternal = Depends(get_current_user),
+        current_user: User = Depends(get_current_user),
 ):
     return [{"item_id": "Foo", "owner": current_user.name}]
