@@ -14,6 +14,7 @@ import auth
 import dowloadClients
 import indexer
 from database import SessionDependency
+from database.torrents import Torrent
 from database.tv import Episode, Season, Show
 from indexer import IndexerQueryResult
 from routers.users import Message
@@ -170,10 +171,7 @@ def download_seasons_torrent(db: SessionDependency, show_id: UUID, torrent: Inde
 
     filepath = torrent.download()
 
-    status = dowloadClients.client.download(seasons[0])
-    for season in seasons:
-        season.requested = True
-        season.torrent_filepath = filepath
+    status = dowloadClients.client.download(Torrent())
 
     return seasons
 

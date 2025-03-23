@@ -1,41 +1,15 @@
 import re
-from enum import Enum
 
 from pydantic import BaseModel, computed_field
 
-
-class Quality(Enum):
-    high = 1
-    medium = 2
-    low = 3
-    very_low = 4
-    unknown = 5
+from database.torrents import QualityMixin, Torrent
 
 
-class IndexerQueryResult(BaseModel):
+class IndexerQueryResult(BaseModel, QualityMixin):
     title: str
     download_url: str
     seeders: int
     flags: list[str]
-
-    # TODO: make system to detect quality more sophisticated
-    @computed_field
-    def quality(self) -> Quality:
-        high_quality_pattern = r'\b(4k|4K)\b'
-        medium_quality_pattern = r'\b(1080p|1080P)\b'
-        low_quality_pattern = r'\b(720p|720P)\b'
-        very_low_quality_pattern = r'\b(480p|480P|360p|360P)\b'
-
-        if re.search(high_quality_pattern, self.title):
-            return Quality.high
-        elif re.search(medium_quality_pattern, self.title):
-            return Quality.medium
-        elif re.search(low_quality_pattern, self.title):
-            return Quality.low
-        elif re.search(very_low_quality_pattern, self.title):
-            return Quality.very_low
-        else:
-            return Quality.unknown
 
     def __gt__(self, other) -> bool:
         if self.quality.value != other.quality.value:
@@ -47,7 +21,7 @@ class IndexerQueryResult(BaseModel):
             return self.quality.value < other.quality.value
         return self.seeders > other.seeders
 
-    def download(self) -> str:
+    def download(self) -> Torrent:
         """
         downloads a torrent file and returns the filepath
         """
@@ -57,7 +31,9 @@ class IndexerQueryResult(BaseModel):
         with open(torrent_filepath, 'wb') as out_file:
             content = requests.get(url).content
             out_file.write(content)
-        return torrent_filepath
+
+        return Torrent(torrent_title=self.title)
+
 
     @computed_field
     @property

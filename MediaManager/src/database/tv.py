@@ -1,17 +1,10 @@
 import uuid
-from typing import Literal
 from uuid import UUID
 
-from sqlalchemy import Column, ForeignKeyConstraint, String, UniqueConstraint
+from sqlalchemy import ForeignKeyConstraint, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
-
-class TorrentMixin:
-    torrent_status: Literal["downloading", "finished", "error"] | None = Field(default=None,
-                                                                               sa_column=Column(String))
-    torrent_filepath: str | None = Field(default=None)
-    requested: bool = Field(default=False)
-    id: UUID
+from database.torrents import TorrentMixin
 
 
 class Show(SQLModel, table=True):
