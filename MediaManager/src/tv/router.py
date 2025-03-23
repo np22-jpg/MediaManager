@@ -11,6 +11,7 @@ from sqlmodel import select
 from tmdbsimple import TV, TV_Seasons
 
 import auth
+import dowloadClients
 import indexer
 from database import SessionDependency
 from database.tv import Episode, Season, Show
@@ -92,7 +93,7 @@ def delete_show(db: SessionDependency, show_id: UUID):
     db.commit()
 
 
-@router.patch("/{show_id}/{season}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
+@router.patch("/{show_id}/{season_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
               response_model=Season)
 def add_season(db: SessionDependency, season_id: UUID):
     """
@@ -123,7 +124,21 @@ def add_season(db: SessionDependency, season_id: UUID):
     return season
 
 
-@router.get("/{show_id}/{season}/torrents", status_code=status.HTTP_200_OK, dependencies=[Depends(
+@router.delete("/{show_id}/{season_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
+               response_model=Show)
+def delete_season(db: SessionDependency, show_id: UUID, season: int):
+    """
+    removes requested flag from a season
+    """
+    season = db.get(Season, (show_id, season))
+    season.requested = False
+    db.add(season)
+    db.commit()
+    db.refresh(season)
+    return season
+
+
+@router.get("/{show_id}/torrent", status_code=status.HTTP_200_OK, dependencies=[Depends(
     auth.get_current_user)],
             response_model=list[IndexerQueryResult])
 def get_season_torrents(db: SessionDependency, show_id: UUID, season_number: int):
@@ -141,18 +156,26 @@ def get_season_torrents(db: SessionDependency, show_id: UUID, season_number: int
     return result
 
 
-@router.delete("/{show_id}/{season}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
-               response_model=Show)
-def delete_season(db: SessionDependency, show_id: UUID, season: int):
-    """
-    removes requested flag from a season
-    """
-    season = db.get(Season, (show_id, season))
-    season.requested = False
-    db.add(season)
-    db.commit()
-    db.refresh(season)
-    return season
+@router.post("/{show_id}/torrent", status_code=status.HTTP_200_OK, dependencies=[Depends(
+    auth.get_current_user)], response_model=list[Season])
+def download_seasons_torrent(db: SessionDependency, show_id: UUID, torrent: IndexerQueryResult, ):
+    seasons: list[Season] = []
+    for season_number in torrent.season:
+        seasons.append(
+            db.exec(select(Season)
+                    .where(Season.show_id == show_id)
+                    .where(Season.number == season_number)
+                    ).first()
+        )
+
+    filepath = torrent.download()
+
+    status = dowloadClients.client.download(seasons[0])
+    for season in seasons:
+        season.requested = True
+        season.torrent_filepath = filepath
+
+    return seasons
 
 
 @router.get("/", dependencies=[Depends(auth.get_current_user)], response_model=List[Show])

@@ -48,6 +48,9 @@ class IndexerQueryResult(BaseModel):
         return self.seeders > other.seeders
 
     def download(self) -> str:
+        """
+        downloads a torrent file and returns the filepath
+        """
         import requests
         url = self.download_url
         torrent_filepath = self.title + ".torrent"
@@ -57,6 +60,7 @@ class IndexerQueryResult(BaseModel):
         return torrent_filepath
 
     @computed_field
+    @property
     def season(self) -> list[int]:
         pattern = r"\b[sS](\d+)\b"
         matches = re.findall(pattern, self.title, re.IGNORECASE)

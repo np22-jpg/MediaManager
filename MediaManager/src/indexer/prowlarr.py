@@ -30,7 +30,6 @@ class Prowlarr(GenericIndexer):
 
         params = {
             'query': query,
-            'apikey': self.api_key
         }
 
         response = requests.get(url, headers=headers, params=params)
