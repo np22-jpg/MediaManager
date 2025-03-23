@@ -25,13 +25,13 @@ class IndexerQueryResult(BaseModel):
             return 'low'
 
     def __gt__(self, other) -> bool:
-        if self.seeders > other.seeders:
+        if self.seeders < other.seeders:
             return True
         else:
             return False
 
     def __lt__(self, other) -> bool:
-        if self.seeders < other.seeders:
+        if self.seeders > other.seeders:
             return True
         else:
             return False
