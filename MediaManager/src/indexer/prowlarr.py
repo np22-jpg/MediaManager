@@ -51,3 +51,4 @@ class Prowlarr(GenericIndexer):
         else:
             print(f'Error: {response.status_code}')
             return []
+

@@ -11,10 +11,10 @@ from sqlmodel import select
 from tmdbsimple import TV, TV_Seasons
 
 import auth
-import dowloadClients
 import indexer
 from database import SessionDependency
 from database.tv import Episode, Season, Show
+from indexer import IndexerQueryResult
 from routers.users import Message
 from tv import log, tmdb
 
@@ -101,27 +101,44 @@ def add_season(db: SessionDependency, season_id: UUID):
     season = db.get(Season, season_id)
     season.requested = True
 
-    if season.requested == True and season.torrent_status is None:
-        torrents = indexer.search(season.show.name + " " + season.number.__str__())
-        log.info("Found torrents: " + pprint.pformat(json.dumps(torrents, default=str)))
-        torrents.sort()
-        log.info("Found torrents: " + pprint.pformat(json.dumps(torrents, default=str)))
-
-        torrent_filepath = torrents[0].download()
-        season.torrent_filepath = torrent_filepath
-
-        db.add(season)
-        db.commit()
-        db.refresh(season)
-        log.info("Selected Torrent: " + pprint.pformat(json.dumps(torrents[0], default=str)))
-        season = dowloadClients.client.download(torrent=season)
-
+    #  if season.requested == True and season.torrent_status is None:
+    #      torrents = indexer.search(season.show.name + " " + season.number.__str__())
+    #      log.info("Found torrents: " + pprint.pformat(json.dumps(torrents, default=str)))
+    #      torrents.sort()
+    #      log.info("Found torrents: " + pprint.pformat(json.dumps(torrents, default=str)))
+    #
+    #      torrent_filepath = torrents[0].download()
+    #      season.torrent_filepath = torrent_filepath
+    #
+    #      db.add(season)
+    #      db.commit()
+    #      db.refresh(season)
+    #      log.info("Selected Torrent: " + pprint.pformat(json.dumps(torrents[0], default=str)))
+    #      season = dowloadClients.client.download(torrent=season)
 
     db.add(season)
     db.commit()
     db.refresh(season)
 
     return season
+
+
+@router.get("/{show_id}/{season}/torrents", status_code=status.HTTP_200_OK, dependencies=[Depends(
+    auth.get_current_user)],
+            response_model=list[IndexerQueryResult])
+def get_season_torrents(db: SessionDependency, show_id: UUID, season_number: int):
+    season = db.exec(select(Season).where(Season.show_id == show_id).where(Season.number == season_number)).first()
+
+    torrents = indexer.search(season)
+    result = []
+    for torrent in torrents:
+        if season_number in torrent.season:
+            result.append(torrent)
+    result.sort()
+    log.info(f"Found {torrents.__len__()} torrents for show {season.show.name} season {season_number}, of which "
+             f"{result.__len__()} torrents fit the query")
+    log.debug(f"unfiltered torrents: \n{pprint.pformat(torrents)}\nfiltered torrents: \n{pprint.pformat(result)}")
+    return result
 
 
 @router.delete("/{show_id}/{season}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],

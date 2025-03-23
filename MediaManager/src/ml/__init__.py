@@ -13,6 +13,9 @@ class NFO(BaseModel):
     season: int
 
 
+class Contains(BaseModel):
+    contains: bool
+
 def get_season(nfo: str) -> int | None:
     responses: List[ChatResponse] = []
     parsed_responses: List[int] = []
@@ -44,6 +47,37 @@ def get_season(nfo: str) -> int | None:
     log.debug(f"extracted season number: {most_common} from nfo: {nfo}")
     return most_common[0][0]
 
+
+def contains_season(season_number: int, string_to_analyze: str) -> bool:
+    responses: List[ChatResponse] = []
+    parsed_responses: List[bool] = []
+
+    for i in range(0, 3):
+        responses.append(chat(
+            model=config.model_name,
+            format=Contains.model_json_schema(),
+            messages=[
+                {
+                    'role': 'user',
+                    'content':
+                        "Does this torrent contain the season " + season_number.__str__() + " ?" +
+                        " output a boolean json format" +
+                        string_to_analyze
+                },
+            ]))
+
+    for response in responses:
+        try:
+            answer: bool = json.loads(response.message.content)['contains']
+            log.debug(f"extracted contains: {answer}")
+        except Exception as e:
+            log.warning(f"failed to parse season number: {e}")
+            break
+        parsed_responses.append(answer)
+
+    most_common = Counter(parsed_responses).most_common(1)
+    log.debug(f"according to AI {string_to_analyze} contains season {season_number} {most_common[0][0]}")
+    return most_common[0][0]
 
 config = config.MachineLearningConfig()
 log = logging.getLogger(__name__)
