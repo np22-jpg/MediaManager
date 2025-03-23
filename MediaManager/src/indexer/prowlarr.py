@@ -1,18 +1,25 @@
+import logging
+
 import requests
 
+from config import ProwlarrConfig
 from indexer import GenericIndexer, IndexerQueryResult
+
+log = logging.getLogger(__name__)
 
 
 class Prowlarr(GenericIndexer):
-    def __init__(self, api_key: str, **kwargs):
+    def __init__(self, **kwargs):
         """
         A subclass of GenericIndexer for interacting with the Prowlarr API.
 
         :param api_key: The API key for authenticating requests to Prowlarr.
         :param kwargs: Additional keyword arguments to pass to the superclass constructor.
         """
-        super().__init__(name='prowlarr', **kwargs)
-        self.api_key = api_key
+        super().__init__(name='prowlarr')
+        config = ProwlarrConfig()
+        self.api_key = config.api_key
+        self.url = config.url
 
     def get_search_results(self, query: str) -> list[IndexerQueryResult]:
         url = self.url + '/api/v1/search'
@@ -27,17 +34,17 @@ class Prowlarr(GenericIndexer):
         }
 
         response = requests.get(url, headers=headers, params=params)
-
         if response.status_code == 200:
             result_list: list[IndexerQueryResult] = []
             for result in response.json():
                 if result['protocol'] == 'torrent':
+                    log.debug("torrent result: " + result.__str__())
                     result_list.append(
                         IndexerQueryResult(
                             download_url=result['downloadUrl'],
                             title=result['sortTitle'],
                             seeders=result['seeders'],
-                            flags=result['flags']
+                            flags=[]
                         )
                     )
             return result_list

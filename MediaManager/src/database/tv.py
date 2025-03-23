@@ -1,15 +1,17 @@
 import uuid
-from abc import ABC
 from typing import Literal
 from uuid import UUID
 
-from sqlalchemy import ForeignKeyConstraint, UniqueConstraint
+from sqlalchemy import Column, ForeignKeyConstraint, String, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 
-class Torrents(ABC):
-    torrent_status: Literal["downloading", "finished", "error"] | None = Field(default="downloading")
-    torrent_url: str | None = Field(default=None)
+class TorrentMixin:
+    torrent_status: Literal["downloading", "finished", "error"] | None = Field(default=None,
+                                                                               sa_column=Column(String))
+    torrent_filepath: str | None = Field(default=None)
+    requested: bool = Field(default=False)
+    id: UUID
 
 
 class Show(SQLModel, table=True):
@@ -25,11 +27,12 @@ class Show(SQLModel, table=True):
     seasons: list["Season"] = Relationship(back_populates="show", cascade_delete=True)
 
 
-class Season(SQLModel, Torrents, table=True):
-    show_id: UUID = Field(foreign_key="show.id", primary_key=True, default_factory=uuid.uuid4, ondelete="CASCADE")
-    number: int = Field(primary_key=True)
+class Season(SQLModel, TorrentMixin, table=True):
+    __table_args__ = (UniqueConstraint("show_id", "number"),)
+    id: UUID = Field(primary_key=True, default_factory=uuid.uuid4)
 
-    requested: bool = Field(default=False)
+    show_id: UUID = Field(foreign_key="show.id", ondelete="CASCADE")
+    number: int = Field()
 
     external_id: int
     name: str

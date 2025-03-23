@@ -1,4 +1,4 @@
-from database.tv import Season
+from database.tv import TorrentMixin
 
 
 class GenericDownloadClient(object):
@@ -10,7 +10,7 @@ class GenericDownloadClient(object):
         self.name = name
 
     # TODO: change Torrents type to SeasonTorrents|MovieTorrents
-    def download(self, torrent: Season) -> Season:
+    def download(self, torrent: TorrentMixin) -> TorrentMixin:
         """
         downloads a torrent
 
@@ -18,7 +18,7 @@ class GenericDownloadClient(object):
         """
         raise NotImplementedError()
 
-    def get_torrent_status(self, torrent: Season) -> Season:
+    def get_torrent_status(self, torrent: TorrentMixin) -> TorrentMixin:
         """
         updates a torrents 'status' field
 

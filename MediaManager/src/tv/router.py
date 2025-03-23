@@ -1,14 +1,18 @@
 import json
+import pprint
 from typing import List
 from uuid import UUID
 
 import psycopg.errors
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from sqlmodel import select
 from tmdbsimple import TV, TV_Seasons
 
 import auth
+import dowloadClients
+import indexer
 from database import SessionDependency
 from database.tv import Episode, Season, Show
 from routers.users import Message
@@ -17,6 +21,11 @@ from tv import log, tmdb
 router = APIRouter(
     prefix="/tv",
 )
+
+
+class ShowDetails(BaseModel):
+    show: Show
+    seasons: list[Season]
 
 
 @router.post("/show", status_code=status.HTTP_201_CREATED, dependencies=[Depends(auth.get_current_user)],
@@ -84,16 +93,34 @@ def delete_show(db: SessionDependency, show_id: UUID):
 
 
 @router.patch("/{show_id}/{season}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
-              response_model=Show)
-def add_season(db: SessionDependency, show_id: UUID, season: int):
+              response_model=Season)
+def add_season(db: SessionDependency, season_id: UUID):
     """
     adds requested flag to a season
     """
-    season = db.get(Season, (show_id, season))
+    season = db.get(Season, season_id)
     season.requested = True
+
+    if season.requested == True and season.torrent_status is None:
+        torrents = indexer.search(season.show.name + " " + season.number.__str__())
+        log.info("Found torrents: " + pprint.pformat(json.dumps(torrents, default=str)))
+        torrents.sort()
+        log.info("Found torrents: " + pprint.pformat(json.dumps(torrents, default=str)))
+
+        torrent_filepath = torrents[0].download()
+        season.torrent_filepath = torrent_filepath
+
+        db.add(season)
+        db.commit()
+        db.refresh(season)
+        log.info("Selected Torrent: " + pprint.pformat(json.dumps(torrents[0], default=str)))
+        season = dowloadClients.client.download(torrent=season)
+
+
     db.add(season)
     db.commit()
     db.refresh(season)
+
     return season
 
 
@@ -111,9 +138,21 @@ def delete_season(db: SessionDependency, show_id: UUID, season: int):
     return season
 
 
-@router.get("/show", dependencies=[Depends(auth.get_current_user)], response_model=List[Show])
+@router.get("/", dependencies=[Depends(auth.get_current_user)], response_model=List[Show])
 def get_shows(db: SessionDependency):
     return db.exec(select(Show)).unique().fetchall()
+
+
+@router.get("/{show_id}", dependencies=[Depends(auth.get_current_user)], response_model=ShowDetails)
+def get_show(db: SessionDependency, show_id: UUID):
+    shows = db.execute(select(Show, Season).where(Show.id == show_id).join(Season).order_by(Season.number)).fetchall()
+    seasons = []
+    for show in shows:
+        seasons.append(show[1])
+
+    shows = db.execute(select(Show, Season).where(Show.id == show_id).join(Season).order_by(Season.number))
+
+    return ShowDetails(show=shows.first()[0], seasons=seasons)
 
 
 @router.get("/search")
