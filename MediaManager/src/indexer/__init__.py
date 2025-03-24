@@ -13,6 +13,7 @@ def search(query: str | Season) -> list[IndexerQueryResult]:
 
     if isinstance(query, Season):
         query = query.show.name + " s" + query.number.__str__()
+        log.debug(f"Searching for Season {query}")
 
     for indexer in indexers:
         results.extend(indexer.get_search_results(query))

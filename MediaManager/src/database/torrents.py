@@ -16,12 +16,11 @@ class Quality(Enum):
     unknown = 5
 
 
-# TODO: make system to detect quality more sophisticated
 class QualityMixin:
     title: str
 
-    @property
     @computed_field
+    @property
     def quality(self) -> Quality:
         high_quality_pattern = r'\b(4k|4K)\b'
         medium_quality_pattern = r'\b(1080p|1080P)\b'
@@ -38,7 +37,6 @@ class QualityMixin:
             return Quality.very_low
         else:
             return Quality.unknown
-
 
 class TorrentMixin:
     torrent_id: UUID | None = Field(default=None, foreign_key="torrent.id")

@@ -102,22 +102,6 @@ def add_season(db: SessionDependency, season_id: UUID):
     """
     season = db.get(Season, season_id)
     season.requested = True
-
-    #  if season.requested == True and season.torrent_status is None:
-    #      torrents = indexer.search(season.show.name + " " + season.number.__str__())
-    #      log.info("Found torrents: " + pprint.pformat(json.dumps(torrents, default=str)))
-    #      torrents.sort()
-    #      log.info("Found torrents: " + pprint.pformat(json.dumps(torrents, default=str)))
-    #
-    #      torrent_filepath = torrents[0].download()
-    #      season.torrent_filepath = torrent_filepath
-    #
-    #      db.add(season)
-    #      db.commit()
-    #      db.refresh(season)
-    #      log.info("Selected Torrent: " + pprint.pformat(json.dumps(torrents[0], default=str)))
-    #      season = dowloadClients.client.download(torrent=season)
-
     db.add(season)
     db.commit()
     db.refresh(season)
@@ -139,19 +123,27 @@ def delete_season(db: SessionDependency, show_id: UUID, season: int):
     return season
 
 
-@router.get("/{show_id}/torrent", status_code=status.HTTP_200_OK, dependencies=[Depends(
+@router.get("/{show_id}/{season_id}/torrent", status_code=status.HTTP_200_OK, dependencies=[Depends(
     auth.get_current_user)],
             response_model=list[IndexerQueryResult])
-def get_season_torrents(db: SessionDependency, show_id: UUID, season_number: int):
-    season = db.exec(select(Season).where(Season.show_id == show_id).where(Season.number == season_number)).first()
+def get_season_torrents(db: SessionDependency, show_id: UUID, season_id: UUID):
+    season = db.get(Season, season_id)
 
-    torrents = indexer.search(season)
+    if season is None:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": "Season not found"})
+
+    torrents: list[IndexerQueryResult] = indexer.search(season)
     result = []
     for torrent in torrents:
-        if season_number in torrent.season:
+        if season.number in torrent.season:
             result.append(torrent)
+
+    db.commit()
+    if len(result) == 0:
+        return result
     result.sort()
-    log.info(f"Found {torrents.__len__()} torrents for show {season.show.name} season {season_number}, of which "
+
+    log.info(f"Found {torrents.__len__()} torrents for show {season.show.name} season {season.number}, of which "
              f"{result.__len__()} torrents fit the query")
     log.debug(f"unfiltered torrents: \n{pprint.pformat(torrents)}\nfiltered torrents: \n{pprint.pformat(result)}")
     return result
@@ -169,9 +161,13 @@ def download_seasons_torrent(db: SessionDependency, show_id: UUID, torrent: Inde
                     ).first()
         )
 
-    filepath = torrent.download()
+    torrent = torrent.download()
 
-    status = dowloadClients.client.download(Torrent())
+    dowloadClients.client.download(Torrent)
+
+    for season in seasons:
+        season.requested = True
+        season.torrent_id = torrent.id
 
     return seasons
 

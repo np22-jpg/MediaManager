@@ -40,14 +40,13 @@ class Prowlarr(GenericIndexer):
                     log.debug("torrent result: " + result.__str__())
                     result_list.append(
                         IndexerQueryResult(
-                            download_url=result['downloadUrl'],
+                            _download_url=result['downloadUrl'],
                             title=result['sortTitle'],
                             seeders=result['seeders'],
-                            flags=[]
+                            flags=result['indexerFlags'],
                         )
                     )
             return result_list
         else:
             print(f'Error: {response.status_code}')
             return []
-
