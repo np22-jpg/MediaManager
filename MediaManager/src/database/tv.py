@@ -8,7 +8,7 @@ from database.torrents import TorrentMixin
 
 
 class Show(SQLModel, table=True):
-    __table_args__ = (UniqueConstraint("external_id", "metadata_provider"),)
+    __table_args__ = (UniqueConstraint("external_id", "metadata_provider", "version"),)
     id: UUID = Field(primary_key=True, default_factory=uuid.uuid4)
     external_id: int
     metadata_provider: str
@@ -16,6 +16,7 @@ class Show(SQLModel, table=True):
     overview: str
     # For some shows the first_air_date isn't known, therefore it needs to be nullable
     year: int | None
+    version: str = Field(default="")
 
     seasons: list["Season"] = Relationship(back_populates="show", cascade_delete=True)
 
