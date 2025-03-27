@@ -1,6 +1,6 @@
 .idea
 venv
 MediaManager.iml
-MediaManager/res
-MediaManager/res/.env
+backend/res
+backend/res/.env
 docker-compose.yml

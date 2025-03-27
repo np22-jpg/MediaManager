@@ -26,7 +26,7 @@ def get_season(nfo: str) -> int | None:
             format=NFO.model_json_schema(),
             messages=[
                 {
-                    'role': 'user',
+                    'role': 'USER',
                     'content':
                         "Tell me which season the torrent with this description contains?" +
                         " output a season number in json format, the season number is an integer" +
@@ -58,7 +58,7 @@ def contains_season(season_number: int, string_to_analyze: str) -> bool:
             format=Contains.model_json_schema(),
             messages=[
                 {
-                    'role': 'user',
+                    'role': 'USER',
                     'content':
                         "Does this torrent contain the season " + season_number.__str__() + " ?" +
                         " output a boolean json format" +

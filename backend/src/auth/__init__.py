@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from fastapi import Depends, HTTPException, status, APIRouter
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pydantic import BaseModel
@@ -10,7 +10,6 @@ from pydantic import BaseModel
 from config import AuthConfig
 from database import SessionDependency
 from database.users import User
-
 
 
 class Token(BaseModel):
@@ -42,7 +41,7 @@ async def get_current_user(db: SessionDependency, token: str = Depends(oauth2_sc
         payload = jwt.decode(token, config.jwt_signing_key, algorithms=[config.jwt_signing_algorithm])
         log.debug("jwt payload: " + payload.__str__())
         user_uid: str = payload.get("sub")
-        log.debug("jwt payload sub (user uid): " + user_uid)
+        log.debug("jwt payload sub (USER uid): " + user_uid)
         if user_uid is None:
             raise credentials_exception
         token_data = TokenData(uid=user_uid)
@@ -53,10 +52,10 @@ async def get_current_user(db: SessionDependency, token: str = Depends(oauth2_sc
     user: User | None = db.get(User, token_data.uid)
 
     if user is None:
-        log.debug("user not found")
+        log.debug("USER not found")
         raise credentials_exception
 
-    log.debug("received user: " + user.__str__())
+    log.debug("received USER: " + user.__str__())
     return user
 
 
