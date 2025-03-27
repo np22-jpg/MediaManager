@@ -4,18 +4,6 @@ from typing import Literal
 from pydantic import BaseModel
 
 
-class DbConfig(BaseModel):
-    host: str = os.getenv("DB_HOST") or "localhost"
-    port: int = int(os.getenv("DB_PORT") or 5432)
-    user: str = os.getenv("DB_USERNAME") or "MediaManager"
-    _password: str = os.getenv("DB_PASSWORD") or "MediaManager"
-    dbname: str = os.getenv("DB_NAME") or "MediaManager"
-
-    @property
-    def password(self):
-        return self._password
-
-
 class TmdbConfig(BaseModel):
     api_key: str = os.getenv("TMDB_API_KEY") or None
 
