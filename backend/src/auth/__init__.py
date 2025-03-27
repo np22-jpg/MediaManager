@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pydantic import BaseModel
 
-from config import AuthConfig
+from auth.config import AuthConfig
 from database import SessionDependency
 from database.users import User
 
@@ -34,11 +34,11 @@ async def get_current_user(db: SessionDependency, token: str = Depends(oauth2_sc
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    config = AuthConfig()
+    auth_config = AuthConfig
     log.debug("token: " + token)
 
     try:
-        payload = jwt.decode(token, config.jwt_signing_key, algorithms=[config.jwt_signing_algorithm])
+        payload = jwt.decode(token, auth_config.jwt_signing_key, algorithms=[auth_config.jwt_signing_algorithm])
         log.debug("jwt payload: " + payload.__str__())
         user_uid: str = payload.get("sub")
         log.debug("jwt payload sub (USER uid): " + user_uid)
