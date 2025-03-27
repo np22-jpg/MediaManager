@@ -1,7 +1,7 @@
 import logging
 
-import config
 from database.tv import Season
+from indexer.config import ProwlarrConfig
 from indexer.generic import GenericIndexer, IndexerQueryResult
 from indexer.prowlarr import Prowlarr
 
@@ -23,5 +23,5 @@ def search(query: str | Season) -> list[IndexerQueryResult]:
 
 indexers: list[GenericIndexer] = []
 
-if config.ProwlarrConfig().enabled:
+if ProwlarrConfig.enabled:
     indexers.append(Prowlarr())
