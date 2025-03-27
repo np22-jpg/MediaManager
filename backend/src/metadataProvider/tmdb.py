@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings
 from tmdbsimple import TV, TV_Seasons
 
 from database.tv import Episode, Season, Show
-from metadataProvider.abstractMetaDataProvider import MetadataProvider, register_metadata_provider
+from metadataProvider.abstractMetaDataProvider import AbstractMetadataProvider, register_metadata_provider
 
 
 class TmdbConfig(BaseSettings):
@@ -18,7 +18,7 @@ config = TmdbConfig
 log = logging.getLogger(__name__)
 
 
-class TmdbMetadataProvider(MetadataProvider):
+class TmdbMetadataProvider(AbstractMetadataProvider):
     name = "tmdb"
 
     def get_show_metadata(self, id: int = None) -> Show:

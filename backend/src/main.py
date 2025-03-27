@@ -14,7 +14,7 @@ from fastapi import FastAPI
 import database.users
 import tv.router
 from auth import password
-from routers import users
+from users import routers
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -44,7 +44,7 @@ dictConfig(LOGGING_CONFIG)
 
 database.init_db()
 app = FastAPI(root_path="/api/v1")
-app.include_router(users.router, tags=["users"])
+app.include_router(routers.router, tags=["users"])
 app.include_router(password.router, tags=["authentication"])
 app.include_router(tv.router.router, tags=["tv"])
 

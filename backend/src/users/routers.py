@@ -7,7 +7,7 @@ from auth import get_current_user
 from auth.password import get_password_hash
 from database import SessionDependency
 from database.users import User, UserCreate, UserPublic
-from routers import log
+from users import log
 
 router = APIRouter(
     prefix="/users",

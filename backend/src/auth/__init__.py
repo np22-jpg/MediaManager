@@ -61,7 +61,7 @@ async def get_current_user(db: SessionDependency, token: str = Depends(oauth2_sc
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
-    config = AuthConfig()
+    config = AuthConfig
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:

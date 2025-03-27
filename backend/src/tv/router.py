@@ -16,8 +16,8 @@ from database import SessionDependency
 from database.torrents import Torrent
 from database.tv import Season, Show
 from indexer import IndexerQueryResult
-from routers.users import Message
 from tv import log
+from users.routers import Message
 
 router = APIRouter(
     prefix="/tv",
