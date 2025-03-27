@@ -3,7 +3,7 @@ import logging
 import qbittorrentapi
 
 from config import QbittorrentConfig
-from database.tv import TorrentMixin
+from database.torrents import Torrent
 from dowloadClients.genericDownloadClient import GenericDownloadClient
 
 log = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class QbittorrentClient(GenericDownloadClient):
         finally:
             self.api_client.auth_log_out()
 
-    def download(self, torrent: TorrentMixin) -> TorrentMixin:
+    def download(self, torrent: Torrent) -> Torrent:
         log.info(f"Attempting to download torrent: {torrent.torrent_filepath} with tag {torrent.id}")
 
         with open(torrent.torrent_filepath, "rb") as torrent_file:
@@ -40,7 +40,7 @@ class QbittorrentClient(GenericDownloadClient):
             log.error(f"Failed to download torrent. API response: {answer}")
             raise RuntimeError(f"Failed to download torrent, API-Answer isn't 'Ok.'; API Answer: {answer}")
 
-    def get_torrent_status(self, torrent: TorrentMixin) -> TorrentMixin:
+    def get_torrent_status(self, torrent: Torrent) -> Torrent:
         log.info(f"Fetching status for torrent: {torrent.id}")
         info = self.api_client.torrents_info(tag=f"{torrent.id}")
 

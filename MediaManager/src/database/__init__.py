@@ -1,8 +1,8 @@
 import logging
-from typing import Any, Generator, Annotated
+from typing import Annotated, Any, Generator
 
 from fastapi import Depends
-from sqlmodel import create_engine, SQLModel, Session
+from sqlmodel import SQLModel, Session, create_engine
 
 import config
 from config import DbConfig
@@ -13,7 +13,7 @@ config: DbConfig = config.get_db_config()
 db_url = "postgresql+psycopg" + "://" + config.user + ":" + config.password + "@" + config.host + ":" + str(
     config.port) + "/" + config.dbname
 
-engine = create_engine(db_url, echo=True)
+engine = create_engine(db_url, echo=False)
 
 
 def init_db() -> None:

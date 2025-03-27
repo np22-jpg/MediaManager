@@ -1,49 +1,56 @@
 import re
-from typing import Literal
+from uuid import UUID, uuid4
 
+import pydantic
 from pydantic import BaseModel, computed_field
 
+from database.torrents import QualityMixin, Torrent
 
-class IndexerQueryResult(BaseModel):
+
+class IndexerQueryResult(BaseModel, QualityMixin):
+    id: UUID = pydantic.Field(default_factory=uuid4)
     title: str
-    download_url: str
+    _download_url: str
     seeders: int
-    flags: list[str]
+    flags: set[str]
 
-    # TODO: make system to detect quality more sophisticated
     @computed_field
     @property
-    def quality(self) -> Literal['high', 'medium', 'low']:
-        high_quality_pattern = r'\b(4k|4K)\b'
-        medium_quality_pattern = r'\b(1080p|1080P)\b'
-
-        if re.search(high_quality_pattern, self.title):
-            return 'high'
-        elif re.search(medium_quality_pattern, self.title):
-            return 'medium'
+    def season(self) -> set[int]:
+        pattern = r"\b[sS](\d+)\b"
+        matches = re.findall(pattern, self.title, re.IGNORECASE)
+        if matches.__len__() == 2:
+            result = set()
+            for i in range(int(matches[0]), int(matches[1]) + 1):
+                result.add(i)
+        elif matches.__len__() == 1:
+            result = {int(matches[0])}
         else:
-            return 'low'
+            result = {}
+        return result
 
     def __gt__(self, other) -> bool:
-        if self.seeders > other.seeders:
-            return True
-        else:
-            return False
+        if self.quality.value != other.quality.value:
+            return self.quality.value > other.quality.value
+        return self.seeders < other.seeders
 
     def __lt__(self, other) -> bool:
-        if self.seeders < other.seeders:
-            return True
-        else:
-            return False
+        if self.quality.value != other.quality.value:
+            return self.quality.value < other.quality.value
+        return self.seeders > other.seeders
 
-    def download(self) -> str:
+    def download(self) -> Torrent:
+        """
+        downloads a torrent file and returns the filepath
+        """
         import requests
         url = self.download_url
         torrent_filepath = self.title + ".torrent"
         with open(torrent_filepath, 'wb') as out_file:
             content = requests.get(url).content
             out_file.write(content)
-        return torrent_filepath
+
+        return Torrent(torrent_title=self.title)
 
 
 class GenericIndexer(object):

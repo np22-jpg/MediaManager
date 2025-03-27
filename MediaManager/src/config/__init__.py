@@ -1,4 +1,3 @@
-import logging
 import os
 from typing import Literal
 
@@ -7,7 +6,7 @@ from pydantic import BaseModel
 
 class DbConfig(BaseModel):
     host: str = os.getenv("DB_HOST") or "localhost"
-    port: int = int(os.getenv("DB_PORT")) or 5432
+    port: int = int(os.getenv("DB_PORT") or 5432)
     user: str = os.getenv("DB_USERNAME") or "MediaManager"
     _password: str = os.getenv("DB_PASSWORD") or "MediaManager"
     dbname: str = os.getenv("DB_NAME") or "MediaManager"
@@ -17,17 +16,15 @@ class DbConfig(BaseModel):
         return self._password
 
 
-class TvConfig(BaseModel):
-    api_key: str = os.getenv("TMDB_API_KEY")
+class TmdbConfig(BaseModel):
+    api_key: str = os.getenv("TMDB_API_KEY") or None
 
 
-class IndexerConfig(BaseModel):
-    default_indexer: Literal["tmdb"] = os.getenv("INDEXER") or "tmdb"
-    _default_indexer_api_key: str = os.getenv("INDEXER_API_KEY")
-
+class BasicConfig(BaseModel):
+    storage_directory: str = os.getenv("STORAGE_FILE_PATH") or "."
 
 class ProwlarrConfig(BaseModel):
-    enabled: bool = bool(os.getenv("PROWLARR_ENABLED")) or True
+    enabled: bool = bool(os.getenv("PROWLARR_ENABLED") or True)
     api_key: str = os.getenv("PROWLARR_API_KEY")
     url: str = os.getenv("PROWLARR_URL")
 
@@ -37,7 +34,7 @@ class AuthConfig(BaseModel):
     # openssl rand -hex 32
     _jwt_signing_key: str = os.getenv("JWT_SIGNING_KEY")
     jwt_signing_algorithm: str = "HS256"
-    jwt_access_token_lifetime: int = int(os.getenv("JWT_ACCESS_TOKEN_LIFETIME")) or 60 * 24 * 30
+    jwt_access_token_lifetime: int = int(os.getenv("JWT_ACCESS_TOKEN_LIFETIME") or 60 * 24 * 30)
 
     @property
     def jwt_signing_key(self):
@@ -61,23 +58,3 @@ class MachineLearningConfig(BaseModel):
 
 def get_db_config() -> DbConfig:
     return DbConfig()
-
-
-log = logging.getLogger(__name__)
-
-
-def load_config():
-    log.info(f"loaded config: DbConfig: {DbConfig().__str__()}")
-    log.info(f"loaded config: IndexerConfig: {IndexerConfig().__str__()}")
-    log.info(f"loaded config: AuthConfig: {AuthConfig().__str__()}")
-    log.info(f"loaded config: TvConfig: {TvConfig().__str__()}")
-
-
-if __name__ == "__main__":
-    db: DbConfig = DbConfig()
-    indexer: IndexerConfig = IndexerConfig()
-    auth: AuthConfig = AuthConfig()
-
-    print(db.__str__())
-    print(indexer.__str__())
-    print(auth.__str__())
