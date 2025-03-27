@@ -4,10 +4,6 @@ from typing import Literal
 from pydantic import BaseModel
 
 
-class TmdbConfig(BaseModel):
-    api_key: str = os.getenv("TMDB_API_KEY") or None
-
-
 class BasicConfig(BaseModel):
     storage_directory: str = os.getenv("STORAGE_FILE_PATH") or "."
 
