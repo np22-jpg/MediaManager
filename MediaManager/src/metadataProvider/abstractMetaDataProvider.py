@@ -18,6 +18,10 @@ class MetadataProvider(ABC):
     def get_show_metadata(self, id: int = None) -> Show:
         pass
 
+    @abstractmethod
+    def search_show(self, query):
+        pass
+
 
 metadata_providers = {}
 

@@ -79,10 +79,13 @@ class TmdbMetadataProvider(MetadataProvider):
 
         return show
 
+    def search_show(self, query: str):
+        return tmdbsimple.Search().tv(query=query)
+
     def __init__(self, api_key: str = None):
         tmdbsimple.API_KEY = api_key
 
 
 if config.api_key is not None:
-    log.info("Registerng TMDB as metadata provider")
+    log.info("Registering TMDB as metadata provider")
     register_metadata_provider(metadata_provider=TmdbMetadataProvider(config.api_key))

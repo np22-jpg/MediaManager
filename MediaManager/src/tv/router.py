@@ -153,7 +153,7 @@ def download_seasons_torrent(db: SessionDependency, show_id: UUID, torrent_id: U
 
 @router.post("/{show_id}/{season_id}/torrent", status_code=status.HTTP_200_OK, dependencies=[Depends(
     auth.get_current_user)], response_model=list[Season])
-def download_seasons_torrent(db: SessionDependency, show_id: UUID, season_id: UUID, torrent_id: UUID):
+def delete_seasons_torrent(db: SessionDependency, show_id: UUID, season_id: UUID, torrent_id: UUID):
     """
     downloads torrents for a season, links the torrent only to the specified season
     this means that multiple torrents can contain a season but you can choose from one which the content should be
@@ -211,12 +211,5 @@ def get_show(db: SessionDependency, show_id: UUID):
 
 
 @router.get("/search")
-def search_show(query: str):
-    """
-   Searches for shows by title in the metadata provider.
-   :param query: The search query string.
-   :param db: The database connection object.
-   :return: A list of show objects that match the query.
-    """
-    search = tmdb.Search()
-    return search.tv(query=query)
+def search_show(query: str, metadata_provider: str = "tmdb"):
+    return metadataProvider.search_show(query, metadata_provider)
