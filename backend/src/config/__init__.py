@@ -1,5 +1,4 @@
 import os
-from typing import Literal
 
 from pydantic import BaseModel
 
@@ -16,15 +15,7 @@ class ProwlarrConfig(BaseModel):
 
 
 
-class QbittorrentConfig(BaseModel):
-    host: str = os.getenv("QBITTORRENT_HOST") or "localhost"
-    port: int = os.getenv("QBITTORRENT_PORT") or 8080
-    username: str = os.getenv("QBITTORRENT_USERNAME") or "admin"
-    password: str = os.getenv("QBITTORRENT_PASSWORD") or "adminadmin"
 
-
-class DownloadClientConfig(BaseModel):
-    client: Literal['qbit'] = os.getenv("DOWNLOAD_CLIENT") or "qbit"
 
 
 class MachineLearningConfig(BaseModel):

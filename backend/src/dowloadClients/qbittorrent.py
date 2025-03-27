@@ -1,12 +1,20 @@
 import logging
 
 import qbittorrentapi
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from config import QbittorrentConfig
 from database.torrents import Torrent
 from dowloadClients.genericDownloadClient import GenericDownloadClient
 
 log = logging.getLogger(__name__)
+
+
+class QbittorrentConfig(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix='QBITTORRENT_')
+    host: str = "localhost"
+    port: int = 8080
+    username: str = "admin"
+
 
 class QbittorrentClient(GenericDownloadClient):
     DOWNLOADING_STATE = ("allocating", "downloading", "metaDL", "pausedDL", "queuedDL", "stalledDL", "checkingDL",
