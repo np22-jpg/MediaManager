@@ -4,14 +4,13 @@ from typing import Annotated, Any, Generator
 from fastapi import Depends
 from sqlmodel import SQLModel, Session, create_engine
 
-import config
-from config import DbConfig
+from database.config import DbConfig
 
 log = logging.getLogger(__name__)
-config: DbConfig = config.get_db_config()
+config = DbConfig()
 
-db_url = "postgresql+psycopg" + "://" + config.user + ":" + config.password + "@" + config.host + ":" + str(
-    config.port) + "/" + config.dbname
+db_url = "postgresql+psycopg" + "://" + config.USER + ":" + config.PASSWORD + "@" + config.HOST + ":" + str(
+    config.PORT) + "/" + config.DBNAME
 
 engine = create_engine(db_url, echo=False)
 
@@ -24,5 +23,5 @@ def get_session() -> Generator[Session, Any, None]:
     with Session(engine) as session:
         yield session
 
-SessionDependency = Annotated[Session, Depends(get_session)]
 
+DbSessionDependency = Annotated[Session, Depends(get_session)]

@@ -9,7 +9,6 @@ class GenericDownloadClient(object):
             raise ValueError('name cannot be None')
         self.name = name
 
-    # TODO: change Torrents type to SeasonTorrents|MovieTorrents
     def download(self, torrent: TorrentMixin) -> TorrentMixin:
         """
         downloads a torrent

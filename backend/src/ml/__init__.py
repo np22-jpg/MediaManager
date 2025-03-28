@@ -6,7 +6,7 @@ from typing import List
 from ollama import ChatResponse, chat
 from pydantic import BaseModel
 
-import config
+from ml.config import MachineLearningConfig
 
 
 class NFO(BaseModel):
@@ -22,11 +22,11 @@ def get_season(nfo: str) -> int | None:
 
     for i in range(0, 5):
         responses.append(chat(
-            model=config.model_name,
+            model=config.ollama_model_name,
             format=NFO.model_json_schema(),
             messages=[
                 {
-                    'role': 'user',
+                    'role': 'USER',
                     'content':
                         "Tell me which season the torrent with this description contains?" +
                         " output a season number in json format, the season number is an integer" +
@@ -54,11 +54,11 @@ def contains_season(season_number: int, string_to_analyze: str) -> bool:
 
     for i in range(0, 3):
         responses.append(chat(
-            model=config.model_name,
+            model=config.ollama_model_name,
             format=Contains.model_json_schema(),
             messages=[
                 {
-                    'role': 'user',
+                    'role': 'USER',
                     'content':
                         "Does this torrent contain the season " + season_number.__str__() + " ?" +
                         " output a boolean json format" +
@@ -79,5 +79,6 @@ def contains_season(season_number: int, string_to_analyze: str) -> bool:
     log.debug(f"according to AI {string_to_analyze} contains season {season_number} {most_common[0][0]}")
     return most_common[0][0]
 
-config = config.MachineLearningConfig()
+
+config = MachineLearningConfig
 log = logging.getLogger(__name__)

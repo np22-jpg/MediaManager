@@ -7,7 +7,7 @@ from database.tv import Show
 log = logging.getLogger(__name__)
 
 
-class MetadataProvider(ABC):
+class AbstractMetadataProvider(ABC):
     storage_path = config.BasicConfig().storage_directory
     @property
     @abstractmethod
@@ -26,6 +26,6 @@ class MetadataProvider(ABC):
 metadata_providers = {}
 
 
-def register_metadata_provider(metadata_provider: MetadataProvider):
+def register_metadata_provider(metadata_provider: AbstractMetadataProvider):
     log.info("Registering metadata provider:" + metadata_provider.name)
     metadata_providers[metadata_provider.name] = metadata_provider

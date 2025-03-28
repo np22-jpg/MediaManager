@@ -1,8 +1,7 @@
 import json
 from datetime import datetime, timedelta
 
-from ollama import ChatResponse
-from ollama import chat
+from ollama import ChatResponse, chat
 from pydantic import BaseModel
 
 
@@ -19,7 +18,7 @@ while start_time > datetime.now():
                                   format=NFO.model_json_schema()
                                   , messages=[
             {
-                'role': 'user',
+                'role': 'USER',
                 'content':
                     "which season does a torrent with the following NFO contain? output the season number, which is an integer in json please\n" +
                     "The.Big.Bang.Theory.(2007).Season.9.S09.(1080p.BluRay.x265.HEVC.10bit.AAC.5.1.Vyndros)"

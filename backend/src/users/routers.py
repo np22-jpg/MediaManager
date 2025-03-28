@@ -1,14 +1,13 @@
-from fastapi import APIRouter
-from fastapi import Depends
-from sqlalchemy.exc import IntegrityError
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 from starlette.responses import JSONResponse
 
 from auth import get_current_user
 from auth.password import get_password_hash
-from database import SessionDependency, get_session
+from database import DbSessionDependency
 from database.users import User, UserCreate, UserPublic
-from routers import log
+from users import log
 
 router = APIRouter(
     prefix="/users",
@@ -25,7 +24,7 @@ class Message(BaseModel):
     201: {"model": UserPublic, "description": "User  created successfully"}
 })
 async def create_user(
-        db: SessionDependency,
+        db: DbSessionDependency,
         user: UserCreate = Depends(UserCreate),
 ):
     internal_user = User(name=user.name, lastname=user.lastname, email=user.email,
@@ -35,9 +34,9 @@ async def create_user(
         db.commit()
     except IntegrityError as e:
         log.debug(e)
-        log.warning("Failed to create new user, User with this email already exists "+internal_user.model_dump().__str__())
+        log.warning("Failed to create new USER, User with this email already exists " + internal_user.model_dump().__str__())
         return JSONResponse(status_code=409, content={"message": "User with this email already exists"})
-    log.info("Created new user "+internal_user.email)
+    log.info("Created new USER " + internal_user.email)
     return UserPublic(**internal_user.model_dump())
 
 

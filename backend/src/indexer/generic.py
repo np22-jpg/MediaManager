@@ -7,6 +7,7 @@ from pydantic import BaseModel, computed_field
 from database.torrents import QualityMixin, Torrent
 
 
+# TODO: use something like strategy pattern to make sorting more user customizable
 class IndexerQueryResult(BaseModel, QualityMixin):
     id: UUID = pydantic.Field(default_factory=uuid4)
     title: str

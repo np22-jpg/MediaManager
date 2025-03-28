@@ -3,18 +3,24 @@ import mimetypes
 
 import requests
 import tmdbsimple
+from pydantic_settings import BaseSettings
 from tmdbsimple import TV, TV_Seasons
 
-import config
 from database.tv import Episode, Season, Show
-from metadataProvider.abstractMetaDataProvider import MetadataProvider, register_metadata_provider
+from metadataProvider.abstractMetaDataProvider import AbstractMetadataProvider, register_metadata_provider
 
-config = config.TmdbConfig()
+
+class TmdbConfig(BaseSettings):
+    TMDB_API_KEY: str | None = None
+
+
+config = TmdbConfig
 log = logging.getLogger(__name__)
 
 
-class TmdbMetadataProvider(MetadataProvider):
+class TmdbMetadataProvider(AbstractMetadataProvider):
     name = "tmdb"
+
     def get_show_metadata(self, id: int = None) -> Show:
         """
 
@@ -86,6 +92,6 @@ class TmdbMetadataProvider(MetadataProvider):
         tmdbsimple.API_KEY = api_key
 
 
-if config.api_key is not None:
+if config.TMDB_API_KEY is not None:
     log.info("Registering TMDB as metadata provider")
-    register_metadata_provider(metadata_provider=TmdbMetadataProvider(config.api_key))
+    register_metadata_provider(metadata_provider=TmdbMetadataProvider(config.TMDB_API_KEY))
