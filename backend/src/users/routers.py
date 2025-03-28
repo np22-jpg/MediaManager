@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 
 from auth import get_current_user
 from auth.password import get_password_hash
-from database import SessionDependency
+from database import DbSessionDependency
 from database.users import User, UserCreate, UserPublic
 from users import log
 
@@ -24,7 +24,7 @@ class Message(BaseModel):
     201: {"model": UserPublic, "description": "User  created successfully"}
 })
 async def create_user(
-        db: SessionDependency,
+        db: DbSessionDependency,
         user: UserCreate = Depends(UserCreate),
 ):
     internal_user = User(name=user.name, lastname=user.lastname, email=user.email,

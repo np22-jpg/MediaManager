@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import select
 
 from auth import Token, create_access_token, router
-from database import SessionDependency
+from database import DbSessionDependency
 from database.users import User
 
 
@@ -21,7 +21,7 @@ def get_password_hash(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
-def authenticate_user(db: SessionDependency, email: str, password: str) -> bool | User:
+def authenticate_user(db: DbSessionDependency, email: str, password: str) -> bool | User:
     """
 
     :param email: email of the USER
@@ -39,7 +39,7 @@ def authenticate_user(db: SessionDependency, email: str, password: str) -> bool 
 @router.post("/token")
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        db: SessionDependency,
+        db: DbSessionDependency,
 ) -> Token:
     user = authenticate_user(db,form_data.username, form_data.password)
     if not user:

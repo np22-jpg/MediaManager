@@ -23,5 +23,5 @@ def get_session() -> Generator[Session, Any, None]:
     with Session(engine) as session:
         yield session
 
-SessionDependency = Annotated[Session, Depends(get_session)]
 
+DbSessionDependency = Annotated[Session, Depends(get_session)]

@@ -8,9 +8,11 @@ from jwt.exceptions import InvalidTokenError
 from pydantic import BaseModel
 
 from auth.config import AuthConfig
-from database import SessionDependency
+from database import DbSessionDependency
 from database.users import User
 
+
+# TODO: evaluate FASTAPI-Users package
 
 class Token(BaseModel):
     access_token: str
@@ -28,7 +30,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/token")
 router = APIRouter()
 
 
-async def get_current_user(db: SessionDependency, token: str = Depends(oauth2_scheme)) -> User:
+async def get_current_user(db: DbSessionDependency, token: str = Depends(oauth2_scheme)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
