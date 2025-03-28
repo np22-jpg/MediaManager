@@ -8,16 +8,15 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlmodel import select
 
-import auth
 import dowloadClients
 import indexer
 import metadataProvider
+from auth.users import current_active_user
 from database import DbSessionDependency
 from database.torrents import Torrent
 from database.tv import Season, Show
 from indexer import IndexerQueryResult
 from tv import log
-from users.routers import Message
 
 router = APIRouter(
     prefix="/tv",
@@ -29,10 +28,10 @@ class ShowDetails(BaseModel):
     seasons: list[Season]
 
 
-@router.post("/show", status_code=status.HTTP_201_CREATED, dependencies=[Depends(auth.get_current_user)],
+@router.post("/show", status_code=status.HTTP_201_CREATED, dependencies=[Depends(current_active_user)],
              responses={
                  status.HTTP_201_CREATED: {"model": Show, "description": "Successfully created show"},
-                 status.HTTP_409_CONFLICT: {"model": Message, "description": "Show already exists"},
+                 status.HTTP_409_CONFLICT: {"model": str, "description": "Show already exists"},
              })
 def add_show(db: DbSessionDependency, show_id: int, metadata_provider: str = "tmdb", version: str = ""):
     res = db.exec(select(Show).
@@ -58,13 +57,13 @@ def add_show(db: DbSessionDependency, show_id: int, metadata_provider: str = "tm
     return show
 
 
-@router.delete("/{show_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{show_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
 def delete_show(db: DbSessionDependency, show_id: UUID):
     db.delete(db.get(Show, show_id))
     db.commit()
 
 
-@router.patch("/{show_id}/{season_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
+@router.patch("/{show_id}/{season_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)],
               response_model=Season)
 def add_season(db: DbSessionDependency, season_id: UUID):
     """
@@ -79,7 +78,7 @@ def add_season(db: DbSessionDependency, season_id: UUID):
     return season
 
 
-@router.delete("/{show_id}/{season_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(auth.get_current_user)],
+@router.delete("/{show_id}/{season_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)],
                response_model=Show)
 def delete_season(db: DbSessionDependency, show_id: UUID, season: int):
     """
@@ -94,7 +93,7 @@ def delete_season(db: DbSessionDependency, show_id: UUID, season: int):
 
 
 @router.get("/{show_id}/{season_id}/torrent", status_code=status.HTTP_200_OK, dependencies=[Depends(
-    auth.get_current_user)],
+    current_active_user)],
             response_model=list[IndexerQueryResult])
 def get_season_torrents(db: DbSessionDependency, show_id: UUID, season_id: UUID):
     season = db.get(Season, season_id)
@@ -120,7 +119,7 @@ def get_season_torrents(db: DbSessionDependency, show_id: UUID, season_id: UUID)
 
 
 @router.post("/{show_id}/torrent", status_code=status.HTTP_200_OK, dependencies=[Depends(
-    auth.get_current_user)], response_model=list[Season])
+    current_active_user)], response_model=list[Season])
 def download_seasons_torrent(db: DbSessionDependency, show_id: UUID, torrent_id: UUID):
     """
     downloads torrents for a show season, links the torrent for all seasons the torrent contains
@@ -152,7 +151,7 @@ def download_seasons_torrent(db: DbSessionDependency, show_id: UUID, torrent_id:
 
 
 @router.post("/{show_id}/{season_id}/torrent", status_code=status.HTTP_200_OK, dependencies=[Depends(
-    auth.get_current_user)], response_model=list[Season])
+    current_active_user)], response_model=list[Season])
 def delete_seasons_torrent(db: DbSessionDependency, show_id: UUID, season_id: UUID, torrent_id: UUID):
     """
     downloads torrents for a season, links the torrent only to the specified season
@@ -185,13 +184,13 @@ def delete_seasons_torrent(db: DbSessionDependency, show_id: UUID, season_id: UU
     return seasons
 
 
-@router.get("/", dependencies=[Depends(auth.get_current_user)], response_model=list[Show])
+@router.get("/", dependencies=[Depends(current_active_user)], response_model=list[Show])
 def get_shows(db: DbSessionDependency):
     """"""
     return db.exec(select(Show)).unique().fetchall()
 
 
-@router.get("/{show_id}", dependencies=[Depends(auth.get_current_user)], response_model=ShowDetails)
+@router.get("/{show_id}", dependencies=[Depends(current_active_user)], response_model=ShowDetails)
 def get_show(db: DbSessionDependency, show_id: UUID):
     """
 
@@ -210,6 +209,6 @@ def get_show(db: DbSessionDependency, show_id: UUID):
     return ShowDetails(show=shows.first()[0], seasons=seasons)
 
 
-@router.get("/search")
+@router.get("/search", dependencies=[Depends(current_active_user)])
 def search_show(query: str, metadata_provider: str = "tmdb"):
     return metadataProvider.search_show(query, metadata_provider)

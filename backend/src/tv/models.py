@@ -29,11 +29,12 @@ class Season(Base):
     __table_args__ = (UniqueConstraint("show_id", "number"),)
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    show_id: Mapped[UUID] = mapped_column(ForeignKey("show.id", ondelete="CASCADE"), nullable=False)
+    show_id: Mapped[UUID] = mapped_column(ForeignKey(column="show.id", ondelete="CASCADE"), nullable=False)
     number: Mapped[int] = mapped_column(Integer, nullable=False)
     external_id: Mapped[int] = mapped_column(Integer, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     overview: Mapped[str] = mapped_column(String, nullable=False)
+    torrent_id: Mapped[UUID] = mapped_column(ForeignKey(column="torrent.id"), nullable=False)
 
     show: Mapped[Show] = relationship(back_populates="seasons")
     episodes: Mapped[list["Episode"]] = relationship(back_populates="season", cascade="all, delete")
@@ -42,7 +43,9 @@ class Season(Base):
 class Episode(Base):
     __tablename__ = "episode"
     __table_args__ = (
-        ForeignKeyConstraint(["show_id", "season_number"], ["season.show_id", "season.number"], ondelete="CASCADE"),
+        ForeignKeyConstraint(columns=["show_id", "season_number"],
+                             refcolumns=["season.show_id", "season.number"],
+                             ondelete="CASCADE"),
     )
 
     show_id: Mapped[UUID] = mapped_column(ForeignKey("show.id"), primary_key=True)

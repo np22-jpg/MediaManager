@@ -14,6 +14,7 @@ class QbittorrentConfig(BaseSettings):
     host: str = "localhost"
     port: int = 8080
     username: str = "admin"
+    password: str = "admin"
 
 
 class QbittorrentClient(GenericDownloadClient):

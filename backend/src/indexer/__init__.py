@@ -23,5 +23,5 @@ def search(query: str | Season) -> list[IndexerQueryResult]:
 
 indexers: list[GenericIndexer] = []
 
-if ProwlarrConfig.enabled:
+if ProwlarrConfig().enabled:
     indexers.append(Prowlarr())

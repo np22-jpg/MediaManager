@@ -14,7 +14,7 @@ class TmdbConfig(BaseSettings):
     TMDB_API_KEY: str | None = None
 
 
-config = TmdbConfig
+config = TmdbConfig()
 log = logging.getLogger(__name__)
 
 

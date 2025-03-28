@@ -17,7 +17,7 @@ class Prowlarr(GenericIndexer):
         :param kwargs: Additional keyword arguments to pass to the superclass constructor.
         """
         super().__init__(name='prowlarr')
-        config = ProwlarrConfig
+        config = ProwlarrConfig()
         self.api_key = config.api_key
         self.url = config.url
 
