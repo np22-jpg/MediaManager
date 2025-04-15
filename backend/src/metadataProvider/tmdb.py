@@ -6,8 +6,8 @@ import tmdbsimple
 from pydantic_settings import BaseSettings
 from tmdbsimple import TV, TV_Seasons
 
-from database.tv import Episode, Season, Show
 from metadataProvider.abstractMetaDataProvider import AbstractMetadataProvider, register_metadata_provider
+from tv.schemas import Episode, Season, Show
 
 
 class TmdbConfig(BaseSettings):
@@ -51,7 +51,8 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
                     name=season_metadata["name"],
                     overview=season_metadata["overview"],
                     number=int(season_metadata["season_number"]),
-                    episodes=episode_list
+                    episodes=episode_list,
+
                 )
             )
 
@@ -76,7 +77,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         content_type = res.headers["content-type"]
         file_extension = mimetypes.guess_extension(content_type)
         if res.status_code == 200:
-            with open(f"{self.storage_path}/images/{show.id}{file_extension}", 'wb') as f:
+            with open(f"{self.storage_path}/{show.id}{file_extension}", 'wb') as f:
                 f.write(res.content)
             log.info(f"image for show {show.name} successfully downloaded")
 

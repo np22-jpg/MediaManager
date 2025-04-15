@@ -1,10 +1,8 @@
 import logging
 import sys
-from contextlib import asynccontextmanager
 from logging.config import dictConfig
 
 import database
-from auth.db import create_db_and_tables
 from auth.schemas import UserCreate, UserRead, UserUpdate
 from auth.users import bearer_auth_backend, fastapi_users
 
@@ -45,16 +43,9 @@ LOGGING_CONFIG = {
 # Apply logging config
 dictConfig(LOGGING_CONFIG)
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Not needed if you setup a migration system like Alembic
-    await create_db_and_tables()
-    yield
-
-
 database.init_db()
-app = FastAPI(root_path="/api/v1", lifespan=lifespan)
+
+app = FastAPI(root_path="/api/v1")
 app.include_router(
     fastapi_users.get_auth_router(bearer_auth_backend),
     prefix="/auth/jwt",
@@ -88,7 +79,9 @@ app.include_router(
 
 app.include_router(
     tv.router.router,
-    tags=["tv"])
+    prefix="/tv",
+    tags=["tv"]
+)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)

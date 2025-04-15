@@ -1,8 +1,8 @@
 import logging
 
 import metadataProvider.tmdb
-from database.tv import Show
 from metadataProvider.abstractMetaDataProvider import metadata_providers
+from tv.schemas import Show
 
 log = logging.getLogger(__name__)
 

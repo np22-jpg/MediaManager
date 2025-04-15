@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 
 import config
-from database.tv import Show
+from tv.schemas import Show
 
 log = logging.getLogger(__name__)
 

@@ -1,19 +1,12 @@
 import re
-from enum import Enum
 from typing import Literal
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from pydantic import computed_field
-from sqlalchemy import Column, String
-from sqlmodel import Field, SQLModel
+from sqlalchemy.orm import Mapped, mapped_column
 
-
-class Quality(Enum):
-    high = 1
-    medium = 2
-    low = 3
-    very_low = 4
-    unknown = 5
+from database import Base
+from torrent.schemas import Quality
 
 
 class QualityMixin:
@@ -38,17 +31,11 @@ class QualityMixin:
         else:
             return Quality.unknown
 
-class TorrentMixin:
-    torrent_id: UUID | None = Field(default=None, foreign_key="torrent.id")
 
+class Torrent(Base):
+    __tablename__ = "torrent"
 
-class Torrent(SQLModel, QualityMixin, table=True):
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    torrent_status: Literal["downloading", "finished", "error"] | None = Field(default=None,
-                                                                               sa_column=Column(String))
-    torrent_title: str = Field(default=None)
-
-    @property
-    @computed_field
-    def torrent_filepath(self) -> str:
-        return f"{self.id}.torrent"
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    status: Mapped[Literal["downloading", "finished", "error"] | None]
+    title: Mapped[str]
+    quality: Mapped[Quality | None]

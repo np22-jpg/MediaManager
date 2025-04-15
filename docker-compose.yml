@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:latest
     restart: unless-stopped
+    container_name: postgres
     volumes:
       - .\backend\res\postgres:/var/lib/postgresql/data
     environment:
@@ -21,12 +22,6 @@ services:
       - .\backend\res\prowlarr:/config
     ports:
       - "9696:9696"
-  ollama:
-    image: ollama/ollama
-    volumes:
-      - .\backend\res\ollama:/root/.ollama
-    ports:
-      - "11434:11434"
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
