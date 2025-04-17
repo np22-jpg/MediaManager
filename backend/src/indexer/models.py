@@ -1,3 +1,5 @@
+from sqlalchemy import String, Integer
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
@@ -11,6 +13,6 @@ class IndexerQueryResult(Base):
     title: Mapped[str]
     download_url: Mapped[str]
     seeders: Mapped[int]
-    flags: Mapped[set[str]]
-    quality: Mapped[Quality | None]
-    season: Mapped[set[int]]
+    flags = mapped_column(ARRAY(String))
+    quality: Mapped[Quality]
+    season = mapped_column(ARRAY(Integer))

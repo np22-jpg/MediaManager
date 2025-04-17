@@ -1,8 +1,8 @@
 import logging
 
 from indexer.config import ProwlarrConfig
-from indexer.generic import GenericIndexer, IndexerQueryResult
-from indexer.prowlarr import Prowlarr
+from indexer.indexers.generic import GenericIndexer, IndexerQueryResult
+from indexer.indexers.prowlarr import Prowlarr
 
 log = logging.getLogger(__name__)
 

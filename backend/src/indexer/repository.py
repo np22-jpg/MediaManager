@@ -5,9 +5,9 @@ from indexer.schemas import IndexerQueryResultId, IndexerQueryResult as IndexerQ
 
 
 def get_result(result_id: IndexerQueryResultId, db: Session) -> IndexerQueryResultSchema:
-    return IndexerQueryResultSchema(**db.get(IndexerQueryResult, result_id).__dict__)
+    return IndexerQueryResultSchema.model_validate(db.get(IndexerQueryResult, result_id))
 
 
 def save_result(result: IndexerQueryResultSchema, db: Session) -> IndexerQueryResultSchema:
-    db.add(IndexerQueryResult(**result.__dict__))
+    db.add(IndexerQueryResult(**result.model_dump()))
     return result

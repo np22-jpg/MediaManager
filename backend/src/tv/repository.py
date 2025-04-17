@@ -2,9 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
-import database
 from tv.models import Season, Show, Episode, SeasonRequest
-from tv.schemas import Episode as EpisodeSchema, Season as SeasonSchema, SeasonId, Show as ShowSchema, ShowId, \
+from tv.schemas import Season as SeasonSchema, SeasonId, Show as ShowSchema, ShowId, \
     SeasonRequest as SeasonRequestSchema
 
 
@@ -28,10 +27,7 @@ def get_show(show_id: ShowId, db: Session) -> ShowSchema | None:
     if not result:
         return None
 
-    return ShowSchema(
-        **result.__dict__
-    )
-
+    return ShowSchema.model_validate(result)
 
 def get_show_by_external_id(external_id: int, db: Session, metadata_provider: str) -> ShowSchema | None:
     """
@@ -71,19 +67,7 @@ def get_shows(db: Session) -> list[ShowSchema]:
 
     results = db.execute(stmt).scalars().all()
 
-    return [
-        ShowSchema(
-            **show.__dict__,
-            seasons=[
-                SeasonSchema(
-                    **season.__dict__,
-                    episodes=[EpisodeSchema(**episode.__dict__) for episode in season.episodes]
-                )
-                for season in show.seasons
-            ]
-        )
-        for show in results
-    ]
+    return [ShowSchema.model_validate(show) for show in results]
 
 
 def save_show(show: ShowSchema, db: Session) -> ShowSchema:
@@ -127,15 +111,7 @@ def save_show(show: ShowSchema, db: Session) -> ShowSchema:
     try:
         db.commit()
         db.refresh(db_show)
-        return ShowSchema(
-            **db_show.__dict__,
-            seasons=[
-                SeasonSchema(
-                    **season.__dict__,
-                    episodes=[EpisodeSchema(**episode.__dict__) for episode in season.episodes]
-                ) for season in db_show.seasons
-            ]
-        )
+        return ShowSchema.model_validate(db_show)
     except IntegrityError:
         db.rollback()
         raise ValueError("Show with this primary key already exists.")
@@ -161,7 +137,7 @@ def get_season(season_id: SeasonId, db: Session) -> SeasonSchema:
     :param db: The database session.
     :return: a Season object.
     """
-    return SeasonSchema(**db.get(Season(), season_id).__dict__)
+    return SeasonSchema.model_validate(db.get(Season(), season_id))
 
 
 def add_season_to_requested_list(season_request: SeasonRequestSchema, db: Session) -> None:
@@ -169,7 +145,7 @@ def add_season_to_requested_list(season_request: SeasonRequestSchema, db: Sessio
     Adds a Season to the SeasonRequest table, which marks it as requested.
 
     """
-    db.add(SeasonRequest(**season_request.__dict__))
+    db.add(SeasonRequest(**season_request.model_dump()))
     db.commit()
 
 
@@ -178,19 +154,11 @@ def remove_season_from_requested_list(season_request: SeasonRequestSchema, db: S
     Removes a Season from the SeasonRequest table, which removes it from the 'requested' list.
 
     """
-    db.delete(SeasonRequest(**season_request.__dict__))
+    db.delete(SeasonRequest(**season_request.model_dump()))
     db.commit()
 
 
 def get_season_requests(db: Session) -> list[SeasonRequestSchema]:
     stmt = select(SeasonRequest)
     result = db.execute(stmt).scalars().all()
-    return [SeasonRequestSchema(**season.__dict__) for season in result]
-
-
-if __name__ == "__main__":
-    database.init_db()
-    session = database.SessionLocal()
-    print(get_show(show_id=ShowId('2fc11032-d614-4651-877d-c8b11aa63aef'), db=session))
-    print(get_shows(db=session))
-    print(delete_show(show_id=ShowId('2fc11032-d614-4651-877d-c8b11aa63aef'), db=session))
+    return [SeasonRequestSchema.model_validate(season) for season in result]

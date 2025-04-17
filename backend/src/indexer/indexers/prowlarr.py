@@ -2,8 +2,9 @@ import logging
 
 import requests
 
-from indexer import GenericIndexer, IndexerQueryResult
+from indexer import GenericIndexer
 from indexer.config import ProwlarrConfig
+from indexer.schemas import IndexerQueryResult
 
 log = logging.getLogger(__name__)
 
@@ -20,8 +21,10 @@ class Prowlarr(GenericIndexer):
         config = ProwlarrConfig()
         self.api_key = config.api_key
         self.url = config.url
+        log.debug("Registering Prowlarr as Indexer")
 
     def get_search_results(self, query: str) -> list[IndexerQueryResult]:
+        log.debug("Searching for " + query)
         url = self.url + '/api/v1/search'
         headers = {
             'accept': 'application/json',
@@ -48,5 +51,5 @@ class Prowlarr(GenericIndexer):
                     )
             return result_list
         else:
-            print(f'Error: {response.status_code}')
+            log.error(f'Prowlarr Error: {response.status_code}')
             return []

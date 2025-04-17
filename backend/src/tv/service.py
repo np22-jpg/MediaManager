@@ -1,13 +1,11 @@
 from sqlalchemy.orm import Session
 
-import database
-import indexer
-# import indexer
+import indexer.service
 import metadataProvider
 import tv.repository
 from indexer import IndexerQueryResult
+from tv import log
 from tv.exceptions import MediaAlreadyExists
-from tv.repository import get_show_by_external_id
 from tv.schemas import Show, ShowId, SeasonRequest
 
 
@@ -48,12 +46,14 @@ def check_if_show_exists(db: Session,
 
 def get_all_available_torrents_for_a_season(db: Session, season_number: int, show_id: ShowId) -> list[
     IndexerQueryResult]:
+    log.debug(f"getting all available torrents for season {season_number} for show {show_id}")
     show = tv.repository.get_show(show_id=show_id, db=db)
-    torrents: list[IndexerQueryResult] = indexer.search(show.name + " S" + str(season_number))
-    result = []
+    torrents: list[IndexerQueryResult] = indexer.service.search(query=show.name + " S" + str(season_number), db=db)
+    result: list[IndexerQueryResult] = []
     for torrent in torrents:
-        if season.number in torrent.season:
+        if season_number in torrent.season:
             result.append(torrent)
+    result.sort()
     return result
 
 
@@ -68,21 +68,3 @@ def get_show_by_id(db: Session, show_id: ShowId) -> Show | None:
 def get_all_requested_seasons(db: Session) -> list[SeasonRequest]:
     return tv.repository.get_season_requests(db=db)
 
-
-if __name__ == "__main__":
-    session = database.SessionLocal()
-
-    try:
-        show = add_show(db=session, external_id=1418, metadata_provider="tmdb")
-    except MediaAlreadyExists as e:
-        print(e)
-        show = get_show_by_external_id(db=session, external_id=1418, metadata_provider="tmdb")
-
-    print(show)
-    print(show.name)
-    for season in show.seasons:
-        print(season)
-        # print(season.number)
-        for episode in season.episodes:
-            print(episode)
-            # print(episode.title)
