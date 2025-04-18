@@ -1,5 +1,5 @@
-from dowloadClients.config import DownloadClientConfig
-from dowloadClients.qbittorrent import QbittorrentClient
+from torrent.dowloadClients.config import DownloadClientConfig
+from torrent.dowloadClients.qbittorrent import QbittorrentClient
 
 config = DownloadClientConfig()
 

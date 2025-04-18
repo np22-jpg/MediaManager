@@ -5,7 +5,7 @@ import metadataProvider
 import tv.service
 from auth.users import current_active_user
 from database import DbSessionDependency
-from indexer.schemas import PublicIndexerQueryResult
+from indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
 from tv.exceptions import MediaAlreadyExists
 from tv.schemas import Show, SeasonRequest, ShowId
 
@@ -90,7 +90,10 @@ def get_torrents_for_a_season(db: DbSessionDependency, show_id: ShowId, season_n
     return tv.service.get_all_available_torrents_for_a_season(db=db, season_number=season_number, show_id=show_id)
 
 # download a torrent
-# @router.post("/torrents")
+@router.post("/torrents", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
+def download_a_torrent(db: DbSessionDependency, public_indexer_result_id: IndexerQueryResultId, show_id: ShowId):
+    return
+
 
 # --------------------------------
 # SEARCH SHOWS ON METADATA PROVIDERS

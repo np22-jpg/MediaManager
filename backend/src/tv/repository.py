@@ -2,9 +2,9 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
-from tv.models import Season, Show, Episode, SeasonRequest
+from tv.models import Season, Show, Episode, SeasonRequest, SeasonFile
 from tv.schemas import Season as SeasonSchema, SeasonId, Show as ShowSchema, ShowId, \
-    SeasonRequest as SeasonRequestSchema
+    SeasonRequest as SeasonRequestSchema, SeasonFile as SeasonFileSchema
 
 
 def get_show(show_id: ShowId, db: Session) -> ShowSchema | None:
@@ -28,6 +28,7 @@ def get_show(show_id: ShowId, db: Session) -> ShowSchema | None:
         return None
 
     return ShowSchema.model_validate(result)
+
 
 def get_show_by_external_id(external_id: int, db: Session, metadata_provider: str) -> ShowSchema | None:
     """
@@ -158,7 +159,25 @@ def remove_season_from_requested_list(season_request: SeasonRequestSchema, db: S
     db.commit()
 
 
+def get_season_by_number(db: Session, season_number: int, show_id: ShowId) -> SeasonSchema:
+    stmt = (
+        select(Season).
+        where(Season.show_id == show_id).
+        where(Season.number == season_number).
+        options(
+            joinedload(Season.episodes).joinedload(Season.show)
+        )
+    )
+    result = db.execute(stmt).unique().scalar_one_or_none()
+    return SeasonSchema.model_validate(result)
+
 def get_season_requests(db: Session) -> list[SeasonRequestSchema]:
     stmt = select(SeasonRequest)
     result = db.execute(stmt).scalars().all()
     return [SeasonRequestSchema.model_validate(season) for season in result]
+
+
+def add_season_file(db: Session, season_file: SeasonFileSchema) -> SeasonFileSchema:
+    db.add(SeasonFile(**season_file.model_dump()))
+    db.commit()
+    return season_file

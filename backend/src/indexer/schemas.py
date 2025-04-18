@@ -3,7 +3,7 @@ import typing
 from uuid import UUID, uuid4
 
 import pydantic
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, computed_field, ConfigDict
 
 from torrent.models import Quality
 
@@ -12,6 +12,8 @@ IndexerQueryResultId = typing.NewType('IndexerQueryResultId', UUID)
 
 # TODO: use something like strategy pattern to make sorting more user customizable
 class IndexerQueryResult(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: IndexerQueryResultId = pydantic.Field(default_factory=uuid4)
     title: str
     download_url: str
@@ -62,7 +64,7 @@ class IndexerQueryResult(BaseModel):
             return self.quality.value < other.quality.value
         return self.seeders > other.seeders
 
-    # def download(self) -> Torrent:
+    # def download(self) -> SeasonTorrent:
     #    """
     #    downloads a torrent file and returns the filepath
     #    """
@@ -72,7 +74,7 @@ class IndexerQueryResult(BaseModel):
     #    with open(torrent_filepath, 'wb') as out_file:
     #        content = requests.get(url).content
     #        out_file.write(content)
-    #    return Torrent(status=None, title=self.title, quality=self.quality, id=self.id)
+    #    return SeasonTorrent(status=None, title=self.title, quality=self.quality, id=self.id)
 
 
 class PublicIndexerQueryResult(BaseModel):

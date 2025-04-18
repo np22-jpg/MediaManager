@@ -1,10 +1,11 @@
 import logging
 
 import qbittorrentapi
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
 from database.torrents import Torrent
 from dowloadClients.genericDownloadClient import GenericDownloadClient
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from indexer import IndexerQueryResult
 
 log = logging.getLogger(__name__)
 
@@ -21,7 +22,8 @@ class QbittorrentClient(GenericDownloadClient):
     DOWNLOADING_STATE = ("allocating", "downloading", "metaDL", "pausedDL", "queuedDL", "stalledDL", "checkingDL",
                          "forcedDL", "moving")
     FINISHED_STATE = ("uploading", "pausedUP", "queuedUP", "stalledUP", "checkingUP", "forcedUP")
-    ERROR_STATE = ("missingFiles", "error", "checkingResumeData", "unknown")
+    ERROR_STATE = ("missingFiles", "error", "checkingResumeData")
+    UNKNOWN_STATE = ("unknown",)
     api_client = qbittorrentapi.Client(**QbittorrentConfig().model_dump())
 
     def __init__(self):
@@ -35,9 +37,8 @@ class QbittorrentClient(GenericDownloadClient):
         finally:
             self.api_client.auth_log_out()
 
-    def download(self, torrent: Torrent) -> Torrent:
-        log.info(f"Attempting to download torrent: {torrent.torrent_filepath} with tag {torrent.id}")
-
+    def download(self, torrent: IndexerQueryResult) -> Torrent:
+        log.info(f"Attempting to download torrent: {torrent.title} with tag {torrent.id}")
         with open(torrent.torrent_filepath, "rb") as torrent_file:
             answer = self.api_client.torrents_add(category="MediaManager",
                                                   torrent_files=torrent_file,
@@ -66,6 +67,8 @@ class QbittorrentClient(GenericDownloadClient):
                 torrent.torrent_status = "finished"
             elif state in self.ERROR_STATE:
                 torrent.torrent_status = "error"
+            elif state in self.UNKNOWN_STATE:
+                torrent.torrent_status = "unknown"
             else:
                 torrent.torrent_status = "error"
 

@@ -1,16 +1,16 @@
-from typing import Literal
 from uuid import UUID
 
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
-from torrent.schemas import Quality
+from torrent.schemas import Quality, TorrentStatus
 
 
-class Torrent(Base):
-    __tablename__ = "torrent"
+class TorrentBase(Base):
+    __abstract__ = True
 
     id: Mapped[UUID] = mapped_column(primary_key=True)
-    status: Mapped[Literal["downloading", "finished", "error"] | None]
+    status: Mapped[TorrentStatus | None]
     title: Mapped[str]
     quality: Mapped[Quality]
+    imported: Mapped[bool]
