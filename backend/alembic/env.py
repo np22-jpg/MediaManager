@@ -1,5 +1,8 @@
-import os
 import sys
+
+sys.path = ['', '..'] + sys.path[1:]
+
+
 from logging.config import fileConfig
 
 from alembic import context
@@ -7,12 +10,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-sys.path.insert(0, project_root)
-
-# SQLAlchemy Base
-from ..src.database import Base
-# All Tables
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -27,6 +24,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
+from backend.src.database import Base
 target_metadata = Base.metadata
 
 
