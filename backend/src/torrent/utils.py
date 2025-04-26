@@ -22,3 +22,9 @@ def list_files_recursively(path: Path = Path(".")) -> list[Path]:
 
 def get_torrent_filepath(torrent: Torrent):
     return BasicConfig().torrent_directory / torrent.title
+
+
+def import_file(target_file: Path, source_file: Path):
+    if target_file.exists():
+        target_file.unlink()
+    target_file.hardlink_to(source_file)

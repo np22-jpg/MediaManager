@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 
 class AbstractMetadataProvider(ABC):
-    storage_path = config.BasicConfig().storage_directory
+    storage_path = config.BasicConfig().image_directory
     @property
     @abstractmethod
     def name(self) -> str:

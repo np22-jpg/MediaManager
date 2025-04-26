@@ -48,11 +48,16 @@ def check_if_show_exists(db: Session,
         raise ValueError("External ID and metadata provider or Show ID must be provided")
 
 
-def get_all_available_torrents_for_a_season(db: Session, season_number: int, show_id: ShowId) -> list[
+def get_all_available_torrents_for_a_season(db: Session, season_number: int, show_id: ShowId,
+                                            search_query_override: str = None) -> list[
     IndexerQueryResult]:
     log.debug(f"getting all available torrents for season {season_number} for show {show_id}")
     show = tv.repository.get_show(show_id=show_id, db=db)
-    torrents: list[IndexerQueryResult] = indexer.service.search(query=show.name + " S" + str(season_number), db=db)
+    if search_query_override is not None:
+        search_query = search_query_override
+    else:
+        search_query = show.name + " Season " + str(season_number)
+    torrents: list[IndexerQueryResult] = indexer.service.search(query=search_query, db=db)
     result: list[IndexerQueryResult] = []
     for torrent in torrents:
         if season_number in torrent.season:

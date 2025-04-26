@@ -62,7 +62,7 @@ if basic_config.DEVELOPMENT:
     basic_config.torrent_directory.mkdir(parents=True, exist_ok=True)
     basic_config.tv_directory.mkdir(parents=True, exist_ok=True)
     basic_config.movie_directory.mkdir(parents=True, exist_ok=True)
-    basic_config.storage_directory.mkdir(parents=True, exist_ok=True)
+    basic_config.image_directory.mkdir(parents=True, exist_ok=True)
     log.warning("Development Mode activated!")
 else:
     log.info("Development Mode not activated!")

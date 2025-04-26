@@ -19,7 +19,7 @@ from config import BasicConfig
 from indexer import IndexerQueryResult
 from torrent.repository import get_seasons_files_of_torrent, get_show_of_torrent, save_torrent
 from torrent.schemas import Torrent, TorrentStatus, TorrentId
-from torrent.utils import list_files_recursively, get_torrent_filepath
+from torrent.utils import list_files_recursively, get_torrent_filepath, import_file
 from tv.schemas import SeasonFile, Show
 
 log = logging.getLogger(__name__)
@@ -139,21 +139,25 @@ class TorrentService:
         self.api_client.torrents_resume(torrent_hashes=torrent.hash)
         return self.get_torrent_status(torrent=torrent)
 
-    # TODO: add function to differentiate between .srt files and stuff
+    # TODO: add function to import .srt files
     def import_torrent(self, torrent: Torrent) -> Torrent:
         log.info(f"importing torrent {torrent}")
         all_files = list_files_recursively(path=get_torrent_filepath(torrent=torrent))
         log.debug(f"Found {len(all_files)} files downloaded by the torrent")
         files = []
+        subtitle_files = []
         for file in all_files:
             file_type = mimetypes.guess_file_type(file)
             if file_type[0] is not None:
                 if file_type[0].startswith("video"):
                     files.append(file)
                     log.debug(f"File is a video, it will be imported: {file}")
+                elif file_type[0].startswith("text") and file.suffix == ".srt":
+                    subtitle_files.append(file)
+                    log.debug(f"File is a subtitle, it will be imported: {file}")
                 else:
                     log.debug(f"File is not a video, will not be imported: {file}")
-        log.debug(f"Importing these {len(files)} files:\n" + pprint.pformat(files))
+        log.info(f"Importing these {len(files)} files:\n" + pprint.pformat(files))
 
         show: Show = get_show_of_torrent(db=self.db, torrent_id=torrent.id)
         show_file_path = BasicConfig().tv_directory / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
@@ -162,26 +166,42 @@ class TorrentService:
         for season_file in season_files:
             season = tv.service.get_season(db=self.db, season_id=season_file.season_id)
             season_path = show_file_path / Path(f"Season {season.number}")
+
             try:
                 season_path.mkdir(parents=True)
             except FileExistsError:
                 log.warning(f"Path already exists: {season_path}")
+
             for episode in season.episodes:
                 episode_file_name = f"{show.name} S{season.number:02d}E{episode.number:02d}"
                 if season_file.file_path_suffix != "":
                     episode_file_name += f" - {season_file.file_path_suffix}"
-                target_file = season_path / episode_file_name
+
+                pattern = r'.*[.]S0?' + str(season.number) + r'E0?' + str(episode.number) + r"[.].*"
+                subtitle_pattern = pattern + r"[.]([A-Za-z]{2})[.]srt"
+                target_file_name = season_path / episode_file_name
+
+                # import subtitles
+                for subtitle_file in subtitle_files:
+                    log.debug(f"Searching for pattern {subtitle_pattern} in subtitle file: {subtitle_file.name}")
+                    regex_result = re.search(subtitle_pattern, subtitle_file.name)
+                    if regex_result:
+                        language_code = regex_result.group(1)
+                        log.debug(
+                            f"Found matching pattern: {subtitle_pattern} in subtitle file: {subtitle_file.name}," +
+                            f" extracted language code: {language_code}")
+                        target_subtitle_file = target_file_name.with_suffix(f".{language_code}.srt")
+                        import_file(target_file=target_subtitle_file, source_file=subtitle_file)
+                    else:
+                        log.debug(f"Didn't find any pattern {subtitle_pattern} in subtitle file: {subtitle_file.name}")
+
+                # import episode videos
                 for file in files:
-                    pattern = r'.*[.]S0?' + str(season.number) + r'E0?' + str(episode.number) + r"[.].*"
-                    # NOTE: irgendwos passt mit file.name glauwi ned????
-                    log.debug(f"Searching for pattern {pattern} in file: {file.name}")
+                    log.debug(f"Searching for pattern {pattern} in video file: {file.name}")
                     if re.search(pattern, file.name):
                         log.debug(f"Found matching pattern: {pattern} in file {file.name}")
-                        target_file = target_file.with_suffix(file.suffix)
-                        if target_file.exists():
-                            target_file.unlink()
-
-                        target_file.hardlink_to(file)
+                        target_video_file = target_file_name.with_suffix(file.suffix)
+                        import_file(target_file=target_video_file, source_file=file)
                         break
                 else:
                     log.warning(f"S{season.number}E{episode.number} in Torrent {torrent.title}'s files not found.")
