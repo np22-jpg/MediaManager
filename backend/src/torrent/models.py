@@ -1,16 +1,18 @@
 from uuid import UUID
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
 from torrent.schemas import Quality, TorrentStatus
 
 
-class TorrentBase(Base):
-    __abstract__ = True
-
+class Torrent(Base):
+    __tablename__ = "torrent"
     id: Mapped[UUID] = mapped_column(primary_key=True)
-    status: Mapped[TorrentStatus | None]
+    status: Mapped[TorrentStatus]
     title: Mapped[str]
     quality: Mapped[Quality]
     imported: Mapped[bool]
+    hash: Mapped[str]
+
+    season_files = relationship("SeasonFile", back_populates="torrent")

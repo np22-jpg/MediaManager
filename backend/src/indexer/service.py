@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+import indexer.repository
 from indexer import IndexerQueryResult, log, indexers
 from indexer.repository import save_result
 from indexer.schemas import IndexerQueryResultId
@@ -18,4 +19,4 @@ def search(query: str, db: Session) -> list[IndexerQueryResult]:
 
 
 def get_indexer_query_result(result_id: IndexerQueryResultId, db: Session) -> IndexerQueryResult:
-    return get_indexer_query_result(result_id=result_id, db=db)
+    return indexer.repository.get_result(result_id=result_id, db=db)

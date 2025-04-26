@@ -1,7 +1,8 @@
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
+from torrent.schemas import TorrentId
 from tv.models import Season, Show, Episode, SeasonRequest, SeasonFile
 from tv.schemas import Season as SeasonSchema, SeasonId, Show as ShowSchema, ShowId, \
     SeasonRequest as SeasonRequestSchema, SeasonFile as SeasonFileSchema
@@ -138,7 +139,7 @@ def get_season(season_id: SeasonId, db: Session) -> SeasonSchema:
     :param db: The database session.
     :return: a Season object.
     """
-    return SeasonSchema.model_validate(db.get(Season(), season_id))
+    return SeasonSchema.model_validate(db.get(Season, season_id))
 
 
 def add_season_to_requested_list(season_request: SeasonRequestSchema, db: Session) -> None:
@@ -165,11 +166,13 @@ def get_season_by_number(db: Session, season_number: int, show_id: ShowId) -> Se
         where(Season.show_id == show_id).
         where(Season.number == season_number).
         options(
-            joinedload(Season.episodes).joinedload(Season.show)
+            joinedload(Season.episodes),
+            joinedload(Season.show)
         )
     )
     result = db.execute(stmt).unique().scalar_one_or_none()
     return SeasonSchema.model_validate(result)
+
 
 def get_season_requests(db: Session) -> list[SeasonRequestSchema]:
     stmt = select(SeasonRequest)
@@ -181,3 +184,11 @@ def add_season_file(db: Session, season_file: SeasonFileSchema) -> SeasonFileSch
     db.add(SeasonFile(**season_file.model_dump()))
     db.commit()
     return season_file
+
+
+def remove_season_files_by_torrent_id(db: Session, torrent_id: TorrentId):
+    stmt = (
+        delete(SeasonFile).
+        where(SeasonFile.torrent_id == torrent_id)
+    )
+    db.execute(stmt)

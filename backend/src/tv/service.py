@@ -5,11 +5,12 @@ import metadataProvider
 import tv.repository
 from indexer import IndexerQueryResult
 from indexer.schemas import IndexerQueryResultId
-from torrent.schemas import Quality
+from torrent.schemas import Torrent
+from torrent.service import TorrentService
 from tv import log
 from tv.exceptions import MediaAlreadyExists
 from tv.repository import add_season_file
-from tv.schemas import Show, ShowId, SeasonRequest, SeasonFile
+from tv.schemas import Show, ShowId, SeasonRequest, SeasonFile, SeasonId, Season
 
 
 def add_show(db: Session, external_id: int, metadata_provider: str) -> Show | None:
@@ -68,31 +69,22 @@ def get_show_by_id(db: Session, show_id: ShowId) -> Show | None:
     return tv.repository.get_show(show_id=show_id, db=db)
 
 
+def get_season(db: Session, season_id: SeasonId) -> Season:
+    return tv.repository.get_season(season_id=season_id, db=db)
+
+
 def get_all_requested_seasons(db: Session) -> list[SeasonRequest]:
     return tv.repository.get_season_requests(db=db)
 
 
 def download_torrent(db: Session, public_indexer_result_id: IndexerQueryResultId, show_id: ShowId,
-                     override_show_file_path: str = None, override_quality: Quality = None) -> None:
+                     override_show_file_path_suffix: str = "") -> Torrent:
     indexer_result = indexer.service.get_indexer_query_result(db=db, result_id=public_indexer_result_id)
-    torrent_id = torrent.service.download_torrent().id
-
-    if override_quality is None:
-        result_quality = indexer_result.quality
-    else:
-        result_quality = override_quality
-
-    show = tv.repository.get_show(show_id=show_id, db=db)
-    if override_show_file_path is None:
-        show_file_path = f"{show.title} ({show.year})"
-        if show.metadata_provider == "tmdb" or show.metadata_provider == "tvdb":
-            show_file_path += f" [{show.metadata_provider}id-{show.external_id}]"
-    else:
-        show_file_path = override_show_file_path
+    torrent = TorrentService(db=db).download(indexer_result=indexer_result)
 
     for season_number in indexer_result.season:
         season = tv.repository.get_season_by_number(db=db, season_number=season_number, show_id=show_id)
-        season_file_path = show_file_path + f" Season {season.number}"
-        season_file = SeasonFile(season_id=season.id, quality=result_quality, torrent_id=torrent_id,
-                                 file_path=season_file_path)
+        season_file = SeasonFile(season_id=season.id, quality=indexer_result.quality, torrent_id=torrent.id,
+                                 file_path_suffix=override_show_file_path_suffix)
         add_season_file(db=db, season_file=season_file)
+    return torrent

@@ -10,3 +10,12 @@ class AuthConfig(BaseSettings):
     @property
     def jwt_signing_key(self):
         return self._jwt_signing_key
+
+
+class OAuth2Config(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix='OAUTH_')
+    client_id: str
+    client_secret: str
+    authorize_endpoint: str
+    access_token_endpoint: str
+    name: str = "OAuth2"

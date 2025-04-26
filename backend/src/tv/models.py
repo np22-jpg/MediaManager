@@ -4,7 +4,7 @@ from sqlalchemy import ForeignKey, PrimaryKeyConstraint, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
-from torrent.models import Quality, TorrentBase
+from torrent.models import Quality
 
 
 class Show(Base):
@@ -35,6 +35,8 @@ class Season(Base):
     show: Mapped["Show"] = relationship(back_populates="seasons")
     episodes: Mapped[list["Episode"]] = relationship(back_populates="season", cascade="all, delete")
 
+    season_files = relationship("SeasonFile", back_populates="season", cascade="all, delete")
+
 
 class Episode(Base):
     __tablename__ = "episode"
@@ -53,15 +55,15 @@ class Episode(Base):
 class SeasonFile(Base):
     __tablename__ = "season_file"
     __table_args__ = (
-        PrimaryKeyConstraint("season_id", "file_path"),
+        PrimaryKeyConstraint("season_id", "file_path_suffix"),
     )
     season_id: Mapped[UUID] = mapped_column(ForeignKey(column="season.id", ondelete="CASCADE"), )
     torrent_id: Mapped[UUID | None] = mapped_column(ForeignKey(column="torrent.id", ondelete="SET NULL"), )
-    file_path: Mapped[str]
+    file_path_suffix: Mapped[str]
     quality: Mapped[Quality]
 
-    torrent: Mapped["SeasonTorrent"] = relationship(back_populates="season_files")
-
+    torrent = relationship("Torrent", back_populates="season_files", uselist=False)
+    season = relationship("Season", back_populates="season_files", uselist=False)
 
 
 class SeasonRequest(Base):
@@ -72,8 +74,3 @@ class SeasonRequest(Base):
     season_id: Mapped[UUID] = mapped_column(ForeignKey(column="season.id", ondelete="CASCADE"), )
     wanted_quality: Mapped[Quality]
     min_quality: Mapped[Quality]
-
-
-class SeasonTorrent(TorrentBase):
-    __tablename__ = "season_torrent"
-    season_files: Mapped[list["SeasonFile"]] = relationship(back_populates="torrent", cascade="all, delete")

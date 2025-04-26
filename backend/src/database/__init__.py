@@ -6,7 +6,7 @@ from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
-from database.config import DbConfig
+from .config import DbConfig
 
 log = logging.getLogger(__name__)
 config = DbConfig()
@@ -32,7 +32,6 @@ def get_session() -> Generator[Session, Any, None]:
     except Exception as e:
         db.rollback()
         log.critical(f"error occurred: {e}")
-        print("OIDA OIDA OIDA OIDA OIDA", e)
     finally:
         db.close()
 

@@ -36,3 +36,5 @@ services:
       - 6881:6881
       - 6881:6881/udp
     restart: unless-stopped
+    volumes:
+      - ./torrent/:/torrent/:rw

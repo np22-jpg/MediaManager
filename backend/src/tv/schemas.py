@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, ConfigDict
 
 from torrent.models import Quality
-from torrent.schemas import TorrentBase
+from torrent.schemas import TorrentId
 
 ShowId = typing.NewType("ShowId", UUID)
 SeasonId = typing.NewType("SeasonId", UUID)
@@ -66,11 +66,5 @@ class SeasonFile(BaseModel):
 
     season_id: SeasonId
     quality: Quality
-    torrent_id: UUID
-    file_path: str
-
-    torrent: "SeasonTorrent"
-
-
-class SeasonTorrent(TorrentBase):
-    season_files: list[SeasonFile]
+    torrent_id: TorrentId
+    file_path_suffix: str

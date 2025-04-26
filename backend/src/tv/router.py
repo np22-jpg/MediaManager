@@ -69,6 +69,7 @@ def request_a_season(db: DbSessionDependency, season_request: SeasonRequest):
     """
     tv.service.request_season(db=db, season_request=season_request)
 
+
 @router.get("/season/request", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
 def get_requested_seasons(db: DbSessionDependency) -> list[SeasonRequest]:
     return tv.service.get_all_requested_seasons(db=db)
@@ -89,11 +90,13 @@ def unrequest_season(db: DbSessionDependency, request: SeasonRequest):
 def get_torrents_for_a_season(db: DbSessionDependency, show_id: ShowId, season_number: int = 1):
     return tv.service.get_all_available_torrents_for_a_season(db=db, season_number=season_number, show_id=show_id)
 
+
 # download a torrent
 @router.post("/torrents", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
-def download_a_torrent(db: DbSessionDependency, public_indexer_result_id: IndexerQueryResultId, show_id: ShowId):
-    return
-
+def download_a_torrent(db: DbSessionDependency, public_indexer_result_id: IndexerQueryResultId, show_id: ShowId,
+                       override_file_path_suffix: str = ""):
+    return tv.service.download_torrent(db=db, public_indexer_result_id=public_indexer_result_id, show_id=show_id,
+                                       override_show_file_path_suffix=override_file_path_suffix)
 
 # --------------------------------
 # SEARCH SHOWS ON METADATA PROVIDERS

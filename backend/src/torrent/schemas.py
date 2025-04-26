@@ -1,11 +1,11 @@
 import typing
 import uuid
-from abc import ABC
 from enum import Enum
 
-from pydantic import ConfigDict
+from pydantic import ConfigDict, BaseModel, Field
 
 TorrentId = typing.NewType("TorrentId", uuid.UUID)
+
 
 class Quality(Enum):
     high = 1
@@ -22,11 +22,12 @@ class TorrentStatus(Enum):
     unknown = 4
 
 
-class TorrentBase(ABC):
+class Torrent(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: TorrentId
+    id: TorrentId = Field(default_factory=uuid.uuid4)
     status: TorrentStatus
     title: str
     quality: Quality
     imported: bool
+    hash: str
