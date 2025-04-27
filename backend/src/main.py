@@ -4,8 +4,6 @@ from logging.config import dictConfig
 
 from pythonjsonlogger.json import JsonFormatter
 
-import auth.users
-
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -47,12 +45,16 @@ logging.basicConfig(level=logging.DEBUG,
 log = logging.getLogger(__name__)
 
 import database
+import auth.users
+
 from auth.schemas import UserCreate, UserRead, UserUpdate
 from auth.users import bearer_auth_backend, fastapi_users, cookie_auth_backend
+
 from config import BasicConfig
 from auth.users import oauth_client
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 import tv.router
 import torrent.router
@@ -70,6 +72,21 @@ else:
 database.init_db()
 
 app = FastAPI(root_path="/api/v1")
+
+if basic_config.DEVELOPMENT:
+    origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 # Standard Auth Routers
 app.include_router(
     fastapi_users.get_auth_router(bearer_auth_backend),

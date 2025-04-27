@@ -139,7 +139,7 @@ class TorrentService:
         self.api_client.torrents_resume(torrent_hashes=torrent.hash)
         return self.get_torrent_status(torrent=torrent)
 
-    # TODO: add function to import .srt files
+    # TODO: add ability to automatically extract archives
     def import_torrent(self, torrent: Torrent) -> Torrent:
         log.info(f"importing torrent {torrent}")
         all_files = list_files_recursively(path=get_torrent_filepath(torrent=torrent))
