@@ -45,7 +45,7 @@ class Show(BaseModel):
 
     name: str
     overview: str
-    year: int
+    year: int | None
 
     external_id: int
     metadata_provider: str

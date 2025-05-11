@@ -6,7 +6,9 @@ import tmdbsimple
 from pydantic_settings import BaseSettings
 from tmdbsimple import TV, TV_Seasons
 
+import metadataProvider.utils
 from metadataProvider.abstractMetaDataProvider import AbstractMetadataProvider, register_metadata_provider
+from metadataProvider.schemas import MetaDataProviderShowSearchResult
 from tv.schemas import Episode, Season, Show, SeasonNumber, EpisodeNumber
 
 
@@ -56,11 +58,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
                 )
             )
 
-        year: str | None = show_metadata["first_air_date"]
-        if year:
-            year: int = int(year.split('-')[0])
-        else:
-            year = None
+        year = metadataProvider.utils.get_year_from_first_air_date(show_metadata["first_air_date"])
 
         show = Show(
             external_id=id,
@@ -71,23 +69,42 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
             metadata_provider=self.name,
         )
 
+        # TODO: convert images automatically to .jpg
         # downloading the poster
-        poster_url = "https://image.tmdb.org/t/p/original" + show_metadata["poster_path"]
-        res = requests.get(poster_url, stream=True)
-        content_type = res.headers["content-type"]
-        file_extension = mimetypes.guess_extension(content_type)
-        if res.status_code == 200:
-            with open(self.storage_path.joinpath(str(show.id) + file_extension), 'wb') as f:
-                f.write(res.content)
-            log.info(f"image for show {show.name} successfully downloaded")
-
+        if show_metadata["poster_path"] is not None:
+            poster_url = "https://image.tmdb.org/t/p/original" + show_metadata["poster_path"]
+            res = requests.get(poster_url, stream=True)
+            content_type = res.headers["content-type"]
+            file_extension = mimetypes.guess_extension(content_type)
+            if res.status_code == 200:
+                with open(self.storage_path.joinpath(str(show.id) + file_extension), 'wb') as f:
+                    f.write(res.content)
+                log.info(f"image for show {show.name} successfully downloaded")
         else:
             log.warning(f"image for show {show.name} could not be downloaded")
 
         return show
 
-    def search_show(self, query: str):
-        return tmdbsimple.Search().tv(query=query)
+    def search_show(self, query: str) -> list[MetaDataProviderShowSearchResult]:
+        results = tmdbsimple.Search().tv(query=query)
+        formatted_results = []
+        for result in results["results"]:
+            if result["poster_path"] is not None:
+                poster_url = "https://image.tmdb.org/t/p/original" + result["poster_path"]
+            else:
+                poster_url = None
+            formatted_results.append(
+                MetaDataProviderShowSearchResult(
+                    poster_path=poster_url,
+                    overview=result["overview"],
+                    name=result["name"],
+                    external_id=result["id"],
+                    year=metadataProvider.utils.get_year_from_first_air_date(result["first_air_date"]),
+                    metadata_provider=self.name,
+                    added=False,
+                )
+            )
+        return formatted_results
 
     def __init__(self, api_key: str = None):
         tmdbsimple.API_KEY = api_key

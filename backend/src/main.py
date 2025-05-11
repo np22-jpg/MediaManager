@@ -55,6 +55,7 @@ from auth.users import oauth_client
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 import tv.router
 import torrent.router
@@ -75,8 +76,7 @@ app = FastAPI(root_path="/api/v1")
 
 if basic_config.DEVELOPMENT:
     origins = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
+        "*",
     ]
 
     app.add_middleware(
@@ -153,5 +153,9 @@ app.include_router(
     prefix="/torrent",
     tags=["torrent"]
 )
+
+# static file routers
+app.mount("/static/image", StaticFiles(directory=basic_config.image_directory), name="static-images")
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)

@@ -11,10 +11,11 @@ def search(query: str, db: Session) -> list[IndexerQueryResult]:
 
     log.debug(f"Searching for Torrent: {query}")
 
-    for indexer in indexers:
-        results.extend(indexer.get_search_results(query))
+    for i in indexers:
+        results.extend(i.get_search_results(query))
     for result in results:
         save_result(result=result, db=db)
+    log.debug(f"Found Torrents: {results}")
     return results
 
 

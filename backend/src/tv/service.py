@@ -5,6 +5,7 @@ import metadataProvider
 import tv.repository
 from indexer import IndexerQueryResult
 from indexer.schemas import IndexerQueryResultId
+from metadataProvider.schemas import MetaDataProviderShowSearchResult
 from torrent.schemas import Torrent
 from torrent.service import TorrentService
 from tv import log
@@ -53,11 +54,15 @@ def get_all_available_torrents_for_a_season(db: Session, season_number: int, sho
     IndexerQueryResult]:
     log.debug(f"getting all available torrents for season {season_number} for show {show_id}")
     show = tv.repository.get_show(show_id=show_id, db=db)
-    if search_query_override is not None:
+    if search_query_override:
         search_query = search_query_override
     else:
-        search_query = show.name + " Season " + str(season_number)
+        # TODO: add more Search query strings and combine all the results, like "season 3", "s03", "s3"
+        search_query = show.name + " s" + str(season_number).zfill(2)
     torrents: list[IndexerQueryResult] = indexer.service.search(query=search_query, db=db)
+    if search_query_override:
+        log.debug(f"Found with search query override {torrents.__len__()} torrents: {torrents}")
+        return torrents
     result: list[IndexerQueryResult] = []
     for torrent in torrents:
         if season_number in torrent.season:
@@ -70,9 +75,19 @@ def get_all_shows(db: Session) -> list[Show]:
     return tv.repository.get_shows(db=db)
 
 
+def search_for_show(query: str, metadata_provider: str, db: Session) -> list[MetaDataProviderShowSearchResult]:
+    results = metadataProvider.search_show(query, metadata_provider)
+    for result in results:
+        if check_if_show_exists(db=db, external_id=result.external_id, metadata_provider=metadata_provider):
+            result.added = True
+    return results
+
 def get_show_by_id(db: Session, show_id: ShowId) -> Show | None:
     return tv.repository.get_show(show_id=show_id, db=db)
 
+
+def get_show_by_external_id(db: Session, external_id: int, metadata_provider: str) -> Show | None:
+    return tv.repository.get_show_by_external_id(external_id=external_id, metadata_provider=metadata_provider, db=db)
 
 def get_season(db: Session, season_id: SeasonId) -> Season:
     return tv.repository.get_season(season_id=season_id, db=db)

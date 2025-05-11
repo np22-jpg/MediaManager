@@ -1,9 +1,15 @@
 <script lang="ts">
-    import {cn} from "$lib/utils.js";
-    import type {WithElementRef} from "bits-ui";
-    import type {HTMLAttributes} from "svelte/elements";
-    import {SIDEBAR_COOKIE_MAX_AGE, SIDEBAR_COOKIE_NAME, SIDEBAR_WIDTH, SIDEBAR_WIDTH_ICON,} from "./constants.js";
-    import {setSidebar} from "./context.svelte.js";
+    import * as Tooltip from '$lib/components/ui/tooltip/index.js';
+    import {cn} from '$lib/utils.js';
+    import type {WithElementRef} from 'bits-ui';
+    import type {HTMLAttributes} from 'svelte/elements';
+    import {
+        SIDEBAR_COOKIE_MAX_AGE,
+        SIDEBAR_COOKIE_NAME,
+        SIDEBAR_WIDTH,
+        SIDEBAR_WIDTH_ICON
+    } from './constants.js';
+    import {setSidebar} from './context.svelte.js';
 
     let {
         ref = $bindable(null),
@@ -27,7 +33,7 @@
 
             // This sets the cookie to keep the sidebar state.
             document.cookie = `${SIDEBAR_COOKIE_NAME}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
-        },
+        }
     });
 </script>
 
@@ -35,13 +41,13 @@
 
 <Tooltip.Provider delayDuration={0}>
     <div
-            {...restProps}
-            bind:this={ref}
+            style="--sidebar-width: {SIDEBAR_WIDTH}; --sidebar-width-icon: {SIDEBAR_WIDTH_ICON}; {style}"
             class={cn(
-			"group/sidebar-wrapper has-[[data-variant=inset]]:bg-sidebar flex min-h-svh w-full",
+			'group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar',
 			className
 		)}
-            style="--sidebar-width: {SIDEBAR_WIDTH}; --sidebar-width-icon: {SIDEBAR_WIDTH_ICON}; {style}"
+            bind:this={ref}
+            {...restProps}
     >
         {@render children?.()}
     </div>

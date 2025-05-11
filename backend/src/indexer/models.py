@@ -16,3 +16,4 @@ class IndexerQueryResult(Base):
     flags = mapped_column(ARRAY(String))
     quality: Mapped[Quality]
     season = mapped_column(ARRAY(Integer))
+    size = Mapped[int]

@@ -7,13 +7,6 @@ declare global {
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
-		interface User {
-			id: string;
-			email: string;
-			is_active?: boolean;
-			is_superuser?: boolean;
-			is_verified?: boolean;
-		}
 	}
 }
 

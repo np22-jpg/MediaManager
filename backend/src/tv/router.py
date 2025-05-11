@@ -6,6 +6,8 @@ import tv.service
 from auth.users import current_active_user, current_superuser
 from database import DbSessionDependency
 from indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
+from metadataProvider.schemas import MetaDataProviderShowSearchResult
+from torrent.schemas import Torrent
 from tv.exceptions import MediaAlreadyExists
 from tv.schemas import Show, SeasonRequest, ShowId
 
@@ -40,10 +42,12 @@ def delete_a_show(db: DbSessionDependency, show_id: ShowId):
 # --------------------------------
 
 @router.get("/shows", dependencies=[Depends(current_active_user)], response_model=list[Show])
-def get_all_shows(db: DbSessionDependency):
+def get_all_shows(db: DbSessionDependency, external_id: int = None, metadata_provider: str = "tmdb"):
     """"""
-    return tv.service.get_all_shows(db=db)
-
+    if external_id is not None:
+        return tv.service.get_show_by_external_id(db=db, external_id=external_id, metadata_provider=metadata_provider)
+    else:
+        return tv.service.get_all_shows(db=db)
 
 @router.get("/shows/{show_id}", dependencies=[Depends(current_active_user)], response_model=Show)
 def get_a_show(db: DbSessionDependency, show_id: ShowId):
@@ -94,7 +98,8 @@ def get_torrents_for_a_season(db: DbSessionDependency, show_id: ShowId, season_n
 
 
 # download a torrent
-@router.post("/torrents", status_code=status.HTTP_200_OK, dependencies=[Depends(current_superuser)])
+@router.post("/torrents", status_code=status.HTTP_200_OK, response_model=Torrent,
+             dependencies=[Depends(current_superuser)])
 def download_a_torrent(db: DbSessionDependency, public_indexer_result_id: IndexerQueryResultId, show_id: ShowId,
                        override_file_path_suffix: str = ""):
     return tv.service.download_torrent(db=db, public_indexer_result_id=public_indexer_result_id, show_id=show_id,
@@ -104,6 +109,7 @@ def download_a_torrent(db: DbSessionDependency, public_indexer_result_id: Indexe
 # SEARCH SHOWS ON METADATA PROVIDERS
 # --------------------------------
 
-@router.get("/search", dependencies=[Depends(current_active_user)])
-def search_metadata_providers_for_a_show(query: str, metadata_provider: str = "tmdb"):
-    return metadataProvider.search_show(query, metadata_provider)
+@router.get("/search", dependencies=[Depends(current_active_user)],
+            response_model=list[MetaDataProviderShowSearchResult])
+def search_metadata_providers_for_a_show(db: DbSessionDependency, query: str, metadata_provider: str = "tmdb"):
+    return tv.service.search_for_show(query=query, metadata_provider=metadata_provider, db=db)

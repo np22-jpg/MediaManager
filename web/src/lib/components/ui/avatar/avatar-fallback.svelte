@@ -1,6 +1,6 @@
 <script lang="ts">
-    import {Avatar as AvatarPrimitive} from "bits-ui";
-    import {cn} from "$lib/utils.js";
+    import {Avatar as AvatarPrimitive} from 'bits-ui';
+    import {cn} from '$lib/utils.js';
 
     let {
         class: className,
@@ -10,7 +10,7 @@
 </script>
 
 <AvatarPrimitive.Fallback
-        {...restProps}
         bind:ref
-        class={cn("bg-muted flex size-full items-center justify-center", className)}
+        class={cn('flex size-full items-center justify-center bg-muted', className)}
+        {...restProps}
 />

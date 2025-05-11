@@ -1,8 +1,9 @@
 <script lang="ts">
-    import {Button} from "$lib/components/ui/button/index.js";
-    import {cn} from "$lib/utils.js";
-    import type {ComponentProps} from "svelte";
-    import {useSidebar} from "./context.svelte.js";
+    import {Button} from '$lib/components/ui/button/index.js';
+    import {cn} from '$lib/utils.js';
+    import PanelLeft from '@lucide/svelte/icons/panel-left';
+    import type {ComponentProps} from 'svelte';
+    import {useSidebar} from './context.svelte.js';
 
     let {
         ref = $bindable(null),
@@ -17,16 +18,16 @@
 </script>
 
 <Button
-        {...restProps}
-        class={cn("h-7 w-7", className)}
-        data-sidebar="trigger"
+        type="button"
         onclick={(e) => {
 		onclick?.(e);
 		sidebar.toggle();
 	}}
-        size="icon"
-        type="button"
+        data-sidebar="trigger"
         variant="ghost"
+        size="icon"
+        class={cn('h-7 w-7', className)}
+        {...restProps}
 >
     <PanelLeft/>
     <span class="sr-only">Toggle Sidebar</span>

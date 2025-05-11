@@ -19,6 +19,7 @@ class IndexerQueryResult(BaseModel):
     download_url: str
     seeders: int
     flags: list[str]
+    size: int
 
     @computed_field(return_type=Quality)
     @property
@@ -64,18 +65,6 @@ class IndexerQueryResult(BaseModel):
             return self.quality.value < other.quality.value
         return self.seeders > other.seeders
 
-    # def download(self) -> SeasonTorrent:
-    #    """
-    #    downloads a torrent file and returns the filepath
-    #    """
-    #    import requests
-    #    url = self.download_url
-    #    torrent_filepath = self.title + ".torrent"
-    #    with open(torrent_filepath, 'wb') as out_file:
-    #        content = requests.get(url).content
-    #        out_file.write(content)
-    #    return SeasonTorrent(status=None, title=self.title, quality=self.quality, id=self.id)
-
 
 class PublicIndexerQueryResult(BaseModel):
     title: str
@@ -84,3 +73,4 @@ class PublicIndexerQueryResult(BaseModel):
     seeders: int
     flags: list[str]
     season: list[int]
+    size: int

@@ -2,6 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 
 import config
+from metadataProvider.schemas import MetaDataProviderShowSearchResult
 from tv.schemas import Show
 
 log = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ class AbstractMetadataProvider(ABC):
         pass
 
     @abstractmethod
-    def search_show(self, query):
+    def search_show(self, query) -> list[MetaDataProviderShowSearchResult]:
         pass
 
 

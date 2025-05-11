@@ -47,7 +47,7 @@ class Prowlarr(GenericIndexer):
                             title=result['sortTitle'],
                             seeders=result['seeders'],
                             flags=result['indexerFlags'],
-                        )
+                            size=result['size'], )
                     )
             return result_list
         else:
