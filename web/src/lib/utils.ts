@@ -19,10 +19,17 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-export function getQualityString(value: number): string {
+export function getTorrentQualityString(value: number): string {
 	return qualityMap[value] || 'unknown';
 }
 
 export function getTorrentStatusString(value: number): string {
 	return torrentStatusMap[value] || 'unknown';
+}
+export function getFullyQualifiedShowName(show: { name: string; year: number }): string {
+	let name = show.name;
+	if (show.year != null) {
+		name += ' (' + show.year + ')';
+	}
+	return name;
 }

@@ -1,3 +1,6 @@
+import logging
+import pprint
+
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
@@ -9,7 +12,7 @@ from indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
 from metadataProvider.schemas import MetaDataProviderShowSearchResult
 from torrent.schemas import Torrent
 from tv.exceptions import MediaAlreadyExists
-from tv.schemas import Show, SeasonRequest, ShowId
+from tv.schemas import Show, SeasonRequest, ShowId, RichShowTorrent, PublicShow
 
 router = APIRouter()
 
@@ -43,22 +46,22 @@ def delete_a_show(db: DbSessionDependency, show_id: ShowId):
 
 @router.get("/shows", dependencies=[Depends(current_active_user)], response_model=list[Show])
 def get_all_shows(db: DbSessionDependency, external_id: int = None, metadata_provider: str = "tmdb"):
-    """"""
     if external_id is not None:
         return tv.service.get_show_by_external_id(db=db, external_id=external_id, metadata_provider=metadata_provider)
     else:
         return tv.service.get_all_shows(db=db)
 
-@router.get("/shows/{show_id}", dependencies=[Depends(current_active_user)], response_model=Show)
+@router.get("/shows/torrents", dependencies=[Depends(current_active_user)], response_model=list[RichShowTorrent])
+def get_shows_with_torrents(db: DbSessionDependency):
+    """
+    get all shows that are associated with torrents
+    :return: A list of shows with all their torrents
+    """
+    result = tv.service.get_all_shows_with_torrents(db=db)
+    return result
+
+@router.get("/shows/{show_id}", dependencies=[Depends(current_active_user)], response_model=PublicShow)
 def get_a_show(db: DbSessionDependency, show_id: ShowId):
-    """
-
-    :param show_id:
-    :type show_id:
-    :return:
-    :rtype:
-    """
-
     return tv.service.get_show_by_id(db=db, show_id=show_id)
 
 

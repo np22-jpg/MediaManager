@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, ConfigDict
 
 from torrent.models import Quality
-from torrent.schemas import TorrentId
+from torrent.schemas import TorrentId, TorrentStatus
 
 ShowId = typing.NewType("ShowId", UUID)
 SeasonId = typing.NewType("SeasonId", UUID)
@@ -66,5 +66,56 @@ class SeasonFile(BaseModel):
 
     season_id: SeasonId
     quality: Quality
-    torrent_id: TorrentId
+    torrent_id: TorrentId | None
     file_path_suffix: str
+
+class RichSeasonTorrent(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    torrent_id: TorrentId
+    torrent_title: str
+    status: TorrentStatus
+    quality: Quality
+    imported: bool
+
+    file_path_suffix: str
+    seasons: list[SeasonNumber]
+
+class RichShowTorrent(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    show_id: ShowId
+    name: str
+    year: int | None
+    metadata_provider: str
+    torrents: list[RichSeasonTorrent]
+
+
+class PublicSeason(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: SeasonId
+    number: SeasonNumber
+
+    downloaded: bool = False
+    name: str
+    overview: str
+
+    external_id: int
+
+    episodes: list[Episode]
+
+
+class PublicShow(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: ShowId
+
+    name: str
+    overview: str
+    year: int | None
+
+    external_id: int
+    metadata_provider: str
+
+    seasons: list[PublicSeason]

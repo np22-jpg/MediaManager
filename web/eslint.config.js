@@ -26,10 +26,10 @@ export default ts.config(
                     argsIgnorePattern: '^_'
                 }
             ],
-            "sort-imports": [
-                "error",
+            'sort-imports': [
+                'error',
                 {
-                    "ignoreDeclarationSort": true
+                    ignoreDeclarationSort: true
                 }
             ]
         }

@@ -2,16 +2,19 @@ from sqlalchemy.orm import Session
 
 import indexer.service
 import metadataProvider
+import torrent.repository
 import tv.repository
 from indexer import IndexerQueryResult
 from indexer.schemas import IndexerQueryResultId
 from metadataProvider.schemas import MetaDataProviderShowSearchResult
+from torrent.repository import get_seasons_files_of_torrent
 from torrent.schemas import Torrent
 from torrent.service import TorrentService
 from tv import log
 from tv.exceptions import MediaAlreadyExists
-from tv.repository import add_season_file
-from tv.schemas import Show, ShowId, SeasonRequest, SeasonFile, SeasonId, Season
+from tv.repository import add_season_file, get_season_files_by_season_id
+from tv.schemas import Show, ShowId, SeasonRequest, SeasonFile, SeasonId, Season, RichShowTorrent, RichSeasonTorrent, \
+    PublicSeason, PublicShow
 
 
 def add_show(db: Session, external_id: int, metadata_provider: str) -> Show | None:
@@ -82,12 +85,41 @@ def search_for_show(query: str, metadata_provider: str, db: Session) -> list[Met
             result.added = True
     return results
 
-def get_show_by_id(db: Session, show_id: ShowId) -> Show | None:
-    return tv.repository.get_show(show_id=show_id, db=db)
+
+def get_show_by_id(db: Session, show_id: ShowId) -> PublicShow:
+    show = tv.repository.get_show(show_id=show_id, db=db)
+    seasons = [PublicSeason.model_validate(season) for season in show.seasons]
+    for season in seasons:
+        season.downloaded = is_season_downloaded(db=db, season_id=season.id)
+    public_show = PublicShow.model_validate(show)
+    public_show.seasons = seasons
+    return public_show
+
+def is_season_downloaded(db: Session, season_id: SeasonId) -> bool:
+    season_files = get_season_files_by_season_id(db=db, season_id=season_id)
+    for season_file in season_files:
+        if season_file.torrent_id is None:
+            return True
+        else:
+            torrent_file = torrent.repository.get_torrent_by_id(db=db, torrent_id=season_file.torrent_id)
+            if torrent_file.imported:
+                return True
+
+    return False
+
+def check_if_season_exists_on_file(db: Session, season_id: SeasonId) -> bool:
+    season = tv.repository.get_season(season_id=season_id, db=db)
+    if season:
+        return True
+    else:
+        raise ValueError(f"A season with this ID {season_id} does not exist")
+
+
 
 
 def get_show_by_external_id(db: Session, external_id: int, metadata_provider: str) -> Show | None:
     return tv.repository.get_show_by_external_id(external_id=external_id, metadata_provider=metadata_provider, db=db)
+
 
 def get_season(db: Session, season_id: SeasonId) -> Season:
     return tv.repository.get_season(season_id=season_id, db=db)
@@ -95,6 +127,27 @@ def get_season(db: Session, season_id: SeasonId) -> Season:
 
 def get_all_requested_seasons(db: Session) -> list[SeasonRequest]:
     return tv.repository.get_season_requests(db=db)
+
+
+def get_all_shows_with_torrents(db: Session) -> list[RichShowTorrent]:
+    shows = tv.repository.get_all_shows_with_torrents(db=db)
+    result = []
+    for show in shows:
+        show_torrents = tv.repository.get_torrents_by_show_id(db=db, show_id=show.id)
+        rich_season_torrents = []
+        for torrent in show_torrents:
+            seasons = tv.repository.get_seasons_by_torrent_id(db=db, torrent_id=torrent.id)
+            season_files = get_seasons_files_of_torrent(db=db, torrent_id=torrent.id)
+            file_path_suffix = season_files[0].file_path_suffix
+            season_torrent = RichSeasonTorrent(torrent_id=torrent.id, torrent_title=torrent.title,
+                                               status=torrent.status, quality=torrent.quality,
+                                               imported=torrent.imported, seasons=seasons,
+                                               file_path_suffix=file_path_suffix
+                                               )
+            rich_season_torrents.append(season_torrent)
+        result.append(RichShowTorrent(show_id=show.id, name=show.name, year=show.year,
+                                      metadata_provider=show.metadata_provider, torrents=rich_season_torrents))
+    return result
 
 
 def download_torrent(db: Session, public_indexer_result_id: IndexerQueryResultId, show_id: ShowId,

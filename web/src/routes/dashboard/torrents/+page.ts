@@ -4,12 +4,9 @@ import type {PageLoad} from './$types';
 const apiUrl = env.PUBLIC_API_URL;
 
 export const load: PageLoad = async ({fetch}) => {
-    const response = await fetch(apiUrl + '/torrent', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-    });
-    return {torrents: response.json()};
+	const response = await fetch(apiUrl + '/tv/shows/torrents', {
+		method: 'GET',
+		credentials: 'include'
+	});
+	return {shows: response.json()};
 };

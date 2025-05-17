@@ -1,18 +1,18 @@
 <script lang="ts">
-    import {setContext} from 'svelte';
-    import type {LayoutProps} from './$types';
+	import {setContext} from 'svelte';
+	import type {LayoutProps} from './$types';
 
-    let {data}: LayoutProps = $props();
+	let {data, children}: LayoutProps = $props();
 
-    const showData = $derived(data.showData);
-    setContext('show', showData);
-    const fetchError = $derived(data.error);
+	const showData = $derived(data.showData);
+	setContext('show', showData);
+	const fetchError = $derived(data.error);
 </script>
 
 {#if fetchError}
-    <p>Error loading show: {fetchError}</p>
+	<p>Error loading show: {fetchError}</p>
 {:else if showData}
-    <slot/>
+	{@render children()}
 {:else}
-    <p>Loading show data...</p>
+	<p>Loading show data...</p>
 {/if}

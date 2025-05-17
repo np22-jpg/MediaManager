@@ -2,10 +2,11 @@ from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
-from torrent.schemas import TorrentId
+from torrent.models import Torrent
+from torrent.schemas import TorrentId, Torrent as TorrentSchema
 from tv.models import Season, Show, Episode, SeasonRequest, SeasonFile
 from tv.schemas import Season as SeasonSchema, SeasonId, Show as ShowSchema, ShowId, \
-    SeasonRequest as SeasonRequestSchema, SeasonFile as SeasonFileSchema
+    SeasonRequest as SeasonRequestSchema, SeasonFile as SeasonFileSchema, SeasonNumber
 
 
 def get_show(show_id: ShowId, db: Session) -> ShowSchema | None:
@@ -20,7 +21,7 @@ def get_show(show_id: ShowId, db: Session) -> ShowSchema | None:
         select(Show)
         .where(Show.id == show_id)
         .options(
-            joinedload(Show.seasons).joinedload(Season.episodes)  # Load relationships
+            joinedload(Show.seasons).joinedload(Season.episodes)
         )
     )
 
@@ -29,7 +30,6 @@ def get_show(show_id: ShowId, db: Session) -> ShowSchema | None:
         return None
 
     return ShowSchema.model_validate(result)
-
 
 def get_show_by_external_id(external_id: int, db: Session, metadata_provider: str) -> ShowSchema | None:
     """
@@ -45,7 +45,7 @@ def get_show_by_external_id(external_id: int, db: Session, metadata_provider: st
         .where(Show.external_id == external_id)
         .where(Show.metadata_provider == metadata_provider)
         .options(
-            joinedload(Show.seasons).joinedload(Season.episodes)  # Load relationships
+            joinedload(Show.seasons).joinedload(Season.episodes)
         )
     )
 
@@ -91,7 +91,7 @@ def save_show(show: ShowSchema, db: Session) -> ShowSchema:
         seasons=[
             Season(
                 id=season.id,
-                show_id=show.id,  # Correctly linking to the parent show
+                show_id=show.id,
                 number=season.number,
                 external_id=season.external_id,
                 name=season.name,
@@ -99,13 +99,13 @@ def save_show(show: ShowSchema, db: Session) -> ShowSchema:
                 episodes=[
                     Episode(
                         id=episode.id,
-                        season_id=season.id,  # Correctly linking to the parent season
+                        season_id=season.id,
                         number=episode.number,
                         external_id=episode.external_id,
                         title=episode.title
-                    ) for episode in season.episodes  # Convert episodes properly
+                    ) for episode in season.episodes
                 ]
-            ) for season in show.seasons  # Convert seasons properly
+            ) for season in show.seasons
         ]
     )
 
@@ -192,3 +192,56 @@ def remove_season_files_by_torrent_id(db: Session, torrent_id: TorrentId):
         where(SeasonFile.torrent_id == torrent_id)
     )
     db.execute(stmt)
+
+def get_season_files_by_season_id(db: Session, season_id: SeasonId):
+    stmt = (
+        select(SeasonFile).
+        where(SeasonFile.season_id == season_id)
+    )
+    result = db.execute(stmt).scalars().all()
+    return [SeasonFileSchema.model_validate(season_file) for season_file in result]
+
+def get_torrents_by_show_id(db: Session, show_id: ShowId) -> list[TorrentSchema]:
+    stmt = (
+        select(Torrent)
+        .distinct()
+        .join(SeasonFile, SeasonFile.torrent_id == Torrent.id)
+        .join(Season, Season.id == SeasonFile.season_id)
+        .where(Season.show_id == show_id)
+    )
+    result = db.execute(stmt).scalars().unique().all()
+    return [TorrentSchema.model_validate(torrent) for torrent in result]
+
+def get_all_shows_with_torrents(db: Session) -> list[ShowSchema]:
+    """
+    Retrieve all shows that are associated with a torrent alphabetically from the database.
+
+    :param db: The database session.
+    :return: A list of ShowSchema objects.
+    """
+    stmt = (
+        select(Show)
+        .distinct()
+        .join(Season, Show.id == Season.show_id)
+        .join(SeasonFile, Season.id == SeasonFile.season_id)
+        .join(Torrent, SeasonFile.torrent_id == Torrent.id)
+        .options(joinedload(Show.seasons).joinedload(Season.episodes))
+        .order_by(Show.name)
+    )
+
+    results = db.execute(stmt).scalars().unique().all()
+
+    return [ShowSchema.model_validate(show) for show in results]
+
+def get_seasons_by_torrent_id(db: Session, torrent_id: TorrentId) -> list[SeasonNumber]:
+    stmt = (
+        select(Season.number)
+        .distinct()
+        .join(SeasonFile, SeasonFile.torrent_id == Torrent.id)
+        .join(Season, Season.id == SeasonFile.season_id)
+        .where(Torrent.id == torrent_id)
+        .select_from(Torrent)
+    )
+    result = db.execute(stmt).scalars().unique().all()
+
+    return [SeasonNumber(x) for x in result]
