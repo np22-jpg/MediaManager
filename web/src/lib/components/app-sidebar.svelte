@@ -4,12 +4,7 @@
 	import TvIcon from '@lucide/svelte/icons/tv';
 	import LayoutPanelLeft from '@lucide/svelte/icons/layout-panel-left';
 	import DownloadIcon from '@lucide/svelte/icons/download';
-	import Sun from "@lucide/svelte/icons/sun";
-	import Moon from "@lucide/svelte/icons/moon";
 
-	import {resetMode, setMode} from "mode-watcher";
-	import {buttonVariants} from "$lib/components/ui/button/index.js";
-	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
 	const data = {
 		navMain: [
 			{

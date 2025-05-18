@@ -5,10 +5,10 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import {getTorrentQualityString, getTorrentStatusString} from '$lib/utils';
-	import type {RichShowTorrent, Torrent} from '$lib/types';
-	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
+	import type {RichShowTorrent} from '$lib/types';
 	import {getFullyQualifiedShowName} from '$lib/utils';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
+	import CheckmarkX from '$lib/components/checkmark-x.svelte';
 
 	let showsPromise: Promise<RichShowTorrent[]> = $state(page.data.shows);
 </script>
@@ -57,7 +57,7 @@
 										<Table.Head>Download Status</Table.Head>
 										<Table.Head>Quality</Table.Head>
 										<Table.Head>File Path Suffix</Table.Head>
-										<Table.Head>Import Status</Table.Head>
+										<Table.Head>Imported</Table.Head>
 									</Table.Row>
 								</Table.Header>
 								<Table.Body>
@@ -90,7 +90,7 @@
 											</Table.Cell>
 											<Table.Cell>
 												<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-													{torrent.imported ? 'Imported' : 'Not Imported'}
+													<CheckmarkX state={torrent.imported}/>
 												</a>
 											</Table.Cell>
 										</Table.Row>

@@ -6,9 +6,12 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import {getContext} from 'svelte';
-	import type {Season, Show} from '$lib/types';
+	import type {PublicSeasonFile, RichShowTorrent, Season, Show} from '$lib/types';
+	import CheckmarkX from '$lib/components/checkmark-x.svelte';
+	import {getTorrentQualityString} from "$lib/utils";
 
 	const SeasonNumber = page.params.SeasonNumber;
+	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let show: Show = getContext('show');
 	let season: Season;
 	show.seasons.forEach((item) => {
@@ -63,10 +66,39 @@
 					alt="{show.name}'s Poster Image"
 			/>
 		</div>
-		<div class="h-full flex-auto rounded-xl bg-muted/50 p-4">
+		<div class="h-full flex-auto rounded-xl bg-muted/50 p-4 w-1/4 ">
 			<p class="leading-7 [&:not(:first-child)]:mt-6">
 				{show.overview}
 			</p>
+		</div>
+		<div class="h-full flex-auto rounded-xl bg-muted/50 p-4 w-1/3">
+			<Table.Root>
+				<Table.Caption>A list of all downloaded/downloading versions of this season.</Table.Caption>
+				<Table.Header>
+					<Table.Row>
+						<Table.Head>Quality</Table.Head>
+						<Table.Head>File Path Suffix</Table.Head>
+						<Table.Head>Imported</Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#each seasonFiles as file}
+						<Table.Row>
+							<Table.Cell class="w-[50px]">
+								{getTorrentQualityString(file.quality)}
+							</Table.Cell>
+							<Table.Cell class="w-[100px]">
+								{file.file_path_suffix}
+							</Table.Cell>
+							<Table.Cell class="w-[10px] font-medium">
+								<CheckmarkX state={file.imported}/>
+							</Table.Cell>
+						</Table.Row>
+					{:else }
+						<span class="font-semibold">You haven't downloaded this season yet.</span>
+					{/each}
+				</Table.Body>
+			</Table.Root>
 		</div>
 	</div>
 	<div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 p-4 md:min-h-min">

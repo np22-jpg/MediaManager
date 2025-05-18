@@ -12,7 +12,8 @@ from indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
 from metadataProvider.schemas import MetaDataProviderShowSearchResult
 from torrent.schemas import Torrent
 from tv.exceptions import MediaAlreadyExists
-from tv.schemas import Show, SeasonRequest, ShowId, RichShowTorrent, PublicShow
+from tv.schemas import Show, SeasonRequest, ShowId, RichShowTorrent, PublicShow, SeasonId, SeasonFile, PublicSeasonFile, \
+    SeasonNumber
 
 router = APIRouter()
 
@@ -65,11 +66,16 @@ def get_a_show(db: DbSessionDependency, show_id: ShowId):
     return tv.service.get_show_by_id(db=db, show_id=show_id)
 
 
+@router.get("/shows/{show_id}/{season_number}/files", status_code=status.HTTP_200_OK,
+            dependencies=[Depends(current_active_user)])
+def get_season_files(db: DbSessionDependency, season_number: SeasonNumber, show_id: ShowId) -> list[PublicSeasonFile]:
+    return tv.service.get_public_season_files_by_season_number(db=db, season_number=season_number, show_id=show_id)
+
 # --------------------------------
 # MANAGE REQUESTS
 # --------------------------------
 
-@router.post("/season/request", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
+@router.post("/seasons/requests", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
 def request_a_season(db: DbSessionDependency, season_request: SeasonRequest):
     """
     adds request flag to a season
@@ -77,14 +83,23 @@ def request_a_season(db: DbSessionDependency, season_request: SeasonRequest):
     tv.service.request_season(db=db, season_request=season_request)
 
 
-@router.get("/season/request", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
+@router.get("/seasons/requests", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
 def get_requested_seasons(db: DbSessionDependency) -> list[SeasonRequest]:
     return tv.service.get_all_requested_seasons(db=db)
 
 
-@router.delete("/season/request", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
+@router.delete("/seasons/requests", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
 def unrequest_season(db: DbSessionDependency, request: SeasonRequest):
     tv.service.unrequest_season(db=db, season_request=request)
+
+
+# --------------------------------
+# MANAGE SEASON FILES
+# --------------------------------
+
+
+
+
 
 
 # --------------------------------

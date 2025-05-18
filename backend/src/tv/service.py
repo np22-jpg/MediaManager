@@ -14,7 +14,7 @@ from tv import log
 from tv.exceptions import MediaAlreadyExists
 from tv.repository import add_season_file, get_season_files_by_season_id
 from tv.schemas import Show, ShowId, SeasonRequest, SeasonFile, SeasonId, Season, RichShowTorrent, RichSeasonTorrent, \
-    PublicSeason, PublicShow
+    PublicSeason, PublicShow, PublicSeasonFile, SeasonNumber
 
 
 def add_show(db: Session, external_id: int, metadata_provider: str) -> Show | None:
@@ -33,6 +33,22 @@ def request_season(db: Session, season_request: SeasonRequest) -> None:
 def unrequest_season(db: Session, season_request: SeasonRequest) -> None:
     tv.repository.remove_season_from_requested_list(db=db, season_request=season_request)
 
+
+def get_public_season_files_by_season_id(db: Session, season_id: SeasonId) -> list[PublicSeasonFile]:
+    season_files = get_season_files_by_season_id(db=db, season_id=season_id)
+    public_season_files = [PublicSeasonFile.model_validate(x) for x in season_files]
+    result = []
+    for season_file in public_season_files:
+        if season_file_exists_on_file(db=db, season_file=season_file):
+            season_file.downloaded = True
+        result.append(season_file)
+    return result
+
+
+def get_public_season_files_by_season_number(db: Session, season_number: SeasonNumber, show_id: ShowId) -> list[
+    PublicSeasonFile]:
+    season = tv.repository.get_season_by_number(db=db, season_number=season_number, show_id=show_id)
+    return get_public_season_files_by_season_id(db=db, season_id=season.id)
 
 def check_if_show_exists(db: Session,
                          external_id: int = None,
@@ -95,26 +111,25 @@ def get_show_by_id(db: Session, show_id: ShowId) -> PublicShow:
     public_show.seasons = seasons
     return public_show
 
+
 def is_season_downloaded(db: Session, season_id: SeasonId) -> bool:
     season_files = get_season_files_by_season_id(db=db, season_id=season_id)
     for season_file in season_files:
-        if season_file.torrent_id is None:
+        if season_file_exists_on_file(db=db, season_file=season_file):
             return True
-        else:
-            torrent_file = torrent.repository.get_torrent_by_id(db=db, torrent_id=season_file.torrent_id)
-            if torrent_file.imported:
-                return True
 
     return False
 
-def check_if_season_exists_on_file(db: Session, season_id: SeasonId) -> bool:
-    season = tv.repository.get_season(season_id=season_id, db=db)
-    if season:
+
+def season_file_exists_on_file(db: Session, season_file: SeasonFile) -> bool:
+    if season_file.torrent_id is None:
         return True
     else:
-        raise ValueError(f"A season with this ID {season_id} does not exist")
+        torrent_file = torrent.repository.get_torrent_by_id(db=db, torrent_id=season_file.torrent_id)
+        if torrent_file.imported:
+            return True
 
-
+    return False
 
 
 def get_show_by_external_id(db: Session, external_id: int, metadata_provider: str) -> Show | None:

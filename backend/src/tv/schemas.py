@@ -69,6 +69,10 @@ class SeasonFile(BaseModel):
     torrent_id: TorrentId | None
     file_path_suffix: str
 
+
+class PublicSeasonFile(SeasonFile):
+    downloaded: bool = False
+
 class RichSeasonTorrent(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

@@ -13,7 +13,7 @@
 	import {getContext} from 'svelte';
 	import UserDetails from './user-details.svelte';
 	import type {User} from '$lib/types';
-
+	import UserRound from '@lucide/svelte/icons/user-round';
 	const user: () => User = getContext('user');
 	const sidebar = useSidebar();
 </script>
@@ -30,7 +30,9 @@
 					>
 						<Avatar.Root class="h-8 w-8 rounded-lg">
 							<!--<Avatar.Image src={user.avatar} alt={user.name} />-->
-							<Avatar.Fallback class="rounded-lg">CN</Avatar.Fallback>
+							<Avatar.Fallback class="rounded-lg">
+								<UserRound/>
+							</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<UserDetails/>

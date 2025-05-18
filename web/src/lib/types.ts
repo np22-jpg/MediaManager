@@ -76,6 +76,15 @@ export interface Season {
 	episodes: Episode[]; // items: { $ref: #/components/schemas/Episode }, type: array
 	id?: string; // type: string, format: uuid
 }
+
+export interface PublicSeasonFile {
+	season_id: string; // type: string, format: uuid
+	quality: Quality;
+	torrent_id?: string; // type: string, format: uuid
+	file_path_suffix?: string;
+	downloaded: boolean;
+}
+
 export interface PublicSeason {
 	number: number; // type: integer
 	name: string;
