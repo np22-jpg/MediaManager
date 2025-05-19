@@ -1,3 +1,4 @@
+from pydantic import EmailStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -7,6 +8,7 @@ class AuthConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix='AUTH_')
     token_secret: str
     session_lifetime: int = 60 * 60 * 24
+    admin_email: str | list[str]
     @property
     def jwt_signing_key(self):
         return self._jwt_signing_key

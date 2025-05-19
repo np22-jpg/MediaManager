@@ -69,17 +69,15 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
             metadata_provider=self.name,
         )
 
-        # TODO: convert images automatically to .jpg
         # downloading the poster
+        # NOTE: all pictures from TMDB should already be jpeg, so no need to convert
         if show_metadata["poster_path"] is not None:
             poster_url = "https://image.tmdb.org/t/p/original" + show_metadata["poster_path"]
-            res = requests.get(poster_url, stream=True)
-            content_type = res.headers["content-type"]
-            file_extension = mimetypes.guess_extension(content_type)
-            if res.status_code == 200:
-                with open(self.storage_path.joinpath(str(show.id) + file_extension), 'wb') as f:
-                    f.write(res.content)
-                log.info(f"image for show {show.name} successfully downloaded")
+            if metadataProvider.utils.download_poster_image(storage_path=self.storage_path, poster_url=poster_url,
+                                                            show=show):
+                log.info("Successfully downloaded poster image for show " + show.name)
+            else:
+                log.warning(f"download for image of show {show.name} failed")
         else:
             log.warning(f"image for show {show.name} could not be downloaded")
 

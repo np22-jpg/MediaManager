@@ -4,6 +4,8 @@ from logging.config import dictConfig
 
 from pythonjsonlogger.json import JsonFormatter
 
+import router
+
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -112,6 +114,11 @@ app.include_router(
     fastapi_users.get_verify_router(UserRead),
     prefix="/auth",
     tags=["auth"],
+)
+# Misc Router
+app.include_router(
+    router.router,
+    tags=["users"]
 )
 # User Router
 app.include_router(

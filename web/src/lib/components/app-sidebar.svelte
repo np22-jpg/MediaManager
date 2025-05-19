@@ -22,23 +22,16 @@
 						url: '/dashboard/tv/add-show'
 					},
 					{
+                        title: 'Torrents',
+                        url: '/dashboard/tv/torrents'
+                    },
+                    {
 						title: 'Settings',
 						url: '#'
 					}
-				]
+
+                ]
 			},
-			{
-				title: 'Torrents',
-				url: '#',
-				icon: DownloadIcon,
-				isActive: true,
-				items: [
-					{
-						title: 'Show Torrents',
-						url: '/dashboard/torrents'
-					}
-				]
-			}
 		],
 		navSecondary: [
 			{

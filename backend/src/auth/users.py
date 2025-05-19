@@ -14,6 +14,7 @@ from httpx_oauth.oauth2 import OAuth2
 
 import auth.config
 from auth.db import User, get_user_db
+from auth.schemas import UserUpdate
 
 config = auth.config.AuthConfig()
 SECRET = config.token_secret
@@ -40,6 +41,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")
+        if user.email in config.admin_email:
+            updated_user = UserUpdate(is_superuser=True, is_verified=True)
+            await self.update(user=user, user_update=updated_user)
 
     async def on_after_forgot_password(
             self, user: User, token: str, request: Optional[Request] = None
@@ -84,5 +88,5 @@ cookie_auth_backend = AuthenticationBackend(
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [bearer_auth_backend, cookie_auth_backend])
 
-current_active_user = fastapi_users.current_user(active=True)
-current_superuser = fastapi_users.current_user(active=True, superuser=True)
+current_active_user = fastapi_users.current_user(active=True, verified=True)
+current_superuser = fastapi_users.current_user(active=True, verified=True, superuser=True)

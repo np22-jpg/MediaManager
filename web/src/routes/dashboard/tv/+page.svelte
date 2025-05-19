@@ -37,11 +37,9 @@
 </header>
 
 <div class="flex w-full flex-1 flex-col gap-4 p-4 pt-0">
-
-    <Button class="w-full max-w-[200px]" onclick={()=>{goto("/dashboard/tv/add-show")}} variant="outline">
-        Add a Show
-    </Button>
-
+    <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
+        TV Shows
+    </h1>
     <div
             class="grid w-full auto-rows-min gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
     >
@@ -53,10 +51,10 @@
             {:then tvShows}
                 {#each tvShows as show}
                     <a href={'/dashboard/tv/' + show.id}>
-                        <Card.Root class="h-full">
+                        <Card.Root class="h-full ">
                             <Card.Header>
-                                <Card.Title>{getFullyQualifiedShowName(show)}</Card.Title>
-                                <Card.Description class="truncate">{show.overview}</Card.Description>
+                                <Card.Title class="line-clamp-1">{getFullyQualifiedShowName(show)}</Card.Title>
+                                <Card.Description class="line-clamp-1">{show.overview}</Card.Description>
                             </Card.Header>
                             <Card.Content>
                                 <img

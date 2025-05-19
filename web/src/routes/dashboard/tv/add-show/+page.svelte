@@ -88,7 +88,6 @@
 <div class="flex w-full flex-1 flex-col items-center  gap-4 p-4 pt-0">
 	<div class="grid w-full max-w-sm items-center gap-12">
 		<h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-
 			Add a show
 		</h1>
 		<section>

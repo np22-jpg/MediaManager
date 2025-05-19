@@ -1,6 +1,7 @@
 import logging
 
 import metadataProvider.tmdb
+import metadataProvider.tvdb
 from metadataProvider.abstractMetaDataProvider import metadata_providers
 from metadataProvider.schemas import MetaDataProviderShowSearchResult
 from tv.schemas import Show

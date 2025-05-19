@@ -8,7 +8,7 @@
 	import {getContext} from 'svelte';
 	import type {PublicSeasonFile, RichShowTorrent, Season, Show} from '$lib/types';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
-	import {getTorrentQualityString} from "$lib/utils";
+    import {getTorrentQualityString, getFullyQualifiedShowName} from "$lib/utils";
 
 	const SeasonNumber = page.params.SeasonNumber;
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
@@ -18,7 +18,7 @@
 		if (item.number === parseInt(SeasonNumber)) season = item;
 	});
 
-	console.log('loaded ', show);
+    console.log('loaded files', seasonFiles);
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -54,8 +54,7 @@
 	</div>
 </header>
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-	{show.name}
-	{show.year == null ? '' : '(' + show.year + ')'} Season {SeasonNumber}
+    {getFullyQualifiedShowName(show)} Season {SeasonNumber}
 </h1>
 <div class="flex flex-1 flex-col gap-4 p-4">
 	<div class="flex items-center gap-2">
@@ -91,7 +90,7 @@
 								{file.file_path_suffix}
 							</Table.Cell>
 							<Table.Cell class="w-[10px] font-medium">
-								<CheckmarkX state={file.imported}/>
+                                <CheckmarkX state={file.downloaded}/>
 							</Table.Cell>
 						</Table.Row>
 					{:else }
