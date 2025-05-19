@@ -4,11 +4,12 @@
 	import type {LayoutProps} from './$types';
 	import {setContext} from 'svelte';
 	import {goto} from '$app/navigation';
+	import {base} from "$app/paths";
 
 	let {data, children}: LayoutProps = $props();
 	console.log('Received User Data: ', data.user);
 	if (!data.user.is_verified) {
-		goto('/login/verify')
+		goto(base + '/login/verify')
 	}
 	setContext('user', () => data.user);
 </script>

@@ -63,6 +63,8 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import Command from '@lucide/svelte/icons/command';
 	import type {ComponentProps} from 'svelte';
+	import logo from '$lib/images/logo.svg';
+	import {base} from "$app/paths";
 
 	let {ref = $bindable(null), ...restProps}: ComponentProps<typeof Sidebar.Root> = $props();
 </script>
@@ -73,15 +75,11 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton size="lg">
 					{#snippet child({props})}
-						<a href="##" {...props}>
-							<div
-									class="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
-							>
-								<Command class="size-4"/>
-							</div>
+						<a href="{base}/dashboard" {...props}>
+							<img class="size-12" src={logo} alt="Media Manager Logo"/>
 							<div class="grid flex-1 text-left text-sm leading-tight">
-								<span class="truncate font-semibold">Acme Inc</span>
-								<span class="truncate text-xs">Enterprise</span>
+								<span class="truncate font-semibold">Media Manager</span>
+								<span class="truncate text-xs">version? or smth else?</span>
 							</div>
 						</a>
 					{/snippet}
