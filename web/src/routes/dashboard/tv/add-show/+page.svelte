@@ -13,11 +13,12 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import {goto} from '$app/navigation';
 	import {base} from '$app/paths';
+	import AddShowCard from '$lib/components/add-show-card.svelte';
 
 	let searchTerm: string = $state('');
 	let metadataProvider: string = $state('tmdb');
 	let results:
-			| (MetaDataProviderShowSearchResult & { added?: boolean; downloaded?: boolean })[]
+			| MetaDataProviderShowSearchResult[]
 			| null = $state(null);
 
 	async function search() {
@@ -35,32 +36,6 @@
 		}
 	}
 
-	async function addShow(show: MetaDataProviderShowSearchResult & { added?: boolean }) {
-		let url = new URL(env.PUBLIC_API_URL + '/tv/shows');
-		url.searchParams.append('show_id', String(show.external_id));
-		url.searchParams.append('metadata_provider', show.metadata_provider);
-		const response = await fetch(url, {
-			method: 'POST',
-			credentials: 'include'
-		});
-
-		if (response.ok) {
-			goto(base + '/dashboard/tv/' + await response.json().then((data) => data.id));
-
-			if (results) {
-				const index = results.findIndex(
-						(item) =>
-								item.external_id === show.external_id &&
-								item.metadata_provider === show.metadata_provider
-				);
-				if (index !== -1) {
-					results[index].added = true;
-					results = [...results];
-				}
-			}
-		}
-		return response;
-	}
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -141,33 +116,7 @@
              md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
 			>
 				{#each results as result (result.external_id)}
-					<Card.Root class="h-full max-w-sm">
-						<Card.Header>
-							<Card.Title>
-								{result.name}
-								{#if result.year != null}
-									({result.year})
-								{/if}
-							</Card.Title>
-							<Card.Description class="truncate">{result?.overview}</Card.Description>
-						</Card.Header>
-						<Card.Content>
-							{#if result.poster_path != null}
-								<img
-										class="h-auto max-w-full rounded-lg object-cover"
-										src={result.poster_path}
-										alt="{result.name}'s Poster Image"
-								/>
-							{:else}
-								<ImageOff/>
-							{/if}
-						</Card.Content>
-						<Card.Footer>
-							<Button onclick={() => addShow(result)} disabled={result.added}>
-								{result.added ? 'Show already exists' : 'Add Show'}
-							</Button>
-						</Card.Footer>
-					</Card.Root>
+					<AddShowCard result={result}/>
 				{/each}
 			</div>
 		{/if}
