@@ -9,6 +9,8 @@
 	import {getFullyQualifiedShowName} from '$lib/utils';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
+	import * as Card from "$lib/components/ui/card/index.js";
+	import TorrentTable from "$lib/components/torrent-table.svelte";
 
 	let showsPromise: Promise<RichShowTorrent[]> = $state(page.data.shows);
 </script>
@@ -46,66 +48,19 @@
 	{#await showsPromise}
 		Loading...
 	{:then shows}
-		<Accordion.Root type="single" class="w-full lg:max-w-[70%]">
+		<Accordion.Root type="single" class="w-full">
 			{#each shows as show}
-				<div class="w-full rounded-xl bg-muted/50 p-6">
-					<Accordion.Item>
-						<Accordion.Trigger>
-							<h3 class="scroll-m-20 text-2xl font-semibold tracking-tight">
+				<div class="p-6">
+					<Card.Root>
+						<Card.Header>
+							<Card.Title>
 								{getFullyQualifiedShowName(show)}
-							</h3>
-						</Accordion.Trigger>
-						<Accordion.Content>
-							<Table.Root>
-								<Table.Header>
-									<Table.Row>
-										<Table.Head class="w-[500px]">Name</Table.Head>
-										<Table.Head>Seasons</Table.Head>
-										<Table.Head>Download Status</Table.Head>
-										<Table.Head>Quality</Table.Head>
-										<Table.Head>File Path Suffix</Table.Head>
-										<Table.Head>Imported</Table.Head>
-									</Table.Row>
-								</Table.Header>
-								<Table.Body>
-									{#each show.torrents as torrent}
-										<Table.Row>
-											<Table.Cell class="font-medium">
-												<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-													{torrent.torrent_title}
-												</a>
-											</Table.Cell>
-											<Table.Cell>
-												<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-													{torrent.seasons}
-												</a>
-											</Table.Cell>
-											<Table.Cell>
-												<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-													{getTorrentStatusString(torrent.status)}
-												</a>
-											</Table.Cell>
-											<Table.Cell class="font-medium">
-												<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-													{getTorrentQualityString(torrent.quality)}
-												</a>
-											</Table.Cell>
-											<Table.Cell class="font-medium">
-												<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-													{torrent.file_path_suffix}
-												</a>
-											</Table.Cell>
-											<Table.Cell>
-												<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-													<CheckmarkX state={torrent.imported}/>
-												</a>
-											</Table.Cell>
-										</Table.Row>
-									{/each}
-								</Table.Body>
-							</Table.Root>
-						</Accordion.Content>
-					</Accordion.Item>
+							</Card.Title>
+						</Card.Header>
+						<Card.Content>
+							<TorrentTable torrents={show.torrents}/>
+						</Card.Content>
+					</Card.Root>
 				</div>
 			{:else}
 				<h3 class="scroll-m-20 text-2xl font-semibold tracking-tight">

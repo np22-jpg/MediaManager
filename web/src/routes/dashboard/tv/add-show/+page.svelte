@@ -11,6 +11,8 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import type {MetaDataProviderShowSearchResult} from '$lib/types.js';
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
+	import {goto} from '$app/navigation';
+	import {base} from '$app/paths';
 
 	let searchTerm: string = $state('');
 	let metadataProvider: string = $state('tmdb');
@@ -43,6 +45,8 @@
 		});
 
 		if (response.ok) {
+			goto(base + '/dashboard/tv/' + await response.json().then((data) => data.id));
+
 			if (results) {
 				const index = results.findIndex(
 						(item) =>

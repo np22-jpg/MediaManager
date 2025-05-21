@@ -5,7 +5,7 @@
 	let {data, children}: LayoutProps = $props();
 
 	const showData = $derived(data.showData);
-	setContext('show', showData);
+	setContext('show', () => showData);
 	const fetchError = $derived(data.error);
 </script>
 

@@ -63,7 +63,12 @@ def get_shows_with_torrents(db: DbSessionDependency):
 
 @router.get("/shows/{show_id}", dependencies=[Depends(current_active_user)], response_model=PublicShow)
 def get_a_show(db: DbSessionDependency, show_id: ShowId):
-    return tv.service.get_show_by_id(db=db, show_id=show_id)
+    return tv.service.get_public_show_by_id(db=db, show_id=show_id)
+
+
+@router.get("/shows/{show_id}/torrents", dependencies=[Depends(current_active_user)], response_model=RichShowTorrent)
+def get_a_shows_torrents(db: DbSessionDependency, show_id: ShowId):
+    return tv.service.get_torrents_for_show(db=db, show=tv.service.get_show_by_id(db=db, show_id=show_id))
 
 
 @router.get("/shows/{show_id}/{season_number}/files", status_code=status.HTTP_200_OK,
@@ -107,7 +112,7 @@ def unrequest_season(db: DbSessionDependency, request: SeasonRequest):
 # --------------------------------
 
 # 1 is the default for season_number because it returns multi season torrents
-@router.get("/torrents", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)],
+@router.get("/torrents", status_code=status.HTTP_200_OK, dependencies=[Depends(current_superuser)],
             response_model=list[PublicIndexerQueryResult])
 def get_torrents_for_a_season(db: DbSessionDependency, show_id: ShowId, season_number: int = 1,
                               search_query_override: str = None):

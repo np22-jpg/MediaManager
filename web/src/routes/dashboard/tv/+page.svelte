@@ -53,8 +53,8 @@
                     <a href={'/dashboard/tv/' + show.id}>
                         <Card.Root class="h-full ">
                             <Card.Header>
-                                <Card.Title class="line-clamp-1">{getFullyQualifiedShowName(show)}</Card.Title>
-                                <Card.Description class="line-clamp-1">{show.overview}</Card.Description>
+                                <Card.Title class="truncate h-6">{getFullyQualifiedShowName(show)}</Card.Title>
+                                <Card.Description class="truncate">{show.overview}</Card.Description>
                             </Card.Header>
                             <Card.Content>
                                 <img

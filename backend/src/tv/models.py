@@ -74,3 +74,6 @@ class SeasonRequest(Base):
     season_id: Mapped[UUID] = mapped_column(ForeignKey(column="season.id", ondelete="CASCADE"), )
     wanted_quality: Mapped[Quality]
     min_quality: Mapped[Quality]
+    requested_by: Mapped[UUID | None] = mapped_column(ForeignKey(column="user.id", ondelete="SET NULL"), )
+    authorized: Mapped[bool] = mapped_column(default=False)
+    authorized_by: Mapped[UUID | None] = mapped_column(ForeignKey(column="user.id", ondelete="SET NULL"), )

@@ -10,7 +10,7 @@
     import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 
     import type {PublicIndexerQueryResult} from '$lib/types.js';
-    import {getFullyQualifiedShowName} from '$lib/utils';
+    import {convertTorrentSeasonRangeToIntegerRange, getFullyQualifiedShowName} from '$lib/utils';
 
     let {show} = $props();
 
@@ -278,11 +278,7 @@
                                         {/each}
                                     </Table.Cell>
                                     <Table.Cell>
-                                        {#if torrent.season.length === 1}
-                                            {torrent.season[0]}
-                                        {:else}
-                                            {torrent.season.at(0)}−{torrent.season.at(-1)}
-                                        {/if}
+                                        {convertTorrentSeasonRangeToIntegerRange(torrent)}
                                     </Table.Cell>
                                     <Table.Cell class="text-right">
                                         <Button

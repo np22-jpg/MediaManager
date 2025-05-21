@@ -7,14 +7,17 @@
     import {ImageOff} from 'lucide-svelte';
     import * as Table from '$lib/components/ui/table/index.js';
     import {getContext} from 'svelte';
-    import type {Show} from '$lib/types.js';
+    import type {RichShowTorrent, Show, User} from '$lib/types.js';
     import {getFullyQualifiedShowName} from '$lib/utils';
     import {toOptimizedURL} from 'sveltekit-image-optimize/components';
     import DownloadSeasonDialog from '$lib/components/download-season-dialog.svelte';
     import CheckmarkX from '$lib/components/checkmark-x.svelte';
+    import {page} from '$app/state';
+    import TorrentTable from '$lib/components/torrent-table.svelte';
 
     let show: Show = getContext('show');
-    console.log('loaded show:', show);
+    let user: User = getContext('user');
+    let torrents: RichShowTorrent = page.data.torrentsData
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -36,23 +39,23 @@
                 </Breadcrumb.Item>
                 <Breadcrumb.Separator class="hidden md:block"/>
                 <Breadcrumb.Item>
-                    <Breadcrumb.Page>{getFullyQualifiedShowName(show)}</Breadcrumb.Page>
+                    <Breadcrumb.Page>{getFullyQualifiedShowName(show())}</Breadcrumb.Page>
                 </Breadcrumb.Item>
             </Breadcrumb.List>
         </Breadcrumb.Root>
     </div>
 </header>
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-    {getFullyQualifiedShowName(show)}
+    {getFullyQualifiedShowName(show())}
 </h1>
 <div class="flex flex-1 flex-col gap-4 p-4">
     <div class="flex items-center gap-2">
         <div class="max-h-50% w-1/3 max-w-sm rounded-xl bg-muted/50">
-            {#if show?.id}
+            {#if show().id}
                 <img
                         class="aspect-9/16 h-auto w-full rounded-lg object-cover"
-                        src={toOptimizedURL(`${env.PUBLIC_API_URL}/static/image/${show.id}.jpg`)}
-                        alt="{show.name}'s Poster Image"
+                        src={toOptimizedURL(`${env.PUBLIC_API_URL}/static/image/${show().id}.jpg`)}
+                        alt="{show().name}'s Poster Image"
                 />
             {:else}
                 <div
@@ -64,11 +67,13 @@
         </div>
         <div class="h-full flex-auto rounded-xl bg-muted/50 p-4">
             <p class="leading-7 [&:not(:first-child)]:mt-6">
-                {show.overview}
+                {show().overview}
             </p>
         </div>
         <div class="h-full flex-auto rounded-xl bg-muted/50 p-4">
-            <DownloadSeasonDialog {show}/>
+            {#if user().is_superuser}
+                <DownloadSeasonDialog {show}/>
+            {/if}
         </div>
     </div>
     <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 p-4 md:min-h-min">
@@ -84,11 +89,11 @@
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                    {#if show?.seasons?.length > 0}
-                        {#each show.seasons as season (season.id)}
+                    {#if show().seasons.length > 0}
+                        {#each show().seasons as season (season.id)}
                             <Table.Row
                                     link={true}
-                                    onclick={() => goto('/dashboard/tv/' + show.id + '/' + season.number)}
+                                    onclick={() => goto('/dashboard/tv/' + show().id + '/' + season.number)}
                             >
                                 <Table.Cell class="min-w-[10px] font-medium">{season.number}</Table.Cell>
                                 <Table.Cell class="min-w-[10px] font-medium">
@@ -105,6 +110,11 @@
                     {/if}
                 </Table.Body>
             </Table.Root>
+        </div>
+    </div>
+    <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 p-4 md:min-h-min">
+        <div class="w-full overflow-x-auto">
+            <TorrentTable torrents={torrents.torrents}/>
         </div>
     </div>
 </div>

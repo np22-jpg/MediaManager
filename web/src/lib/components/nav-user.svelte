@@ -14,8 +14,27 @@
 	import UserDetails from './user-details.svelte';
 	import type {User} from '$lib/types';
 	import UserRound from '@lucide/svelte/icons/user-round';
+	import {base} from '$app/paths';
+	import {env} from "$env/dynamic/public";
+	import {goto} from '$app/navigation';
+
 	const user: () => User = getContext('user');
 	const sidebar = useSidebar();
+	const apiUrl = env.PUBLIC_API_URL;
+
+	async function handleLogout() {
+		const response = await fetch(apiUrl + '/auth/cookie/logout', {
+			method: 'POST',
+			credentials: 'include'
+		});
+		if (response.ok) {
+			console.log('Logout successful!');
+			await goto(base + '/login');
+		} else {
+			console.error('Logout failed:', response.status);
+		}
+	}
+
 </script>
 
 <Sidebar.Menu>
@@ -83,7 +102,7 @@
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 				<DropdownMenu.Separator/>
-				<DropdownMenu.Item>
+				<DropdownMenu.Item onclick={() => handleLogout()}>
 					<LogOut/>
 					Log out
 				</DropdownMenu.Item>

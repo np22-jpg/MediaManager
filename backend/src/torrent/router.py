@@ -16,7 +16,7 @@ def get_torrent(service: TorrentServiceDependency, torrent_id: TorrentId):
 
 @router.get("/", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)],
             response_model=list[Torrent])
-def get_all_torrents(service: TorrentServiceDependency, ):
+def get_all_torrents(service: TorrentServiceDependency):
     return service.get_all_torrents()
 
 

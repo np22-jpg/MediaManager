@@ -9,14 +9,10 @@
 		navMain: [
 			{
 				title: 'TV',
-				url: '#',
+				url: '/dashboard/tv',
 				icon: TvIcon,
 				isActive: true,
 				items: [
-					{
-						title: 'Shows',
-						url: '/dashboard/tv'
-					},
 					{
 						title: 'Add a show',
 						url: '/dashboard/tv/add-show'
