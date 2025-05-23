@@ -54,6 +54,7 @@ from auth.users import bearer_auth_backend, fastapi_users, cookie_auth_backend
 
 from config import BasicConfig
 from auth.users import oauth_client
+import auth.db  # registering user table for sqlalchemy
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -73,7 +74,7 @@ else:
     log.info("Development Mode not activated!")
 
 database.init_db()
-
+log.info("Database initialized")
 app = FastAPI(root_path="/api/v1")
 
 if basic_config.DEVELOPMENT:

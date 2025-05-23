@@ -2,7 +2,7 @@ from sqlalchemy import String, Integer
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
-from database import Base
+from backend.src.database import Base
 from indexer.schemas import IndexerQueryResultId
 from torrent.schemas import Quality
 

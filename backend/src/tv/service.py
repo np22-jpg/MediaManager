@@ -1,3 +1,4 @@
+from pydantic.v1 import UUID4
 from sqlalchemy.orm import Session
 
 import indexer.service
@@ -14,7 +15,7 @@ from tv import log
 from tv.exceptions import MediaAlreadyExists
 from tv.repository import add_season_file, get_season_files_by_season_id
 from tv.schemas import Show, ShowId, SeasonRequest, SeasonFile, SeasonId, Season, RichShowTorrent, RichSeasonTorrent, \
-    PublicSeason, PublicShow, PublicSeasonFile, SeasonNumber
+    PublicSeason, PublicShow, PublicSeasonFile, SeasonNumber, SeasonRequestId
 
 
 def add_show(db: Session, external_id: int, metadata_provider: str) -> Show | None:
@@ -29,6 +30,9 @@ def add_show(db: Session, external_id: int, metadata_provider: str) -> Show | No
 def request_season(db: Session, season_request: SeasonRequest) -> None:
     tv.repository.add_season_to_requested_list(db=db, season_request=season_request)
 
+
+def update_season_request(db: Session, season_request: SeasonRequest) -> None:
+    tv.repository.update_season_request(db=db, season_request=season_request)
 
 def unrequest_season(db: Session, season_request: SeasonRequest) -> None:
     tv.repository.remove_season_from_requested_list(db=db, season_request=season_request)
@@ -181,3 +185,11 @@ def download_torrent(db: Session, public_indexer_result_id: IndexerQueryResultId
                                  file_path_suffix=override_show_file_path_suffix)
         add_season_file(db=db, season_file=season_file)
     return show_torrent
+
+
+def get_season_requests_by_season_id(db: Session, season_id: SeasonId) -> list[SeasonRequest]:
+    return [x for x in tv.repository.get_season_requests(db=db) if x.season_id == season_id]
+
+
+def get_season_requests_by_show_id(db: Session, show_id: ShowId) -> list[SeasonRequest]:
+    return [x for x in tv.repository.get_season_requests(db=db) if x.show_id == show_id]

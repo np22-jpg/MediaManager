@@ -2,7 +2,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database import Base
+from backend.src.database import Base
 from torrent.schemas import Quality, TorrentStatus
 
 

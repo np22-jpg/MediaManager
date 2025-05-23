@@ -3,6 +3,7 @@ import uuid
 from uuid import UUID
 
 from pydantic import BaseModel, Field, ConfigDict
+from tvdb_v4_official import Request
 
 from torrent.models import Quality
 from torrent.schemas import TorrentId, TorrentStatus
@@ -13,7 +14,7 @@ EpisodeId = typing.NewType("EpisodeId", UUID)
 
 SeasonNumber = typing.NewType("SeasonNumber", int)
 EpisodeNumber = typing.NewType("EpisodeNumber", int)
-
+SeasonRequestId = typing.NewType("SeasonRequestId", UUID)
 
 class Episode(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -53,13 +54,35 @@ class Show(BaseModel):
     seasons: list[Season]
 
 
-class SeasonRequest(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class SeasonRequestBase(BaseModel):
     season_id: SeasonId
     min_quality: Quality
     wanted_quality: Quality
 
+
+class CreateSeasonRequest(SeasonRequestBase):
+    pass
+
+
+class UpdateSeasonRequest(SeasonRequestBase):
+    id: SeasonRequestId
+
+
+class SeasonRequest(SeasonRequestBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: SeasonRequestId = Field(default_factory=uuid.uuid4)
+
+    requested_by: UUID | None = None
+    authorized: bool = False
+    authorized_by: UUID | None = None
+
+
+class RichSeasonRequest(SeasonRequest):
+    show_id: ShowId
+    show_name: str
+    show_year: int | None
+    season_number: SeasonNumber
 
 class SeasonFile(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -73,6 +96,7 @@ class SeasonFile(BaseModel):
 class PublicSeasonFile(SeasonFile):
     downloaded: bool = False
 
+
 class RichSeasonTorrent(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -84,6 +108,7 @@ class RichSeasonTorrent(BaseModel):
 
     file_path_suffix: str
     seasons: list[SeasonNumber]
+
 
 class RichShowTorrent(BaseModel):
     model_config = ConfigDict(from_attributes=True)

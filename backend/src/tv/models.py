@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import ForeignKey, PrimaryKeyConstraint, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database import Base
+from backend.src.database import Base
 from torrent.models import Quality
 
 
@@ -69,8 +69,9 @@ class SeasonFile(Base):
 class SeasonRequest(Base):
     __tablename__ = "season_request"
     __table_args__ = (
-        PrimaryKeyConstraint("season_id", "wanted_quality"),
+        UniqueConstraint("season_id", "wanted_quality"),
     )
+    id: Mapped[UUID] = mapped_column(primary_key=True)
     season_id: Mapped[UUID] = mapped_column(ForeignKey(column="season.id", ondelete="CASCADE"), )
     wanted_quality: Mapped[Quality]
     min_quality: Mapped[Quality]
