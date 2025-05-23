@@ -5,8 +5,8 @@ from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Mapped, relationship
 
-import backend.src.database as database
 from backend.src.database import Base
+from backend.src.database import db_url
 
 
 class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
@@ -19,7 +19,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     )
 
 
-engine = create_async_engine(database.db_url, echo=False)
+engine = create_async_engine(db_url, echo=False)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 

@@ -4,7 +4,6 @@ from logging.config import dictConfig
 
 from pythonjsonlogger.json import JsonFormatter
 
-import router
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -46,22 +45,25 @@ logging.basicConfig(level=logging.DEBUG,
                     )
 log = logging.getLogger(__name__)
 
-import database
-import auth.users
+from backend.src.database import init_db
+import tv.router
+import torrent.router
+import auth.db
 
-from auth.schemas import UserCreate, UserRead, UserUpdate
-from auth.users import bearer_auth_backend, fastapi_users, cookie_auth_backend
+init_db()
+log.info("Database initialized")
 
-from config import BasicConfig
 from auth.users import oauth_client
-import auth.db  # registering user table for sqlalchemy
+import auth.users
+import router
+from config import BasicConfig
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
-import tv.router
-import torrent.router
+from auth.schemas import UserCreate, UserRead, UserUpdate
+from auth.users import bearer_auth_backend, fastapi_users, cookie_auth_backend
 
 basic_config = BasicConfig()
 if basic_config.DEVELOPMENT:
@@ -73,8 +75,6 @@ if basic_config.DEVELOPMENT:
 else:
     log.info("Development Mode not activated!")
 
-database.init_db()
-log.info("Database initialized")
 app = FastAPI(root_path="/api/v1")
 
 if basic_config.DEVELOPMENT:

@@ -4,7 +4,6 @@ from sqlalchemy import select, delete, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
-import database
 from torrent.models import Torrent
 from torrent.schemas import TorrentId, Torrent as TorrentSchema
 from tv.models import Season, Show, Episode, SeasonRequest, SeasonFile
@@ -212,6 +211,3 @@ def update_season_request(db: Session, season_request: SeasonRequestSchema) -> N
     db.commit()
 
 
-if __name__ == "__main__":
-    session = database.sessionmaker(autocommit=False, autoflush=False, bind=database.engine)()
-    pprint.pprint(get_season_requests(db=session))

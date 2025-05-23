@@ -1,4 +1,5 @@
 import logging
+import pprint
 from contextvars import ContextVar
 from typing import Annotated, Any, Generator
 
@@ -15,12 +16,16 @@ db_url = "postgresql+psycopg" + "://" + config.USER + ":" + config.PASSWORD + "@
     config.PORT) + "/" + config.DBNAME
 
 engine = create_engine(db_url, echo=False)
+log.debug("initializing sqlalchemy declarative base")
 Base = declarative_base()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 
 def init_db() -> None:
+    log.debug("initializing database with following tables")
+    for table in Base.metadata.tables:
+        log.debug(f"Table: {table.title()}")
     Base.metadata.create_all(engine)
 
 

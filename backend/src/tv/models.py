@@ -65,7 +65,6 @@ class SeasonFile(Base):
     torrent = relationship("Torrent", back_populates="season_files", uselist=False)
     season = relationship("Season", back_populates="season_files", uselist=False)
 
-
 class SeasonRequest(Base):
     __tablename__ = "season_request"
     __table_args__ = (

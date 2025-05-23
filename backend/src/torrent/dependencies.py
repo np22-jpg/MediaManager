@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from database import DbSessionDependency
+from backend.src.database import DbSessionDependency
 from torrent.service import TorrentService
 
 

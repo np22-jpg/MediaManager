@@ -5,15 +5,15 @@ from fastapi.responses import JSONResponse
 
 import tv.repository
 import tv.service
+from auth.db import User
 from auth.users import current_active_user, current_superuser
-from database import DbSessionDependency
+from backend.src.database import DbSessionDependency
 from indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
 from metadataProvider.schemas import MetaDataProviderShowSearchResult
 from torrent.schemas import Torrent
 from tv.exceptions import MediaAlreadyExists
 from tv.schemas import Show, SeasonRequest, ShowId, RichShowTorrent, PublicShow, PublicSeasonFile, SeasonNumber, \
-    CreateSeasonRequest, SeasonRequestId, UpdateSeasonRequest, RichSeasonRequest
-from auth.db import User
+    CreateSeasonRequest, SeasonRequestId, UpdateSeasonRequest, RichSeasonRequest, SeasonId
 
 router = APIRouter()
 
@@ -78,12 +78,6 @@ def get_season_files(db: DbSessionDependency, season_number: SeasonNumber, show_
     return tv.service.get_public_season_files_by_season_number(db=db, season_number=season_number, show_id=show_id)
 
 
-@router.get("/shows/{show_id}/{season_number}/requests", status_code=status.HTTP_200_OK,
-            dependencies=[Depends(current_active_user)], response_model=list[RichSeasonRequest])
-def get_season_files(db: DbSessionDependency, season_number: SeasonNumber, show_id: ShowId) -> list[RichSeasonRequest]:
-    return None
-
-
 # --------------------------------
 # MANAGE REQUESTS
 # --------------------------------
@@ -103,7 +97,7 @@ def request_a_season(db: DbSessionDependency, user: Annotated[User, Depends(curr
 
 @router.get("/seasons/requests", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
 def get_requested_seasons(db: DbSessionDependency) -> list[SeasonRequest]:
-    return tv.service.get_all_requested_seasons(db=db)
+    return tv.service.get_all_season_requests(db=db)
 
 
 @router.patch("/seasons/requests/{season_request_id}", status_code=status.HTTP_200_OK, response_model=SeasonRequest)

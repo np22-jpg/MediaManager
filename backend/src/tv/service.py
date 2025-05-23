@@ -148,7 +148,7 @@ def get_season(db: Session, season_id: SeasonId) -> Season:
     return tv.repository.get_season(season_id=season_id, db=db)
 
 
-def get_all_requested_seasons(db: Session) -> list[SeasonRequest]:
+def get_all_season_requests(db: Session) -> list[SeasonRequest]:
     return tv.repository.get_season_requests(db=db)
 
 
@@ -186,10 +186,3 @@ def download_torrent(db: Session, public_indexer_result_id: IndexerQueryResultId
         add_season_file(db=db, season_file=season_file)
     return show_torrent
 
-
-def get_season_requests_by_season_id(db: Session, season_id: SeasonId) -> list[SeasonRequest]:
-    return [x for x in tv.repository.get_season_requests(db=db) if x.season_id == season_id]
-
-
-def get_season_requests_by_show_id(db: Session, show_id: ShowId) -> list[SeasonRequest]:
-    return [x for x in tv.repository.get_season_requests(db=db) if x.show_id == show_id]
