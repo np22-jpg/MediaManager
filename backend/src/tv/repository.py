@@ -220,8 +220,3 @@ def get_seasons_by_torrent_id(db: Session, torrent_id: TorrentId) -> list[Season
 def get_season_request(db: Session, season_request_id: SeasonRequestId) -> SeasonRequestSchema:
     return SeasonRequestSchema.model_validate(db.get(SeasonRequest, season_request_id))
 
-
-def update_season_request(db: Session, season_request: SeasonRequestSchema) -> None:
-    db.delete(db.get(SeasonRequest, season_request.id))
-    db.add(SeasonRequest(**season_request.model_dump()))
-    db.commit()

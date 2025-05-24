@@ -35,8 +35,8 @@ def get_season_request_by_id(db: Session, season_request_id: SeasonRequestId) ->
     return tv.repository.get_season_request(db=db, season_request_id=season_request_id)
 
 def update_season_request(db: Session, season_request: SeasonRequest) -> None:
-    tv.repository.update_season_request(db=db, season_request=season_request)
-
+    tv.repository.delete_season_request(db=db, season_request_id=season_request.id)
+    tv.repository.add_season_request(db=db, season_request=season_request)
 
 def delete_season_request(db: Session, season_request_id: SeasonRequestId) -> None:
     tv.repository.delete_season_request(db=db, season_request_id=season_request_id)

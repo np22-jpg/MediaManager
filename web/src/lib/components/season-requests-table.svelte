@@ -7,6 +7,8 @@
     import {Button} from '$lib/components/ui/button/index.js';
     import {env} from '$env/dynamic/public';
     import {toast} from 'svelte-sonner';
+    import {goto} from "$app/navigation";
+    import {base} from "$app/paths";
 
     let {
         requests,
@@ -32,8 +34,9 @@
             if (response.ok) {
                 const requestIndex = requests.findIndex((r) => r.id === requestId);
                 if (requestIndex !== -1) {
-                    requests[requestIndex].authorized = !currentAuthorizedStatus;
-                    requests[requestIndex].authorized_by = user();
+                    let newAuthorizedStatus = !currentAuthorizedStatus;
+                    requests[requestIndex].authorized = newAuthorizedStatus;
+                    requests[requestIndex].authorized_by = newAuthorizedStatus ? user() : null;
                 }
                 toast.success(
                     `Request ${!currentAuthorizedStatus ? 'approved' : 'unapproved'} successfully.`
@@ -119,14 +122,22 @@
                     <Table.Cell>
                         {request.authorized_by?.email ?? 'N/A'}
                     </Table.Cell>
-                    <Table.Cell class="space-x-1">
+                    <Table.Cell class="flex flex-col items-center gap-1">
                         {#if user().is_superuser}
                             <Button
-                                    class="mb-1"
+                                    class=""
                                     size="sm"
                                     onclick={() => approveRequest(request.id, request.authorized)}
                             >
                                 {request.authorized ? 'Unapprove' : 'Approve'}
+                            </Button>
+                            <Button
+                                    class=""
+                                    size="sm"
+                                    variant="outline"
+                                    onclick={() => goto(base+"/dashboard/tv/"+request.show.id + "/" + request.season.number)}
+                            >
+                                Download manually
                             </Button>
                         {/if}
                         {#if user().is_superuser || user().id === request.requested_by?.id}

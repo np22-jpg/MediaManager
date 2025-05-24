@@ -129,6 +129,8 @@ def authorize_request(db: DbSessionDependency, user: Annotated[User, Depends(cur
     season_request: SeasonRequest = tv.repository.get_season_request(db=db, season_request_id=season_request_id)
     season_request.authorized_by = UserRead.model_validate(user)
     season_request.authorized = authorized_status
+    if not authorized_status:
+        season_request.authorized_by = None
     tv.service.update_season_request(db=db, season_request=season_request)
     return
 
