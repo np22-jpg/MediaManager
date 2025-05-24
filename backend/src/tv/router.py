@@ -93,6 +93,9 @@ def request_a_season(db: DbSessionDependency, user: Annotated[User, Depends(curr
     """
     request: SeasonRequest = SeasonRequest.model_validate(season_request)
     request.requested_by = UserRead.model_validate(user)
+    if user.is_superuser:
+        request.authorized = True
+        request.authorized_by = user
     tv.service.add_season_request(db=db, season_request=request)
     return
 
@@ -131,11 +134,13 @@ def authorize_request(db: DbSessionDependency, user: Annotated[User, Depends(cur
 
 
 @router.put("/seasons/requests", status_code=status.HTTP_204_NO_CONTENT)
-def update_request(db: DbSessionDependency, user: Annotated[User, Depends(current_superuser)],
+def update_request(db: DbSessionDependency, user: Annotated[User, Depends(current_active_user)],
                    season_request: UpdateSeasonRequest):
     season_request: SeasonRequest = SeasonRequest.model_validate(season_request)
-    season_request.requested_by = UserRead.model_validate(user)
-    tv.service.update_season_request(db=db, season_request=season_request)
+    request = tv.service.get_season_request_by_id(db=db, season_request_id=season_request.id)
+    if request.requested_by.id == user.id or user.is_superuser:
+        season_request.requested_by = UserRead.model_validate(user)
+        tv.service.update_season_request(db=db, season_request=season_request)
     return
 
 # --------------------------------
