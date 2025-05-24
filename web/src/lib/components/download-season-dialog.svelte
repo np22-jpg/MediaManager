@@ -1,13 +1,9 @@
 <script lang="ts">
     import {env} from '$env/dynamic/public';
     import {Button, buttonVariants} from '$lib/components/ui/button/index.js';
-    import * as Dialog from '$lib/components/ui/dialog/index.js';
     import {Input} from '$lib/components/ui/input';
     import {Label} from '$lib/components/ui/label';
-    import * as Select from '$lib/components/ui/select/index.js';
-    import * as Tabs from '$lib/components/ui/tabs/index.js';
-    import * as Table from '$lib/components/ui/table/index.js';
-    import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+    import {toast} from 'svelte-sonner';
 
     import type {PublicIndexerQueryResult} from '$lib/types.js';
     import {convertTorrentSeasonRangeToIntegerRange, getFullyQualifiedShowName} from '$lib/utils';
@@ -41,16 +37,19 @@
                 const errorMessage = `Failed to download torrent for show ${show.id} and season ${selectedSeasonNumber}: ${response.statusText}`;
                 console.error(errorMessage);
                 torrentsError = errorMessage;
+                toast.error(errorMessage);
                 return false;
             }
 
             const data: PublicIndexerQueryResult[] = await response.json();
             console.log('Downloading torrent:', data);
+            toast.success('Torrent download started successfully!');
 
             return true;
         } catch (err) {
             const errorMessage = `Error downloading torrent: ${err instanceof Error ? err.message : 'An unknown error occurred'}`;
             console.error(errorMessage);
+            toast.error(errorMessage);
             return false;
         }
     }
@@ -84,17 +83,24 @@
                 const errorMessage = `Failed to fetch torrents for show ${show.id} and season ${selectedSeasonNumber}: ${response.statusText}`;
                 console.error(errorMessage);
                 torrentsError = errorMessage;
+                toast.error(errorMessage);
                 return [];
             }
 
             const data: PublicIndexerQueryResult[] = await response.json();
             console.log('Fetched torrents:', data);
+            if (data.length > 0) {
+                toast.success(`Found ${data.length} torrents.`);
+            } else {
+                toast.info('No torrents found for your query.');
+            }
 
             return data;
         } catch (err) {
             const errorMessage = `Error fetching torrents: ${err instanceof Error ? err.message : 'An unknown error occurred'}`;
             console.error(errorMessage);
             torrentsError = errorMessage;
+            toast.error(errorMessage);
             return [];
         } finally {
             isLoadingTorrents = false;
@@ -198,8 +204,7 @@
                             torrentsError = null;
                             torrents = [];
                             try {
-                               const fetchedTorrents = await getTorrents(selectedSeasonNumber, true);
-                               torrents = fetchedTorrents;
+                               torrents = await getTorrents(selectedSeasonNumber, true);
                             } catch (error) {
                                console.log(error);
                             } finally {

@@ -7,6 +7,7 @@
     import LoaderCircle from '@lucide/svelte/icons/loader-circle';
     import type {PublicShow, Quality, CreateSeasonRequest} from '$lib/types.js';
     import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils.js';
+    import {toast} from 'svelte-sonner';
 
     let {show}: { show: PublicShow } = $props();
 
@@ -53,14 +54,16 @@
                     selectedSeasonsIds = undefined;
                     minQuality = undefined;
                     wantedQuality = undefined;
-                    // Optionally: add a success toast/notification here
+                    toast.success('Season request submitted successfully!');
                 } else {
                     const errorData = await response.json().catch(() => ({message: response.statusText}));
                     submitRequestError = `Failed to submit request: ${errorData.message || response.statusText}`;
+                    toast.error(submitRequestError);
                     console.error('Failed to submit request', response.statusText, errorData);
                 }
             } catch (error) {
                 submitRequestError = `Error submitting request: ${error instanceof Error ? error.message : String(error)}`;
+                toast.error(submitRequestError);
                 console.error('Error submitting request:', error);
             } finally {
                 isSubmittingRequest = false;
@@ -160,3 +163,4 @@
         </Dialog.Footer>
     </Dialog.Content>
 </Dialog.Root>
+

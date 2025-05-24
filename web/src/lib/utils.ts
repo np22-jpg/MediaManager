@@ -3,6 +3,7 @@ import {twMerge} from 'tailwind-merge';
 import {env} from "$env/dynamic/public";
 import {goto} from '$app/navigation';
 import {base} from '$app/paths';
+import {toast} from 'svelte-sonner';
 
 const apiUrl = env.PUBLIC_API_URL;
 
@@ -56,8 +57,11 @@ export async function handleLogout(): null {
 	});
 	if (response.ok) {
 		console.log('Logout successful!');
+		toast.success('Logout successful!');
 		await goto(base + '/login');
 	} else {
 		console.error('Logout failed:', response.status);
+		toast.error('Logout failed: ' + response.status);
 	}
 }
+
