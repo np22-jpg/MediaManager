@@ -8,8 +8,6 @@
     import {toOptimizedURL} from 'sveltekit-image-optimize/components';
     import {getFullyQualifiedShowName} from '$lib/utils';
     import logo from '$lib/images/svelte-logo.svg';
-    import {Button} from "$lib/components/ui/button";
-    import {goto} from "$app/navigation";
 
     let tvShowsPromise = page.data.tvShows;
 </script>
@@ -53,7 +51,7 @@
                     <a href={'/dashboard/tv/' + show.id}>
                         <Card.Root class="h-full ">
                             <Card.Header>
-                                <Card.Title class="truncate h-6">{getFullyQualifiedShowName(show)}</Card.Title>
+                                <Card.Title class="h-6 truncate">{getFullyQualifiedShowName(show)}</Card.Title>
                                 <Card.Description class="truncate">{show.overview}</Card.Description>
                             </Card.Header>
                             <Card.Content>
@@ -62,8 +60,8 @@
                                         src={toOptimizedURL(`${env.PUBLIC_API_URL}/static/image/${show.id}.jpg`)}
                                         alt="{getFullyQualifiedShowName(show)}'s Poster Image"
                                         on:error={(e) => {
-                                        e.target.src = logo;
-                                    }}
+										e.target.src = logo;
+									}}
                                 />
                             </Card.Content>
                         </Card.Root>

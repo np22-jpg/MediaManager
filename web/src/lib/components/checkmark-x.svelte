@@ -4,6 +4,7 @@
 
     let {state} = $props();
 </script>
+
 {#if state}
     <Check class="stroke-green-500"/>
 {:else}

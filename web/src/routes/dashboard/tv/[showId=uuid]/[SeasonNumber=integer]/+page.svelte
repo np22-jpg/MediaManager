@@ -6,19 +6,19 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import {getContext} from 'svelte';
-	import type {PublicSeasonFile, RichShowTorrent, Season, Show} from '$lib/types';
+	import type {PublicSeasonFile, Season, Show} from '$lib/types';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
-    import {getTorrentQualityString, getFullyQualifiedShowName} from "$lib/utils";
+	import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils';
 
 	const SeasonNumber = page.params.SeasonNumber;
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let show: Show = getContext('show');
-	let season: Season;
+	let season: Season = $state();
 	show.seasons.forEach((item) => {
 		if (item.number === parseInt(SeasonNumber)) season = item;
 	});
 
-    console.log('loaded files', seasonFiles);
+	console.log('loaded files', seasonFiles);
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -54,7 +54,7 @@
 	</div>
 </header>
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-    {getFullyQualifiedShowName(show)} Season {SeasonNumber}
+	{getFullyQualifiedShowName(show)} Season {SeasonNumber}
 </h1>
 <div class="flex flex-1 flex-col gap-4 p-4">
 	<div class="flex items-center gap-2">
@@ -65,12 +65,12 @@
 					alt="{show.name}'s Poster Image"
 			/>
 		</div>
-		<div class="h-full flex-auto rounded-xl bg-muted/50 p-4 w-1/4 ">
+		<div class="h-full w-1/4 flex-auto rounded-xl bg-muted/50 p-4">
 			<p class="leading-7 [&:not(:first-child)]:mt-6">
 				{show.overview}
 			</p>
 		</div>
-		<div class="h-full flex-auto rounded-xl bg-muted/50 p-4 w-1/3">
+		<div class="h-full w-1/3 flex-auto rounded-xl bg-muted/50 p-4">
 			<Table.Root>
 				<Table.Caption>A list of all downloaded/downloading versions of this season.</Table.Caption>
 				<Table.Header>
@@ -90,10 +90,10 @@
 								{file.file_path_suffix}
 							</Table.Cell>
 							<Table.Cell class="w-[10px] font-medium">
-                                <CheckmarkX state={file.downloaded}/>
+								<CheckmarkX state={file.downloaded}/>
 							</Table.Cell>
 						</Table.Row>
-					{:else }
+					{:else}
 						<span class="font-semibold">You haven't downloaded this season yet.</span>
 					{/each}
 				</Table.Body>

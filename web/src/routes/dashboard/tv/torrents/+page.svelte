@@ -3,14 +3,11 @@
 	import {Separator} from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
-	import {getTorrentQualityString, getTorrentStatusString} from '$lib/utils';
 	import type {RichShowTorrent} from '$lib/types';
 	import {getFullyQualifiedShowName} from '$lib/utils';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
-	import CheckmarkX from '$lib/components/checkmark-x.svelte';
-	import * as Card from "$lib/components/ui/card/index.js";
-	import TorrentTable from "$lib/components/torrent-table.svelte";
+	import * as Card from '$lib/components/ui/card/index.js';
+	import TorrentTable from '$lib/components/torrent-table.svelte';
 
 	let showsPromise: Promise<RichShowTorrent[]> = $state(page.data.shows);
 </script>

@@ -103,11 +103,17 @@ def get_season_requests(db: DbSessionDependency) -> list[RichSeasonRequest]:
     return tv.service.get_all_season_requests(db=db)
 
 
-@router.delete("/seasons/requests/{request_id}", status_code=status.HTTP_204_NO_CONTENT,
-               dependencies=[Depends(current_active_user)])
-def delete_season_request(db: DbSessionDependency, request_id: SeasonRequestId):
-    tv.service.delete_season_request(db=db, season_request_id=request_id)
-    return
+@router.delete("/seasons/requests/{request_id}", status_code=status.HTTP_204_NO_CONTENT, )
+def delete_season_request(db: DbSessionDependency, user: Annotated[User, Depends(current_active_user)],
+                          request_id: SeasonRequestId):
+    request = tv.service.get_season_request_by_id(db=db, season_request_id=request_id)
+    if user.is_superuser or request.requested_by.id == user.id:
+        tv.service.delete_season_request(db=db, season_request_id=request_id)
+        log.info(f"User {user.id} deleted season request {request_id}.")
+    else:
+        log.warning(f"User {user.id} tried to delete season request {request_id} but is not authorized.")
+        return JSONResponse(status_code=status.HTTP_403_FORBIDDEN,
+                            content={"message": "Not authorized to delete this request."})
 
 
 

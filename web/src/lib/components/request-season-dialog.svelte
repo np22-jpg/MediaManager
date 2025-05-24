@@ -5,7 +5,7 @@
     import {Label} from '$lib/components/ui/label';
     import * as Select from '$lib/components/ui/select/index.js';
     import LoaderCircle from '@lucide/svelte/icons/loader-circle';
-    import type {PublicShow, Quality, CreateSeasonRequest} from '$lib/types.js';
+    import type {CreateSeasonRequest, PublicShow, Quality} from '$lib/types.js';
     import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils.js';
     import {toast} from 'svelte-sonner';
 
@@ -20,19 +20,21 @@
 
     const qualityValues: Quality[] = [1, 2, 3, 4];
     let qualityOptions = $derived(
-        qualityValues.map(q => ({value: q, label: getTorrentQualityString(q)}))
+        qualityValues.map((q) => ({value: q, label: getTorrentQualityString(q)}))
     );
     let isFormInvalid = $derived(
-        !selectedSeasonsIds || selectedSeasonsIds.length === 0 ||
-        !minQuality || !wantedQuality ||
-        (wantedQuality > minQuality)
+        !selectedSeasonsIds ||
+        selectedSeasonsIds.length === 0 ||
+        !minQuality ||
+        !wantedQuality ||
+        wantedQuality > minQuality
     );
 
     async function handleRequestSeason() {
         isSubmittingRequest = true;
         submitRequestError = null;
 
-        const payloads: CreateSeasonRequest = selectedSeasonsIds.map(seasonId => ({
+        const payloads: CreateSeasonRequest = selectedSeasonsIds.map((seasonId) => ({
             season_id: seasonId,
             min_quality: minQuality,
             wanted_quality: wantedQuality
@@ -42,13 +44,14 @@
                 const response = await fetch(`${env.PUBLIC_API_URL}/tv/seasons/requests`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     credentials: 'include',
                     body: JSON.stringify(payload)
                 });
 
-                if (response.status === 204) { // Success, no content
+                if (response.status === 204) {
+                    // Success, no content
                     dialogOpen = false; // Close the dialog
                     // Reset form fields
                     selectedSeasonsIds = undefined;
@@ -70,15 +73,14 @@
             }
         }
     }
-
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
     <Dialog.Trigger
             class={buttonVariants({ variant: 'default' })}
             on:click={() => {
-            dialogOpen = true;
-        }}
+			dialogOpen = true;
+		}}
     >
         Request Season
     </Dialog.Trigger>
@@ -96,8 +98,8 @@
                 <Select.Root bind:value={selectedSeasonsIds}>
                     <Select.Trigger class="w-full" id="season">
                         {#each selectedSeasonsIds as seasonId (seasonId)}
-                            {#if show.seasons.find(season => season.id === seasonId)}
-                                {show.seasons.find(season => season.id === seasonId).number},&nbsp;
+                            {#if show.seasons.find((season) => season.id === seasonId)}
+                                {show.seasons.find((season) => season.id === seasonId).number},&nbsp;
                             {/if}
                         {:else}
                             Select one or more seasons
@@ -118,7 +120,7 @@
                 <Label class="text-right" for="min-quality">Min Quality</Label>
                 <Select.Root bind:value={minQuality} type="single">
                     <Select.Trigger class="w-full" id="min-quality">
-                        {minQuality ? getTorrentQualityString(minQuality) : "Select Minimum Quality"}
+                        {minQuality ? getTorrentQualityString(minQuality) : 'Select Minimum Quality'}
                     </Select.Trigger>
                     <Select.Content>
                         {#each qualityOptions as option (option.value)}
@@ -133,7 +135,7 @@
                 <Label class="text-right" for="wanted-quality">Wanted Quality</Label>
                 <Select.Root bind:value={wantedQuality} type="single">
                     <Select.Trigger class="w-full" id="wanted-quality">
-                        {wantedQuality ? getTorrentQualityString(wantedQuality) : "Select Wanted Quality"}
+                        {wantedQuality ? getTorrentQualityString(wantedQuality) : 'Select Wanted Quality'}
                     </Select.Trigger>
                     <Select.Content>
                         {#each qualityOptions as option (option.value)}
@@ -144,15 +146,15 @@
             </div>
 
             {#if submitRequestError}
-                <p class="col-span-full text-sm text-red-500 text-center">{submitRequestError}</p>
+                <p class="col-span-full text-center text-sm text-red-500">{submitRequestError}</p>
             {/if}
         </div>
         <Dialog.Footer>
-            <Button disabled={isSubmittingRequest} onclick={() => dialogOpen = false} variant="outline">Cancel</Button>
-            <Button
-                    disabled={isFormInvalid || isSubmittingRequest}
-                    onclick={handleRequestSeason}
+            <Button disabled={isSubmittingRequest} onclick={() => (dialogOpen = false)} variant="outline"
+            >Cancel
+            </Button
             >
+            <Button disabled={isFormInvalid || isSubmittingRequest} onclick={handleRequestSeason}>
                 {#if isSubmittingRequest}
                     <LoaderCircle class="mr-2 h-4 w-4 animate-spin"/>
                     Submitting...
@@ -163,4 +165,3 @@
         </Dialog.Footer>
     </Dialog.Content>
 </Dialog.Root>
-

@@ -10,17 +10,10 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import {useSidebar} from '$lib/components/ui/sidebar/index.js';
-	import {getContext} from 'svelte';
 	import UserDetails from './user-details.svelte';
-	import type {User} from '$lib/types';
 	import UserRound from '@lucide/svelte/icons/user-round';
-	import {base} from '$app/paths';
-	import {env} from "$env/dynamic/public";
-	import {goto} from '$app/navigation';
 	import {handleLogout} from '$lib/utils.ts';
-	const user: () => User = getContext('user');
 	const sidebar = useSidebar();
-
 </script>
 
 <Sidebar.Menu>

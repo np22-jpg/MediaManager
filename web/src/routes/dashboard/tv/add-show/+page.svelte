@@ -1,5 +1,4 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card/index.js';
 	import {env} from '$env/dynamic/public';
 	import {Separator} from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -7,20 +6,16 @@
 	import {Input} from '$lib/components/ui/input';
 	import {Label} from '$lib/components/ui/label';
 	import {Button} from '$lib/components/ui/button';
-	import {ChevronDown, ImageOff} from 'lucide-svelte';
+	import {ChevronDown} from 'lucide-svelte';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import type {MetaDataProviderShowSearchResult} from '$lib/types.js';
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
-	import {goto} from '$app/navigation';
-	import {base} from '$app/paths';
 	import AddShowCard from '$lib/components/add-show-card.svelte';
 	import {toast} from 'svelte-sonner';
 
 	let searchTerm: string = $state('');
 	let metadataProvider: string = $state('tmdb');
-	let results:
-			| MetaDataProviderShowSearchResult[]
-			| null = $state(null);
+	let results: MetaDataProviderShowSearchResult[] | null = $state(null);
 
 	async function search() {
 		if (searchTerm.length > 0) {
@@ -44,7 +39,8 @@
 					toast.info(`No results found for "${searchTerm}".`);
 				}
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during search.';
+				const errorMessage =
+						error instanceof Error ? error.message : 'An unknown error occurred during search.';
 				console.error('Search error:', error);
 				toast.error(errorMessage);
 				results = null; // Clear previous results on error
@@ -54,7 +50,6 @@
 			results = null;
 		}
 	}
-
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -83,7 +78,7 @@
 	</div>
 </header>
 
-<div class="flex w-full flex-1 flex-col items-center  gap-4 p-4 pt-0">
+<div class="flex w-full flex-1 flex-col items-center gap-4 p-4 pt-0">
 	<div class="grid w-full max-w-sm items-center gap-12">
 		<h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
 			Add a show
@@ -135,7 +130,7 @@
              md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
 			>
 				{#each results as result (result.external_id)}
-					<AddShowCard result={result}/>
+					<AddShowCard {result}/>
 				{/each}
 			</div>
 		{/if}

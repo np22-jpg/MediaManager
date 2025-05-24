@@ -1,20 +1,13 @@
 <script>
-    import {Button} from "$lib/components/ui/button/index.js";
-    import {env} from "$env/dynamic/public";
+    import {Button} from '$lib/components/ui/button/index.js';
+    import {env} from '$env/dynamic/public';
     import * as Card from '$lib/components/ui/card/index.js';
-    import {Separator} from '$lib/components/ui/separator/index.js';
-    import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-    import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-    import {Input} from '$lib/components/ui/input';
-    import {Label} from '$lib/components/ui/label';
-    import {ChevronDown, ImageOff} from 'lucide-svelte';
-    import * as Collapsible from '$lib/components/ui/collapsible/index.js';
-    import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
+    import {ImageOff} from 'lucide-svelte';
     import {goto} from '$app/navigation';
     import {base} from '$app/paths';
 
-    let loading = $state(false)
-    let errorMessage = $state(null)
+    let loading = $state(false);
+    let errorMessage = $state(null);
     let {result} = $props();
 
     async function addShow() {
@@ -26,16 +19,17 @@
             method: 'POST',
             credentials: 'include'
         });
-        let responseData = await response.json()
+        let responseData = await response.json();
         console.log('Added Show: Response Data: ', responseData);
         if (response.ok) {
             await goto(base + '/dashboard/tv/' + responseData.id);
         } else {
-            errorMessage = "Error occurred: " + responseData;
+            errorMessage = 'Error occurred: ' + responseData;
         }
         loading = false;
     }
 </script>
+
 <Card.Root class="h-full max-w-sm">
     <Card.Header>
         <Card.Title>

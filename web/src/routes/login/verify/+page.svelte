@@ -5,13 +5,14 @@
     import {handleLogout} from '$lib/utils.ts';
 </script>
 
-
-<div class="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
-    <div class="absolute top-4 left-4">
+<div
+        class="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8"
+>
+    <div class="absolute left-4 top-4">
         <Logo/>
     </div>
-    <div class="absolute top-4 right-4">
-        <Button onclick={()=>handleLogout()} variant="outline">Logout</Button>
+    <div class="absolute right-4 top-4">
+        <Button onclick={() => handleLogout()} variant="outline">Logout</Button>
     </div>
     <div class="mx-auto w-full max-w-md text-center">
         <div class="mb-6">
@@ -21,8 +22,7 @@
             Account Pending Activation
         </h1>
         <p class="mt-4 text-lg text-muted-foreground">
-            Your account has been successfully created, but activation by an
-            administrator is required.
+            Your account has been successfully created, but activation by an administrator is required.
         </p>
         <div class="mt-8">
             <Button href="/dashboard">Go to Dashboard</Button>
@@ -30,7 +30,7 @@
         <p class="mt-10 text-sm text-muted-foreground">
             The above button will only work once your account is verified.
         </p>
-        <p class="mt-10 text-sm text-muted-foreground end">
+        <p class="end mt-10 text-sm text-muted-foreground">
             If you have any questions, please contact an administrator.
         </p>
     </div>

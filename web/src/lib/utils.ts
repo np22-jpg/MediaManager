@@ -1,6 +1,6 @@
 import {type ClassValue, clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
-import {env} from "$env/dynamic/public";
+import {env} from '$env/dynamic/public';
 import {goto} from '$app/navigation';
 import {base} from '$app/paths';
 import {toast} from 'svelte-sonner';
@@ -40,16 +40,20 @@ export function getFullyQualifiedShowName(show: { name: string; year: number }):
 	return name;
 }
 
-export function convertTorrentSeasonRangeToIntegerRange(torrent: any): string {
+export function convertTorrentSeasonRangeToIntegerRange(torrent: {
+	season?: number[];
+	seasons?: number[];
+}): string {
 	if (torrent?.season?.length === 1) return torrent.season[0]?.toString();
-	if (torrent?.season?.length >= 2) return torrent.season[0]?.toString() + "-" + torrent.season.at(-1).toString();
+	if (torrent?.season?.length >= 2)
+		return torrent.season[0]?.toString() + '-' + torrent.season.at(-1).toString();
 	if (torrent?.seasons?.length === 1) return torrent.seasons[0]?.toString();
-	if (torrent?.seasons?.length >= 2) return torrent.seasons[0]?.toString() + "-" + torrent.seasons.at(-1).toString();
+	if (torrent?.seasons?.length >= 2)
+		return torrent.seasons[0]?.toString() + '-' + torrent.seasons.at(-1).toString();
 	else {
-		console.log("Error parsing season range: " + torrent?.seasons + torrent?.season);
-		return "Error parsing season range: " + torrent?.seasons + torrent?.season;
+		console.log('Error parsing season range: ' + torrent?.seasons + torrent?.season);
+		return 'Error parsing season range: ' + torrent?.seasons + torrent?.season;
 	}
-
 }
 
 export async function handleLogout() {

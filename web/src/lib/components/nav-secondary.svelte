@@ -1,10 +1,10 @@
 <script lang="ts">
     import * as Sidebar from '$lib/components/ui/sidebar/index.js';
     import type {ComponentProps} from 'svelte';
-    import Sun from "@lucide/svelte/icons/sun";
-    import Moon from "@lucide/svelte/icons/moon";
+    import Sun from '@lucide/svelte/icons/sun';
+    import Moon from '@lucide/svelte/icons/moon';
 
-    import {toggleMode} from "mode-watcher";
+    import {toggleMode} from 'mode-watcher';
 
     let {
         ref = $bindable(null),
@@ -27,10 +27,9 @@
             <Sidebar.MenuItem>
                 <Sidebar.MenuButton size="sm">
                     {#snippet child({props})}
-                        <div onclick={()=>toggleMode()} {...props}>
-
+                        <div onclick={() => toggleMode()} {...props}>
                             <Sun class="dark:hidden "/>
-                            <span class="dark:hidden ">Switch to dark mode</span>
+                            <span class="dark:hidden">Switch to dark mode</span>
                             <Moon class="hidden dark:inline"/>
                             <span class="hidden dark:inline">Switch to light mode</span>
                         </div>

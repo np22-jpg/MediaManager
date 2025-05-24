@@ -3,7 +3,6 @@
 	import Send from '@lucide/svelte/icons/send';
 	import TvIcon from '@lucide/svelte/icons/tv';
 	import LayoutPanelLeft from '@lucide/svelte/icons/layout-panel-left';
-	import DownloadIcon from '@lucide/svelte/icons/download';
 
 	const data = {
 		navMain: [
@@ -18,16 +17,15 @@
 						url: '/dashboard/tv/add-show'
 					},
 					{
-                        title: 'Torrents',
-                        url: '/dashboard/tv/torrents'
-                    },
-                    {
+						title: 'Torrents',
+						url: '/dashboard/tv/torrents'
+					},
+					{
 						title: 'Requests',
 						url: '/dashboard/tv/requests'
 					}
-
-                ]
-			},
+				]
+			}
 		],
 		navSecondary: [
 			{
@@ -57,10 +55,9 @@
 	import NavSecondary from '$lib/components/nav-secondary.svelte';
 	import NavUser from '$lib/components/nav-user.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import Command from '@lucide/svelte/icons/command';
 	import type {ComponentProps} from 'svelte';
 	import logo from '$lib/images/logo.svg';
-	import {base} from "$app/paths";
+	import {base} from '$app/paths';
 
 	let {ref = $bindable(null), ...restProps}: ComponentProps<typeof Sidebar.Root> = $props();
 </script>

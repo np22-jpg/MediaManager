@@ -7,7 +7,7 @@ export const load: LayoutLoad = async ({params, fetch}) => {
 	if (!showId) {
 		return {
 			showData: null,
-			torrentsData: null,
+			torrentsData: null
 		};
 	}
 
@@ -32,7 +32,7 @@ export const load: LayoutLoad = async ({params, fetch}) => {
 			console.error(`Failed to fetch show ${showId}: ${show.statusText}`);
 			return {
 				showData: null,
-				torrentsData: null,
+				torrentsData: null
 			};
 		}
 
@@ -43,13 +43,13 @@ export const load: LayoutLoad = async ({params, fetch}) => {
 
 		return {
 			showData: showData,
-			torrentsData: torrentsData,
+			torrentsData: torrentsData
 		};
 	} catch (error) {
 		console.error('Error fetching show:', error);
 		return {
 			showData: null,
-			torrentsData: null,
+			torrentsData: null
 		};
 	}
 };

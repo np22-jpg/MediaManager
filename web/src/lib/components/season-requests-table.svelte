@@ -1,41 +1,43 @@
 <script lang="ts">
-    import {
-        getFullyQualifiedShowName,
-        getTorrentQualityString,
-    } from "$lib/utils.js";
-    import type {SeasonRequest, User} from "$lib/types.js";
-    import CheckmarkX from "$lib/components/checkmark-x.svelte";
-    import * as Table from "$lib/components/ui/table/index.js";
-    import {getContext} from "svelte";
-    import {Button} from "$lib/components/ui/button/index.js";
+    import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils.js';
+    import type {SeasonRequest, User} from '$lib/types.js';
+    import CheckmarkX from '$lib/components/checkmark-x.svelte';
+    import * as Table from '$lib/components/ui/table/index.js';
+    import {getContext} from 'svelte';
+    import {Button} from '$lib/components/ui/button/index.js';
     import {env} from '$env/dynamic/public';
-    import {toast} from "svelte-sonner";
-
+    import {toast} from 'svelte-sonner';
 
     let {
-        requests, filter = () => {
-            return true
+        requests,
+        filter = () => {
+            return true;
         }
-    }: { requests: SeasonRequest[], filter: (request: SeasonRequest) => boolean } = $props();
-    const user: () => User = getContext("user");
+    }: { requests: SeasonRequest[]; filter: (request: SeasonRequest) => boolean } = $props();
+    const user: () => User = getContext('user');
 
     async function approveRequest(requestId: string, currentAuthorizedStatus: boolean) {
         try {
-            const response = await fetch(`${env.PUBLIC_API_URL}/tv/seasons/requests/${requestId}?authorized_status=${!currentAuthorizedStatus}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include'
-            });
+            const response = await fetch(
+                `${env.PUBLIC_API_URL}/tv/seasons/requests/${requestId}?authorized_status=${!currentAuthorizedStatus}`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                }
+            );
 
             if (response.ok) {
-                const requestIndex = requests.findIndex(r => r.id === requestId);
+                const requestIndex = requests.findIndex((r) => r.id === requestId);
                 if (requestIndex !== -1) {
                     requests[requestIndex].authorized = !currentAuthorizedStatus;
                     requests[requestIndex].authorized_by = user();
                 }
-                toast.success(`Request ${!currentAuthorizedStatus ? 'approved' : 'unapproved'} successfully.`);
+                toast.success(
+                    `Request ${!currentAuthorizedStatus ? 'approved' : 'unapproved'} successfully.`
+                );
             } else {
                 const errorText = await response.text();
                 console.error(`Failed to update request status ${response.statusText}`, errorText);
@@ -43,7 +45,9 @@
             }
         } catch (error) {
             console.error('Error updating request status:', error);
-            toast.error('Error updating request status: ' + (error instanceof Error ? error.message : String(error)));
+            toast.error(
+                'Error updating request status: ' + (error instanceof Error ? error.message : String(error))
+            );
         }
     }
 
@@ -52,13 +56,13 @@
             const response = await fetch(`${env.PUBLIC_API_URL}/tv/seasons/requests/${requestId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 credentials: 'include'
             });
 
             if (response.ok) {
-                const index = requests.findIndex(r => r.id === requestId);
+                const index = requests.findIndex((r) => r.id === requestId);
                 if (index > -1) {
                     requests.splice(index, 1); // Remove the request from the list
                 }
@@ -69,10 +73,11 @@
             }
         } catch (error) {
             console.error('Error deleting request:', error);
-            toast.error('Error deleting request: ' + (error instanceof Error ? error.message : String(error)));
+            toast.error(
+                'Error deleting request: ' + (error instanceof Error ? error.message : String(error))
+            );
         }
     }
-
 </script>
 
 <Table.Root>
@@ -116,13 +121,17 @@
                     </Table.Cell>
                     <Table.Cell class="space-x-1">
                         {#if user().is_superuser}
-                            <Button class="mb-1" size="sm"
-                                    onclick={() => approveRequest(request.id, request.authorized)}>
+                            <Button
+                                    class="mb-1"
+                                    size="sm"
+                                    onclick={() => approveRequest(request.id, request.authorized)}
+                            >
                                 {request.authorized ? 'Unapprove' : 'Approve'}
                             </Button>
                         {/if}
                         {#if user().is_superuser || user().id === request.requested_by?.id}
-                            <Button variant="destructive" size="sm" onclick={() => deleteRequest(request.id)}>Delete
+                            <Button variant="destructive" size="sm" onclick={() => deleteRequest(request.id)}
+                            >Delete
                             </Button>
                         {/if}
                     </Table.Cell>

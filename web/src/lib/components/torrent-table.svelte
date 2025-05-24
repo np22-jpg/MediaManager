@@ -3,12 +3,11 @@
         convertTorrentSeasonRangeToIntegerRange,
         getTorrentQualityString,
         getTorrentStatusString
-    } from "$lib/utils.js";
-    import CheckmarkX from "$lib/components/checkmark-x.svelte";
-    import * as Table from "$lib/components/ui/table/index.js";
+    } from '$lib/utils.js';
+    import CheckmarkX from '$lib/components/checkmark-x.svelte';
+    import * as Table from '$lib/components/ui/table/index.js';
 
     let {torrents} = $props();
-
 </script>
 
 <Table.Root>

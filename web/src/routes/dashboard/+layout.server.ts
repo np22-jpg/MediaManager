@@ -1,7 +1,7 @@
 import {env} from '$env/dynamic/public';
 import type {LayoutServerLoad} from './$types';
 import {redirect} from '@sveltejs/kit';
-import {base} from "$app/paths";
+import {base} from '$app/paths';
 
 const apiUrl = env.PUBLIC_API_URL;
 
