@@ -3,6 +3,7 @@
 	import Send from '@lucide/svelte/icons/send';
 	import TvIcon from '@lucide/svelte/icons/tv';
 	import LayoutPanelLeft from '@lucide/svelte/icons/layout-panel-left';
+	import {PUBLIC_VERSION} from '$env/static/public';
 
 	const data = {
 		navMain: [
@@ -72,7 +73,7 @@
 							<img class="size-12" src={logo} alt="Media Manager Logo"/>
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-semibold">Media Manager</span>
-								<span class="truncate text-xs">version? or smth else?</span>
+								<span class="truncate text-xs">v{PUBLIC_VERSION}</span>
 							</div>
 						</a>
 					{/snippet}
