@@ -41,11 +41,13 @@ export function getFullyQualifiedShowName(show: { name: string; year: number }):
 }
 
 export function convertTorrentSeasonRangeToIntegerRange(torrent: any): string {
-	if (torrent.season?.length === 1) return torrent.season[0]?.toString();
-	if (torrent.season?.length >= 2) return torrent.season[0]?.toString() + "-" + torrent.season.at(-1).toString();
+	if (torrent?.season?.length === 1) return torrent.season[0]?.toString();
+	if (torrent?.season?.length >= 2) return torrent.season[0]?.toString() + "-" + torrent.season.at(-1).toString();
+	if (torrent?.seasons?.length === 1) return torrent.seasons[0]?.toString();
+	if (torrent?.seasons?.length >= 2) return torrent.seasons[0]?.toString() + "-" + torrent.seasons.at(-1).toString();
 	else {
-		console.log("Error parsing season range: " + torrent.seasons);
-		return "Error parsing season range: " + torrent.seasons;
+		console.log("Error parsing season range: " + torrent?.seasons + torrent?.season);
+		return "Error parsing season range: " + torrent?.seasons + torrent?.season;
 	}
 
 }
