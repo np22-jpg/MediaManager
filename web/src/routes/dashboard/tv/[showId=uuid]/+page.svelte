@@ -71,9 +71,9 @@
                 {show().overview}
             </p>
         </div>
-        <div class="h-full flex-auto rounded-xl bg-muted/50 p-4">
+        <div class="h-full flex-auto rounded-xl bg-muted/50 p-4 flex flex-col items-center justify-center gap-2">
             {#if user().is_superuser}
-                <DownloadSeasonDialog {show}/>
+                <DownloadSeasonDialog show={show()}/>
             {/if}
             <RequestSeasonDialog show={show()}/>
         </div>

@@ -41,8 +41,8 @@ export function getFullyQualifiedShowName(show: { name: string; year: number }):
 }
 
 export function convertTorrentSeasonRangeToIntegerRange(torrent: any): string {
-	if (torrent.seasons.length === 1) return torrent.seasons[0]?.toString();
-	if (torrent.seasons.length >= 2) return torrent.seasons[0]?.toString() + "-" + torrent.seasons.at(-1).toString();
+	if (torrent.season?.length === 1) return torrent.season[0]?.toString();
+	if (torrent.season?.length >= 2) return torrent.season[0]?.toString() + "-" + torrent.season.at(-1).toString();
 	else {
 		console.log("Error parsing season range: " + torrent.seasons);
 		return "Error parsing season range: " + torrent.seasons;
@@ -50,7 +50,7 @@ export function convertTorrentSeasonRangeToIntegerRange(torrent: any): string {
 
 }
 
-export async function handleLogout(): null {
+export async function handleLogout() {
 	const response = await fetch(apiUrl + '/auth/cookie/logout', {
 		method: 'POST',
 		credentials: 'include'
@@ -64,4 +64,3 @@ export async function handleLogout(): null {
 		toast.error('Logout failed: ' + response.status);
 	}
 }
-

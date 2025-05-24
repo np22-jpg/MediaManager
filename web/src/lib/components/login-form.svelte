@@ -6,6 +6,7 @@
     import {goto} from '$app/navigation';
     import {env} from '$env/dynamic/public';
     import * as Tabs from "$lib/components/ui/tabs/index.js";
+    import {toast} from 'svelte-sonner';
 
     let apiUrl = env.PUBLIC_API_URL;
 
@@ -37,8 +38,9 @@
             if (response.ok) {
                 console.log('Login successful!');
                 console.log('Received User Data: ', response);
-                goto('/dashboard');
                 errorMessage = 'Login successful! Redirecting...';
+                toast.success(errorMessage);
+                goto('/dashboard');
             } else {
                 let errorText = await response.text();
                 try {
@@ -47,11 +49,13 @@
                 } catch {
                     errorMessage = errorText || 'Login failed. Please check your credentials.';
                 }
+                toast.error(errorMessage);
                 console.error('Login failed:', response.status, errorText);
             }
         } catch (error) {
             console.error('Login request failed:', error);
             errorMessage = 'An error occurred during the login request.';
+            toast.error(errorMessage);
         } finally {
             isLoading = false;
         }
@@ -81,7 +85,8 @@
                 console.log('Registration successful!');
                 console.log('Received User Data: ', response);
                 tabValue = "login"; // Switch to login tab after successful registration
-                errorMessage = 'Registration successful! Redirecting...';
+                errorMessage = 'Registration successful! Please login.';
+                toast.success(errorMessage);
             } else {
                 let errorText = await response.text();
                 try {
@@ -90,11 +95,13 @@
                 } catch {
                     errorMessage = errorText || 'Registration failed. Please check your credentials.';
                 }
+                toast.error(errorMessage);
                 console.error('Registration failed:', response.status, errorText);
             }
         } catch (error) {
             console.error('Registration request failed:', error);
             errorMessage = 'An error occurred during the Registration request.';
+            toast.error(errorMessage);
         } finally {
             isLoading = false;
         }

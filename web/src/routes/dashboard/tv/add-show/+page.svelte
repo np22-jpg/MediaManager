@@ -14,6 +14,7 @@
 	import {goto} from '$app/navigation';
 	import {base} from '$app/paths';
 	import AddShowCard from '$lib/components/add-show-card.svelte';
+	import {toast} from 'svelte-sonner';
 
 	let searchTerm: string = $state('');
 	let metadataProvider: string = $state('tmdb');
@@ -26,12 +27,30 @@
 			let url = new URL(env.PUBLIC_API_URL + '/tv/search');
 			url.searchParams.append('query', searchTerm);
 			url.searchParams.append('metadata_provider', metadataProvider);
-			const response = await fetch(url, {
-				method: 'GET',
-				credentials: 'include'
-			});
-			results = await response.json();
+			toast.info(`Searching for "${searchTerm}" using ${metadataProvider.toUpperCase()}...`);
+			try {
+				const response = await fetch(url, {
+					method: 'GET',
+					credentials: 'include'
+				});
+				if (!response.ok) {
+					const errorText = await response.text();
+					throw new Error(`Search failed: ${response.status} ${errorText || response.statusText}`);
+				}
+				results = await response.json();
+				if (results && results.length > 0) {
+					toast.success(`Found ${results.length} result(s) for "${searchTerm}".`);
+				} else {
+					toast.info(`No results found for "${searchTerm}".`);
+				}
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during search.';
+				console.error('Search error:', error);
+				toast.error(errorMessage);
+				results = null; // Clear previous results on error
+			}
 		} else {
+			toast.warning('Please enter a search term.');
 			results = null;
 		}
 	}

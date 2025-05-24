@@ -7,9 +7,14 @@
 
     import type {PublicIndexerQueryResult} from '$lib/types.js';
     import {convertTorrentSeasonRangeToIntegerRange, getFullyQualifiedShowName} from '$lib/utils';
+    import {LoaderCircle} from "lucide-svelte";
+    import * as Dialog from '$lib/components/ui/dialog/index.js';
+    import * as Tabs from '$lib/components/ui/tabs/index.js';
+    import * as Select from '$lib/components/ui/select/index.js';
+    import * as Table from '$lib/components/ui/table/index.js';
 
     let {show} = $props();
-
+    let dialogueState = $state(false);
     let selectedSeasonNumber: number = $state(1);
     let torrents: PublicIndexerQueryResult[] = $state([]);
     let isLoadingTorrents: boolean = $state(false);
@@ -83,24 +88,27 @@
                 const errorMessage = `Failed to fetch torrents for show ${show.id} and season ${selectedSeasonNumber}: ${response.statusText}`;
                 console.error(errorMessage);
                 torrentsError = errorMessage;
-                toast.error(errorMessage);
+                if (dialogueState)
+                    toast.error(errorMessage);
                 return [];
             }
 
             const data: PublicIndexerQueryResult[] = await response.json();
             console.log('Fetched torrents:', data);
-            if (data.length > 0) {
-                toast.success(`Found ${data.length} torrents.`);
-            } else {
-                toast.info('No torrents found for your query.');
+            if (dialogueState) {
+                if (data.length > 0) {
+                    toast.success(`Found ${data.length} torrents.`);
+                } else {
+                    toast.info('No torrents found for your query.');
+                }
             }
-
             return data;
         } catch (err) {
             const errorMessage = `Error fetching torrents: ${err instanceof Error ? err.message : 'An unknown error occurred'}`;
             console.error(errorMessage);
             torrentsError = errorMessage;
-            toast.error(errorMessage);
+            if (dialogueState)
+                toast.error(errorMessage);
             return [];
         } finally {
             isLoadingTorrents = false;
@@ -128,7 +136,7 @@
     : ' - ' + filePathSuffix}.mkv
 {/snippet}
 
-<Dialog.Root>
+<Dialog.Root bind:open={dialogueState}>
     <Dialog.Trigger class={buttonVariants({ variant: 'default' })}
     >Download Seasons
     </Dialog.Trigger>
@@ -283,6 +291,7 @@
                                         {/each}
                                     </Table.Cell>
                                     <Table.Cell>
+                                        {torrent.seasons}
                                         {convertTorrentSeasonRangeToIntegerRange(torrent)}
                                     </Table.Cell>
                                     <Table.Cell class="text-right">

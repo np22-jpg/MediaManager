@@ -35,13 +35,15 @@
                     requests[requestIndex].authorized = !currentAuthorizedStatus;
                     requests[requestIndex].authorized_by = user();
                 }
+                toast.success(`Request ${!currentAuthorizedStatus ? 'approved' : 'unapproved'} successfully.`);
             } else {
-                console.error(`Failed to update request status ${response.statusText}`, await response.text());
-                // Optionally, add user-facing error handling here
+                const errorText = await response.text();
+                console.error(`Failed to update request status ${response.statusText}`, errorText);
+                toast.error(`Failed to update request status: ${response.statusText}`);
             }
         } catch (error) {
             console.error('Error updating request status:', error);
-            // Optionally, add user-facing error handling here
+            toast.error('Error updating request status: ' + (error instanceof Error ? error.message : String(error)));
         }
     }
 
