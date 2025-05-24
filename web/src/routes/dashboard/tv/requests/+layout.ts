@@ -1,0 +1,33 @@
+import {env} from '$env/dynamic/public';
+import type {LayoutLoad} from './$types';
+
+export const load: LayoutLoad = async ({params, fetch}) => {
+    try {
+        const requests = await fetch(`${env.PUBLIC_API_URL}/tv/seasons/requests`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        });
+
+        if (!requests.ok) {
+            console.error(`Failed to fetch season requests ${requests.statusText}`);
+            return {
+                requestsData: null,
+            };
+        }
+
+        const requestsData = await requests.json();
+        console.log('Fetched season requests:', requestsData);
+
+        return {
+            requestsData: requestsData,
+        };
+    } catch (error) {
+        console.error('Error fetching season requests:', error);
+        return {
+            requestsData: null,
+        };
+    }
+};

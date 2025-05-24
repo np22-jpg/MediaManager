@@ -80,7 +80,7 @@
             if (response.ok) {
                 console.log('Registration successful!');
                 console.log('Received User Data: ', response);
-                goto('/dashboard');
+                tabValue = "login"; // Switch to login tab after successful registration
                 errorMessage = 'Registration successful! Redirecting...';
             } else {
                 let errorText = await response.text();

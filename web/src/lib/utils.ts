@@ -1,5 +1,10 @@
 import {type ClassValue, clsx} from 'clsx';
 import {twMerge} from 'tailwind-merge';
+import {env} from "$env/dynamic/public";
+import {goto} from '$app/navigation';
+import {base} from '$app/paths';
+
+const apiUrl = env.PUBLIC_API_URL;
 
 export const qualityMap: { [key: number]: string } = {
 	1: 'high',
@@ -42,4 +47,17 @@ export function convertTorrentSeasonRangeToIntegerRange(torrent: any): string {
 		return "Error parsing season range: " + torrent.seasons;
 	}
 
+}
+
+export async function handleLogout(): null {
+	const response = await fetch(apiUrl + '/auth/cookie/logout', {
+		method: 'POST',
+		credentials: 'include'
+	});
+	if (response.ok) {
+		console.log('Logout successful!');
+		await goto(base + '/login');
+	} else {
+		console.error('Logout failed:', response.status);
+	}
 }

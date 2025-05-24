@@ -5,6 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, ConfigDict
 from tvdb_v4_official import Request
 
+from auth.schemas import UserRead
 from torrent.models import Quality
 from torrent.schemas import TorrentId, TorrentStatus
 
@@ -55,12 +56,12 @@ class Show(BaseModel):
 
 
 class SeasonRequestBase(BaseModel):
-    season_id: SeasonId
     min_quality: Quality
     wanted_quality: Quality
 
 
 class CreateSeasonRequest(SeasonRequestBase):
+    season_id: SeasonId
     pass
 
 
@@ -72,17 +73,15 @@ class SeasonRequest(SeasonRequestBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: SeasonRequestId = Field(default_factory=uuid.uuid4)
+    season: Season
 
-    requested_by: UUID | None = None
+    requested_by: UserRead | None = None
     authorized: bool = False
-    authorized_by: UUID | None = None
+    authorized_by: UserRead | None = None
 
 
 class RichSeasonRequest(SeasonRequest):
-    show_id: ShowId
-    show_name: str
-    show_year: int | None
-    season_number: SeasonNumber
+    show: Show
 
 class SeasonFile(BaseModel):
     model_config = ConfigDict(from_attributes=True)

@@ -2,7 +2,7 @@
     import {UserCheck} from 'lucide-svelte';
     import {Button} from '$lib/components/ui/button/index.js';
     import Logo from '$lib/components/logo-side-by-side.svelte';
-
+    import {handleLogout} from '$lib/utils.ts';
 </script>
 
 
@@ -10,10 +10,11 @@
     <div class="absolute top-4 left-4">
         <Logo/>
     </div>
+    <div class="absolute top-4 right-4">
+        <Button onclick={()=>handleLogout()} variant="outline">Logout</Button>
+    </div>
     <div class="mx-auto w-full max-w-md text-center">
-
-
-    <div class="mb-6">
+        <div class="mb-6">
             <UserCheck class="mx-auto h-16 w-16 text-primary"/>
         </div>
         <h1 class="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
@@ -30,6 +31,7 @@
             The above button will only work once your account is verified.
         </p>
         <p class="mt-10 text-sm text-muted-foreground end">
-            If you have any questions, please contact an administrator.</p>
+            If you have any questions, please contact an administrator.
+        </p>
     </div>
 </div>

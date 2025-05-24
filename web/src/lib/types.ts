@@ -94,11 +94,6 @@ export interface PublicSeason {
 	episodes: Episode[]; // items: { $ref: #/components/schemas/Episode }, type: array
 	id?: string; // type: string, format: uuid
 }
-export interface SeasonRequest {
-	season_id: string; // type: string, format: uuid
-	min_quality: Quality; // $ref: #/components/schemas/Quality
-	wanted_quality: Quality; // $ref: #/components/schemas/Quality
-}
 
 export interface Show {
 	name: string;
@@ -171,4 +166,26 @@ export interface RichShowTorrent {
 	year: number | null;
 	metadata_provider: string;
 	torrents: RichSeasonTorrent[];
+}
+
+interface SeasonRequestBase {
+	min_quality: Quality;
+	wanted_quality: Quality;
+}
+
+export interface CreateSeasonRequest extends SeasonRequestBase {
+	season_id: string;
+}
+
+export interface UpdateSeasonRequest extends SeasonRequestBase {
+	id: string;
+}
+
+export interface SeasonRequest extends SeasonRequestBase {
+	id: string;
+	season: Season;
+	requested_by?: User;
+	authorized: boolean;
+	authorized_by?: User;
+	show: Show;
 }

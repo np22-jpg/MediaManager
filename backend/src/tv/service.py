@@ -15,7 +15,7 @@ from tv import log
 from tv.exceptions import MediaAlreadyExists
 from tv.repository import add_season_file, get_season_files_by_season_id
 from tv.schemas import Show, ShowId, SeasonRequest, SeasonFile, SeasonId, Season, RichShowTorrent, RichSeasonTorrent, \
-    PublicSeason, PublicShow, PublicSeasonFile, SeasonNumber, SeasonRequestId
+    PublicSeason, PublicShow, PublicSeasonFile, SeasonNumber, SeasonRequestId, RichSeasonRequest
 
 
 def add_show(db: Session, external_id: int, metadata_provider: str) -> Show | None:
@@ -34,8 +34,9 @@ def request_season(db: Session, season_request: SeasonRequest) -> None:
 def update_season_request(db: Session, season_request: SeasonRequest) -> None:
     tv.repository.update_season_request(db=db, season_request=season_request)
 
-def unrequest_season(db: Session, season_request: SeasonRequest) -> None:
-    tv.repository.remove_season_from_requested_list(db=db, season_request=season_request)
+
+def delete_season_request(db: Session, season_request_id: SeasonRequestId) -> None:
+    tv.repository.delete_season_request(db=db, season_request_id=season_request_id)
 
 
 def get_public_season_files_by_season_id(db: Session, season_id: SeasonId) -> list[PublicSeasonFile]:
@@ -148,7 +149,7 @@ def get_season(db: Session, season_id: SeasonId) -> Season:
     return tv.repository.get_season(season_id=season_id, db=db)
 
 
-def get_all_season_requests(db: Session) -> list[SeasonRequest]:
+def get_all_season_requests(db: Session) -> list[RichSeasonRequest]:
     return tv.repository.get_season_requests(db=db)
 
 

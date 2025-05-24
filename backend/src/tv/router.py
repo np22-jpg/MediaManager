@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 import tv.repository
 import tv.service
 from auth.db import User
+from auth.schemas import UserRead
 from auth.users import current_active_user, current_superuser
 from backend.src.database import DbSessionDependency
 from indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
@@ -13,7 +14,7 @@ from metadataProvider.schemas import MetaDataProviderShowSearchResult
 from torrent.schemas import Torrent
 from tv.exceptions import MediaAlreadyExists
 from tv.schemas import Show, SeasonRequest, ShowId, RichShowTorrent, PublicShow, PublicSeasonFile, SeasonNumber, \
-    CreateSeasonRequest, SeasonRequestId, UpdateSeasonRequest, RichSeasonRequest, SeasonId
+    CreateSeasonRequest, SeasonRequestId, UpdateSeasonRequest, RichSeasonRequest
 
 router = APIRouter()
 
@@ -82,50 +83,51 @@ def get_season_files(db: DbSessionDependency, season_number: SeasonNumber, show_
 # MANAGE REQUESTS
 # --------------------------------
 
-@router.post("/seasons/requests", status_code=status.HTTP_200_OK, response_model=RichSeasonRequest)
+@router.post("/seasons/requests", status_code=status.HTTP_204_NO_CONTENT)
 def request_a_season(db: DbSessionDependency, user: Annotated[User, Depends(current_active_user)],
                      season_request: CreateSeasonRequest):
     """
     adds request flag to a season
     """
     request: SeasonRequest = SeasonRequest.model_validate(season_request)
-    request.requested_by = user.id
+    request.requested_by = UserRead.model_validate(user)
 
     tv.service.request_season(db=db, season_request=request)
-    return request
+    return
 
 
-@router.get("/seasons/requests", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)])
-def get_requested_seasons(db: DbSessionDependency) -> list[SeasonRequest]:
+@router.get("/seasons/requests", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)],
+            response_model=list[RichSeasonRequest])
+def get_season_requests(db: DbSessionDependency) -> list[RichSeasonRequest]:
     return tv.service.get_all_season_requests(db=db)
 
 
-@router.patch("/seasons/requests/{season_request_id}", status_code=status.HTTP_200_OK, response_model=SeasonRequest)
+@router.patch("/seasons/requests/{season_request_id}", status_code=status.HTTP_204_NO_CONTENT)
 def authorize_request(db: DbSessionDependency, user: Annotated[User, Depends(current_superuser)],
                       season_request_id: SeasonRequestId, authorized_status: bool = False):
     """
     updates the request flag to true
     """
     season_request: SeasonRequest = tv.repository.get_season_request(db=db, season_request_id=season_request_id)
-    season_request.authorized_by = user.id
+    season_request.authorized_by = UserRead.model_validate(user)
     season_request.authorized = authorized_status
     tv.service.update_season_request(db=db, season_request=season_request)
-    return season_request
+    return
 
 
-@router.put("/seasons/requests/{season_request_id}", status_code=status.HTTP_200_OK, response_model=SeasonRequest)
+@router.put("/seasons/requests/{season_request_id}", status_code=status.HTTP_204_NO_CONTENT)
 def update_request(db: DbSessionDependency, user: Annotated[User, Depends(current_superuser)],
                    season_request: UpdateSeasonRequest):
     season_request: SeasonRequest = SeasonRequest.model_validate(season_request)
-    season_request.requested_by = user.id
+    season_request.requested_by = UserRead.model_validate(user)
     tv.service.update_season_request(db=db, season_request=season_request)
-    return season_request
+    return
 
 
 @router.delete("/seasons/requests/{season_request_id}", status_code=status.HTTP_204_NO_CONTENT,
                dependencies=[Depends(current_active_user)])
-def delete_season_request(db: DbSessionDependency, request: SeasonRequest):
-    tv.service.unrequest_season(db=db, season_request=request)
+def delete_season_request(db: DbSessionDependency, request_id: SeasonRequestId):
+    tv.service.delete_season_request(db=db, season_request_id=request_id)
 
 
 # --------------------------------

@@ -1,6 +1,4 @@
-import pprint
-
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
@@ -121,12 +119,13 @@ def add_season_to_requested_list(season_request: SeasonRequestSchema, db: Sessio
     db.commit()
 
 
-def remove_season_from_requested_list(season_request: SeasonRequestSchema, db: Session) -> None:
+def delete_season_request(season_request_id: SeasonRequestId, db: Session) -> None:
     """
     Removes a Season from the SeasonRequest table, which removes it from the 'requested' list.
 
     """
-    db.delete(SeasonRequest(**season_request.model_dump()))
+    stmt = delete(SeasonRequest).where(SeasonRequest.id == season_request_id)
+    db.execute(stmt)
     db.commit()
 
 
@@ -138,10 +137,16 @@ def get_season_by_number(db: Session, season_number: int, show_id: ShowId) -> Se
 
 
 def get_season_requests(db: Session) -> list[RichSeasonRequestSchema]:
-    stmt = select(SeasonRequest).join(Season, Season.id == SeasonRequest.season_id).join(Show,
-                                                                                         Season.show_id == Show.id)
-    result = db.execute(stmt).scalars().all()
-    return [RichSeasonRequestSchema.model_validate(season) for season in result]
+    stmt = select(SeasonRequest).options(joinedload(SeasonRequest.requested_by),
+                                         joinedload(SeasonRequest.authorized_by),
+                                         joinedload(SeasonRequest.season).joinedload(Season.show))
+    result = db.execute(stmt).scalars().unique().all()
+    return [RichSeasonRequestSchema(min_quality=x.min_quality,
+                                    wanted_quality=x.wanted_quality, show=x.season.show, season=x.season,
+                                    requested_by=x.requested_by, authorized_by=x.authorized_by, authorized=x.authorized,
+                                    id=x.id)
+            for x in result]
+
 
 def add_season_file(db: Session, season_file: SeasonFileSchema) -> SeasonFileSchema:
     db.add(SeasonFile(**season_file.model_dump()))
@@ -209,5 +214,3 @@ def update_season_request(db: Session, season_request: SeasonRequestSchema) -> N
     db.delete(db.get(SeasonRequest, season_request.id))
     db.add(SeasonRequest(**season_request.model_dump()))
     db.commit()
-
-
