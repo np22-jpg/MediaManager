@@ -1,0 +1,178 @@
+<script lang="ts">
+    import type {User} from '$lib/types.js';
+    import CheckmarkX from '$lib/components/checkmark-x.svelte';
+    import * as Table from '$lib/components/ui/table/index.js';
+    import {Button} from "$lib/components/ui/button/index.js";
+    import {env} from "$env/dynamic/public";
+    import {toast} from "svelte-sonner";
+    import * as Dialog from "$lib/components/ui/dialog/index.js";
+    import {getTorrentQualityString} from "$lib/utils";
+    import {Label} from "$lib/components/ui/label/index.js";
+    import * as RadioGroup from "$lib/components/ui/radio-group/index.js";
+    import {Input} from "$lib/components/ui/input/index.js";
+    import {invalidateAll} from "$app/navigation";
+
+    let {users}: { users: User[] } = $props();
+    let sortedUsers = $derived(users.sort((a, b) => a.email.localeCompare(b.email)));
+    let selectedUser: User | null = $state(null);
+    let newPassword: string = $state('');
+    let dialogOpen = $state(false);
+
+    async function saveUser() {
+        if (!selectedUser) return;
+
+        try {
+            const response = await fetch(`${env.PUBLIC_API_URL}/users/${selectedUser.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    is_verified: selectedUser.is_verified,
+                    is_active: selectedUser.is_active,
+                    is_superuser: selectedUser.is_superuser,
+                    ...newPassword !== "" && {password: newPassword}
+                })
+            });
+
+            if (response.ok) {
+                toast.success(`User ${selectedUser.email} updated successfully.`);
+                dialogOpen = false;
+
+                const idx = sortedUsers.findIndex(u => u.id === selectedUser.id);
+                if (idx !== -1) {
+                    sortedUsers[idx] = selectedUser;
+                }
+
+                selectedUser = null;
+            } else {
+                const errorText = await response.text();
+                console.error(`Failed to update user ${response.statusText}`, errorText);
+                toast.error(`Failed to update user: ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error('Error updating user:', error);
+            toast.error('Error updating user: ' + (error instanceof Error ? error.message : String(error)));
+        } finally {
+            newPassword = '';
+        }
+    }
+</script>
+
+<Table.Root>
+    <Table.Caption>A list of all users.</Table.Caption>
+    <Table.Header>
+        <Table.Row>
+            <Table.Head>Email</Table.Head>
+            <Table.Head>Verified</Table.Head>
+            <Table.Head>Active</Table.Head>
+            <Table.Head>Admin</Table.Head>
+        </Table.Row>
+    </Table.Header>
+    <Table.Body>
+        {#each sortedUsers as user}
+            <Table.Row>
+                <Table.Cell class="font-medium">
+                    {user.email}
+                </Table.Cell>
+                <Table.Cell>
+                    <CheckmarkX state={user.is_verified}/>
+                </Table.Cell>
+                <Table.Cell>
+                    <CheckmarkX state={user.is_active}/>
+                </Table.Cell>
+                <Table.Cell>
+                    <CheckmarkX state={user.is_superuser}/>
+                </Table.Cell>
+                <Table.Cell>
+                    <Button variant="secondary" onclick={() => {selectedUser=user; dialogOpen=true}}>
+                        Edit
+                    </Button>
+                </Table.Cell>
+            </Table.Row>
+        {/each}
+    </Table.Body>
+</Table.Root>
+<Dialog.Root bind:open={dialogOpen}>
+    <Dialog.Content class="max-w-[600px] w-full rounded-lg shadow-lg bg-white p-6">
+        <Dialog.Header>
+            <Dialog.Title class="text-xl font-semibold mb-1">
+                Edit user
+            </Dialog.Title>
+            <Dialog.Description class="text-sm text-gray-500 mb-4">
+                Edit {selectedUser?.email}
+            </Dialog.Description>
+        </Dialog.Header>
+        <div class="space-y-6">
+            <!-- Verified -->
+            <div>
+                <Label class="block text-sm font-medium mb-1" for="verified">Verified</Label>
+                <RadioGroup.Root
+                        class="flex gap-4"
+                        onValueChange={(v) => { if (selectedUser) selectedUser.is_verified = v === 'true'; }}
+                        value={selectedUser?.is_verified ? 'true' : 'false'}>
+                    <div class="flex items-center gap-1">
+                        <RadioGroup.Item class="accent-green-600" id="verified-true" value="true"/>
+                        <Label class="text-sm" for="verified-true">True</Label>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <RadioGroup.Item class="accent-red-600" id="verified-false" value="false"/>
+                        <Label class="text-sm" for="verified-false">False</Label>
+                    </div>
+                </RadioGroup.Root>
+            </div>
+            <hr/>
+            <!-- Active -->
+            <div>
+                <Label class="block text-sm font-medium mb-1" for="active">Active</Label>
+                <RadioGroup.Root
+                        class="flex gap-4"
+                        onValueChange={(v) => { if (selectedUser) selectedUser.is_active = v === 'true'; }}
+                        value={selectedUser?.is_active ? 'true' : 'false'}>
+                    <div class="flex items-center gap-1">
+                        <RadioGroup.Item class="accent-green-600" id="active-true" value="true"/>
+                        <Label class="text-sm" for="active-true">True</Label>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <RadioGroup.Item class="accent-red-600" id="active-false" value="false"/>
+                        <Label class="text-sm" for="active-false">False</Label>
+                    </div>
+                </RadioGroup.Root>
+            </div>
+            <hr/>
+            <!-- Super User -->
+            <div>
+                <Label class="block text-sm font-medium mb-1" for="superuser">Admin</Label>
+                <RadioGroup.Root
+                        class="flex gap-4"
+                        onValueChange={(v) => { if (selectedUser) selectedUser.is_superuser = v === 'true'; }}
+                        value={selectedUser?.is_superuser ? 'true' : 'false'}>
+                    <div class="flex items-center gap-1">
+                        <RadioGroup.Item class="accent-green-600" id="superuser-true" value="true"/>
+                        <Label class="text-sm" for="superuser-true">True</Label>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <RadioGroup.Item class="accent-red-600" id="superuser-false" value="false"/>
+                        <Label class="text-sm" for="superuser-false">False</Label>
+                    </div>
+                </RadioGroup.Root>
+            </div>
+            <!-- Password -->
+            <div>
+                <Label class="block text-sm font-medium mb-1" for="superuser">Password</Label>
+                <Input
+                        bind:value={newPassword}
+                        class="w-full"
+                        id="password"
+                        placeholder="Keep empty to not change the password"
+                        type="password"
+                />
+            </div>
+        </div>
+        <div class="mt-8 flex justify-end gap-2">
+            <Button onclick={() => dialogOpen = false} variant="outline">Cancel</Button>
+            <Button onclick={() => saveUser()} variant="destructive">Save</Button>
+        </div>
+    </Dialog.Content>
+</Dialog.Root>

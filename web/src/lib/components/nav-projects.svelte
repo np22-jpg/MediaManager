@@ -66,11 +66,5 @@
 				</DropdownMenu.Root>
 			</Sidebar.MenuItem>
 		{/each}
-		<Sidebar.MenuItem>
-			<Sidebar.MenuButton>
-				<Ellipsis/>
-				<span>More</span>
-			</Sidebar.MenuButton>
-		</Sidebar.MenuItem>
 	</Sidebar.Menu>
 </Sidebar.Group>

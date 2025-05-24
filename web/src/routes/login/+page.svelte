@@ -26,7 +26,7 @@
     <div class="relative hidden lg:block">
         <img
                 alt="background"
-                class="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale rounded-l-3xl "
+                class="absolute inset-0 h-full w-full object-cover dark:brightness-[0.8]  rounded-l-3xl "
                 src="{toOptimizedURL(background)}"
         />
     </div>
