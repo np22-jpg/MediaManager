@@ -2,7 +2,7 @@ import typing
 import uuid
 from uuid import UUID
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 from tvdb_v4_official import Request
 
 from auth.schemas import UserRead
@@ -59,6 +59,12 @@ class SeasonRequestBase(BaseModel):
     min_quality: Quality
     wanted_quality: Quality
 
+    @model_validator(mode="after")
+    def ensure_wanted_quality_is_eq_or_gt_min_quality(self) -> "SeasonRequestBase":
+        if self.min_quality.value < self.wanted_quality.value:
+            raise ValueError("Error text")
+        return self
+
 
 class CreateSeasonRequest(SeasonRequestBase):
     season_id: SeasonId
@@ -73,8 +79,8 @@ class SeasonRequest(SeasonRequestBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: SeasonRequestId = Field(default_factory=uuid.uuid4)
-    season: Season
 
+    season_id: SeasonId
     requested_by: UserRead | None = None
     authorized: bool = False
     authorized_by: UserRead | None = None
@@ -82,6 +88,8 @@ class SeasonRequest(SeasonRequestBase):
 
 class RichSeasonRequest(SeasonRequest):
     show: Show
+    season: Season
+
 
 class SeasonFile(BaseModel):
     model_config = ConfigDict(from_attributes=True)

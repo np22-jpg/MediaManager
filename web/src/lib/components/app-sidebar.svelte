@@ -22,8 +22,8 @@
                         url: '/dashboard/tv/torrents'
                     },
                     {
-						title: 'Settings',
-						url: '#'
+						title: 'Requests',
+						url: '/dashboard/tv/requests'
 					}
 
                 ]

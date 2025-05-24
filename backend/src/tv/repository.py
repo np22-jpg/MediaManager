@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from torrent.models import Torrent
 from torrent.schemas import TorrentId, Torrent as TorrentSchema
+from tv import log
 from tv.models import Season, Show, Episode, SeasonRequest, SeasonFile
 from tv.schemas import Season as SeasonSchema, SeasonId, Show as ShowSchema, ShowId, \
     SeasonRequest as SeasonRequestSchema, SeasonFile as SeasonFileSchema, SeasonNumber, SeasonRequestId, \
@@ -110,12 +111,22 @@ def get_season(season_id: SeasonId, db: Session) -> SeasonSchema:
     return SeasonSchema.model_validate(db.get(Season, season_id))
 
 
-def add_season_to_requested_list(season_request: SeasonRequestSchema, db: Session) -> None:
+def add_season_request(season_request: SeasonRequestSchema, db: Session) -> None:
     """
     Adds a Season to the SeasonRequest table, which marks it as requested.
 
     """
-    db.add(SeasonRequest(**season_request.model_dump()))
+    log.debug(f"Adding season request {season_request.model_dump()}")
+    db_model = SeasonRequest(
+        id=season_request.id,
+        season_id=season_request.season_id,
+        wanted_quality=season_request.wanted_quality,
+        min_quality=season_request.min_quality,
+        requested_by_id=season_request.requested_by.id if season_request.requested_by else None,
+        authorized=season_request.authorized,
+        authorized_by_id=season_request.authorized_by.id if season_request.authorized_by else None
+    )
+    db.add(db_model)
     db.commit()
 
 
@@ -144,7 +155,7 @@ def get_season_requests(db: Session) -> list[RichSeasonRequestSchema]:
     return [RichSeasonRequestSchema(min_quality=x.min_quality,
                                     wanted_quality=x.wanted_quality, show=x.season.show, season=x.season,
                                     requested_by=x.requested_by, authorized_by=x.authorized_by, authorized=x.authorized,
-                                    id=x.id)
+                                    id=x.id, season_id=x.season.id)
             for x in result]
 
 

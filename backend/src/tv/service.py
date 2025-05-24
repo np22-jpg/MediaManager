@@ -27,8 +27,8 @@ def add_show(db: Session, external_id: int, metadata_provider: str) -> Show | No
     return saved_show
 
 
-def request_season(db: Session, season_request: SeasonRequest) -> None:
-    tv.repository.add_season_to_requested_list(db=db, season_request=season_request)
+def add_season_request(db: Session, season_request: SeasonRequest) -> None:
+    tv.repository.add_season_request(db=db, season_request=season_request)
 
 
 def update_season_request(db: Session, season_request: SeasonRequest) -> None:

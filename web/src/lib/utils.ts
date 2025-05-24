@@ -10,7 +10,7 @@ export const qualityMap: { [key: number]: string } = {
 	1: 'high',
 	2: 'medium',
 	3: 'low',
-	4: 'very_low',
+	4: 'very low',
 	5: 'unknown'
 };
 export const torrentStatusMap: { [key: number]: string } = {

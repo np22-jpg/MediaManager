@@ -14,6 +14,7 @@
     import CheckmarkX from '$lib/components/checkmark-x.svelte';
     import {page} from '$app/state';
     import TorrentTable from '$lib/components/torrent-table.svelte';
+    import RequestSeasonDialog from '$lib/components/request-season-dialog.svelte';
 
     let show: Show = getContext('show');
     let user: User = getContext('user');
@@ -74,6 +75,7 @@
             {#if user().is_superuser}
                 <DownloadSeasonDialog {show}/>
             {/if}
+            <RequestSeasonDialog show={show()}/>
         </div>
     </div>
     <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 p-4 md:min-h-min">

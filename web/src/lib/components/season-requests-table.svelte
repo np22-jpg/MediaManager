@@ -1,18 +1,75 @@
 <script lang="ts">
     import {
-        convertTorrentSeasonRangeToIntegerRange, getFullyQualifiedShowName,
+        getFullyQualifiedShowName,
         getTorrentQualityString,
-        getTorrentStatusString
     } from "$lib/utils.js";
-    import type {SeasonRequest} from "$lib/types.js";
+    import type {SeasonRequest, User} from "$lib/types.js";
     import CheckmarkX from "$lib/components/checkmark-x.svelte";
     import * as Table from "$lib/components/ui/table/index.js";
+    import {getContext} from "svelte";
+    import {Button} from "$lib/components/ui/button/index.js";
+    import {env} from '$env/dynamic/public';
+    import {toast} from "svelte-sonner";
+
 
     let {
         requests, filter = () => {
             return true
         }
-    }: { requests: SeasonRequest[], filter: (SeasonRequest) => boolean } = $props();
+    }: { requests: SeasonRequest[], filter: (request: SeasonRequest) => boolean } = $props();
+    const user: () => User = getContext("user");
+
+    async function approveRequest(requestId: string, currentAuthorizedStatus: boolean) {
+        try {
+            const response = await fetch(`${env.PUBLIC_API_URL}/tv/seasons/requests/${requestId}?authorized_status=${!currentAuthorizedStatus}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const requestIndex = requests.findIndex(r => r.id === requestId);
+                if (requestIndex !== -1) {
+                    requests[requestIndex].authorized = !currentAuthorizedStatus;
+                    requests[requestIndex].authorized_by = user();
+                }
+            } else {
+                console.error(`Failed to update request status ${response.statusText}`, await response.text());
+                // Optionally, add user-facing error handling here
+            }
+        } catch (error) {
+            console.error('Error updating request status:', error);
+            // Optionally, add user-facing error handling here
+        }
+    }
+
+    async function deleteRequest(requestId: string) {
+        try {
+            const response = await fetch(`${env.PUBLIC_API_URL}/tv/seasons/requests/${requestId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const index = requests.findIndex(r => r.id === requestId);
+                if (index > -1) {
+                    requests.splice(index, 1); // Remove the request from the list
+                }
+                toast.success('Request deleted successfully');
+            } else {
+                console.error(`Failed to delete request ${response.statusText}`, await response.text());
+                toast.error('Failed to delete request');
+            }
+        } catch (error) {
+            console.error('Error deleting request:', error);
+            toast.error('Error deleting request: ' + (error instanceof Error ? error.message : String(error)));
+        }
+    }
 
 </script>
 
@@ -34,26 +91,38 @@
         {#each requests as request (request.id)}
             {#if filter(request)}
                 <Table.Row>
-                    <Table.Cell class="font-medium">
+                    <Table.Cell>
                         {getFullyQualifiedShowName(request.show)}
                     </Table.Cell>
                     <Table.Cell>
                         {request.season.number}
                     </Table.Cell>
-                    <Table.Cell class="font-medium">
+                    <Table.Cell>
                         {getTorrentQualityString(request.min_quality)}
                     </Table.Cell>
-                    <Table.Cell class="font-medium">
+                    <Table.Cell>
                         {getTorrentQualityString(request.wanted_quality)}
                     </Table.Cell>
                     <Table.Cell>
-                        {request.requested_by?.email}
+                        {request.requested_by?.email ?? 'N/A'}
                     </Table.Cell>
                     <Table.Cell>
                         <CheckmarkX state={request.authorized}/>
                     </Table.Cell>
                     <Table.Cell>
-                        {request.authorized_by?.email}
+                        {request.authorized_by?.email ?? 'N/A'}
+                    </Table.Cell>
+                    <Table.Cell class="space-x-1">
+                        {#if user().is_superuser}
+                            <Button class="mb-1" size="sm"
+                                    onclick={() => approveRequest(request.id, request.authorized)}>
+                                {request.authorized ? 'Unapprove' : 'Approve'}
+                            </Button>
+                        {/if}
+                        {#if user().is_superuser || user().id === request.requested_by?.id}
+                            <Button variant="destructive" size="sm" onclick={() => deleteRequest(request.id)}>Delete
+                            </Button>
+                        {/if}
                     </Table.Cell>
                 </Table.Row>
             {/if}

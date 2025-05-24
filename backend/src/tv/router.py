@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
@@ -12,6 +13,7 @@ from backend.src.database import DbSessionDependency
 from indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
 from metadataProvider.schemas import MetaDataProviderShowSearchResult
 from torrent.schemas import Torrent
+from tv import log
 from tv.exceptions import MediaAlreadyExists
 from tv.schemas import Show, SeasonRequest, ShowId, RichShowTorrent, PublicShow, PublicSeasonFile, SeasonNumber, \
     CreateSeasonRequest, SeasonRequestId, UpdateSeasonRequest, RichSeasonRequest
@@ -91,8 +93,7 @@ def request_a_season(db: DbSessionDependency, user: Annotated[User, Depends(curr
     """
     request: SeasonRequest = SeasonRequest.model_validate(season_request)
     request.requested_by = UserRead.model_validate(user)
-
-    tv.service.request_season(db=db, season_request=request)
+    tv.service.add_season_request(db=db, season_request=request)
     return
 
 
@@ -100,6 +101,14 @@ def request_a_season(db: DbSessionDependency, user: Annotated[User, Depends(curr
             response_model=list[RichSeasonRequest])
 def get_season_requests(db: DbSessionDependency) -> list[RichSeasonRequest]:
     return tv.service.get_all_season_requests(db=db)
+
+
+@router.delete("/seasons/requests/{request_id}", status_code=status.HTTP_204_NO_CONTENT,
+               dependencies=[Depends(current_active_user)])
+def delete_season_request(db: DbSessionDependency, request_id: SeasonRequestId):
+    tv.service.delete_season_request(db=db, season_request_id=request_id)
+    return
+
 
 
 @router.patch("/seasons/requests/{season_request_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -115,20 +124,13 @@ def authorize_request(db: DbSessionDependency, user: Annotated[User, Depends(cur
     return
 
 
-@router.put("/seasons/requests/{season_request_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/seasons/requests", status_code=status.HTTP_204_NO_CONTENT)
 def update_request(db: DbSessionDependency, user: Annotated[User, Depends(current_superuser)],
                    season_request: UpdateSeasonRequest):
     season_request: SeasonRequest = SeasonRequest.model_validate(season_request)
     season_request.requested_by = UserRead.model_validate(user)
     tv.service.update_season_request(db=db, season_request=season_request)
     return
-
-
-@router.delete("/seasons/requests/{season_request_id}", status_code=status.HTTP_204_NO_CONTENT,
-               dependencies=[Depends(current_active_user)])
-def delete_season_request(db: DbSessionDependency, request_id: SeasonRequestId):
-    tv.service.delete_season_request(db=db, season_request_id=request_id)
-
 
 # --------------------------------
 # MANAGE TORRENTS
