@@ -207,7 +207,7 @@
 						{/if}
 					</Button>
 				</form>
-
+				<!-- TODO: dynamically display oauth providers based on config -->
 				<Button class="mt-2 w-full" variant="outline">Login with Google</Button>
 
 				<div class="mt-4 text-center text-sm">

@@ -7,11 +7,6 @@
     onMount(() => {
         const interval = setInterval(() => {
             value += 1;
-            if (value >= 100) {
-                value = 0
-                clearInterval(interval);
-
-            }
         }, 1);
 
         return () => clearInterval(interval);
