@@ -1,4 +1,5 @@
 import pprint
+from functools import cache
 
 import tvdb_v4_official
 import logging

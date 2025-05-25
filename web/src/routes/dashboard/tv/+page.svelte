@@ -8,6 +8,7 @@
     import {toOptimizedURL} from 'sveltekit-image-optimize/components';
     import {getFullyQualifiedShowName} from '$lib/utils';
     import logo from '$lib/images/svelte-logo.svg';
+    import LoadingBar from '$lib/components/loading-bar.svelte';
 
     let tvShowsPromise = page.data.tvShows;
 </script>
@@ -33,19 +34,24 @@
         </Breadcrumb.Root>
     </div>
 </header>
-
+{#snippet loadingbar()}
+    <div class="flex flex-col items-center justify-center w-full col-span-full py-16 animate-fade-in">
+        <div class="w-1/2 max-w-xs">
+            <LoadingBar/>
+        </div>
+    </div>
+{/snippet}
 <div class="flex w-full flex-1 flex-col gap-4 p-4 pt-0">
     <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
         TV Shows
     </h1>
-    <div
-            class="grid w-full auto-rows-min gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
-    >
+    <div class="grid w-full auto-rows-min gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {#await tvShowsPromise}
-            Loading...
+            {@render loadingbar()}
         {:then tvShowsJson}
             {#await tvShowsJson.json()}
-                Loading...
+                {@render loadingbar()}
+
             {:then tvShows}
                 {#each tvShows as show}
                     <a href={'/dashboard/tv/' + show.id}>

@@ -10,7 +10,7 @@
     <h1 class="scroll-m-20 my-6 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
         Settings
     </h1>
-    <Card.Root>
+    <Card.Root id="users">
         <Card.Header>
             <Card.Title>Users</Card.Title>
             <Card.Description>Edit or delete users</Card.Description>

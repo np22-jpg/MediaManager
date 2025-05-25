@@ -6,6 +6,7 @@
     import {goto} from '$app/navigation';
     import {base} from '$app/paths';
     import type {MetaDataProviderShowSearchResult} from '$lib/types.js';
+    import {toOptimizedURL} from "sveltekit-image-optimize/components";
 
     let loading = $state(false);
     let errorMessage = $state(null);
@@ -47,7 +48,7 @@
         {#if result.poster_path != null}
             <img
                     class="max-h-full max-w-full object-contain  rounded-lg"
-                    src={result.poster_path}
+                    src={toOptimizedURL(result.poster_path)}
                     alt="{result.name}'s Poster Image"
             />
         {:else}

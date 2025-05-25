@@ -1,9 +1,15 @@
 <script lang="ts" module>
-    import {Settings, LifeBuoy, Send, LayoutPanelLeft, TvIcon} from "lucide-svelte";
+    import {Settings, LifeBuoy, Send, LayoutPanelLeft, TvIcon, Home} from "lucide-svelte";
     import {PUBLIC_VERSION} from '$env/static/public';
 
     const data = {
         navMain: [
+            {
+                title: 'Dashboard',
+                url: '/dashboard',
+                icon: Home,
+                isActive: true
+            },
             {
                 title: 'TV',
                 url: '/dashboard/tv',
@@ -23,6 +29,18 @@
                         url: '/dashboard/tv/requests'
                     }
                 ]
+            },
+            {
+                title: 'Settings',
+                url: '/dashboard/settings',
+                icon: Settings,
+                isActive: true,
+                items: [
+                    {
+                        title: 'Users',
+                        url: '/dashboard/settings#users'
+                    }
+                ]
             }
         ],
         navSecondary: [
@@ -35,18 +53,6 @@
                 title: 'Feedback',
                 url: '#',
                 icon: Send
-            }
-        ],
-        projects: [
-            {
-                name: 'Dashboard',
-                url: '/dashboard',
-                icon: LayoutPanelLeft
-            },
-            {
-                name: 'Settings',
-                url: '/dashboard/settings',
-                icon: Settings
             }
         ]
     };
@@ -85,7 +91,7 @@
     </Sidebar.Header>
     <Sidebar.Content>
         <NavMain items={data.navMain}/>
-        <NavProjects projects={data.projects}/>
+        <!--  <NavProjects projects={data.projects}/> -->
         <NavSecondary class="mt-auto" items={data.navSecondary}/>
     </Sidebar.Content>
     <Sidebar.Footer>

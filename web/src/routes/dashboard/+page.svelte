@@ -3,10 +3,13 @@
     import * as Sidebar from '$lib/components/ui/sidebar/index.js';
     import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
     import RecommendedShowsCarousel from '$lib/components/recommended-shows-carousel.svelte';
+    import LoadingBar from '$lib/components/loading-bar.svelte';
     import {base} from '$app/paths';
     import {page} from '$app/state';
+    import type {MetaDataProviderShowSearchResult} from "$lib/types";
 
-    let recommendedShows = page.data.tvRecommendations;
+    let recommendedShows: Promise<MetaDataProviderShowSearchResult[]> = page.data.tvRecommendations;
+
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -30,7 +33,12 @@
     <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min items-center justify-center p-4">
         <div class="xl:max-w-[1200px] lg:max-w-[750px] md:max-w-[500px] sm:max-w-[200px] mx-auto">
             <h3 class="scroll-m-20 text-2xl font-semibold tracking-tight text-center my-4">Trending Shows</h3>
-            <RecommendedShowsCarousel shows={recommendedShows}/>
+            {#await recommendedShows}
+                <LoadingBar/>
+            {:then recommendations}
+                <RecommendedShowsCarousel shows={recommendations}/>
+
+            {/await}
 
         </div>
     </div>
