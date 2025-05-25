@@ -101,7 +101,8 @@ class RedirectingCookieTransport(CookieTransport):
 
 
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
-cookie_transport = RedirectingCookieTransport(cookie_max_age=LIFETIME)
+cookie_transport = CookieTransport(cookie_max_age=LIFETIME)
+oauth_cookie_transport = RedirectingCookieTransport(cookie_max_age=LIFETIME)
 
 bearer_auth_backend = AuthenticationBackend(
     name="jwt",
@@ -111,6 +112,11 @@ bearer_auth_backend = AuthenticationBackend(
 cookie_auth_backend = AuthenticationBackend(
     name="cookie",
     transport=cookie_transport,
+    get_strategy=get_jwt_strategy,
+)
+oauth_cookie_auth_backend = AuthenticationBackend(
+    name="cookie",
+    transport=oauth_cookie_transport,
     get_strategy=get_jwt_strategy,
 )
 

@@ -62,7 +62,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from auth.schemas import UserCreate, UserRead, UserUpdate
-from auth.users import bearer_auth_backend, fastapi_users, cookie_auth_backend
+from auth.users import bearer_auth_backend, fastapi_users, cookie_auth_backend, oauth_cookie_auth_backend
 from auth.router import users_router as custom_users_router
 from auth.router import auth_metadata_router
 basic_config = BasicConfig()
@@ -136,7 +136,7 @@ app.include_router(
 if oauth_client is not None:
     app.include_router(
         fastapi_users.get_oauth_router(oauth_client,
-                                       cookie_auth_backend,
+                                       oauth_cookie_auth_backend,
                                        auth.users.SECRET,
                                        associate_by_email=True,
                                        is_verified_by_default=True,
