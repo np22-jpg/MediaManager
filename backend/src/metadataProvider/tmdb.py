@@ -83,25 +83,46 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
 
         return show
 
-    def search_show(self, query: str) -> list[MetaDataProviderShowSearchResult]:
-        results = tmdbsimple.Search().tv(query=query)
-        formatted_results = []
-        for result in results["results"]:
-            if result["poster_path"] is not None:
-                poster_url = "https://image.tmdb.org/t/p/original" + result["poster_path"]
+    def search_show(self, query: str | None = None, max_pages: int = 5) -> list[MetaDataProviderShowSearchResult]:
+        """
+        Search for shows using TMDB API.
+        If no query is provided, it will return the most popular shows.
+        """
+        if query is None:
+            result_factory = lambda page: tmdbsimple.Trending(media_type="tv").info()
+        else:
+            result_factory = lambda page: tmdbsimple.Search().tv(page=page, query=query, include_adult=True)
+
+        results = []
+        for i in range(1, max_pages + 1):
+            result_page = result_factory(i)
+
+            if not result_page["results"]:
+                break
             else:
-                poster_url = None
-            formatted_results.append(
-                MetaDataProviderShowSearchResult(
-                    poster_path=poster_url,
-                    overview=result["overview"],
-                    name=result["name"],
-                    external_id=result["id"],
-                    year=metadataProvider.utils.get_year_from_first_air_date(result["first_air_date"]),
-                    metadata_provider=self.name,
-                    added=False,
+                results.extend(result_page["results"])
+
+        formatted_results = []
+        for result in results:
+            try:
+                if result["poster_path"] is not None:
+                    poster_url = "https://image.tmdb.org/t/p/original" + result["poster_path"]
+                else:
+                    poster_url = None
+                formatted_results.append(
+                    MetaDataProviderShowSearchResult(
+                        poster_path=poster_url,
+                        overview=result["overview"],
+                        name=result["name"],
+                        external_id=result["id"],
+                        year=metadataProvider.utils.get_year_from_first_air_date(result["first_air_date"]),
+                        metadata_provider=self.name,
+                        added=False,
+                        vote_average=result["vote_average"],
+                    )
                 )
-            )
+            except Exception as e:
+                log.warning(f"Error processing search result {result}: {e}")
         return formatted_results
 
     def __init__(self, api_key: str = None):

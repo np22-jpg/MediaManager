@@ -62,27 +62,34 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
 
         return show
 
-    def search_show(self, query: str) -> list[MetaDataProviderShowSearchResult]:
-        results = self.tvdb_client.search(query)
+    def search_show(self, query: str | None = None) -> list[MetaDataProviderShowSearchResult]:
+        if query is None:
+            results = self.tvdb_client.get_all_series()
+        else:
+            results = self.tvdb_client.search(query)
         formatted_results = []
         for result in results:
-            if result['type'] == 'series':
-                try:
-                    year = result['year']
-                except KeyError:
-                    year = None
+            try:
+                if result['type'] == 'series':
+                    try:
+                        year = result['year']
+                    except KeyError:
+                        year = None
 
-                formatted_results.append(
-                    MetaDataProviderShowSearchResult(
-                        poster_path=result["image_url"],
-                        overview=result["overview"],
-                        name=result["name"],
-                        external_id=result["tvdb_id"],
-                        year=year,
-                        metadata_provider=self.name,
-                        added=False,
+                    formatted_results.append(
+                        MetaDataProviderShowSearchResult(
+                            poster_path=result["image_url"],
+                            overview=result["overview"],
+                            name=result["name"],
+                            external_id=result["tvdb_id"],
+                            year=year,
+                            metadata_provider=self.name,
+                            added=False,
+                            vote_average=None
+                        )
                     )
-                )
+            except Exception as e:
+                log.warning(f"Error processing search result {result}: {e}")
         return formatted_results
 
 

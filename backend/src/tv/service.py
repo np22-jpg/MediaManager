@@ -34,9 +34,11 @@ def add_season_request(db: Session, season_request: SeasonRequest) -> None:
 def get_season_request_by_id(db: Session, season_request_id: SeasonRequestId) -> SeasonRequest | None:
     return tv.repository.get_season_request(db=db, season_request_id=season_request_id)
 
+
 def update_season_request(db: Session, season_request: SeasonRequest) -> None:
     tv.repository.delete_season_request(db=db, season_request_id=season_request.id)
     tv.repository.add_season_request(db=db, season_request=season_request)
+
 
 def delete_season_request(db: Session, season_request_id: SeasonRequestId) -> None:
     tv.repository.delete_season_request(db=db, season_request_id=season_request_id)
@@ -111,6 +113,15 @@ def search_for_show(query: str, metadata_provider: str, db: Session) -> list[Met
     return results
 
 
+def get_popular_shows(metadata_provider: str, db: Session):
+    results: list[MetaDataProviderShowSearchResult] = metadataProvider.search_show(provider=metadata_provider)
+
+    for result in results:
+        if check_if_show_exists(db=db, external_id=result.external_id, metadata_provider=metadata_provider):
+            results.pop(results.index(result))
+    return results
+
+
 def get_public_show_by_id(db: Session, show_id: ShowId) -> PublicShow:
     show = tv.repository.get_show(show_id=show_id, db=db)
     seasons = [PublicSeason.model_validate(season) for season in show.seasons]
@@ -123,6 +134,7 @@ def get_public_show_by_id(db: Session, show_id: ShowId) -> PublicShow:
 
 def get_show_by_id(db: Session, show_id: ShowId) -> Show:
     return tv.repository.get_show(show_id=show_id, db=db)
+
 
 def is_season_downloaded(db: Session, season_id: SeasonId) -> bool:
     season_files = get_season_files_by_season_id(db=db, season_id=season_id)
@@ -189,4 +201,3 @@ def download_torrent(db: Session, public_indexer_result_id: IndexerQueryResultId
                                  file_path_suffix=override_show_file_path_suffix)
         add_season_file(db=db, season_file=season_file)
     return show_torrent
-

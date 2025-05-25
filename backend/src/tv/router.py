@@ -175,3 +175,9 @@ def download_a_torrent(db: DbSessionDependency, public_indexer_result_id: Indexe
             response_model=list[MetaDataProviderShowSearchResult])
 def search_metadata_providers_for_a_show(db: DbSessionDependency, query: str, metadata_provider: str = "tmdb"):
     return tv.service.search_for_show(query=query, metadata_provider=metadata_provider, db=db)
+
+
+@router.get("/recommended", dependencies=[Depends(current_active_user)],
+            response_model=list[MetaDataProviderShowSearchResult])
+def search_metadata_providers_for_a_show(db: DbSessionDependency, metadata_provider: str = "tmdb"):
+    return tv.service.get_popular_shows(metadata_provider=metadata_provider, db=db)

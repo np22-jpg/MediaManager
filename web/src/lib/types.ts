@@ -148,6 +148,7 @@ export interface MetaDataProviderShowSearchResult {
 	year: number | null;
 	metadata_provider: string;
 	added: boolean;
+	vote_average: number;
 }
 export interface RichSeasonTorrent {
 	torrent_id: string;

@@ -9,3 +9,4 @@ class MetaDataProviderShowSearchResult(BaseModel):
     year: int | None
     metadata_provider: str
     added: bool
+    vote_average: float | None = None
