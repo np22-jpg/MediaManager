@@ -3,6 +3,9 @@
     import logo from '$lib/images/logo.svg';
     import background from '$lib/images/pawel-czerwinski-NTYYL9Eb9y8-unsplash.jpg';
     import {toOptimizedURL} from "sveltekit-image-optimize/components";
+    import {page} from '$app/state';
+
+    let oauthProvider = page.data.oauthProvider;
 </script>
 
 <div class="grid min-h-svh lg:grid-cols-2">
@@ -19,7 +22,7 @@
         </div>
         <div class="flex flex-1 items-center justify-center">
             <div class="w-full max-w-xs">
-                <LoginForm/>
+                <LoginForm oauthProvider={oauthProvider}/>
             </div>
         </div>
     </div>

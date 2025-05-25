@@ -2,6 +2,7 @@ import os
 import uuid
 from typing import Optional
 
+import httpx
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models
 from fastapi_users.authentication import (
@@ -11,24 +12,43 @@ from fastapi_users.authentication import (
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 from httpx_oauth.oauth2 import OAuth2
-
+from fastapi.responses import RedirectResponse, Response
 import auth.config
 from auth.db import User, get_user_db
 from auth.schemas import UserUpdate
+from config import BasicConfig
 
 config = auth.config.AuthConfig()
 SECRET = config.token_secret
 LIFETIME = config.session_lifetime
 
-if os.getenv("OAUTH_ENABLED") == "True":
-    oauth2_config = auth.config.OAuth2Config()
 
-    oauth_client = OAuth2(
+class GenericOAuth2(OAuth2):
+    def __init__(self, user_info_endpoint: str, **kwargs):
+        super().__init__(**kwargs)
+        self.user_info_endpoint = user_info_endpoint
+
+    async def get_id_email(self, token: str):
+        userinfo_endpoint = self.user_info_endpoint
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                userinfo_endpoint,
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            return data["sub"], data["email"]
+
+
+if os.getenv("OAUTH_ENABLED") is not None and os.getenv("OAUTH_ENABLED").upper() == "TRUE":
+    oauth2_config = auth.config.OAuth2Config()
+    oauth_client = GenericOAuth2(
         client_id=oauth2_config.client_id,
         client_secret=oauth2_config.client_secret,
         name=oauth2_config.name,
         authorize_endpoint=oauth2_config.authorize_endpoint,
         access_token_endpoint=oauth2_config.access_token_endpoint,
+        user_info_endpoint=oauth2_config.user_info_endpoint,
     )
 else:
     oauth_client = None
@@ -72,8 +92,16 @@ def get_jwt_strategy() -> JWTStrategy[models.UP, models.ID]:
     return JWTStrategy(secret=SECRET, lifetime_seconds=LIFETIME)
 
 
+# needed because the default CookieTransport does not redirect after login,
+# thus the user would be stuck on the OAuth Providers "redirecting" page
+class RedirectingCookieTransport(CookieTransport):
+    async def get_login_response(self, token: str) -> Response:
+        response = RedirectResponse(str(BasicConfig().FRONTEND_URL) + "dashboard", status_code=302)
+        return self._set_login_cookie(response, token)
+
+
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
-cookie_transport = CookieTransport(cookie_max_age=LIFETIME)
+cookie_transport = RedirectingCookieTransport(cookie_max_age=LIFETIME)
 
 bearer_auth_backend = AuthenticationBackend(
     name="jwt",

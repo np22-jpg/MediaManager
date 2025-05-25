@@ -55,7 +55,6 @@ log.info("Database initialized")
 
 from auth.users import oauth_client
 import auth.users
-import router
 from config import BasicConfig
 
 import uvicorn
@@ -64,7 +63,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from auth.schemas import UserCreate, UserRead, UserUpdate
 from auth.users import bearer_auth_backend, fastapi_users, cookie_auth_backend
-
+from auth.router import users_router as custom_users_router
+from auth.router import auth_metadata_router
 basic_config = BasicConfig()
 if basic_config.DEVELOPMENT:
     basic_config.torrent_directory.mkdir(parents=True, exist_ok=True)
@@ -116,10 +116,15 @@ app.include_router(
     prefix="/auth",
     tags=["auth"],
 )
-# Misc Router
+# All users route router
 app.include_router(
-    router.router,
+    custom_users_router,
     tags=["users"]
+)
+# OAuth Metadata Router
+app.include_router(
+    auth_metadata_router,
+    tags=["oauth"]
 )
 # User Router
 app.include_router(
@@ -131,24 +136,13 @@ app.include_router(
 if oauth_client is not None:
     app.include_router(
         fastapi_users.get_oauth_router(oauth_client,
-                                       bearer_auth_backend,
-                                       auth.users.SECRET,
-                                       associate_by_email=True,
-                                       is_verified_by_default=True
-                                       ),
-        prefix=f"/auth/jwt/{oauth_client.name}",
-        tags=["oauth"],
-    )
-    app.include_router(
-        fastapi_users.get_oauth_router(oauth_client,
                                        cookie_auth_backend,
                                        auth.users.SECRET,
                                        associate_by_email=True,
-                                       is_verified_by_default=True
+                                       is_verified_by_default=True,
                                        ),
         prefix=f"/auth/cookie/{oauth_client.name}",
         tags=["oauth"],
-
     )
 
 app.include_router(

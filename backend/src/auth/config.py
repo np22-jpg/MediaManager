@@ -20,4 +20,5 @@ class OAuth2Config(BaseSettings):
     client_secret: str
     authorize_endpoint: str
     access_token_endpoint: str
+    user_info_endpoint: str
     name: str = "OAuth2"
