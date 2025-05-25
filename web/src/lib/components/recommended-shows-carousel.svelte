@@ -1,25 +1,25 @@
 <script lang="ts">
-    import Autoplay from "embla-carousel-autoplay";
-    import * as Carousel from "$lib/components/ui/carousel/index.js";
-    import type {MetaDataProviderShowSearchResult} from "$lib/types";
-    import AddShowCard from "$lib/components/add-show-card.svelte";
+    import Autoplay from 'embla-carousel-autoplay';
+    import * as Carousel from '$lib/components/ui/carousel/index.js';
+    import type {MetaDataProviderShowSearchResult} from '$lib/types';
+    import AddShowCard from '$lib/components/add-show-card.svelte';
 
     let {shows}: { shows: MetaDataProviderShowSearchResult } = $props();
 </script>
+
 <Carousel.Root
         opts={{
-  align: "start",
-  loop: true,
- }}
+		align: 'start',
+		loop: true
+	}}
         plugins={[
-    Autoplay({
-      delay: 2000,
-      stopOnInteraction: false,
-      stopOnMouseEnter: true,
-      playOnInit: true,
-
-    }),
-  ]}
+		Autoplay({
+			delay: 2000,
+			stopOnInteraction: false,
+			stopOnMouseEnter: true,
+			playOnInit: true
+		})
+	]}
 >
     <Carousel.Content class="-ml-1">
         {#each shows as show}

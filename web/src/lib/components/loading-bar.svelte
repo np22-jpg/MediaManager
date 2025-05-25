@@ -1,6 +1,6 @@
 <script lang="ts">
-    import {Progress} from "$lib/components/ui/progress/index.js";
-    import {onMount} from "svelte";
+    import {Progress} from '$lib/components/ui/progress/index.js';
+    import {onMount} from 'svelte';
 
     let value = $state(0);
 
@@ -13,4 +13,4 @@
     });
 </script>
 
-<Progress value={value}/>
+<Progress {value}/>

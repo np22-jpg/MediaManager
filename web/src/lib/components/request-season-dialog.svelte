@@ -152,8 +152,7 @@
         <Dialog.Footer>
             <Button disabled={isSubmittingRequest} onclick={() => (dialogOpen = false)} variant="outline"
             >Cancel
-            </Button
-            >
+            </Button>
             <Button disabled={isFormInvalid || isSubmittingRequest} onclick={handleRequestSeason}>
                 {#if isSubmittingRequest}
                     <LoaderCircle class="mr-2 h-4 w-4 animate-spin"/>

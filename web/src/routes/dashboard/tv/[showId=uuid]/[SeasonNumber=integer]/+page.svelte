@@ -13,7 +13,9 @@
 	const SeasonNumber = page.params.SeasonNumber;
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let show: Show = getContext('show');
-	let season: Season = $derived(show().seasons.find((item) => item.number === parseInt(SeasonNumber)));
+	let season: Season = $derived(
+			show().seasons.find((item) => item.number === parseInt(SeasonNumber))
+	);
 
 	console.log('loaded files', seasonFiles);
 </script>

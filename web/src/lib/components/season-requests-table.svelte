@@ -7,8 +7,8 @@
     import {Button} from '$lib/components/ui/button/index.js';
     import {env} from '$env/dynamic/public';
     import {toast} from 'svelte-sonner';
-    import {goto} from "$app/navigation";
-    import {base} from "$app/paths";
+    import {goto} from '$app/navigation';
+    import {base} from '$app/paths';
 
     let {
         requests,
@@ -135,7 +135,7 @@
                                     class=""
                                     size="sm"
                                     variant="outline"
-                                    onclick={() => goto(base+"/dashboard/tv/"+request.show.id)}
+                                    onclick={() => goto(base + '/dashboard/tv/' + request.show.id)}
                             >
                                 Download manually
                             </Button>

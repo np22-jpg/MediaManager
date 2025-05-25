@@ -1,19 +1,19 @@
 <script lang="ts">
-	import {env} from '$env/dynamic/public';
-	import {Button, buttonVariants} from '$lib/components/ui/button/index.js';
-	import {Input} from '$lib/components/ui/input';
-	import {Label} from '$lib/components/ui/label';
-	import {toast} from 'svelte-sonner';
+    import {env} from '$env/dynamic/public';
+    import {Button, buttonVariants} from '$lib/components/ui/button/index.js';
+    import {Input} from '$lib/components/ui/input';
+    import {Label} from '$lib/components/ui/label';
+    import {toast} from 'svelte-sonner';
 
-	import type {PublicIndexerQueryResult} from '$lib/types.js';
-	import {convertTorrentSeasonRangeToIntegerRange, getFullyQualifiedShowName} from '$lib/utils';
-	import {LoaderCircle} from 'lucide-svelte';
+    import type {PublicIndexerQueryResult} from '$lib/types.js';
+    import {convertTorrentSeasonRangeToIntegerRange, getFullyQualifiedShowName} from '$lib/utils';
+    import {LoaderCircle} from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 
-	let {show} = $props();
+    let {show} = $props();
 	let dialogueState = $state(false);
 	let selectedSeasonNumber: number = $state(1);
 	let torrents: PublicIndexerQueryResult[] = $state([]);
@@ -60,8 +60,8 @@
 	}
 
 	async function getTorrents(
-			season_number: number,
-			override: boolean = false
+        season_number: number,
+        override: boolean = false
 	): Promise<PublicIndexerQueryResult[]> {
 		isLoadingTorrents = true;
 		torrentsError = null;
@@ -150,14 +150,14 @@
 				<div class="grid w-full items-center gap-1.5">
 					{#if show?.seasons?.length > 0}
 						<Label for="season-number"
-						>Enter a season number from 1 to {show.seasons.at(-1).number}</Label
+                        >Enter a season number from 1 to {show.seasons.at(-1).number}</Label
 						>
 						<Input
-								type="number"
-								class="max-w-sm"
-								id="season-number"
-								bind:value={selectedSeasonNumber}
-								max={show.seasons.at(-1).number}
+                                type="number"
+                                class="max-w-sm"
+                                id="season-number"
+                                bind:value={selectedSeasonNumber}
+                                max={show.seasons.at(-1).number}
 						/>
 						<p class="text-sm text-muted-foreground">
 							Enter the season's number you want to search for. The first, usually 1, or the last
@@ -181,7 +181,7 @@
 							example a 1080p and a 4K version of a season.
 						</p>
 						<Label for="file-suffix-display"
-						>The files will be saved in the following directory:</Label
+                        >The files will be saved in the following directory:</Label
 						>
 						<p class="text-sm text-muted-foreground" id="file-suffix-display">
 							{@render saveDirectoryPreview(show, filePathSuffix)}
@@ -198,10 +198,10 @@
 					{#if show?.seasons?.length > 0}
 						<Label for="query-override">Enter a custom query</Label>
 						<div class="flex w-full max-w-sm items-center space-x-2">
-							<Input type="text" id="query-override" bind:value={queryOverride}/>
+                            <Input type="text" id="query-override" bind:value={queryOverride}/>
 							<Button
-									variant="secondary"
-									onclick={async () => {
+                                    variant="secondary"
+                                    onclick={async () => {
 									isLoadingTorrents = true;
 									torrentsError = null;
 									torrents = [];
@@ -223,11 +223,11 @@
 						</p>
 						<Label for="file-suffix">Filepath suffix</Label>
 						<Input
-								type="text"
-								class="max-w-sm"
-								id="file-suffix"
-								bind:value={filePathSuffix}
-								placeholder="1080P"
+                                type="text"
+                                class="max-w-sm"
+                                id="file-suffix"
+                                bind:value={filePathSuffix}
+                                placeholder="1080P"
 						/>
 						<p class="text-sm text-muted-foreground">
 							This is necessary to differentiate between versions of the same season/show, for
@@ -235,7 +235,7 @@
 						</p>
 
 						<Label for="file-suffix-display"
-						>The files will be saved in the following directory:</Label
+                        >The files will be saved in the following directory:</Label
 						>
 						<p class="text-sm text-muted-foreground" id="file-suffix-display">
 							{@render saveDirectoryPreview(show, filePathSuffix)}
@@ -251,7 +251,7 @@
 		<div class="mt-4 items-center">
 			{#if isLoadingTorrents}
 				<div class="flex w-full max-w-sm items-center space-x-2">
-					<LoaderCircle class="animate-spin"/>
+                    <LoaderCircle class="animate-spin"/>
 					<p>Loading torrents...</p>
 				</div>
 			{:else if torrentsError}
@@ -287,9 +287,9 @@
 									</Table.Cell>
 									<Table.Cell class="text-right">
 										<Button
-												size="sm"
-												variant="outline"
-												onclick={() => {
+                                                size="sm"
+                                                variant="outline"
+                                                onclick={() => {
 												downloadTorrent(torrent.id);
 											}}
 										>

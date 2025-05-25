@@ -9,8 +9,8 @@
 	import UserDetails from './user-details.svelte';
 	import UserRound from '@lucide/svelte/icons/user-round';
 	import {handleLogout} from '$lib/utils.ts';
-	import {goto} from "$app/navigation";
-	import {base} from "$app/paths";
+	import {goto} from '$app/navigation';
+	import {base} from '$app/paths';
 	const sidebar = useSidebar();
 </script>
 
@@ -57,7 +57,7 @@
 					</div>
 				</DropdownMenu.Label>
 				<DropdownMenu.Separator/>
-				<DropdownMenu.Item onclick={() => goto(base+'/dashboard/settings#me')}>
+				<DropdownMenu.Item onclick={() => goto(base + '/dashboard/settings#me')}>
 					My Account
 				</DropdownMenu.Item>
 				<DropdownMenu.Separator/>

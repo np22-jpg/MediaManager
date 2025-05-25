@@ -12,7 +12,7 @@
 	let apiUrl = env.PUBLIC_API_URL;
 
 	let {oauthProvider} = $props();
-	let oauthProviderName = $derived(oauthProvider.oauth_name)
+	let oauthProviderName = $derived(oauthProvider.oauth_name);
 
 	let email = $state('');
 	let password = $state('');
@@ -112,19 +112,25 @@
 
 	async function handleOauth() {
 		try {
-			const response = await fetch(apiUrl + "/auth/cookie/" + oauthProviderName + "/authorize?scopes=email", {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-			});
+			const response = await fetch(
+					apiUrl + '/auth/cookie/' + oauthProviderName + '/authorize?scopes=email',
+					{
+						method: 'GET',
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					}
+			);
 			if (response.ok) {
 				let result = await response.json();
-				console.log('Redirecting to OAuth provider:', oauthProviderName, "url: ", result.authorization_url);
-				toast.success("Redirecting to " + oauthProviderName + " for authentication...");
+				console.log(
+						'Redirecting to OAuth provider:',
+						oauthProviderName,
+						'url: ',
+						result.authorization_url
+				);
+				toast.success('Redirecting to ' + oauthProviderName + ' for authentication...');
 				window.location = result.authorization_url;
-
-
 			} else {
 				let errorText = await response.text();
 				toast.error(errorMessage);
@@ -143,8 +149,9 @@
 		<LoadingBar/>
 	{:then result}
 		{#if result.oauth_name != null}
-			<Button class="mt-2 w-full" onclick={() => handleOauth()} variant="outline">Login
-				with {result.oauth_name}</Button>
+			<Button class="mt-2 w-full" onclick={() => handleOauth()} variant="outline"
+			>Login with {result.oauth_name}</Button
+			>
 		{/if}
 	{/await}
 {/snippet}
@@ -196,8 +203,7 @@
 				<div class="mt-4 text-center text-sm">
 					<Button onclick={() => (tabValue = 'register')} variant="link">
 						Don't have an account? Sign up
-					</Button
-					>
+					</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>
@@ -242,12 +248,10 @@
 				<!-- TODO: dynamically display oauth providers based on config -->
 				{@render oauthLogin()}
 
-
 				<div class="mt-4 text-center text-sm">
 					<Button onclick={() => (tabValue = 'login')} variant="link"
 					>Already have an account? Login
-					</Button
-					>
+					</Button>
 				</div>
 			</Card.Content>
 		</Card.Root>
