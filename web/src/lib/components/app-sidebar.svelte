@@ -1,5 +1,5 @@
 <script lang="ts" module>
-    import {Settings, LifeBuoy, Send, LayoutPanelLeft, TvIcon, Home} from "lucide-svelte";
+    import {Home, Info, LifeBuoy, Send, Settings, TvIcon} from "lucide-svelte";
     import {PUBLIC_VERSION} from '$env/static/public';
 
     const data = {
@@ -47,6 +47,11 @@
                 title: 'Feedback',
                 url: '#',
                 icon: Send
+            },
+            {
+                title: 'About',
+                url: '/dashboard/about',
+                icon: Info
             }
         ]
     };
@@ -54,7 +59,6 @@
 
 <script lang="ts">
     import NavMain from '$lib/components/nav-main.svelte';
-    import NavProjects from '$lib/components/nav-projects.svelte';
     import NavSecondary from '$lib/components/nav-secondary.svelte';
     import NavUser from '$lib/components/nav-user.svelte';
     import * as Sidebar from '$lib/components/ui/sidebar/index.js';

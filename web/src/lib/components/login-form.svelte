@@ -8,7 +8,6 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import {toast} from 'svelte-sonner';
 	import LoadingBar from '$lib/components/loading-bar.svelte';
-	import {base} from "$app/paths";
 
 	let apiUrl = env.PUBLIC_API_URL;
 

@@ -1,7 +1,7 @@
 import {env} from '$env/dynamic/public';
 import type {PageLoad} from './$types';
 
-export const load: PageLoad = async ({params, fetch}) => {
+export const load: PageLoad = async ({fetch}) => {
     try {
         const users = await fetch(env.PUBLIC_API_URL + "/users/all", {
             method: 'GET',

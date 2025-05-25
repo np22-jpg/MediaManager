@@ -1,10 +1,6 @@
 <script lang="ts">
-	import BadgeCheck from '@lucide/svelte/icons/badge-check';
-	import Bell from '@lucide/svelte/icons/bell';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
-	import CreditCard from '@lucide/svelte/icons/credit-card';
 	import LogOut from '@lucide/svelte/icons/log-out';
-	import Sparkles from '@lucide/svelte/icons/sparkles';
 
 	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -13,6 +9,8 @@
 	import UserDetails from './user-details.svelte';
 	import UserRound from '@lucide/svelte/icons/user-round';
 	import {handleLogout} from '$lib/utils.ts';
+	import {goto} from "$app/navigation";
+	import {base} from "$app/paths";
 	const sidebar = useSidebar();
 </script>
 
@@ -58,6 +56,10 @@
 						</div>
 					</div>
 				</DropdownMenu.Label>
+				<DropdownMenu.Separator/>
+				<DropdownMenu.Item onclick={() => goto(base+'/dashboard/settings#me')}>
+					My Account
+				</DropdownMenu.Item>
 				<DropdownMenu.Separator/>
 				<DropdownMenu.Item onclick={() => handleLogout()}>
 					<LogOut/>

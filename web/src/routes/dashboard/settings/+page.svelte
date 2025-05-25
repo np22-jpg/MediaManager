@@ -4,10 +4,31 @@
     import * as Card from "$lib/components/ui/card/index.js";
     import {getContext} from "svelte";
     import UserSettings from '$lib/components/user-settings.svelte';
-
+    import {Separator} from "$lib/components/ui/separator";
+    import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+    import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
+    import {base} from "$app/paths";
     let currentUser = getContext("user")
     let users = page.data.users;
 </script>
+
+<header class="flex h-16 shrink-0 items-center gap-2">
+    <div class="flex items-center gap-2 px-4">
+        <Sidebar.Trigger class="-ml-1"/>
+        <Separator class="mr-2 h-4" orientation="vertical"/>
+        <Breadcrumb.Root>
+            <Breadcrumb.List>
+                <Breadcrumb.Item class="hidden md:block">
+                    <Breadcrumb.Link href="{base}/dashboard">MediaManager</Breadcrumb.Link>
+                </Breadcrumb.Item>
+                <Breadcrumb.Separator class="hidden md:block"/>
+                <Breadcrumb.Item>
+                    <Breadcrumb.Page>Settings</Breadcrumb.Page>
+                </Breadcrumb.Item>
+            </Breadcrumb.List>
+        </Breadcrumb.Root>
+    </div>
+</header>
 
 <div class="flex w-full flex-1 flex-col gap-4 p-4 pt-0 max-w-[1000px] mx-auto">
     <h1 class="scroll-m-20 my-6 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">

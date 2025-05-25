@@ -33,7 +33,7 @@
     <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
         Dashboard
     </h1>
-    <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min items-center justify-center p-4">
+    <div class="min-h-[100vh] flex-1 rounded-xl  md:min-h-min items-center justify-center p-4">
         <div class="xl:max-w-[1200px] lg:max-w-[750px] md:max-w-[500px] sm:max-w-[200px] mx-auto">
             <h3 class="scroll-m-20 text-2xl font-semibold tracking-tight text-center my-4">Trending Shows</h3>
             {#await recommendedShows}

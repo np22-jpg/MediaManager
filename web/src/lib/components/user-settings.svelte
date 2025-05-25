@@ -1,17 +1,10 @@
 <script lang="ts">
-    import type {User} from '$lib/types.js';
-    import CheckmarkX from '$lib/components/checkmark-x.svelte';
-    import * as Table from '$lib/components/ui/table/index.js';
     import {Button} from "$lib/components/ui/button/index.js";
     import {env} from "$env/dynamic/public";
     import {toast} from "svelte-sonner";
     import * as Dialog from "$lib/components/ui/dialog/index.js";
-    import {getTorrentQualityString} from "$lib/utils";
     import {Label} from "$lib/components/ui/label/index.js";
-    import * as RadioGroup from "$lib/components/ui/radio-group/index.js";
     import {Input} from "$lib/components/ui/input/index.js";
-    import {invalidateAll} from "$app/navigation";
-    import {getContext} from 'svelte';
 
     let newPassword: string = $state('');
     let newEmail: string = $state('');
