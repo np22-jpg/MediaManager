@@ -74,7 +74,7 @@
             <span class="text-sm text-yellow-600 font-medium flex items-center">
                 <svg class="w-4 h-4 mr-1 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path
                         d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/></svg>
-                Rating: {result.vote_average}/10
+                Rating: {Math.round(result.vote_average)}/10
             </span>
             {/if}
         </div>
