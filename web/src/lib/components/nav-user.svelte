@@ -59,28 +59,6 @@
 					</div>
 				</DropdownMenu.Label>
 				<DropdownMenu.Separator/>
-				<DropdownMenu.Group>
-					<DropdownMenu.Item>
-						<Sparkles/>
-						Upgrade to Pro
-					</DropdownMenu.Item>
-				</DropdownMenu.Group>
-				<DropdownMenu.Separator/>
-				<DropdownMenu.Group>
-					<DropdownMenu.Item>
-						<BadgeCheck/>
-						Account
-					</DropdownMenu.Item>
-					<DropdownMenu.Item>
-						<CreditCard/>
-						Billing
-					</DropdownMenu.Item>
-					<DropdownMenu.Item>
-						<Bell/>
-						Notifications
-					</DropdownMenu.Item>
-				</DropdownMenu.Group>
-				<DropdownMenu.Separator/>
 				<DropdownMenu.Item onclick={() => handleLogout()}>
 					<LogOut/>
 					Log out

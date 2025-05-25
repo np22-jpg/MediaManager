@@ -35,12 +35,6 @@
                 url: '/dashboard/settings',
                 icon: Settings,
                 isActive: true,
-                items: [
-                    {
-                        title: 'Users',
-                        url: '/dashboard/settings#users'
-                    }
-                ]
             }
         ],
         navSecondary: [
