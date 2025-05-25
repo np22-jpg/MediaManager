@@ -13,10 +13,7 @@
 	const SeasonNumber = page.params.SeasonNumber;
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let show: Show = getContext('show');
-	let season: Season = $state();
-	show.seasons.forEach((item) => {
-		if (item.number === parseInt(SeasonNumber)) season = item;
-	});
+	let season: Season = $derived(show().seasons.find((item) => item.number === parseInt(SeasonNumber)));
 
 	console.log('loaded files', seasonFiles);
 </script>
@@ -40,9 +37,9 @@
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block"/>
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard/tv/{show.id}">
-						{show.name}
-						{show.year == null ? '' : '(' + show.year + ')'}
+					<Breadcrumb.Link href="/dashboard/tv/{show().id}">
+						{show().name}
+						{show().year == null ? '' : '(' + show().year + ')'}
 					</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block"/>
@@ -54,20 +51,20 @@
 	</div>
 </header>
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-	{getFullyQualifiedShowName(show)} Season {SeasonNumber}
+	{getFullyQualifiedShowName(show())} Season {SeasonNumber}
 </h1>
 <div class="flex flex-1 flex-col gap-4 p-4">
 	<div class="flex items-center gap-2">
 		<div class="max-h-50% w-1/3 max-w-sm rounded-xl bg-muted/50">
 			<img
 					class="aspect-9/16 h-auto w-full rounded-lg object-cover"
-					src="{env.PUBLIC_API_URL}/static/image/{show.id}.jpg"
-					alt="{show.name}'s Poster Image"
+					alt="{show().name}'s Poster Image"
+					src="{env.PUBLIC_API_URL}/static/image/{show().id}.jpg"
 			/>
 		</div>
 		<div class="h-full w-1/4 flex-auto rounded-xl bg-muted/50 p-4">
 			<p class="leading-7 [&:not(:first-child)]:mt-6">
-				{show.overview}
+				{show().overview}
 			</p>
 		</div>
 		<div class="h-full w-1/3 flex-auto rounded-xl bg-muted/50 p-4">

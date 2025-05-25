@@ -135,7 +135,7 @@
                                     class=""
                                     size="sm"
                                     variant="outline"
-                                    onclick={() => goto(base+"/dashboard/tv/"+request.show.id + "/" + request.season.number)}
+                                    onclick={() => goto(base+"/dashboard/tv/"+request.show.id)}
                             >
                                 Download manually
                             </Button>
