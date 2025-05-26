@@ -70,7 +70,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         )
 
         # downloading the poster
-        # NOTE: all pictures from TMDB should already be jpeg, so no need to convert
+        # all pictures from TMDB should already be jpeg, so no need to convert
         if show_metadata["poster_path"] is not None:
             poster_url = "https://image.tmdb.org/t/p/original" + show_metadata["poster_path"]
             if metadataProvider.utils.download_poster_image(storage_path=self.storage_path, poster_url=poster_url,
