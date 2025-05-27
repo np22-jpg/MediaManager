@@ -19,7 +19,7 @@ from config import BasicConfig
 from indexer import IndexerQueryResult
 from torrent.repository import get_seasons_files_of_torrent, get_show_of_torrent, save_torrent
 from torrent.schemas import Torrent, TorrentStatus, TorrentId
-from torrent.utils import list_files_recursively, get_torrent_filepath, import_file
+from torrent.utils import list_files_recursively, get_torrent_filepath, import_file, extract_archives
 from tv.schemas import SeasonFile, Show
 
 log = logging.getLogger(__name__)
@@ -139,30 +139,38 @@ class TorrentService:
         self.api_client.torrents_resume(torrent_hashes=torrent.hash)
         return self.get_torrent_status(torrent=torrent)
 
-    # TODO: add ability to automatically extract archives
     def import_torrent(self, torrent: Torrent) -> Torrent:
         log.info(f"importing torrent {torrent}")
+
+        # get all files, extract archives if necessary and get all files (extracted) files again
         all_files = list_files_recursively(path=get_torrent_filepath(torrent=torrent))
         log.debug(f"Found {len(all_files)} files downloaded by the torrent")
-        files = []
+        extract_archives(all_files)
+        all_files = list_files_recursively(path=get_torrent_filepath(torrent=torrent))
+
+        # Filter videos and subtitles from all files
+        video_files = []
         subtitle_files = []
         for file in all_files:
             file_type = mimetypes.guess_file_type(file)
             if file_type[0] is not None:
                 if file_type[0].startswith("video"):
-                    files.append(file)
+                    video_files.append(file)
                     log.debug(f"File is a video, it will be imported: {file}")
                 elif file_type[0].startswith("text") and file.suffix == ".srt":
                     subtitle_files.append(file)
                     log.debug(f"File is a subtitle, it will be imported: {file}")
                 else:
-                    log.debug(f"File is not a video, will not be imported: {file}")
-        log.info(f"Importing these {len(files)} files:\n" + pprint.pformat(files))
+                    log.debug(f"File is neither a video nor a subtitle, will not be imported: {file}")
+        log.info(f"Importing these {len(video_files)} files:\n" + pprint.pformat(video_files))
 
+        # Fetch show and season information
         show: Show = get_show_of_torrent(db=self.db, torrent_id=torrent.id)
         show_file_path = BasicConfig().tv_directory / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
-
         season_files: list[SeasonFile] = get_seasons_files_of_torrent(db=self.db, torrent_id=torrent.id)
+        log.info(f"Found {len(season_files)} season files associated with torrent {torrent.title}")
+
+        # creating directories and hard linking files
         for season_file in season_files:
             season = tv.service.get_season(db=self.db, season_id=season_file.season_id)
             season_path = show_file_path / Path(f"Season {season.number}")
@@ -196,7 +204,7 @@ class TorrentService:
                         log.debug(f"Didn't find any pattern {subtitle_pattern} in subtitle file: {subtitle_file.name}")
 
                 # import episode videos
-                for file in files:
+                for file in video_files:
                     log.debug(f"Searching for pattern {pattern} in video file: {file.name}")
                     if re.search(pattern, file.name):
                         log.debug(f"Found matching pattern: {pattern} in file {file.name}")
