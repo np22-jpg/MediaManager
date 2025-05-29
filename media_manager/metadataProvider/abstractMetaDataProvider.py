@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 
-import config
+import media_manager.config
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
 from media_manager.tv.schemas import Show
 
@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 
 class AbstractMetadataProvider(ABC):
-    storage_path = config.BasicConfig().image_directory
+    storage_path = media_manager.config.BasicConfig().image_directory
 
     @property
     @abstractmethod

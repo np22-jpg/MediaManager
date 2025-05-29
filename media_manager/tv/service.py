@@ -1,10 +1,9 @@
-from pydantic.v1 import UUID4
 from sqlalchemy.orm import Session
 
-import indexer.service
-import metadataProvider
-import torrent.repository
-import tv.repository
+import media_manager.indexer.service
+import media_manager.metadataProvider
+import media_manager.torrent.repository
+import media_manager.tv.repository
 from media_manager.indexer import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
@@ -40,30 +39,36 @@ def add_show(db: Session, external_id: int, metadata_provider: str) -> Show | No
             f"Show with external ID {external_id} and"
             + f" metadata provider {metadata_provider} already exists"
         )
-    show_with_metadata = metadataProvider.get_show_metadata(
+    show_with_metadata = media_manager.metadataProvider.get_show_metadata(
         id=external_id, provider=metadata_provider
     )
-    saved_show = tv.repository.save_show(db=db, show=show_with_metadata)
+    saved_show = media_manager.tv.repository.save_show(db=db, show=show_with_metadata)
     return saved_show
 
 
 def add_season_request(db: Session, season_request: SeasonRequest) -> None:
-    tv.repository.add_season_request(db=db, season_request=season_request)
+    media_manager.tv.repository.add_season_request(db=db, season_request=season_request)
 
 
 def get_season_request_by_id(
         db: Session, season_request_id: SeasonRequestId
 ) -> SeasonRequest | None:
-    return tv.repository.get_season_request(db=db, season_request_id=season_request_id)
+    return media_manager.tv.repository.get_season_request(
+        db=db, season_request_id=season_request_id
+    )
 
 
 def update_season_request(db: Session, season_request: SeasonRequest) -> None:
-    tv.repository.delete_season_request(db=db, season_request_id=season_request.id)
-    tv.repository.add_season_request(db=db, season_request=season_request)
+    media_manager.tv.repository.delete_season_request(
+        db=db, season_request_id=season_request.id
+    )
+    media_manager.tv.repository.add_season_request(db=db, season_request=season_request)
 
 
 def delete_season_request(db: Session, season_request_id: SeasonRequestId) -> None:
-    tv.repository.delete_season_request(db=db, season_request_id=season_request_id)
+    media_manager.tv.repository.delete_season_request(
+        db=db, season_request_id=season_request_id
+    )
 
 
 def get_public_season_files_by_season_id(
@@ -82,7 +87,7 @@ def get_public_season_files_by_season_id(
 def get_public_season_files_by_season_number(
         db: Session, season_number: SeasonNumber, show_id: ShowId
 ) -> list[PublicSeasonFile]:
-    season = tv.repository.get_season_by_number(
+    season = media_manager.tv.repository.get_season_by_number(
         db=db, season_number=season_number, show_id=show_id
     )
     return get_public_season_files_by_season_id(db=db, season_id=season.id)
@@ -95,14 +100,14 @@ def check_if_show_exists(
         show_id: ShowId = None,
 ) -> bool:
     if external_id and metadata_provider:
-        if tv.repository.get_show_by_external_id(
+        if media_manager.tv.repository.get_show_by_external_id(
                 external_id=external_id, metadata_provider=metadata_provider, db=db
         ):
             return True
         else:
             return False
     elif show_id:
-        if tv.repository.get_show(show_id=show_id, db=db):
+        if media_manager.tv.repository.get_show(show_id=show_id, db=db):
             return True
         else:
             return False
@@ -118,13 +123,13 @@ def get_all_available_torrents_for_a_season(
     log.debug(
         f"getting all available torrents for season {season_number} for show {show_id}"
     )
-    show = tv.repository.get_show(show_id=show_id, db=db)
+    show = media_manager.tv.repository.get_show(show_id=show_id, db=db)
     if search_query_override:
         search_query = search_query_override
     else:
         # TODO: add more Search query strings and combine all the results, like "season 3", "s03", "s3"
         search_query = show.name + " s" + str(season_number).zfill(2)
-    torrents: list[IndexerQueryResult] = indexer.service.search(
+    torrents: list[IndexerQueryResult] = media_manager.indexer.service.search(
         query=search_query, db=db
     )
     if search_query_override:
@@ -141,13 +146,13 @@ def get_all_available_torrents_for_a_season(
 
 
 def get_all_shows(db: Session) -> list[Show]:
-    return tv.repository.get_shows(db=db)
+    return media_manager.tv.repository.get_shows(db=db)
 
 
 def search_for_show(
         query: str, metadata_provider: str, db: Session
 ) -> list[MetaDataProviderShowSearchResult]:
-    results = metadataProvider.search_show(query, metadata_provider)
+    results = media_manager.metadataProvider.search_show(query, metadata_provider)
     for result in results:
         if check_if_show_exists(
                 db=db, external_id=result.external_id, metadata_provider=metadata_provider
@@ -157,8 +162,8 @@ def search_for_show(
 
 
 def get_popular_shows(metadata_provider: str, db: Session):
-    results: list[MetaDataProviderShowSearchResult] = metadataProvider.search_show(
-        provider=metadata_provider
+    results: list[MetaDataProviderShowSearchResult] = (
+        media_manager.metadataProvider.search_show(provider=metadata_provider)
     )
 
     for result in results:
@@ -170,7 +175,7 @@ def get_popular_shows(metadata_provider: str, db: Session):
 
 
 def get_public_show_by_id(db: Session, show_id: ShowId) -> PublicShow:
-    show = tv.repository.get_show(show_id=show_id, db=db)
+    show = media_manager.tv.repository.get_show(show_id=show_id, db=db)
     seasons = [PublicSeason.model_validate(season) for season in show.seasons]
     for season in seasons:
         season.downloaded = is_season_downloaded(db=db, season_id=season.id)
@@ -180,7 +185,7 @@ def get_public_show_by_id(db: Session, show_id: ShowId) -> PublicShow:
 
 
 def get_show_by_id(db: Session, show_id: ShowId) -> Show:
-    return tv.repository.get_show(show_id=show_id, db=db)
+    return media_manager.tv.repository.get_show(show_id=show_id, db=db)
 
 
 def is_season_downloaded(db: Session, season_id: SeasonId) -> bool:
@@ -196,7 +201,7 @@ def season_file_exists_on_file(db: Session, season_file: SeasonFile) -> bool:
     if season_file.torrent_id is None:
         return True
     else:
-        torrent_file = torrent.repository.get_torrent_by_id(
+        torrent_file = media_manager.torrent.repository.get_torrent_by_id(
             db=db, torrent_id=season_file.torrent_id
         )
         if torrent_file.imported:
@@ -208,24 +213,26 @@ def season_file_exists_on_file(db: Session, season_file: SeasonFile) -> bool:
 def get_show_by_external_id(
         db: Session, external_id: int, metadata_provider: str
 ) -> Show | None:
-    return tv.repository.get_show_by_external_id(
+    return media_manager.tv.repository.get_show_by_external_id(
         external_id=external_id, metadata_provider=metadata_provider, db=db
     )
 
 
 def get_season(db: Session, season_id: SeasonId) -> Season:
-    return tv.repository.get_season(season_id=season_id, db=db)
+    return media_manager.tv.repository.get_season(season_id=season_id, db=db)
 
 
 def get_all_season_requests(db: Session) -> list[RichSeasonRequest]:
-    return tv.repository.get_season_requests(db=db)
+    return media_manager.tv.repository.get_season_requests(db=db)
 
 
 def get_torrents_for_show(db: Session, show: Show) -> RichShowTorrent:
-    show_torrents = tv.repository.get_torrents_by_show_id(db=db, show_id=show.id)
+    show_torrents = media_manager.tv.repository.get_torrents_by_show_id(
+        db=db, show_id=show.id
+    )
     rich_season_torrents = []
     for show_torrent in show_torrents:
-        seasons = tv.repository.get_seasons_by_torrent_id(
+        seasons = media_manager.tv.repository.get_seasons_by_torrent_id(
             db=db, torrent_id=show_torrent.id
         )
         season_files = get_seasons_files_of_torrent(db=db, torrent_id=show_torrent.id)
@@ -250,7 +257,7 @@ def get_torrents_for_show(db: Session, show: Show) -> RichShowTorrent:
 
 
 def get_all_shows_with_torrents(db: Session) -> list[RichShowTorrent]:
-    shows = tv.repository.get_all_shows_with_torrents(db=db)
+    shows = media_manager.tv.repository.get_all_shows_with_torrents(db=db)
     return [get_torrents_for_show(show=show, db=db) for show in shows]
 
 
@@ -260,13 +267,13 @@ def download_torrent(
         show_id: ShowId,
         override_show_file_path_suffix: str = "",
 ) -> Torrent:
-    indexer_result = indexer.service.get_indexer_query_result(
+    indexer_result = media_manager.indexer.service.get_indexer_query_result(
         db=db, result_id=public_indexer_result_id
     )
     show_torrent = TorrentService(db=db).download(indexer_result=indexer_result)
 
     for season_number in indexer_result.season:
-        season = tv.repository.get_season_by_number(
+        season = media_manager.tv.repository.get_season_by_number(
             db=db, season_number=season_number, show_id=show_id
         )
         season_file = SeasonFile(

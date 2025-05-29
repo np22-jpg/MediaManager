@@ -1,8 +1,8 @@
 import logging
 from cachetools import TTLCache, cached
 
-import metadataProvider.tmdb
-import metadataProvider.tvdb
+import media_manager.metadataProvider.tmdb
+import media_manager.metadataProvider.tvdb
 from media_manager.metadataProvider.abstractMetaDataProvider import metadata_providers
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
 from media_manager.tv.schemas import Show

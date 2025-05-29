@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
-import tv.repository
-import tv.service
+import media_manager.tv.repository
+import media_manager.tv.service
 from media_manager.auth.db import User
 from media_manager.auth.schemas import UserRead
 from media_manager.auth.users import current_active_user, current_superuser
@@ -50,7 +50,7 @@ router = APIRouter()
 )
 def add_a_show(db: DbSessionDependency, show_id: int, metadata_provider: str = "tmdb"):
     try:
-        show = tv.service.add_show(
+        show = media_manager.tv.service.add_show(
             db=db,
             external_id=show_id,
             metadata_provider=metadata_provider,
@@ -84,11 +84,11 @@ def get_all_shows(
         db: DbSessionDependency, external_id: int = None, metadata_provider: str = "tmdb"
 ):
     if external_id is not None:
-        return tv.service.get_show_by_external_id(
+        return media_manager.tv.service.get_show_by_external_id(
             db=db, external_id=external_id, metadata_provider=metadata_provider
         )
     else:
-        return tv.service.get_all_shows(db=db)
+        return media_manager.tv.service.get_all_shows(db=db)
 
 
 @router.get(
@@ -101,7 +101,7 @@ def get_shows_with_torrents(db: DbSessionDependency):
     get all shows that are associated with torrents
     :return: A list of shows with all their torrents
     """
-    result = tv.service.get_all_shows_with_torrents(db=db)
+    result = media_manager.tv.service.get_all_shows_with_torrents(db=db)
     return result
 
 
@@ -111,7 +111,7 @@ def get_shows_with_torrents(db: DbSessionDependency):
     response_model=PublicShow,
 )
 def get_a_show(db: DbSessionDependency, show_id: ShowId):
-    return tv.service.get_public_show_by_id(db=db, show_id=show_id)
+    return media_manager.tv.service.get_public_show_by_id(db=db, show_id=show_id)
 
 
 @router.get(
@@ -120,8 +120,8 @@ def get_a_show(db: DbSessionDependency, show_id: ShowId):
     response_model=RichShowTorrent,
 )
 def get_a_shows_torrents(db: DbSessionDependency, show_id: ShowId):
-    return tv.service.get_torrents_for_show(
-        db=db, show=tv.service.get_show_by_id(db=db, show_id=show_id)
+    return media_manager.tv.service.get_torrents_for_show(
+        db=db, show=media_manager.tv.service.get_show_by_id(db=db, show_id=show_id)
     )
 
 
@@ -134,7 +134,7 @@ def get_a_shows_torrents(db: DbSessionDependency, show_id: ShowId):
 def get_season_files(
         db: DbSessionDependency, season_number: SeasonNumber, show_id: ShowId
 ) -> list[PublicSeasonFile]:
-    return tv.service.get_public_season_files_by_season_number(
+    return media_manager.tv.service.get_public_season_files_by_season_number(
         db=db, season_number=season_number, show_id=show_id
     )
 
@@ -158,7 +158,7 @@ def request_a_season(
     if user.is_superuser:
         request.authorized = True
         request.authorized_by = user
-    tv.service.add_season_request(db=db, season_request=request)
+    media_manager.tv.service.add_season_request(db=db, season_request=request)
     return
 
 
@@ -169,7 +169,7 @@ def request_a_season(
     response_model=list[RichSeasonRequest],
 )
 def get_season_requests(db: DbSessionDependency) -> list[RichSeasonRequest]:
-    return tv.service.get_all_season_requests(db=db)
+    return media_manager.tv.service.get_all_season_requests(db=db)
 
 
 @router.delete(
@@ -181,9 +181,13 @@ def delete_season_request(
         user: Annotated[User, Depends(current_active_user)],
         request_id: SeasonRequestId,
 ):
-    request = tv.service.get_season_request_by_id(db=db, season_request_id=request_id)
+    request = media_manager.tv.service.get_season_request_by_id(
+        db=db, season_request_id=request_id
+    )
     if user.is_superuser or request.requested_by.id == user.id:
-        tv.service.delete_season_request(db=db, season_request_id=request_id)
+        media_manager.tv.service.delete_season_request(
+            db=db, season_request_id=request_id
+        )
         log.info(f"User {user.id} deleted season request {request_id}.")
     else:
         log.warning(
@@ -207,14 +211,14 @@ def authorize_request(
     """
     updates the request flag to true
     """
-    season_request: SeasonRequest = tv.repository.get_season_request(
+    season_request: SeasonRequest = media_manager.tv.repository.get_season_request(
         db=db, season_request_id=season_request_id
     )
     season_request.authorized_by = UserRead.model_validate(user)
     season_request.authorized = authorized_status
     if not authorized_status:
         season_request.authorized_by = None
-    tv.service.update_season_request(db=db, season_request=season_request)
+    media_manager.tv.service.update_season_request(db=db, season_request=season_request)
     return
 
 
@@ -225,12 +229,14 @@ def update_request(
         season_request: UpdateSeasonRequest,
 ):
     season_request: SeasonRequest = SeasonRequest.model_validate(season_request)
-    request = tv.service.get_season_request_by_id(
+    request = media_manager.tv.service.get_season_request_by_id(
         db=db, season_request_id=season_request.id
     )
     if request.requested_by.id == user.id or user.is_superuser:
         season_request.requested_by = UserRead.model_validate(user)
-        tv.service.update_season_request(db=db, season_request=season_request)
+        media_manager.tv.service.update_season_request(
+            db=db, season_request=season_request
+        )
     return
 
 
@@ -252,7 +258,7 @@ def get_torrents_for_a_season(
         season_number: int = 1,
         search_query_override: str = None,
 ):
-    return tv.service.get_all_available_torrents_for_a_season(
+    return media_manager.tv.service.get_all_available_torrents_for_a_season(
         db=db,
         season_number=season_number,
         show_id=show_id,
@@ -273,7 +279,7 @@ def download_a_torrent(
         show_id: ShowId,
         override_file_path_suffix: str = "",
 ):
-    return tv.service.download_torrent(
+    return media_manager.tv.service.download_torrent(
         db=db,
         public_indexer_result_id=public_indexer_result_id,
         show_id=show_id,
@@ -294,7 +300,7 @@ def download_a_torrent(
 def search_metadata_providers_for_a_show(
         db: DbSessionDependency, query: str, metadata_provider: str = "tmdb"
 ):
-    return tv.service.search_for_show(
+    return media_manager.tv.service.search_for_show(
         query=query, metadata_provider=metadata_provider, db=db
     )
 
@@ -304,7 +310,7 @@ def search_metadata_providers_for_a_show(
     dependencies=[Depends(current_active_user)],
     response_model=list[MetaDataProviderShowSearchResult],
 )
-def search_metadata_providers_for_a_show(
-        db: DbSessionDependency, metadata_provider: str = "tmdb"
-):
-    return tv.service.get_popular_shows(metadata_provider=metadata_provider, db=db)
+def get_recommended_shows(db: DbSessionDependency, metadata_provider: str = "tmdb"):
+    return media_manager.tv.service.get_popular_shows(
+        metadata_provider=metadata_provider, db=db
+    )

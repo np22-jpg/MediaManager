@@ -1,12 +1,10 @@
 import logging
-import mimetypes
 
-import requests
 import tmdbsimple
 from pydantic_settings import BaseSettings
 from tmdbsimple import TV, TV_Seasons
 
-import metadataProvider.utils
+import media_manager.metadataProvider.utils
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
     register_metadata_provider,
@@ -62,7 +60,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
                 )
             )
 
-        year = metadataProvider.utils.get_year_from_first_air_date(
+        year = media_manager.metadataProvider.utils.get_year_from_first_air_date(
             show_metadata["first_air_date"]
         )
 
@@ -81,7 +79,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
             poster_url = (
                     "https://image.tmdb.org/t/p/original" + show_metadata["poster_path"]
             )
-            if metadataProvider.utils.download_poster_image(
+            if media_manager.metadataProvider.utils.download_poster_image(
                     storage_path=self.storage_path, poster_url=poster_url, show=show
             ):
                 log.info("Successfully downloaded poster image for show " + show.name)
@@ -130,7 +128,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
                         overview=result["overview"],
                         name=result["name"],
                         external_id=result["id"],
-                        year=metadataProvider.utils.get_year_from_first_air_date(
+                        year=media_manager.metadataProvider.utils.get_year_from_first_air_date(
                             result["first_air_date"]
                         ),
                         metadata_provider=self.name,

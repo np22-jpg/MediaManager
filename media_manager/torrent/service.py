@@ -12,10 +12,10 @@ from fastapi_utils.tasks import repeat_every
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.orm import Session
 
-import torrent.repository
-import tv.repository
-import tv.service
-from config import BasicConfig
+import media_manager.torrent.repository
+import media_manager.tv.repository
+import media_manager.tv.service
+from media_manager.config import BasicConfig
 from media_manager.indexer import IndexerQueryResult
 from media_manager.torrent.repository import (
     get_seasons_files_of_torrent,
@@ -215,7 +215,9 @@ class TorrentService:
 
         # creating directories and hard linking files
         for season_file in season_files:
-            season = tv.service.get_season(db=self.db, season_id=season_file.season_id)
+            season = media_manager.tv.service.get_season(
+                db=self.db, season_id=season_file.season_id
+            )
             season_path = show_file_path / Path(f"Season {season.number}")
 
             try:
@@ -286,21 +288,25 @@ class TorrentService:
     def get_all_torrents(self) -> list[Torrent]:
         return [
             self.get_torrent_status(x)
-            for x in torrent.repository.get_all_torrents(db=self.db)
+            for x in media_manager.torrent.repository.get_all_torrents(db=self.db)
         ]
 
     def get_torrent_by_id(self, id: TorrentId) -> Torrent:
         return self.get_torrent_status(
-            torrent.repository.get_torrent_by_id(torrent_id=id, db=self.db)
+            media_manager.torrent.repository.get_torrent_by_id(
+                torrent_id=id, db=self.db
+            )
         )
 
     def delete_torrent(self, torrent_id: TorrentId):
-        t = torrent.repository.get_torrent_by_id(torrent_id=torrent_id, db=self.db)
+        t = media_manager.torrent.repository.get_torrent_by_id(
+            torrent_id=torrent_id, db=self.db
+        )
         if not t.imported:
-            tv.repository.remove_season_files_by_torrent_id(
+            media_manager.tv.repository.remove_season_files_by_torrent_id(
                 db=self.db, torrent_id=torrent_id
             )
-        torrent.repository.delete_torrent(db=self.db, torrent_id=t.id)
+        media_manager.torrent.repository.delete_torrent(db=self.db, torrent_id=t.id)
 
     @repeat_every(seconds=3600)
     def import_all_torrents(self) -> list[Torrent]:

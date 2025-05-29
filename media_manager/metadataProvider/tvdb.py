@@ -1,22 +1,17 @@
 import pprint
-from functools import cache
 
 import tvdb_v4_official
 import logging
-import mimetypes
 
-import requests
-import tmdbsimple
 from pydantic_settings import BaseSettings
-from tmdbsimple import TV, TV_Seasons
 
-import metadataProvider.utils
+import media_manager.metadataProvider.utils
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
     register_metadata_provider,
 )
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
-from media_manager.tv.schemas import Episode, Season, Show, SeasonNumber, EpisodeNumber
+from media_manager.tv.schemas import Episode, Season, Show
 
 
 class TvdbConfig(BaseSettings):
@@ -77,7 +72,7 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         )
 
         if series["image"] is not None:
-            metadataProvider.utils.download_poster_image(
+            media_manager.metadataProvider.utils.download_poster_image(
                 storage_path=self.storage_path, poster_url=series["image"], show=show
             )
         else:

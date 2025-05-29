@@ -4,7 +4,7 @@ from pathlib import Path
 
 import patoolib
 
-from config import BasicConfig
+from media_manager.config import BasicConfig
 from media_manager.torrent.schemas import Torrent
 
 log = logging.getLogger(__name__)
