@@ -362,6 +362,20 @@ wheels = [
 ]
 
 [[package]]
+name = "fastapi-utils"
+version = "0.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "psutil" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/dd/af/57c949675176acf389d94fbccd369b486579a952637fc6fb104f1bc3d0c3/fastapi_utils-0.8.0.tar.gz", hash = "sha256:eca834e80c09f85df30004fe5e861981262b296f60c93d5a1a1416fe4c784140", size = 16496, upload-time = "2024-11-11T08:30:03.852Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/43/8b/cef8cfed7ed77d52fc772b1c7b966ba019a3f50b65a2b3625a0f3b7f6f53/fastapi_utils-0.8.0-py3-none-any.whl", hash = "sha256:6c4d507a76bab9a016cee0c4fa3a4638c636b2b2689e39c62254b1b2e4e81825", size = 18495, upload-time = "2024-11-11T08:30:01.914Z" },
+]
+
+[[package]]
 name = "greenlet"
 version = "3.2.2"
 source = { registry = "https://pypi.org/simple" }
@@ -566,6 +580,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "fastapi-restful", extra = ["all"] },
     { name = "fastapi-users", extra = ["sqlalchemy"] },
+    { name = "fastapi-utils" },
     { name = "httpx" },
     { name = "httpx-oauth" },
     { name = "jsonschema" },
@@ -591,6 +606,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" },
     { name = "fastapi-restful", extras = ["all"], specifier = ">=0.6.0" },
     { name = "fastapi-users", extras = ["sqlalchemy"], specifier = ">=14.0.1" },
+    { name = "fastapi-utils", specifier = ">=0.8.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "httpx-oauth", specifier = ">=0.16.1" },
     { name = "jsonschema", specifier = ">=4.24.0" },
