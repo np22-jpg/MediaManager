@@ -1,8 +1,6 @@
 .idea
 venv
 MediaManager.iml
-backend/res
-backend/res/.env
 docker-compose.yml
 data/*
 movie/*
@@ -10,8 +8,10 @@ torrent/*
 tv/*
 log.txt
 res/*
-/backend/src/indexer/indexers/prowlarr.http
-/web/cache/
+media_manager/indexer/indexers/prowlarr.http
+
+
+web/cache/
 web/node_modules
 
 # Output
