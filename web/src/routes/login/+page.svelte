@@ -1,8 +1,7 @@
 <script lang="ts">
 	import LoginForm from '$lib/components/login-form.svelte';
 	import logo from '$lib/images/logo.svg';
-	import background from '$lib/images/pawel-czerwinski-NTYYL9Eb9y8-unsplash.jpg';
-	import {toOptimizedURL} from 'sveltekit-image-optimize/components';
+	import background from '$lib/images/pawel-czerwinski-NTYYL9Eb9y8-unsplash.jpg?enhanced';
 	import {page} from '$app/state';
 
 	let oauthProvider = page.data.oauthProvider;
@@ -25,10 +24,10 @@
 		</div>
 	</div>
 	<div class="relative hidden lg:block">
-		<img
+		<enhanced:img
+				src={background}
 				alt="background"
 				class="absolute inset-0 h-full w-full rounded-l-3xl object-cover dark:brightness-[0.8]"
-				src={toOptimizedURL(background)}
 		/>
 	</div>
 </div>

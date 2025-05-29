@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {page} from '$app/state';
-	import {env} from '$env/dynamic/public';
 	import {Separator} from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
@@ -9,6 +8,8 @@
 	import type {PublicSeasonFile, Season, Show} from '$lib/types';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
 	import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils';
+	import {toOptimizedURL} from "sveltekit-image-optimize/components";
+	import {env} from "$env/dynamic/public";
 
 	const SeasonNumber = page.params.SeasonNumber;
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
@@ -61,7 +62,7 @@
 			<img
 					class="aspect-9/16 h-auto w-full rounded-lg object-cover"
 					alt="{show().name}'s Poster Image"
-					src="{env.PUBLIC_API_URL}/static/image/{show().id}.jpg"
+					src={toOptimizedURL(`${env.PUBLIC_API_URL}/static/image/${show().id}.jpg`)}
 			/>
 		</div>
 		<div class="h-full w-1/4 flex-auto rounded-xl bg-muted/50 p-4">
