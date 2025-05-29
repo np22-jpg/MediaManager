@@ -11,7 +11,10 @@ from pydantic_settings import BaseSettings
 from tmdbsimple import TV, TV_Seasons
 
 import metadataProvider.utils
-from metadataProvider.abstractMetaDataProvider import AbstractMetadataProvider, register_metadata_provider
+from metadataProvider.abstractMetaDataProvider import (
+    AbstractMetadataProvider,
+    register_metadata_provider,
+)
 from metadataProvider.schemas import MetaDataProviderShowSearchResult
 from tv.schemas import Episode, Season, Show, SeasonNumber, EpisodeNumber
 
@@ -43,27 +46,48 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         seasons = []
         for season in series["seasons"]:
             s = self.tvdb_client.get_season_extended(season["id"])
-            episodes = [Episode(number=episode['number'], external_id=episode['id'], title=episode['name']) for episode
-                        in s["episodes"]]
-            seasons.append(Season(number=s['number'], name="TVDB doesn't provide Season Names",
-                                  overview="TVDB doesn't provide Season Overviews", external_id=s['id'],
-                                  episodes=episodes))
+            episodes = [
+                Episode(
+                    number=episode["number"],
+                    external_id=episode["id"],
+                    title=episode["name"],
+                )
+                for episode in s["episodes"]
+            ]
+            seasons.append(
+                Season(
+                    number=s["number"],
+                    name="TVDB doesn't provide Season Names",
+                    overview="TVDB doesn't provide Season Overviews",
+                    external_id=s["id"],
+                    episodes=episodes,
+                )
+            )
         try:
-            year = series['year']
+            year = series["year"]
         except KeyError:
             year = None
-        show = Show(name=series['name'], overview=series['overview'], year=year,
-                    external_id=series['id'], metadata_provider=self.name, seasons=seasons)
+        show = Show(
+            name=series["name"],
+            overview=series["overview"],
+            year=year,
+            external_id=series["id"],
+            metadata_provider=self.name,
+            seasons=seasons,
+        )
 
         if series["image"] is not None:
-            metadataProvider.utils.download_poster_image(storage_path=self.storage_path,
-                                                         poster_url=series['image'], show=show)
+            metadataProvider.utils.download_poster_image(
+                storage_path=self.storage_path, poster_url=series["image"], show=show
+            )
         else:
             log.warning(f"image for show {show.name} could not be downloaded")
 
         return show
 
-    def search_show(self, query: str | None = None) -> list[MetaDataProviderShowSearchResult]:
+    def search_show(
+            self, query: str | None = None
+    ) -> list[MetaDataProviderShowSearchResult]:
         if query is None:
             results = self.tvdb_client.get_all_series()
         else:
@@ -71,9 +95,9 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         formatted_results = []
         for result in results:
             try:
-                if result['type'] == 'series':
+                if result["type"] == "series":
                     try:
-                        year = result['year']
+                        year = result["year"]
                     except KeyError:
                         year = None
 
@@ -86,7 +110,7 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
                             year=year,
                             metadata_provider=self.name,
                             added=False,
-                            vote_average=None
+                            vote_average=None,
                         )
                     )
             except Exception as e:
@@ -96,7 +120,9 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
 
 if config.TVDB_API_KEY is not None:
     log.info("Registering TVDB as metadata provider")
-    register_metadata_provider(metadata_provider=TvdbMetadataProvider(config.TVDB_API_KEY))
+    register_metadata_provider(
+        metadata_provider=TvdbMetadataProvider(config.TVDB_API_KEY)
+    )
 
 if __name__ == "__main__":
     tvdb = TvdbMetadataProvider(config.TVDB_API_KEY)

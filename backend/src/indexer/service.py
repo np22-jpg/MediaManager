@@ -19,5 +19,7 @@ def search(query: str, db: Session) -> list[IndexerQueryResult]:
     return results
 
 
-def get_indexer_query_result(result_id: IndexerQueryResultId, db: Session) -> IndexerQueryResult:
+def get_indexer_query_result(
+        result_id: IndexerQueryResultId, db: Session
+) -> IndexerQueryResult:
     return indexer.repository.get_result(result_id=result_id, db=db)

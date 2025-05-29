@@ -12,14 +12,24 @@ from backend.src.database.config import DbConfig
 log = logging.getLogger(__name__)
 config = DbConfig()
 
-db_url = "postgresql+psycopg" + "://" + config.USER + ":" + config.PASSWORD + "@" + config.HOST + ":" + str(
-    config.PORT) + "/" + config.DBNAME
+db_url = (
+        "postgresql+psycopg"
+        + "://"
+        + config.USER
+        + ":"
+        + config.PASSWORD
+        + "@"
+        + config.HOST
+        + ":"
+        + str(config.PORT)
+        + "/"
+        + config.DBNAME
+)
 
 engine = create_engine(db_url, echo=False)
 log.debug("initializing sqlalchemy declarative base")
 Base = declarative_base()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 
 def init_db() -> None:
@@ -41,7 +51,7 @@ def get_session() -> Generator[Session, Any, None]:
         db.close()
 
 
-db_session: ContextVar[Session] = ContextVar('db_session')
+db_session: ContextVar[Session] = ContextVar("db_session")
 
 
 DbSessionDependency = Annotated[Session, Depends(get_session)]

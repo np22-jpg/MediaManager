@@ -19,7 +19,9 @@ class Show(Base):
     overview: Mapped[str]
     year: Mapped[int | None]
 
-    seasons: Mapped[list["Season"]] = relationship(back_populates="show", cascade="all, delete")
+    seasons: Mapped[list["Season"]] = relationship(
+        back_populates="show", cascade="all, delete"
+    )
 
 
 class Season(Base):
@@ -27,26 +29,34 @@ class Season(Base):
     __table_args__ = (UniqueConstraint("show_id", "number"),)
 
     id: Mapped[UUID] = mapped_column(primary_key=True)
-    show_id: Mapped[UUID] = mapped_column(ForeignKey(column="show.id", ondelete="CASCADE"), )
+    show_id: Mapped[UUID] = mapped_column(
+        ForeignKey(column="show.id", ondelete="CASCADE"),
+    )
     number: Mapped[int]
     external_id: Mapped[int]
     name: Mapped[str]
     overview: Mapped[str]
 
     show: Mapped["Show"] = relationship(back_populates="seasons")
-    episodes: Mapped[list["Episode"]] = relationship(back_populates="season", cascade="all, delete")
+    episodes: Mapped[list["Episode"]] = relationship(
+        back_populates="season", cascade="all, delete"
+    )
 
-    season_files = relationship("SeasonFile", back_populates="season", cascade="all, delete")
-    season_requests = relationship("SeasonRequest", back_populates="season", cascade="all, delete")
+    season_files = relationship(
+        "SeasonFile", back_populates="season", cascade="all, delete"
+    )
+    season_requests = relationship(
+        "SeasonRequest", back_populates="season", cascade="all, delete"
+    )
 
 
 class Episode(Base):
     __tablename__ = "episode"
-    __table_args__ = (
-        UniqueConstraint("season_id", "number"),
-    )
+    __table_args__ = (UniqueConstraint("season_id", "number"),)
     id: Mapped[UUID] = mapped_column(primary_key=True)
-    season_id: Mapped[UUID] = mapped_column(ForeignKey("season.id", ondelete="CASCADE"), )
+    season_id: Mapped[UUID] = mapped_column(
+        ForeignKey("season.id", ondelete="CASCADE"),
+    )
     number: Mapped[int]
     external_id: Mapped[int]
     title: Mapped[str]
@@ -56,30 +66,41 @@ class Episode(Base):
 
 class SeasonFile(Base):
     __tablename__ = "season_file"
-    __table_args__ = (
-        PrimaryKeyConstraint("season_id", "file_path_suffix"),
+    __table_args__ = (PrimaryKeyConstraint("season_id", "file_path_suffix"),)
+    season_id: Mapped[UUID] = mapped_column(
+        ForeignKey(column="season.id", ondelete="CASCADE"),
     )
-    season_id: Mapped[UUID] = mapped_column(ForeignKey(column="season.id", ondelete="CASCADE"), )
-    torrent_id: Mapped[UUID | None] = mapped_column(ForeignKey(column="torrent.id", ondelete="SET NULL"), )
+    torrent_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey(column="torrent.id", ondelete="SET NULL"),
+    )
     file_path_suffix: Mapped[str]
     quality: Mapped[Quality]
 
     torrent = relationship("Torrent", back_populates="season_files", uselist=False)
     season = relationship("Season", back_populates="season_files", uselist=False)
 
+
 class SeasonRequest(Base):
     __tablename__ = "season_request"
-    __table_args__ = (
-        UniqueConstraint("season_id", "wanted_quality"),
-    )
+    __table_args__ = (UniqueConstraint("season_id", "wanted_quality"),)
     id: Mapped[UUID] = mapped_column(primary_key=True)
-    season_id: Mapped[UUID] = mapped_column(ForeignKey(column="season.id", ondelete="CASCADE"), )
+    season_id: Mapped[UUID] = mapped_column(
+        ForeignKey(column="season.id", ondelete="CASCADE"),
+    )
     wanted_quality: Mapped[Quality]
     min_quality: Mapped[Quality]
-    requested_by_id: Mapped[UUID | None] = mapped_column(ForeignKey(column="user.id", ondelete="SET NULL"), )
+    requested_by_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey(column="user.id", ondelete="SET NULL"),
+    )
     authorized: Mapped[bool] = mapped_column(default=False)
-    authorized_by_id: Mapped[UUID | None] = mapped_column(ForeignKey(column="user.id", ondelete="SET NULL"), )
+    authorized_by_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey(column="user.id", ondelete="SET NULL"),
+    )
 
-    requested_by: Mapped["User|None"] = relationship(foreign_keys=[requested_by_id], uselist=False)
-    authorized_by: Mapped["User|None"] = relationship(foreign_keys=[authorized_by_id], uselist=False)
+    requested_by: Mapped["User|None"] = relationship(
+        foreign_keys=[requested_by_id], uselist=False
+    )
+    authorized_by: Mapped["User|None"] = relationship(
+        foreign_keys=[authorized_by_id], uselist=False
+    )
     season = relationship("Season", back_populates="season_requests", uselist=False)

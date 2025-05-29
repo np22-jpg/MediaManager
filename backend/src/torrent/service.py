@@ -17,16 +17,25 @@ import tv.repository
 import tv.service
 from config import BasicConfig
 from indexer import IndexerQueryResult
-from torrent.repository import get_seasons_files_of_torrent, get_show_of_torrent, save_torrent
+from torrent.repository import (
+    get_seasons_files_of_torrent,
+    get_show_of_torrent,
+    save_torrent,
+)
 from torrent.schemas import Torrent, TorrentStatus, TorrentId
-from torrent.utils import list_files_recursively, get_torrent_filepath, import_file, extract_archives
+from torrent.utils import (
+    list_files_recursively,
+    get_torrent_filepath,
+    import_file,
+    extract_archives,
+)
 from tv.schemas import SeasonFile, Show
 
 log = logging.getLogger(__name__)
 
 
 class TorrentServiceConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix='QBITTORRENT_')
+    model_config = SettingsConfigDict(env_prefix="QBITTORRENT_")
     host: str = "localhost"
     port: int = 8080
     username: str = "admin"
@@ -34,9 +43,25 @@ class TorrentServiceConfig(BaseSettings):
 
 
 class TorrentService:
-    DOWNLOADING_STATE = ("allocating", "downloading", "metaDL", "pausedDL", "queuedDL", "stalledDL", "checkingDL",
-                         "forcedDL", "moving")
-    FINISHED_STATE = ("uploading", "pausedUP", "queuedUP", "stalledUP", "checkingUP", "forcedUP")
+    DOWNLOADING_STATE = (
+        "allocating",
+        "downloading",
+        "metaDL",
+        "pausedDL",
+        "queuedDL",
+        "stalledDL",
+        "checkingDL",
+        "forcedDL",
+        "moving",
+    )
+    FINISHED_STATE = (
+        "uploading",
+        "pausedUP",
+        "queuedUP",
+        "stalledUP",
+        "checkingUP",
+        "forcedUP",
+    )
     ERROR_STATE = ("missingFiles", "error", "checkingResumeData")
     UNKNOWN_STATE = ("unknown",)
     api_client = qbittorrentapi.Client(**TorrentServiceConfig().model_dump())
@@ -54,35 +79,42 @@ class TorrentService:
 
     def download(self, indexer_result: IndexerQueryResult) -> Torrent:
         log.info(f"Attempting to download torrent: {indexer_result.title}")
-        torrent = Torrent(status=TorrentStatus.unknown,
-                          title=indexer_result.title,
-                          quality=indexer_result.quality,
-                          imported=False,
-                          hash="")
+        torrent = Torrent(
+            status=TorrentStatus.unknown,
+            title=indexer_result.title,
+            quality=indexer_result.quality,
+            imported=False,
+            hash="",
+        )
 
         url = indexer_result.download_url
         torrent_filepath = BasicConfig().torrent_directory / f"{torrent.title}.torrent"
-        with open(torrent_filepath, 'wb') as file:
+        with open(torrent_filepath, "wb") as file:
             content = requests.get(url).content
             file.write(content)
 
-        with open(torrent_filepath, 'rb') as file:
+        with open(torrent_filepath, "rb") as file:
             content = file.read()
             try:
                 decoded_content = bencoder.decode(content)
             except Exception as e:
                 log.error(f"Failed to decode torrent file: {e}")
                 raise e
-            torrent.hash = hashlib.sha1(bencoder.encode(decoded_content[b'info'])).hexdigest()
-            answer = self.api_client.torrents_add(category="MediaManager", torrent_files=content,
-                                                  save_path=torrent.title)
+            torrent.hash = hashlib.sha1(
+                bencoder.encode(decoded_content[b"info"])
+            ).hexdigest()
+            answer = self.api_client.torrents_add(
+                category="MediaManager", torrent_files=content, save_path=torrent.title
+            )
 
         if answer == "Ok.":
             log.info(f"Successfully added torrent: {torrent.title}")
             return self.get_torrent_status(torrent=torrent)
         else:
             log.error(f"Failed to download torrent. API response: {answer}")
-            raise RuntimeError(f"Failed to download torrent, API-Answer isn't 'Ok.'; API Answer: {answer}")
+            raise RuntimeError(
+                f"Failed to download torrent, API-Answer isn't 'Ok.'; API Answer: {answer}"
+            )
 
     def get_torrent_status(self, torrent: Torrent) -> Torrent:
         log.info(f"Fetching status for torrent: {torrent.title}")
@@ -161,14 +193,25 @@ class TorrentService:
                     subtitle_files.append(file)
                     log.debug(f"File is a subtitle, it will be imported: {file}")
                 else:
-                    log.debug(f"File is neither a video nor a subtitle, will not be imported: {file}")
-        log.info(f"Importing these {len(video_files)} files:\n" + pprint.pformat(video_files))
+                    log.debug(
+                        f"File is neither a video nor a subtitle, will not be imported: {file}"
+                    )
+        log.info(
+            f"Importing these {len(video_files)} files:\n" + pprint.pformat(video_files)
+        )
 
         # Fetch show and season information
         show: Show = get_show_of_torrent(db=self.db, torrent_id=torrent.id)
-        show_file_path = BasicConfig().tv_directory / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
-        season_files: list[SeasonFile] = get_seasons_files_of_torrent(db=self.db, torrent_id=torrent.id)
-        log.info(f"Found {len(season_files)} season files associated with torrent {torrent.title}")
+        show_file_path = (
+                BasicConfig().tv_directory
+                / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
+        )
+        season_files: list[SeasonFile] = get_seasons_files_of_torrent(
+            db=self.db, torrent_id=torrent.id
+        )
+        log.info(
+            f"Found {len(season_files)} season files associated with torrent {torrent.title}"
+        )
 
         # creating directories and hard linking files
         for season_file in season_files:
@@ -181,52 +224,82 @@ class TorrentService:
                 log.warning(f"Path already exists: {season_path}")
 
             for episode in season.episodes:
-                episode_file_name = f"{show.name} S{season.number:02d}E{episode.number:02d}"
+                episode_file_name = (
+                    f"{show.name} S{season.number:02d}E{episode.number:02d}"
+                )
                 if season_file.file_path_suffix != "":
                     episode_file_name += f" - {season_file.file_path_suffix}"
 
-                pattern = r'.*[.]S0?' + str(season.number) + r'E0?' + str(episode.number) + r"[.].*"
+                pattern = (
+                        r".*[.]S0?"
+                        + str(season.number)
+                        + r"E0?"
+                        + str(episode.number)
+                        + r"[.].*"
+                )
                 subtitle_pattern = pattern + r"[.]([A-Za-z]{2})[.]srt"
                 target_file_name = season_path / episode_file_name
 
                 # import subtitles
                 for subtitle_file in subtitle_files:
-                    log.debug(f"Searching for pattern {subtitle_pattern} in subtitle file: {subtitle_file.name}")
+                    log.debug(
+                        f"Searching for pattern {subtitle_pattern} in subtitle file: {subtitle_file.name}"
+                    )
                     regex_result = re.search(subtitle_pattern, subtitle_file.name)
                     if regex_result:
                         language_code = regex_result.group(1)
                         log.debug(
-                            f"Found matching pattern: {subtitle_pattern} in subtitle file: {subtitle_file.name}," +
-                            f" extracted language code: {language_code}")
-                        target_subtitle_file = target_file_name.with_suffix(f".{language_code}.srt")
-                        import_file(target_file=target_subtitle_file, source_file=subtitle_file)
+                            f"Found matching pattern: {subtitle_pattern} in subtitle file: {subtitle_file.name},"
+                            + f" extracted language code: {language_code}"
+                        )
+                        target_subtitle_file = target_file_name.with_suffix(
+                            f".{language_code}.srt"
+                        )
+                        import_file(
+                            target_file=target_subtitle_file, source_file=subtitle_file
+                        )
                     else:
-                        log.debug(f"Didn't find any pattern {subtitle_pattern} in subtitle file: {subtitle_file.name}")
+                        log.debug(
+                            f"Didn't find any pattern {subtitle_pattern} in subtitle file: {subtitle_file.name}"
+                        )
 
                 # import episode videos
                 for file in video_files:
-                    log.debug(f"Searching for pattern {pattern} in video file: {file.name}")
+                    log.debug(
+                        f"Searching for pattern {pattern} in video file: {file.name}"
+                    )
                     if re.search(pattern, file.name):
-                        log.debug(f"Found matching pattern: {pattern} in file {file.name}")
+                        log.debug(
+                            f"Found matching pattern: {pattern} in file {file.name}"
+                        )
                         target_video_file = target_file_name.with_suffix(file.suffix)
                         import_file(target_file=target_video_file, source_file=file)
                         break
                 else:
-                    log.warning(f"S{season.number}E{episode.number} in Torrent {torrent.title}'s files not found.")
+                    log.warning(
+                        f"S{season.number}E{episode.number} in Torrent {torrent.title}'s files not found."
+                    )
         torrent.imported = True
 
         return self.get_torrent_status(torrent=torrent)
 
     def get_all_torrents(self) -> list[Torrent]:
-        return [self.get_torrent_status(x) for x in torrent.repository.get_all_torrents(db=self.db)]
+        return [
+            self.get_torrent_status(x)
+            for x in torrent.repository.get_all_torrents(db=self.db)
+        ]
 
     def get_torrent_by_id(self, id: TorrentId) -> Torrent:
-        return self.get_torrent_status(torrent.repository.get_torrent_by_id(torrent_id=id, db=self.db))
+        return self.get_torrent_status(
+            torrent.repository.get_torrent_by_id(torrent_id=id, db=self.db)
+        )
 
     def delete_torrent(self, torrent_id: TorrentId):
         t = torrent.repository.get_torrent_by_id(torrent_id=torrent_id, db=self.db)
         if not t.imported:
-            tv.repository.remove_season_files_by_torrent_id(db=self.db, torrent_id=torrent_id)
+            tv.repository.remove_season_files_by_torrent_id(
+                db=self.db, torrent_id=torrent_id
+            )
         torrent.repository.delete_torrent(db=self.db, torrent_id=t.id)
 
     @repeat_every(seconds=3600)

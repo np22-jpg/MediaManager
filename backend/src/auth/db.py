@@ -1,7 +1,11 @@
 from collections.abc import AsyncGenerator
 
 from fastapi import Depends
-from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase, SQLAlchemyBaseOAuthAccountTableUUID
+from fastapi_users.db import (
+    SQLAlchemyBaseUserTableUUID,
+    SQLAlchemyUserDatabase,
+    SQLAlchemyBaseOAuthAccountTableUUID,
+)
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Mapped, relationship
 

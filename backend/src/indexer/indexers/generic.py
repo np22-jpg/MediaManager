@@ -8,7 +8,7 @@ class GenericIndexer(object):
         if name:
             self.name = name
         else:
-            raise ValueError('indexer name must not be None')
+            raise ValueError("indexer name must not be None")
 
     def get_search_results(self, query: str) -> list[IndexerQueryResult]:
         """

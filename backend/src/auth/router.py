@@ -16,7 +16,11 @@ if oauth_enabled:
     oauth_config = OAuth2Config()
 
 
-@users_router.get("/users/all", status_code=status.HTTP_200_OK, dependencies=[Depends(current_superuser)])
+@users_router.get(
+    "/users/all",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(current_superuser)],
+)
 def get_all_users(db: DbSessionDependency) -> list[UserRead]:
     stmt = select(User)
     result = db.execute(stmt).scalars().unique()

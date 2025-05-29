@@ -7,7 +7,9 @@ from tv.models import SeasonFile, Show, Season
 from tv.schemas import SeasonFile as SeasonFileSchema, Show as ShowSchema
 
 
-def get_seasons_files_of_torrent(db: Session, torrent_id: TorrentId) -> list[SeasonFileSchema]:
+def get_seasons_files_of_torrent(
+        db: Session, torrent_id: TorrentId
+) -> list[SeasonFileSchema]:
     stmt = select(SeasonFile).where(SeasonFile.torrent_id == torrent_id)
     result = db.execute(stmt).scalars().all()
     return [SeasonFileSchema.model_validate(season_file) for season_file in result]
@@ -15,10 +17,10 @@ def get_seasons_files_of_torrent(db: Session, torrent_id: TorrentId) -> list[Sea
 
 def get_show_of_torrent(db: Session, torrent_id: TorrentId) -> ShowSchema:
     stmt = (
-        select(Show).
-        join(SeasonFile.season).
-        join(Season.show).
-        where(SeasonFile.torrent_id == torrent_id)
+        select(Show)
+        .join(SeasonFile.season)
+        .join(Season.show)
+        .where(SeasonFile.torrent_id == torrent_id)
     )
     result = db.execute(stmt).unique().scalar_one_or_none()
     return ShowSchema.model_validate(result)

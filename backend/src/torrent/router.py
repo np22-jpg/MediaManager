@@ -14,24 +14,40 @@ def get_torrent(service: TorrentServiceDependency, torrent_id: TorrentId):
     return service.get_torrent_by_id(id=torrent_id)
 
 
-@router.get("/", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)],
-            response_model=list[Torrent])
+@router.get(
+    "/",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(current_active_user)],
+    response_model=list[Torrent],
+)
 def get_all_torrents(service: TorrentServiceDependency):
     return service.get_all_torrents()
 
 
-@router.post("/{torrent_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)],
-             response_model=Torrent)
+@router.post(
+    "/{torrent_id}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(current_active_user)],
+    response_model=Torrent,
+)
 def import_torrent(service: TorrentServiceDependency, torrent_id: TorrentId):
     return service.import_torrent(service.get_torrent_by_id(id=torrent_id))
 
 
-@router.post("/", status_code=status.HTTP_200_OK, dependencies=[Depends(current_active_user)],
-             response_model=list[Torrent])
+@router.post(
+    "/",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(current_active_user)],
+    response_model=list[Torrent],
+)
 def import_all_torrents(service: TorrentServiceDependency):
     return service.import_all_torrents()
 
 
-@router.delete("/{torrent_id}", status_code=status.HTTP_200_OK, dependencies=[Depends(current_superuser)])
+@router.delete(
+    "/{torrent_id}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(current_superuser)],
+)
 def delete_torrent(service: TorrentServiceDependency, torrent_id: TorrentId):
     service.delete_torrent(torrent_id=torrent_id)

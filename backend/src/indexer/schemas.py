@@ -7,7 +7,7 @@ from pydantic import BaseModel, computed_field, ConfigDict
 
 from backend.src.torrent.models import Quality
 
-IndexerQueryResultId = typing.NewType('IndexerQueryResultId', UUID)
+IndexerQueryResultId = typing.NewType("IndexerQueryResultId", UUID)
 
 
 # TODO: use something like strategy pattern to make sorting more user customizable
@@ -24,10 +24,10 @@ class IndexerQueryResult(BaseModel):
     @computed_field(return_type=Quality)
     @property
     def quality(self) -> Quality:
-        high_quality_pattern = r'\b(4k|4K)\b'
-        medium_quality_pattern = r'\b(1080p|1080P)\b'
-        low_quality_pattern = r'\b(720p|720P)\b'
-        very_low_quality_pattern = r'\b(480p|480P|360p|360P)\b'
+        high_quality_pattern = r"\b(4k|4K)\b"
+        medium_quality_pattern = r"\b(1080p|1080P)\b"
+        low_quality_pattern = r"\b(720p|720P)\b"
+        very_low_quality_pattern = r"\b(480p|480P|360p|360P)\b"
 
         if re.search(high_quality_pattern, self.title):
             return Quality.high

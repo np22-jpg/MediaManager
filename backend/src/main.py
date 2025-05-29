@@ -14,8 +14,7 @@ LOGGING_CONFIG = {
         },
         "json": {
             "()": JsonFormatter,
-        }
-
+        },
     },
     "handlers": {
         "console": {
@@ -29,7 +28,7 @@ LOGGING_CONFIG = {
             "filename": "./log.txt",
             "maxBytes": 10485760,
             "backupCount": 5,
-        }
+        },
     },
     "loggers": {
         "uvicorn": {"handlers": ["console", "file"], "level": "DEBUG"},
@@ -39,16 +38,16 @@ LOGGING_CONFIG = {
 }
 dictConfig(LOGGING_CONFIG)
 
-logging.basicConfig(level=logging.DEBUG,
-                    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s(): %(message)s",
-                    stream=sys.stdout,
-                    )
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(funcName)s(): %(message)s",
+    stream=sys.stdout,
+)
 log = logging.getLogger(__name__)
 
 from backend.src.database import init_db
 import tv.router
 import torrent.router
-import auth.db
 
 init_db()
 log.info("Database initialized")
@@ -62,9 +61,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from auth.schemas import UserCreate, UserRead, UserUpdate
-from auth.users import bearer_auth_backend, fastapi_users, cookie_auth_backend, oauth_cookie_auth_backend
+from auth.users import (
+    bearer_auth_backend,
+    fastapi_users,
+    cookie_auth_backend,
+    oauth_cookie_auth_backend,
+)
 from auth.router import users_router as custom_users_router
 from auth.router import auth_metadata_router
+
 basic_config = BasicConfig()
 if basic_config.DEVELOPMENT:
     basic_config.torrent_directory.mkdir(parents=True, exist_ok=True)
@@ -94,12 +99,12 @@ if basic_config.DEVELOPMENT:
 app.include_router(
     fastapi_users.get_auth_router(bearer_auth_backend),
     prefix="/auth/jwt",
-    tags=["auth"]
+    tags=["auth"],
 )
 app.include_router(
     fastapi_users.get_auth_router(cookie_auth_backend),
     prefix="/auth/cookie",
-    tags=["auth"]
+    tags=["auth"],
 )
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
@@ -117,15 +122,9 @@ app.include_router(
     tags=["auth"],
 )
 # All users route router
-app.include_router(
-    custom_users_router,
-    tags=["users"]
-)
+app.include_router(custom_users_router, tags=["users"])
 # OAuth Metadata Router
-app.include_router(
-    auth_metadata_router,
-    tags=["oauth"]
-)
+app.include_router(auth_metadata_router, tags=["oauth"])
 # User Router
 app.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate),
@@ -135,29 +134,26 @@ app.include_router(
 # OAuth2 Routers
 if oauth_client is not None:
     app.include_router(
-        fastapi_users.get_oauth_router(oauth_client,
-                                       oauth_cookie_auth_backend,
-                                       auth.users.SECRET,
-                                       associate_by_email=True,
-                                       is_verified_by_default=True,
-                                       ),
+        fastapi_users.get_oauth_router(
+            oauth_client,
+            oauth_cookie_auth_backend,
+            auth.users.SECRET,
+            associate_by_email=True,
+            is_verified_by_default=True,
+        ),
         prefix=f"/auth/cookie/{oauth_client.name}",
         tags=["oauth"],
     )
 
-app.include_router(
-    tv.router.router,
-    prefix="/tv",
-    tags=["tv"]
-)
-app.include_router(
-    torrent.router.router,
-    prefix="/torrent",
-    tags=["torrent"]
-)
+app.include_router(tv.router.router, prefix="/tv", tags=["tv"])
+app.include_router(torrent.router.router, prefix="/torrent", tags=["torrent"])
 
 # static file routers
-app.mount("/static/image", StaticFiles(directory=basic_config.image_directory), name="static-images")
+app.mount(
+    "/static/image",
+    StaticFiles(directory=basic_config.image_directory),
+    name="static-images",
+)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)

@@ -8,7 +8,8 @@ from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
-    CookieTransport, JWTStrategy,
+    CookieTransport,
+    JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 from httpx_oauth.oauth2 import OAuth2
@@ -34,15 +35,17 @@ class GenericOAuth2(OAuth2):
         userinfo_endpoint = self.user_info_endpoint
         async with httpx.AsyncClient() as client:
             resp = await client.get(
-                userinfo_endpoint,
-                headers={"Authorization": f"Bearer {token}"}
+                userinfo_endpoint, headers={"Authorization": f"Bearer {token}"}
             )
             resp.raise_for_status()
             data = resp.json()
             return data["sub"], data["email"]
 
 
-if os.getenv("OAUTH_ENABLED") is not None and os.getenv("OAUTH_ENABLED").upper() == "TRUE":
+if (
+        os.getenv("OAUTH_ENABLED") is not None
+        and os.getenv("OAUTH_ENABLED").upper() == "TRUE"
+):
     oauth2_config = OAuth2Config()
     oauth_client = GenericOAuth2(
         client_id=oauth2_config.client_id,
@@ -72,7 +75,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     ):
         print(f"User {user.id} has forgot their password. Reset token: {token}")
 
-    async def on_after_reset_password(self, user: User, request: Optional[Request] = None):
+    async def on_after_reset_password(
+            self, user: User, request: Optional[Request] = None
+    ):
         print(f"User {user.id} has reset their password.")
 
     async def on_after_request_verify(
@@ -80,9 +85,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     ):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 
-    async def on_after_verify(
-            self, user: User, request: Optional[Request] = None
-    ):
+    async def on_after_verify(self, user: User, request: Optional[Request] = None):
         print(f"User {user.id} has been verified")
 
 
@@ -98,7 +101,10 @@ def get_jwt_strategy() -> JWTStrategy[models.UP, models.ID]:
 # thus the user would be stuck on the OAuth Providers "redirecting" page
 class RedirectingCookieTransport(CookieTransport):
     async def get_login_response(self, token: str) -> Response:
-        response = RedirectResponse(str(BasicConfig().FRONTEND_URL) + "dashboard", status_code=status.HTTP_302_FOUND)
+        response = RedirectResponse(
+            str(BasicConfig().FRONTEND_URL) + "dashboard",
+            status_code=status.HTTP_302_FOUND,
+        )
         return self._set_login_cookie(response, token)
 
 
@@ -122,7 +128,11 @@ oauth_cookie_auth_backend = AuthenticationBackend(
     get_strategy=get_jwt_strategy,
 )
 
-fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [bearer_auth_backend, cookie_auth_backend])
+fastapi_users = FastAPIUsers[User, uuid.UUID](
+    get_user_manager, [bearer_auth_backend, cookie_auth_backend]
+)
 
 current_active_user = fastapi_users.current_user(active=True, verified=True)
-current_superuser = fastapi_users.current_user(active=True, verified=True, superuser=True)
+current_superuser = fastapi_users.current_user(
+    active=True, verified=True, superuser=True
+)

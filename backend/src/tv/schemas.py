@@ -17,6 +17,7 @@ SeasonNumber = typing.NewType("SeasonNumber", int)
 EpisodeNumber = typing.NewType("EpisodeNumber", int)
 SeasonRequestId = typing.NewType("SeasonRequestId", UUID)
 
+
 class Episode(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

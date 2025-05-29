@@ -8,7 +8,7 @@ from backend.src.torrent.schemas import Quality
 
 
 class IndexerQueryResult(Base):
-    __tablename__ = 'indexer_query_result'
+    __tablename__ = "indexer_query_result"
     id: Mapped[IndexerQueryResultId] = mapped_column(primary_key=True)
     title: Mapped[str]
     download_url: Mapped[str]
