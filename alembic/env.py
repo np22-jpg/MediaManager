@@ -1,6 +1,6 @@
 import sys
 
-sys.path = ['', '..'] + sys.path[1:]
+sys.path = ["", ".."] + sys.path[1:]
 
 
 from logging.config import fileConfig
@@ -38,13 +38,22 @@ from media_manager.torrent.models import Torrent
 from media_manager.tv.models import Show, Season, Episode, SeasonFile, SeasonRequest
 
 from media_manager.database import Base
+
 target_metadata = Base.metadata
 
 # this is to keep pycharm from complaining about/optimizing unused imports
 # noinspection PyStatementEffect
-User, OAuthAccount, IndexerQueryResult, Torrent, Show, Season, Episode, SeasonFile, SeasonRequest
-
-
+(
+    User,
+    OAuthAccount,
+    IndexerQueryResult,
+    Torrent,
+    Show,
+    Season,
+    Episode,
+    SeasonFile,
+    SeasonRequest,
+)
 
 
 # other values from the config, defined by the needs of env.py,
@@ -52,8 +61,9 @@ User, OAuthAccount, IndexerQueryResult, Torrent, Show, Season, Episode, SeasonFi
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+
 class DbConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix='DB_')
+    model_config = SettingsConfigDict(env_prefix="DB_")
     HOST: str = "localhost"
     PORT: int = 5432
     USER: str = "MediaManager"
@@ -62,8 +72,19 @@ class DbConfig(BaseSettings):
 
 
 db_config = DbConfig()
-db_url = "postgresql+psycopg" + "://" + db_config.USER + ":" + db_config.PASSWORD + "@" + db_config.HOST + ":" + str(
-    db_config.PORT) + "/" + db_config.DBNAME
+db_url = (
+        "postgresql+psycopg"
+        + "://"
+        + db_config.USER
+        + ":"
+        + db_config.PASSWORD
+        + "@"
+        + db_config.HOST
+        + ":"
+        + str(db_config.PORT)
+        + "/"
+        + db_config.DBNAME
+)
 
 config.set_main_option("sqlalchemy.url", db_url)
 
@@ -106,9 +127,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

@@ -48,6 +48,7 @@ log = logging.getLogger(__name__)
 from media_manager.database import init_db
 import media_manager.tv.router as tv_router
 import media_manager.torrent.router as torrent_router
+
 init_db()
 log.info("Database initialized")
 
