@@ -1,4 +1,4 @@
-from indexer.schemas import IndexerQueryResult
+from backend.src.indexer.schemas import IndexerQueryResult
 
 
 class GenericIndexer(object):

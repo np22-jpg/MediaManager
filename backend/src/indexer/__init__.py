@@ -1,8 +1,8 @@
 import logging
 
-from indexer.config import ProwlarrConfig
-from indexer.indexers.generic import GenericIndexer, IndexerQueryResult
-from indexer.indexers.prowlarr import Prowlarr
+from backend.src.indexer.config import ProwlarrConfig
+from backend.src.indexer.indexers.generic import GenericIndexer, IndexerQueryResult
+from backend.src.indexer.indexers.prowlarr import Prowlarr
 
 log = logging.getLogger(__name__)
 

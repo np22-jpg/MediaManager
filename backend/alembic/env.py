@@ -10,6 +10,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
+from dotenv import load_dotenv
+from pathlib import Path
+
+env_path = Path(__file__).parent.parent.parent / Path("res") / Path(".env")
+print(env_path)
+load_dotenv(dotenv_path=env_path)
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -24,8 +31,20 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
+
+from backend.src.auth.db import User, OAuthAccount
+from backend.src.indexer.models import IndexerQueryResult
+from backend.src.torrent.models import Torrent
+from backend.src.tv.models import Show, Season, Episode, SeasonFile, SeasonRequest
+
 from backend.src.database import Base
 target_metadata = Base.metadata
+
+# this is to keep pycharm from complaining about/optimizing unused imports
+# noinspection PyStatementEffect
+User, OAuthAccount, IndexerQueryResult, Torrent, Show, Season, Episode, SeasonFile, SeasonRequest
+
+
 
 
 # other values from the config, defined by the needs of env.py,

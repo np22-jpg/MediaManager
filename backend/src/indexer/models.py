@@ -3,8 +3,8 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.src.database import Base
-from indexer.schemas import IndexerQueryResultId
-from torrent.schemas import Quality
+from backend.src.indexer.schemas import IndexerQueryResultId
+from backend.src.torrent.schemas import Quality
 
 
 class IndexerQueryResult(Base):

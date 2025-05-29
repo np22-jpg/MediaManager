@@ -13,12 +13,14 @@ from fastapi_users.authentication import (
 from fastapi_users.db import SQLAlchemyUserDatabase
 from httpx_oauth.oauth2 import OAuth2
 from fastapi.responses import RedirectResponse, Response
-import auth.config
-from auth.db import User, get_user_db
-from auth.schemas import UserUpdate
-from config import BasicConfig
+from starlette import status
 
-config = auth.config.AuthConfig()
+from backend.src.auth.config import AuthConfig, OAuth2Config
+from backend.src.auth.db import User, get_user_db
+from backend.src.auth.schemas import UserUpdate
+from backend.src.config import BasicConfig
+
+config = AuthConfig()
 SECRET = config.token_secret
 LIFETIME = config.session_lifetime
 
@@ -41,7 +43,7 @@ class GenericOAuth2(OAuth2):
 
 
 if os.getenv("OAUTH_ENABLED") is not None and os.getenv("OAUTH_ENABLED").upper() == "TRUE":
-    oauth2_config = auth.config.OAuth2Config()
+    oauth2_config = OAuth2Config()
     oauth_client = GenericOAuth2(
         client_id=oauth2_config.client_id,
         client_secret=oauth2_config.client_secret,
@@ -96,7 +98,7 @@ def get_jwt_strategy() -> JWTStrategy[models.UP, models.ID]:
 # thus the user would be stuck on the OAuth Providers "redirecting" page
 class RedirectingCookieTransport(CookieTransport):
     async def get_login_response(self, token: str) -> Response:
-        response = RedirectResponse(str(BasicConfig().FRONTEND_URL) + "dashboard", status_code=302)
+        response = RedirectResponse(str(BasicConfig().FRONTEND_URL) + "dashboard", status_code=status.HTTP_302_FOUND)
         return self._set_login_cookie(response, token)
 
 

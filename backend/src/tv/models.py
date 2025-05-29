@@ -3,9 +3,9 @@ from uuid import UUID
 from sqlalchemy import ForeignKey, PrimaryKeyConstraint, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from auth.db import User
+from backend.src.auth.db import User
 from backend.src.database import Base
-from torrent.models import Quality
+from backend.src.torrent.models import Quality
 
 
 class Show(Base):

@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 import pydantic
 from pydantic import BaseModel, computed_field, ConfigDict
 
-from torrent.models import Quality
+from backend.src.torrent.models import Quality
 
 IndexerQueryResultId = typing.NewType('IndexerQueryResultId', UUID)
 

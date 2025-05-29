@@ -7,7 +7,7 @@ from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
-from .config import DbConfig
+from backend.src.database.config import DbConfig
 
 log = logging.getLogger(__name__)
 config = DbConfig()
