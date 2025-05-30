@@ -54,6 +54,7 @@ if (
         authorize_endpoint=oauth2_config.authorize_endpoint,
         access_token_endpoint=oauth2_config.access_token_endpoint,
         user_info_endpoint=oauth2_config.user_info_endpoint,
+        base_scopes=["openid", "email", "profile"],
     )
 else:
     oauth_client = None
