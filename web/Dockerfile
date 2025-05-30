@@ -1,11 +1,14 @@
+ARG VERSION
+
 FROM node:24-alpine AS build
+ARG VERSION
 USER node:node
 WORKDIR /app
 
 COPY --chown=node:node . .
 
 RUN npm ci
-RUN npm run build
+RUN env PUBLIC_VERSION=${VERSION} npm run build
 
 FROM node:24-alpine AS frontend
 ARG VERSION
@@ -18,9 +21,8 @@ ENV PUBLIC_SSR_WEB=false
 WORKDIR /app
 
 COPY --chown=node:node package*.json ./
+COPY --chown=node:node --from=build /app/node_modules ./node_modules/
 COPY --chown=node:node --from=build /app/build/ ./build/
-
-RUN PUBLIC_VERSION=${VERSION} npm run build
 
 EXPOSE 3000
 
