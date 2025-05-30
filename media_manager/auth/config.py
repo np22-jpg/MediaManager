@@ -7,7 +7,7 @@ class AuthConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="AUTH_")
     token_secret: str
     session_lifetime: int = 60 * 60 * 24
-    admin_email: str | list[str]
+    admin_email: str
 
     @property
     def jwt_signing_key(self):

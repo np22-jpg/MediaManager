@@ -14,6 +14,7 @@ LABEL version=${VERSION}
 LABEL description="Docker image for the web frontend of MediaManager"
 
 ENV PUBLIC_VERSION=${VERSION}
+ENV PUBLIC_SSR_WEB=false
 WORKDIR /app
 
 COPY --chown=node:node package*.json ./

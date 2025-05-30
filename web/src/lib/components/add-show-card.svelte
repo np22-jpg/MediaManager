@@ -7,7 +7,9 @@
 	import {base} from '$app/paths';
 	import type {MetaDataProviderShowSearchResult} from '$lib/types.js';
 	import {toOptimizedURL} from 'sveltekit-image-optimize/components';
+	import {browser} from "$app/environment";
 
+	const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
 	let loading = $state(false);
 	let errorMessage = $state(null);
 	let {result}: { result: MetaDataProviderShowSearchResult } = $props();
@@ -15,7 +17,7 @@
 
 	async function addShow() {
 		loading = true;
-		let url = new URL(env.PUBLIC_API_URL + '/tv/shows');
+		let url = new URL(apiUrl + '/tv/shows');
 		url.searchParams.append('show_id', String(result.external_id));
 		url.searchParams.append('metadata_provider', result.metadata_provider);
 		const response = await fetch(url, {

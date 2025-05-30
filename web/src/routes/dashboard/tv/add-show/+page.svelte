@@ -12,14 +12,16 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import AddShowCard from '$lib/components/add-show-card.svelte';
 	import {toast} from 'svelte-sonner';
+	import {browser} from "$app/environment";
 
+	const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
 	let searchTerm: string = $state('');
 	let metadataProvider: string = $state('tmdb');
 	let results: MetaDataProviderShowSearchResult[] | null = $state(null);
 
 	async function search() {
 		if (searchTerm.length > 0) {
-			let url = new URL(env.PUBLIC_API_URL + '/tv/search');
+			let url = new URL(apiUrl + '/tv/search');
 			url.searchParams.append('query', searchTerm);
 			url.searchParams.append('metadata_provider', metadataProvider);
 			toast.info(`Searching for "${searchTerm}" using ${metadataProvider.toUpperCase()}...`);

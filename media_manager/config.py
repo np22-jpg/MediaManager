@@ -10,5 +10,5 @@ class BasicConfig(BaseSettings):
     movie_directory: Path = "./movie"
     torrent_directory: Path = "./torrent"
     FRONTEND_URL: AnyHttpUrl
-
+    CORS_URLS: str = ""
     DEVELOPMENT: bool = False

@@ -5,14 +5,16 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import {Label} from '$lib/components/ui/label/index.js';
 	import {Input} from '$lib/components/ui/input/index.js';
+	import {browser} from "$app/environment";
 
+	const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
 	let newPassword: string = $state('');
 	let newEmail: string = $state('');
 	let dialogOpen = $state(false);
 
 	async function saveUser() {
 		try {
-			const response = await fetch(`${env.PUBLIC_API_URL}/users/me`, {
+			const response = await fetch(`${apiUrl}/users/me`, {
 				method: 'PATCH',
 				headers: {
 					'Content-Type': 'application/json'

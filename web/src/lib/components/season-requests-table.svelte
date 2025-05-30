@@ -9,7 +9,9 @@
     import {toast} from 'svelte-sonner';
     import {goto} from '$app/navigation';
     import {base} from '$app/paths';
+    import {browser} from "$app/environment";
 
+    const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
     let {
         requests,
         filter = () => {
@@ -21,7 +23,7 @@
     async function approveRequest(requestId: string, currentAuthorizedStatus: boolean) {
         try {
             const response = await fetch(
-                `${env.PUBLIC_API_URL}/tv/seasons/requests/${requestId}?authorized_status=${!currentAuthorizedStatus}`,
+                `${apiUrl}/tv/seasons/requests/${requestId}?authorized_status=${!currentAuthorizedStatus}`,
                 {
                     method: 'PATCH',
                     headers: {
@@ -56,7 +58,7 @@
 
     async function deleteRequest(requestId: string) {
         try {
-            const response = await fetch(`${env.PUBLIC_API_URL}/tv/seasons/requests/${requestId}`, {
+            const response = await fetch(`${apiUrl}/tv/seasons/requests/${requestId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

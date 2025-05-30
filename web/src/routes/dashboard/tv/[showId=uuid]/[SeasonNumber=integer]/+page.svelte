@@ -10,7 +10,9 @@
 	import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils';
 	import {toOptimizedURL} from "sveltekit-image-optimize/components";
 	import {env} from "$env/dynamic/public";
+	import {browser} from "$app/environment";
 
+	const apiUrl = env.PUBLIC_SSR_API_URL;
 	const SeasonNumber = page.params.SeasonNumber;
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let show: Show = getContext('show');
@@ -62,7 +64,7 @@
 			<img
 					class="aspect-9/16 h-auto w-full rounded-lg object-cover"
 					alt="{show().name}'s Poster Image"
-					src={toOptimizedURL(`${env.PUBLIC_API_URL}/static/image/${show().id}.jpg`)}
+					src={toOptimizedURL(`${apiUrl}/static/image/${show().id}.jpg`)}
 			/>
 		</div>
 		<div class="h-full w-1/4 flex-auto rounded-xl bg-muted/50 p-4">

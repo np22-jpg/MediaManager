@@ -8,8 +8,9 @@
     import * as Tabs from '$lib/components/ui/tabs/index.js';
     import {toast} from 'svelte-sonner';
     import LoadingBar from '$lib/components/loading-bar.svelte';
+    import {browser} from "$app/environment";
 
-    let apiUrl = env.PUBLIC_API_URL;
+    const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
 
     let {oauthProvider} = $props();
     let oauthProviderName = $derived(oauthProvider.oauth_name);

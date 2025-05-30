@@ -8,7 +8,9 @@
     import type {CreateSeasonRequest, PublicShow, Quality} from '$lib/types.js';
     import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils.js';
     import {toast} from 'svelte-sonner';
+    import {browser} from "$app/environment";
 
+    const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
     let {show}: { show: PublicShow } = $props();
 
     let dialogOpen = $state(false);
@@ -41,7 +43,7 @@
         }));
         for (const payload of payloads) {
             try {
-                const response = await fetch(`${env.PUBLIC_API_URL}/tv/seasons/requests`, {
+                const response = await fetch(`${apiUrl}/tv/seasons/requests`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

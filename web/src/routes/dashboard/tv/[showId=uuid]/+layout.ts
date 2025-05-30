@@ -1,6 +1,8 @@
 import {env} from '$env/dynamic/public';
 import type {LayoutLoad} from './$types';
+import {browser} from "$app/environment";
 
+const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
 export const load: LayoutLoad = async ({params, fetch}) => {
 	const showId = params.showId;
 
@@ -12,7 +14,7 @@ export const load: LayoutLoad = async ({params, fetch}) => {
 	}
 
 	try {
-		const show = await fetch(`${env.PUBLIC_API_URL}/tv/shows/${showId}`, {
+		const show = await fetch(`${apiUrl}/tv/shows/${showId}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -20,7 +22,7 @@ export const load: LayoutLoad = async ({params, fetch}) => {
 			credentials: 'include'
 		});
 
-		const torrents = await fetch(`${env.PUBLIC_API_URL}/tv/shows/${showId}/torrents`, {
+		const torrents = await fetch(`${apiUrl}/tv/shows/${showId}/torrents`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'

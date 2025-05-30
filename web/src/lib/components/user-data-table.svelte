@@ -9,7 +9,9 @@
     import {Label} from '$lib/components/ui/label/index.js';
     import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
     import {Input} from '$lib/components/ui/input/index.js';
+    import {browser} from "$app/environment";
 
+    const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
     let {users}: { users: User[] } = $props();
     let sortedUsers = $derived(users.sort((a, b) => a.email.localeCompare(b.email)));
     let selectedUser: User | null = $state(null);
@@ -20,7 +22,7 @@
         if (!selectedUser) return;
 
         try {
-            const response = await fetch(`${env.PUBLIC_API_URL}/users/${selectedUser.id}`, {
+            const response = await fetch(`${apiUrl}/users/${selectedUser.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'

@@ -2,11 +2,14 @@
 	import {goto} from '$app/navigation';
 	import {base} from '$app/paths';
 	import {onMount} from 'svelte';
+	import {browser} from "$app/environment";
+	import {redirect} from "@sveltejs/kit";
 
-
-	onMount(() => {
+	if (browser)
 		goto(base + '/dashboard');
-	});
+	else
+		throw redirect(307, '/login');
+
 </script>
 
 <svelte:head>

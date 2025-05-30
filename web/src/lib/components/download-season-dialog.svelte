@@ -12,7 +12,9 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
+	import {browser} from "$app/environment";
 
+	const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
     let {show} = $props();
 	let dialogueState = $state(false);
 	let selectedSeasonNumber: number = $state(1);
@@ -23,7 +25,7 @@
 	let filePathSuffix: string = $state('');
 
 	async function downloadTorrent(result_id: string) {
-		let url = new URL(env.PUBLIC_API_URL + '/tv/torrents');
+		let url = new URL(apiUrl + '/tv/torrents');
 		url.searchParams.append('public_indexer_result_id', result_id);
 		url.searchParams.append('show_id', show.id);
 		if (filePathSuffix !== '') {
@@ -67,7 +69,7 @@
 		torrentsError = null;
 		torrents = [];
 
-		let url = new URL(env.PUBLIC_API_URL + '/tv/torrents');
+		let url = new URL(apiUrl + '/tv/torrents');
 		url.searchParams.append('show_id', show.id);
 		if (override) {
 			url.searchParams.append('search_query_override', queryOverride);

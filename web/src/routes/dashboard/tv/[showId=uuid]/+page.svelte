@@ -15,7 +15,9 @@
     import {page} from '$app/state';
 	import TorrentTable from '$lib/components/torrent-table.svelte';
 	import RequestSeasonDialog from '$lib/components/request-season-dialog.svelte';
+	import {browser} from "$app/environment";
 
+	const apiUrl = env.PUBLIC_SSR_API_URL;
 	let show: Show = getContext('show');
 	let user: User = getContext('user');
 	let torrents: RichShowTorrent = page.data.torrentsData;
@@ -55,7 +57,7 @@
 			{#if show().id}
 				<img
                         class="aspect-9/16 h-auto w-full rounded-lg object-cover"
-                        src={toOptimizedURL(`${env.PUBLIC_API_URL}/static/image/${show().id}.jpg`)}
+						src={toOptimizedURL(`${apiUrl}/static/image/${show().id}.jpg`)}
                         alt="{show().name}'s Poster Image"
 				/>
 			{:else}

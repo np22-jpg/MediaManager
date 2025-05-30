@@ -10,6 +10,7 @@
 	import logo from '$lib/images/svelte-logo.svg';
 	import LoadingBar from '$lib/components/loading-bar.svelte';
 
+	const apiUrl = env.PUBLIC_SSR_API_URL
 	let tvShowsPromise = page.data.tvShows;
 </script>
 
@@ -64,7 +65,7 @@
 							<Card.Content>
 								<img
 										class="aspect-9/16 center h-auto max-w-full rounded-lg object-cover"
-										src={toOptimizedURL(`${env.PUBLIC_API_URL}/static/image/${show.id}.jpg`)}
+										src={toOptimizedURL(`${apiUrl}/static/image/${show.id}.jpg`)}
 										alt="{getFullyQualifiedShowName(show)}'s Poster Image"
 										on:error={(e) => {
 										e.target.src = logo;

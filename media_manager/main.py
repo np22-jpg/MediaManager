@@ -4,7 +4,6 @@ from logging.config import dictConfig
 
 from pythonjsonlogger.json import JsonFormatter
 
-
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -52,23 +51,9 @@ import media_manager.torrent.router as torrent_router
 init_db()
 log.info("Database initialized")
 
-from media_manager.auth.users import oauth_client
-from media_manager.auth.users import SECRET as AUTH_USERS_SECRET
 from media_manager.config import BasicConfig
-
-import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from media_manager.auth.schemas import UserCreate, UserRead, UserUpdate
-from media_manager.auth.users import (
-    bearer_auth_backend,
-    fastapi_users,
-    cookie_auth_backend,
-    oauth_cookie_auth_backend,
-)
-from media_manager.auth.router import users_router as custom_users_router
-from media_manager.auth.router import auth_metadata_router
 
 basic_config = BasicConfig()
 if basic_config.DEVELOPMENT:
@@ -87,9 +72,10 @@ if basic_config.DEVELOPMENT:
         "*",
     ]
 else:
-    origins = [
-        basic_config.FRONTEND_URL,
-    ]
+    origins = basic_config.CORS_URLS.split(",")
+    log.info("CORS URLs activated for following origins:")
+    for origin in origins:
+        log.info(f" - {origin}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -98,6 +84,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+import uvicorn
+from fastapi.staticfiles import StaticFiles
+from media_manager.auth.users import oauth_client
+from media_manager.auth.users import SECRET as AUTH_USERS_SECRET
+from media_manager.auth.router import users_router as custom_users_router
+from media_manager.auth.router import auth_metadata_router
+from media_manager.auth.schemas import UserCreate, UserRead, UserUpdate
+from media_manager.auth.users import (
+    bearer_auth_backend,
+    fastapi_users,
+    cookie_auth_backend,
+    oauth_cookie_auth_backend,
+)
+
 
 # Standard Auth Routers
 app.include_router(

@@ -1,9 +1,11 @@
 import {env} from '$env/dynamic/public';
 import type {LayoutLoad} from './$types';
+import {browser} from "$app/environment";
 
+const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
 export const load: LayoutLoad = async ({fetch}) => {
 	try {
-		const requests = await fetch(`${env.PUBLIC_API_URL}/tv/seasons/requests`, {
+		const requests = await fetch(`${apiUrl}/tv/seasons/requests`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
