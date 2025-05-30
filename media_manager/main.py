@@ -47,7 +47,6 @@ log = logging.getLogger(__name__)
 from media_manager.database import init_db
 import media_manager.tv.router as tv_router
 import media_manager.torrent.router as torrent_router
-
 init_db()
 log.info("Database initialized")
 
@@ -92,6 +91,8 @@ from media_manager.auth.users import SECRET as AUTH_USERS_SECRET
 from media_manager.auth.router import users_router as custom_users_router
 from media_manager.auth.router import auth_metadata_router
 from media_manager.auth.schemas import UserCreate, UserRead, UserUpdate
+from media_manager.auth.oauth import get_oauth_router
+
 from media_manager.auth.users import (
     bearer_auth_backend,
     fastapi_users,
@@ -139,10 +140,11 @@ app.include_router(
 # OAuth2 Routers
 if openid_client is not None:
     app.include_router(
-        fastapi_users.get_oauth_router(
-            openid_client,
-            openid_cookie_auth_backend,
-            AUTH_USERS_SECRET,
+        get_oauth_router(
+            oauth_client=openid_client,
+            backend=openid_cookie_auth_backend,
+            get_user_manager=fastapi_users.get_user_manager,
+            state_secret=AUTH_USERS_SECRET,
             associate_by_email=True,
             is_verified_by_default=True,
         ),
