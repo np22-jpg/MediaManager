@@ -35,13 +35,9 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/frontend
           tags: |
-            # set latest tag for default branch
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            # tag event 'refs/tags/v1.0.0' will generate 'v1.0.0'
             type=ref,event=tag
-            # branch event 'refs/heads/main' will generate 'main'
             type=ref,event=branch
-            # sha
             type=sha
 
       - name: Build and push Docker image
