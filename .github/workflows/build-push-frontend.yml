@@ -3,20 +3,20 @@ name: Build and Push Frontend Docker Image
 on:
   push:
     branches:
-      - main # Adjust if your default branch is different
+      - master
     tags:
-      - 'v*.*.*' # Triggers on version tags like v1.0.0
+      - 'v*.*.*'
     paths:
-      - 'web/**' # Only run if files in web/ directory change
-      - '.github/workflows/build-push-frontend.yml' # Or if the workflow itself changes
-  workflow_dispatch: # Allows manual triggering from the Actions tab
+      - 'web/**'
+      - '.github/workflows/build-push-frontend.yml'
+  workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read      # To checkout the repository
-      packages: write    # To push Docker images to GHCR
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout repository
@@ -49,7 +49,7 @@ jobs:
         with:
           context: ./web
           file: ./web/Dockerfile
-          push: ${{ github.event_name != 'pull_request' }} # Do not push on PRs
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |

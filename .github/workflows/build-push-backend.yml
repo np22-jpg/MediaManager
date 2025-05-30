@@ -3,17 +3,17 @@ name: Build and Push Backend Docker Image
 on:
   push:
     branches:
-      - main # Adjust if your default branch is different
+      - master
     tags:
-      - 'v*.*.*' # Triggers on version tags like v1.0.0
-  workflow_dispatch: # Allows manual triggering from the Actions tab
+      - 'v*.*.*'
+  workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read      # To checkout the repository
-      packages: write    # To push Docker images to GHCR
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout repository
@@ -46,7 +46,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          push: ${{ github.event_name != 'pull_request' }} # Do not push on PRs
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
