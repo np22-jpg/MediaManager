@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="mm"
+                  name="MediaManager"
+                  start-page="introduction.md">
+
+    <toc-element topic="introduction.md"/>
+    <toc-element topic="configuration-overview.md"/>
+    <toc-element topic="Configuration.md">
+        <toc-element topic="authentication-setup.md"/>
+        <toc-element topic="configuration-frontend.md"/>
+        <toc-element topic="configuration-backend.md">
+            <toc-element topic="Indexer-Settings.md"/>
+        </toc-element>
+    </toc-element>
+    <toc-element topic="troubleshooting.md"/>
+    <toc-element topic="developer-guide.md"/>
+    <toc-element topic="api-reference.md"/>
+</instance-profile>
