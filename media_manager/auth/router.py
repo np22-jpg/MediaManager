@@ -11,8 +11,8 @@ from media_manager.auth.users import openid_client
 
 users_router = APIRouter()
 auth_metadata_router = APIRouter()
-oauth_enabled = openid_client is not None
-if oauth_enabled:
+openid_enabled = openid_client is not None
+if openid_enabled:
     oauth_config = OpenIdConfig()
 
 
@@ -29,7 +29,7 @@ def get_all_users(db: DbSessionDependency) -> list[UserRead]:
 
 @auth_metadata_router.get("/auth/metadata", status_code=status.HTTP_200_OK)
 def get_auth_metadata() -> dict:
-    if oauth_enabled:
+    if openid_enabled:
         return {
             "oauth_name": oauth_config.name,
         }

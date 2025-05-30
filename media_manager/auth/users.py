@@ -26,8 +26,8 @@ SECRET = config.token_secret
 LIFETIME = config.session_lifetime
 
 if (
-        os.getenv("OAUTH_ENABLED") is not None
-        and os.getenv("OAUTH_ENABLED").upper() == "TRUE"
+        os.getenv("OPENID_ENABLED") is not None
+        and os.getenv("OPENID_ENABLED").upper() == "TRUE"
 ):
     openid_config = OpenIdConfig()
     openid_client = OpenID(
