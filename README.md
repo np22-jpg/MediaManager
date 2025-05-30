@@ -22,6 +22,8 @@ it is a comprehensive solution for organizing your media library, including TV s
 It provides a modern web interface and integrates with various services for metadata,
 torrents and authentication.
 
+### [View the docs for installation instructions and more](https://maxdorninger.github.io/MediaManager/configuration-overview.html#configuration-overview)
+
 <!-- ROADMAP -->
 ## Roadmap
 
