@@ -14,11 +14,9 @@ class AuthConfig(BaseSettings):
         return self._jwt_signing_key
 
 
-class OAuth2Config(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="OAUTH_")
+class OpenIdConfig(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="OPENID_")
     client_id: str
     client_secret: str
-    authorize_endpoint: str
-    access_token_endpoint: str
-    user_info_endpoint: str
-    name: str = "OAuth2"
+    configuration_endpoint: str
+    name: str = "OpenID"

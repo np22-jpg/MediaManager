@@ -7,7 +7,7 @@ ENV IMAGE_DIRECTORY=/data/images
 ENV TV_SHOW_DIRECTORY=/data/tv
 ENV MOVIE_DIRECTORY=/data/movies
 ENV TORRENT_DIRECTORY=/data/torrents
-ENV OAUTH_ENABLED=FALSE
+ENV OPENID_ENABLED=FALSE
 
 WORKDIR /app
 COPY media_manager ./media_manager
