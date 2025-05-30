@@ -31,12 +31,13 @@ if (
 ):
     openid_config = OpenIdConfig()
     openid_client = OpenID(
+        base_scopes=["openid", "email", "profile"],
         client_id=openid_config.client_id,
         client_secret=openid_config.client_secret,
         name=openid_config.name,
         openid_configuration_endpoint=openid_config.configuration_endpoint,
-        base_scopes=["openid", "email", "profile"],
     )
+    openid_client.base_scopes = ["openid", "email", "profile"]
 else:
     openid_client = None
 
