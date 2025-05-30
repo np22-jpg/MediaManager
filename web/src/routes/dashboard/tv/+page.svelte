@@ -74,6 +74,10 @@
 							</Card.Content>
 						</Card.Root>
 					</a>
+				{:else}
+					<div class="col-span-full text-center text-muted-foreground">
+						No TV shows added yet.
+					</div>
 				{/each}
 			{/await}
 		{/await}
