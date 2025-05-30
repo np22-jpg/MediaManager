@@ -20,7 +20,7 @@ WORKDIR /app
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node --from=build /app/build/ ./build/
 
-RUN npm install
+RUN PUBLIC_VERSION=${VERSION} npm run build
 
 EXPOSE 3000
 
