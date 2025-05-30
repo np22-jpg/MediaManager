@@ -49,5 +49,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VERSION=${{ steps.meta.outputs.version }} # This will be the git tag (e.g. v1.0.0) or branch name or sha
+            VERSION=${{ steps.meta.outputs.version }}
 
