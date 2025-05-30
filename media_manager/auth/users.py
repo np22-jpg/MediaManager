@@ -12,11 +12,11 @@ from fastapi_users.authentication import (
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
-from httpx_oauth.oauth2 import OAuth2
+from httpx_oauth.clients.openid import OpenID
 from fastapi.responses import RedirectResponse, Response
 from starlette import status
 
-from media_manager.auth.config import AuthConfig, OAuth2Config
+from media_manager.auth.config import AuthConfig, OpenIdConfig
 from media_manager.auth.db import User, get_user_db
 from media_manager.auth.schemas import UserUpdate
 from media_manager.config import BasicConfig
@@ -25,39 +25,20 @@ config = AuthConfig()
 SECRET = config.token_secret
 LIFETIME = config.session_lifetime
 
-
-class GenericOAuth2(OAuth2):
-    def __init__(self, user_info_endpoint: str, **kwargs):
-        super().__init__(**kwargs)
-        self.user_info_endpoint = user_info_endpoint
-
-    async def get_id_email(self, token: str):
-        userinfo_endpoint = self.user_info_endpoint
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(
-                userinfo_endpoint, headers={"Authorization": f"Bearer {token}"}
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            return data["sub"], data["email"]
-
-
 if (
         os.getenv("OAUTH_ENABLED") is not None
         and os.getenv("OAUTH_ENABLED").upper() == "TRUE"
 ):
-    oauth2_config = OAuth2Config()
-    oauth_client = GenericOAuth2(
-        client_id=oauth2_config.client_id,
-        client_secret=oauth2_config.client_secret,
-        name=oauth2_config.name,
-        authorize_endpoint=oauth2_config.authorize_endpoint,
-        access_token_endpoint=oauth2_config.access_token_endpoint,
-        user_info_endpoint=oauth2_config.user_info_endpoint,
+    openid_config = OpenIdConfig()
+    openid_client = OpenID(
+        client_id=openid_config.client_id,
+        client_secret=openid_config.client_secret,
+        name=openid_config.name,
+        openid_configuration_endpoint=openid_config.configuration_endpoint,
         base_scopes=["openid", "email", "profile"],
     )
 else:
-    oauth_client = None
+    openid_client = None
 
 
 # TODO: implement on_xxx methods
@@ -111,7 +92,7 @@ class RedirectingCookieTransport(CookieTransport):
 
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 cookie_transport = CookieTransport(cookie_max_age=LIFETIME)
-oauth_cookie_transport = RedirectingCookieTransport(cookie_max_age=LIFETIME)
+openid_cookie_transport = RedirectingCookieTransport(cookie_max_age=LIFETIME)
 
 bearer_auth_backend = AuthenticationBackend(
     name="jwt",
@@ -123,9 +104,9 @@ cookie_auth_backend = AuthenticationBackend(
     transport=cookie_transport,
     get_strategy=get_jwt_strategy,
 )
-oauth_cookie_auth_backend = AuthenticationBackend(
+openid_cookie_auth_backend = AuthenticationBackend(
     name="cookie",
-    transport=oauth_cookie_transport,
+    transport=openid_cookie_transport,
     get_strategy=get_jwt_strategy,
 )
 

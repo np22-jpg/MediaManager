@@ -87,7 +87,7 @@ app.add_middleware(
 
 import uvicorn
 from fastapi.staticfiles import StaticFiles
-from media_manager.auth.users import oauth_client
+from media_manager.auth.users import openid_client
 from media_manager.auth.users import SECRET as AUTH_USERS_SECRET
 from media_manager.auth.router import users_router as custom_users_router
 from media_manager.auth.router import auth_metadata_router
@@ -96,7 +96,7 @@ from media_manager.auth.users import (
     bearer_auth_backend,
     fastapi_users,
     cookie_auth_backend,
-    oauth_cookie_auth_backend,
+    openid_cookie_auth_backend,
 )
 
 
@@ -129,7 +129,7 @@ app.include_router(
 # All users route router
 app.include_router(custom_users_router, tags=["users"])
 # OAuth Metadata Router
-app.include_router(auth_metadata_router, tags=["oauth"])
+app.include_router(auth_metadata_router, tags=["openid"])
 # User Router
 app.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate),
@@ -137,17 +137,17 @@ app.include_router(
     tags=["users"],
 )
 # OAuth2 Routers
-if oauth_client is not None:
+if openid_client is not None:
     app.include_router(
         fastapi_users.get_oauth_router(
-            oauth_client,
-            oauth_cookie_auth_backend,
+            openid_client,
+            openid_cookie_auth_backend,
             AUTH_USERS_SECRET,
             associate_by_email=True,
             is_verified_by_default=True,
         ),
-        prefix=f"/auth/cookie/{oauth_client.name}",
-        tags=["oauth"],
+        prefix=f"/auth/cookie/{openid_client.name}",
+        tags=["openid"],
     )
 
 app.include_router(tv_router.router, prefix="/tv", tags=["tv"])

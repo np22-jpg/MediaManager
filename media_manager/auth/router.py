@@ -2,18 +2,18 @@ from fastapi import APIRouter, Depends
 from fastapi import status
 from sqlalchemy import select
 
-from media_manager.auth.config import OAuth2Config
+from media_manager.auth.config import OpenIdConfig
 from media_manager.auth.db import User
 from media_manager.auth.schemas import UserRead
 from media_manager.auth.users import current_superuser
 from media_manager.database import DbSessionDependency
-from media_manager.auth.users import oauth_client
+from media_manager.auth.users import openid_client
 
 users_router = APIRouter()
 auth_metadata_router = APIRouter()
-oauth_enabled = oauth_client is not None
+oauth_enabled = openid_client is not None
 if oauth_enabled:
-    oauth_config = OAuth2Config()
+    oauth_config = OpenIdConfig()
 
 
 @users_router.get(
