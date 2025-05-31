@@ -314,7 +314,9 @@ def download_approved_season_request(
             log.info(
                 f"Skipping torrent {torrent.title} with quality {torrent.quality} for season {season.id}, because it does not match the requested quality {season_request.wanted_quality}"
             )
-        elif torrent.season == [season.number, ]:
+        elif torrent.season == [
+            season.number,
+        ]:
             log.info(
                 f"Skipping torrent {torrent.title} with quality {torrent.quality} for season {season.id}, because it contains to many/wrong seasons {torrent.season} (wanted: {season.number})"
             )

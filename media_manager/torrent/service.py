@@ -8,7 +8,6 @@ from pathlib import Path
 import bencoder
 import qbittorrentapi
 import requests
-from fastapi_utils.tasks import repeat_every
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.orm import Session
 
@@ -291,10 +290,10 @@ class TorrentService:
             for x in media_manager.torrent.repository.get_all_torrents(db=self.db)
         ]
 
-    def get_torrent_by_id(self, id: TorrentId) -> Torrent:
+    def get_torrent_by_id(self, torrent_id: TorrentId) -> Torrent:
         return self.get_torrent_status(
             media_manager.torrent.repository.get_torrent_by_id(
-                torrent_id=id, db=self.db
+                torrent_id=torrent_id, db=self.db
             )
         )
 

@@ -22,6 +22,7 @@ class QualityStrings(Enum):
     sd = "400p"
     unknown = "unknown"
 
+
 class TorrentStatus(Enum):
     finished = 1
     downloading = 2
