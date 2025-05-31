@@ -308,11 +308,10 @@ class TorrentService:
             )
         media_manager.torrent.repository.delete_torrent(db=self.db, torrent_id=t.id)
 
-    # TODO: fix this, it probably does not work because it is a method of a class
-    @repeat_every(seconds=3600)
     def import_all_torrents(self) -> list[Torrent]:
         log.info("Importing all torrents")
         torrents = self.get_all_torrents()
+        log.info("Found %d torrents to import", len(torrents))
         imported_torrents = []
         for t in torrents:
             if t.imported == False and t.status == TorrentStatus.finished:

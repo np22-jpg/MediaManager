@@ -5,6 +5,9 @@ from logging.config import dictConfig
 
 from pythonjsonlogger.json import JsonFormatter
 
+import torrent.service
+from database import SessionLocal
+
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -74,18 +77,17 @@ else:
 def hourly_tasks():
     log.info(f"Tasks are running at {datetime.now()}")
     auto_download_all_approved_season_requests()
+    torrent.service.TorrentService(db=SessionLocal()).import_all_torrents()
 
 
-# Set up the scheduler
 scheduler = BackgroundScheduler()
-trigger = CronTrigger(second=0)
+trigger = CronTrigger(minute=0, hour="*")
 scheduler.add_job(hourly_tasks, trigger)
-scheduler.start()
 
 
-# Ensure the scheduler shuts down properly on application exit.
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    scheduler.start()
     yield
     scheduler.shutdown()
 
