@@ -1,14 +1,13 @@
 ARG VERSION
-
+ARG BASE_URL=""
 FROM node:24-alpine AS build
-ARG VERSION
 USER node:node
 WORKDIR /app
 
 COPY --chown=node:node . .
 
 RUN npm ci
-RUN env PUBLIC_VERSION=${VERSION} npm run build
+RUN env PUBLIC_VERSION=${VERSION} BASE_URL=${BASE_URL} npm run build
 
 FROM node:24-alpine AS frontend
 ARG VERSION

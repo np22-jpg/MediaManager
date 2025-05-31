@@ -1,7 +1,12 @@
 # Backend
 
-These variables configure the core backend application, database connections, authentication, and integrations. They are
-typically set as environment variables for the backend Docker container.
+These variables configure the core backend application, database connections, authentication, and integrations.
+
+## General Settings
+
+| Variable        | Description                 | Default   |
+|-----------------|-----------------------------|-----------|
+| `API_BASE_PATH` | The url base of the backend | `/api/v1` |
 
 ## Database Settings
 

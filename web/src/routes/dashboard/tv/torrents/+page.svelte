@@ -60,9 +60,9 @@
 					</Card.Root>
 				</div>
 			{:else}
-				<h3 class="scroll-m-20 text-2xl font-semibold tracking-tight">
-					You've not added any torrents yet.
-				</h3>
+				<div class="col-span-full text-center text-muted-foreground">
+					No Torrents added yet.
+				</div>
 			{/each}
 		</Accordion.Root>
 	{/await}

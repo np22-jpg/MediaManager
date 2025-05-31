@@ -8,7 +8,13 @@
 
 ## Build Arguments (web/Dockerfile)
 
-| Argument  | Description                                                                                               | Example (in build command)                                   |
-|-----------|-----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| `VERSION` | Sets the `PUBLIC_VERSION` environment variable at runtime in the frontend container. Passed during build. | `docker build --build-arg VERSION=1.2.3 -f web/Dockerfile .` |
+**TODO: expand on this section**
+
+To configure a url base path for the frontend, you need to build the frontend docker container, this is because
+unfortunately SvelteKit needs to know the base path at build time.
+
+| Argument   | Description                                                                                               | Example (in build command)                                     |
+|------------|-----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| `VERSION`  | Sets the `PUBLIC_VERSION` environment variable at runtime in the frontend container. Passed during build. | `docker build --build-arg VERSION=1.2.3 -f web/Dockerfile .`   |
+| `BASE_URL` | Sets the base url path, it must begin with a slash and not end                                            | `docker build --build-arg BASE_URL=/media -f web/Dockerfile .` |
 
