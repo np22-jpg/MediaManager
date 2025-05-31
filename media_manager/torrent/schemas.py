@@ -8,10 +8,10 @@ TorrentId = typing.NewType("TorrentId", uuid.UUID)
 
 
 class Quality(Enum):
-    high = 1
-    medium = 2
-    low = 3
-    very_low = 4
+    uhd = 1
+    fullhd = 2
+    hd = 3
+    sd = 4
     unknown = 5
 
 

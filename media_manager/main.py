@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 from logging.config import dictConfig
 
@@ -64,7 +65,9 @@ if basic_config.DEVELOPMENT:
 else:
     log.info("Development Mode not activated!")
 
-app = FastAPI(root_path="/api/v1")
+base_path = os.getenv("API_BASE_PATH") or "/api/v1"
+log.info("Base Path for API: %s", base_path)
+app = FastAPI(root_path=base_path)
 
 if basic_config.DEVELOPMENT:
     origins = [
@@ -161,6 +164,8 @@ app.mount(
     StaticFiles(directory=basic_config.image_directory),
     name="static-images",
 )
+
+log.info("Hello World!")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)
