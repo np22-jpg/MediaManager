@@ -30,7 +30,7 @@ from media_manager.tv.schemas import (
     SeasonRequestId,
     RichSeasonRequest,
 )
-from torrent.schemas import QualityStrings
+from media_manager.torrent.schemas import QualityStrings
 
 
 def add_show(db: Session, external_id: int, metadata_provider: str) -> Show | None:
