@@ -4,6 +4,7 @@ import media_manager.indexer.service
 import media_manager.metadataProvider
 import media_manager.torrent.repository
 import media_manager.tv.repository
+from media_manager.database import SessionLocal
 from media_manager.indexer import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
@@ -29,6 +30,7 @@ from media_manager.tv.schemas import (
     SeasonRequestId,
     RichSeasonRequest,
 )
+from media_manager.torrent.schemas import QualityStrings
 
 
 def add_show(db: Session, external_id: int, metadata_provider: str) -> Show | None:
@@ -284,3 +286,82 @@ def download_torrent(
         )
         add_season_file(db=db, season_file=season_file)
     return show_torrent
+
+
+def download_approved_season_request(
+        db: Session,
+        season_request: SeasonRequest,
+        show_id: ShowId,
+) -> bool:
+    if not season_request.authorized:
+        log.error(f"Season request {season_request.id} is not authorized for download")
+        raise ValueError(
+            f"Season request {season_request.id} is not authorized for download"
+        )
+    log.info(f"Downloading approved season request {season_request.id}")
+
+    season = get_season(db=db, season_id=season_request.season_id)
+    torrents = get_all_available_torrents_for_a_season(
+        db=db, season_number=season.number, show_id=show_id
+    )
+    available_torrents: list[IndexerQueryResult] = []
+    for torrent in torrents:
+        if (
+                torrent.quality > season_request.wanted_quality
+                or torrent.quality < season_request.min_quality
+                or torrent.seeders < 3
+        ):
+            log.info(
+                f"Skipping torrent {torrent.title} with quality {torrent.quality} for season {season.id}, because it does not match the requested quality {season_request.wanted_quality}"
+            )
+        elif torrent.season == [
+            season.number,
+        ]:
+            log.info(
+                f"Skipping torrent {torrent.title} with quality {torrent.quality} for season {season.id}, because it contains to many/wrong seasons {torrent.season} (wanted: {season.number})"
+            )
+        else:
+            available_torrents.append(torrent)
+            log.info(
+                f"Taking torrent  {torrent.title} with quality {torrent.quality} for season {season.id} into consideration"
+            )
+    if len(available_torrents) == 0:
+        log.warning(
+            f"No torrents matching criteria were found (wanted quality: {season_request.wanted_quality}, min_quality: {season_request.min_quality} for season {season.id})"
+        )
+        return False
+
+    available_torrents.sort()
+
+    torrent = TorrentService(db=db).download(indexer_result=available_torrents[0])
+    season_file = SeasonFile(
+        season_id=season.id,
+        quality=torrent.quality,
+        torrent_id=torrent.id,
+        file_path_suffix=QualityStrings[torrent.quality.name].value.upper(),
+    )
+    add_season_file(db=db, season_file=season_file)
+    return True
+
+
+def auto_download_all_approved_season_requests() -> None:
+    db: Session = SessionLocal()
+    log.info("Auto downloading all approved season requests")
+    season_requests = media_manager.tv.repository.get_season_requests(db=db)
+    log.info(f"Found {len(season_requests)} season requests to process")
+    count = 0
+    for season_request in season_requests:
+        if season_request.authorized:
+            log.info(f"Processing season request {season_request.id} for download")
+            show = media_manager.tv.repository.get_show_by_season_id(
+                db=db, season_id=season_request.season_id
+            )
+            if download_approved_season_request(
+                    db=db, season_request=season_request, show_id=show.id
+            ):
+                count += 1
+            else:
+                log.warning(
+                    f"Failed to download season request {season_request.id} for show {show.name}"
+                )
+    log.info(f"Auto downloaded {count} approved season requests")

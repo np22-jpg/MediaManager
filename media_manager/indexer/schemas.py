@@ -30,13 +30,13 @@ class IndexerQueryResult(BaseModel):
         very_low_quality_pattern = r"\b(480p|480P|360p|360P)\b"
 
         if re.search(high_quality_pattern, self.title):
-            return Quality.high
+            return Quality.uhd
         elif re.search(medium_quality_pattern, self.title):
-            return Quality.medium
+            return Quality.fullhd
         elif re.search(low_quality_pattern, self.title):
-            return Quality.low
+            return Quality.hd
         elif re.search(very_low_quality_pattern, self.title):
-            return Quality.very_low
+            return Quality.sd
 
         return Quality.unknown
 

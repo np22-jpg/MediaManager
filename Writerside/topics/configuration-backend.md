@@ -1,7 +1,12 @@
 # Backend
 
-These variables configure the core backend application, database connections, authentication, and integrations. They are
-typically set as environment variables for the backend Docker container.
+These variables configure the core backend application, database connections, authentication, and integrations.
+
+## General Settings
+
+| Variable        | Description                 | Default   |
+|-----------------|-----------------------------|-----------|
+| `API_BASE_PATH` | The url base of the backend | `/api/v1` |
 
 ## Database Settings
 
@@ -12,6 +17,18 @@ typically set as environment variables for the backend Docker container.
 | `DB_USER`     | Username for PostgreSQL connection.      | `MediaManager` | `myuser`     |
 | `DB_PASSWORD` | Password for the PostgreSQL user.        | `MediaManager` | `mypassword` |
 | `DB_DBNAME`   | Name of the PostgreSQL database.         | `MediaManager` | `mydatabase` |
+
+## Download Client Settings
+
+Currently, only qBittorrent is supported as a download client. But support for other clients isn't unlikely in the
+future.
+
+| Variable           | Description                 | Default     | Example            |
+|--------------------|-----------------------------|-------------|--------------------|
+| `QBITTORRENT_HOST` | Host of the QBittorrent API | `localhost` | `qbit.example.com` |
+| `QBITTORRENT_PORT` | Port of the QBittorrent API | `8080`      | `443`              |
+| `QBITTORRENT_USER` | Username for QBittorrent    | `admin`     | -                  |
+| `QBITTORRENT_PASS` | Password for QBittorrent    | `admin`     | -                  |
 
 ## Metadata Provider Settings
 
@@ -47,7 +64,7 @@ generate a free API key in your account settings.
 ## Directory Settings
 
 <note>
-    Normally you don't need to change these, as the default mountpoints are usually sufficient. In your `docker-compose.yml`, you can just mount `/any/directory` to `/data/torrents`.
+    Normally you don't need to change these, as the default mountpoints are usually sufficient. In your `docker-compose.yaml`, you can just mount `/any/directory` to `/data/torrents`.
 </note>
 
 | Variable            | Description                                       | Default          |

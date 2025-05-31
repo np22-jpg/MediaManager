@@ -9,6 +9,9 @@ ENV MOVIE_DIRECTORY=/data/movies
 ENV TORRENT_DIRECTORY=/data/torrents
 ENV OPENID_ENABLED=FALSE
 
+RUN apt-get update && apt-get install -y ca-certificates
+
+
 WORKDIR /app
 COPY media_manager ./media_manager
 COPY alembic ./alembic

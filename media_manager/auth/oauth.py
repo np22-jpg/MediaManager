@@ -1,13 +1,13 @@
 from typing import Optional
 
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from httpx_oauth.integrations.fastapi import OAuth2AuthorizeCallback
 from httpx_oauth.oauth2 import BaseOAuth2, OAuth2Token
 from pydantic import BaseModel
 
-from fastapi_users import models, schemas
-from fastapi_users.authentication import AuthenticationBackend, Authenticator, Strategy
+from fastapi_users import models
+from fastapi_users.authentication import AuthenticationBackend, Strategy
 from fastapi_users.exceptions import UserAlreadyExists
 from fastapi_users.jwt import SecretType, decode_jwt, generate_jwt
 from fastapi_users.manager import BaseUserManager, UserManagerDependency
