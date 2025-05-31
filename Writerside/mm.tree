@@ -8,6 +8,7 @@
 
     <toc-element topic="introduction.md"/>
     <toc-element topic="configuration-overview.md"/>
+    <toc-element topic="User-Guide.md"/>
     <toc-element topic="Configuration.md">
         <toc-element topic="authentication-setup.md"/>
         <toc-element topic="configuration-backend.md">
