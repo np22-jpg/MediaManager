@@ -291,9 +291,7 @@ def get_season_request(
     return SeasonRequestSchema.model_validate(db.get(SeasonRequest, season_request_id))
 
 
-def get_show_by_season_id(
-        db: Session, season_id: SeasonId
-) -> ShowSchema | None:
+def get_show_by_season_id(db: Session, season_id: SeasonId) -> ShowSchema | None:
     """
     Retrieve a show by one of its season's ID.
 
