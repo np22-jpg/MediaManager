@@ -5,8 +5,6 @@ from logging.config import dictConfig
 
 from pythonjsonlogger.json import JsonFormatter
 
-import torrent.service
-from database import SessionLocal
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -59,6 +57,8 @@ from datetime import datetime
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+import media_manager.torrent.service
+from media_manager.database import SessionLocal
 
 init_db()
 log.info("Database initialized")
@@ -77,37 +77,28 @@ else:
 def hourly_tasks():
     log.info(f"Tasks are running at {datetime.now()}")
     auto_download_all_approved_season_requests()
-    torrent.service.TorrentService(db=SessionLocal()).import_all_torrents()
+    media_manager.torrent.service.TorrentService(db=SessionLocal()).import_all_torrents()
 
 
 scheduler = BackgroundScheduler()
 trigger = CronTrigger(minute=0, hour="*")
 scheduler.add_job(hourly_tasks, trigger)
+scheduler.start()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    scheduler.start()
     yield
     scheduler.shutdown()
 
-
-app = FastAPI(lifespan=lifespan)
-
-
 base_path = os.getenv("API_BASE_PATH") or "/api/v1"
 log.info("Base Path for API: %s", base_path)
-app = FastAPI(root_path=base_path)
+app = FastAPI(root_path=base_path, lifespan=lifespan)
 
-if basic_config.DEVELOPMENT:
-    origins = [
-        "*",
-    ]
-else:
-    origins = basic_config.CORS_URLS.split(",")
-    log.info("CORS URLs activated for following origins:")
-    for origin in origins:
-        log.info(f" - {origin}")
+origins = basic_config.CORS_URLS.split(",")
+log.info("CORS URLs activated for following origins:")
+for origin in origins:
+    log.info(f" - {origin}")
 
 app.add_middleware(
     CORSMiddleware,

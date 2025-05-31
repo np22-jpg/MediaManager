@@ -150,6 +150,12 @@
                     </Table.Cell>
                 </Table.Row>
             {/if}
+        {:else }
+            <Table.Row>
+                <Table.Cell colspan="8" class="text-center">
+                    There are currently no requests.
+                </Table.Cell>
+            </Table.Row>
         {/each}
     </Table.Body>
 </Table.Root>

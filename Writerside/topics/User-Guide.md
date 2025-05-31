@@ -3,8 +3,8 @@
 If you are coming from Radarr or Sonarr you will find that MediaManager does things a bit differently.
 Instead of completely automatically downloading and managing your media, MediaManager focuses on providing an
 easy-to-use interface to guide you through the process of finding and downloading media. Advanced features like multiple
-qualities of a show/movie necessitate such a paradigm shift. __So here is a quick step-by-step guide to get you started:
-__
+qualities of a show/movie necessitate such a paradigm shift.
+__So here is a quick step-by-step guide to get you started:__
 
 <tabs>
     <tab id="as-a-user" title="as a user">

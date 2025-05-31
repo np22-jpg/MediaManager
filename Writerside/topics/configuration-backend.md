@@ -4,9 +4,10 @@ These variables configure the core backend application, database connections, au
 
 ## General Settings
 
-| Variable        | Description                 | Default   |
-|-----------------|-----------------------------|-----------|
-| `API_BASE_PATH` | The url base of the backend | `/api/v1` |
+| Variable        | Description                                                                      | Default   |
+|-----------------|----------------------------------------------------------------------------------|-----------|
+| `API_BASE_PATH` | The url base of the backend                                                      | `/api/v1` |
+| `CORS_URLS`     | Enter the origins you are going to access the api from (e.g. https://mm.example) | -         |
 
 ## Database Settings
 
