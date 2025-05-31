@@ -25,6 +25,6 @@
 ## Data Not Appearing / File Issues
 
 * Verify that the volume mounts for `IMAGE_DIRECTORY`, `TV_DIRECTORY`, `MOVIE_DIRECTORY`, and `TORRENT_DIRECTORY` in
-  your `docker-compose.yml` are correctly pointing to your media folders on the host machine.
+  your `docker-compose.yaml` are correctly pointing to your media folders on the host machine.
 * Check file and directory permissions for the user running the Docker container (or the `node` user inside the
   containers).

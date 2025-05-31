@@ -10,9 +10,9 @@ The recommended way to install and run Media Manager is using Docker and Docker 
 
 ## Setup
 
-* Download the docker-compose.yml from the MediaManager repo with the following command:
+* Download the docker-compose.yaml from the MediaManager repo with the following command:
   ```
-  wget -o docker-compose.yml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yml
+  wget -o docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yaml
   ```
 
 * Configure the necessary environment variables in your `docker-compose.yaml` file.
