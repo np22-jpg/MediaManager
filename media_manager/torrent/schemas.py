@@ -15,6 +15,13 @@ class Quality(Enum):
     unknown = 5
 
 
+class QualityStrings(Enum):
+    uhd = "4K"
+    fullhd = "1080p"
+    hd = "720p"
+    sd = "400p"
+    unknown = "unknown"
+
 class TorrentStatus(Enum):
     finished = 1
     downloading = 2

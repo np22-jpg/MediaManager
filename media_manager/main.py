@@ -47,13 +47,18 @@ log = logging.getLogger(__name__)
 
 from media_manager.database import init_db
 import media_manager.tv.router as tv_router
+from media_manager.tv.service import auto_download_all_approved_season_requests
 import media_manager.torrent.router as torrent_router
-init_db()
-log.info("Database initialized")
-
 from media_manager.config import BasicConfig
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
+from contextlib import asynccontextmanager
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+
+init_db()
+log.info("Database initialized")
 
 basic_config = BasicConfig()
 if basic_config.DEVELOPMENT:
@@ -64,6 +69,29 @@ if basic_config.DEVELOPMENT:
     log.warning("Development Mode activated!")
 else:
     log.info("Development Mode not activated!")
+
+
+def hourly_tasks():
+    log.info(f"Tasks are running at {datetime.now()}")
+    auto_download_all_approved_season_requests()
+
+
+# Set up the scheduler
+scheduler = BackgroundScheduler()
+trigger = CronTrigger(second=0)
+scheduler.add_job(hourly_tasks, trigger)
+scheduler.start()
+
+
+# Ensure the scheduler shuts down properly on application exit.
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    scheduler.shutdown()
+
+
+app = FastAPI(lifespan=lifespan)
+
 
 base_path = os.getenv("API_BASE_PATH") or "/api/v1"
 log.info("Base Path for API: %s", base_path)
