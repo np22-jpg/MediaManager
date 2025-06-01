@@ -6,7 +6,6 @@ on:
       - master
     tags:
       - 'v*.*.*'
-      - 'v*.*'
     paths:
       - 'web/**'
       - '.github/workflows/build-push-frontend.yml'
