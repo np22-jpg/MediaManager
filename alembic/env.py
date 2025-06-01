@@ -10,14 +10,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from dotenv import load_dotenv
-from pathlib import Path
-
-env_path = Path(__file__).parent.parent.parent / Path("res") / Path(".env")
-print(env_path)
-load_dotenv(dotenv_path=env_path)
-
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

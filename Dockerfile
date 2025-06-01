@@ -20,4 +20,4 @@ COPY pyproject.toml .
 COPY uv.lock .
 RUN uv sync --locked
 EXPOSE 8000
-CMD ["uv", "run", "fastapi", "run", "/app/media_manager/main.py"]
+CMD uv run alembic upgrade head && uv run fastapi run /app/media_manager/main.py
