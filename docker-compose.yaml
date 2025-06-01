@@ -4,16 +4,15 @@ services:
     container_name: backend
     ports:
       - "8000:8000"
-
+    # In your reverse proxy you will probably need to set rule that only requests with a path prefix
+    # of /api/v1 will be forwarded to this container
+    # if you are using traefik the rule is going to look something like this:
+    # "traefik.http.routers.mm-api.rule=Host(`media.example`)&&PathPrefix(`/api/v1`)"
     environment:
       - QBITTORRENT_PASSWORD=
       - QBITTORRENT_HOST=
       - QBITTORRENT_USERNAME=
       - QBITTORRENT_PORT=
-
-      - PROWLARR_URL=http://prowlarr:9696
-      - PROWLARR_ENABLED=TRUE
-      - PROWLARR_API_KEY=
 
       - TMDB_API_KEY=
       - CORS_URLS=
@@ -54,7 +53,6 @@ services:
     environment:
       - PUBLIC_API_URL=http://localhost:8000/api/v1
       - PUBLIC_SSR_API_URL=http://backend:8000/api/v1
-      # - PUBLIC_WEB_SSR=false
   db:
     image: postgres:latest
     restart: unless-stopped
