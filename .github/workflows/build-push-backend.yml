@@ -7,6 +7,14 @@ on:
     tags:
       - 'v*.*.*'
       - 'v*.*'
+    paths:
+      - 'media_manager/**'
+      - 'alembic/**'
+      - 'alembic.ini'
+      - 'Dockerfile'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/build-push-backend.yml'
   workflow_dispatch:
 
 jobs:
