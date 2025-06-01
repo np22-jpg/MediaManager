@@ -15,7 +15,7 @@ import media_manager.torrent.repository
 import media_manager.tv.repository
 import media_manager.tv.service
 from media_manager.config import BasicConfig
-from media_manager.indexer import IndexerQueryResult
+from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.repository import (
     get_seasons_files_of_torrent,
     get_show_of_torrent,

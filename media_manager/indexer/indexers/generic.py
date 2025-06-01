@@ -1,6 +1,3 @@
-from media_manager.indexer.schemas import IndexerQueryResult
-
-
 class GenericIndexer(object):
     name: str
 
@@ -10,7 +7,7 @@ class GenericIndexer(object):
         else:
             raise ValueError("indexer name must not be None")
 
-    def get_search_results(self, query: str) -> list[IndexerQueryResult]:
+    def search(self, query: str) -> list["IndexerQueryResult"]:
         """
         Sends a search request to the Indexer and returns the results.
 

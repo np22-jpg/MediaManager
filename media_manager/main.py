@@ -77,7 +77,9 @@ else:
 def hourly_tasks():
     log.info(f"Tasks are running at {datetime.now()}")
     auto_download_all_approved_season_requests()
-    media_manager.torrent.service.TorrentService(db=SessionLocal()).import_all_torrents()
+    media_manager.torrent.service.TorrentService(
+        db=SessionLocal()
+    ).import_all_torrents()
 
 
 scheduler = BackgroundScheduler()
@@ -90,6 +92,7 @@ scheduler.start()
 async def lifespan(app: FastAPI):
     yield
     scheduler.shutdown()
+
 
 base_path = os.getenv("API_BASE_PATH") or "/api/v1"
 log.info("Base Path for API: %s", base_path)
