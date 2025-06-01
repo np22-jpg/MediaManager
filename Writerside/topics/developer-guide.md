@@ -27,19 +27,16 @@ This section is for those who want to contribute to Media Manager or understand 
 
 ### Backend
 
-- **Framework:** Python with FastAPI
-- **Database ORM:** SQLAlchemy
-- **Database Migrations:** Alembic
-- **Dependency Management:** uv
+- Python with FastAPI
+- SQLAlchemy
+- Pydantic and Pydantic-Settings
 
 ### Frontend
 
-- **Framework:** SvelteKit
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **Components:** shadcn-svelte for UI components
+- TypeScript with SvelteKit
+- Tailwind CSS
+- shadcn-svelte
 
-### Deployment & CI/CD
+### CI/CD
 
-- Docker & Docker Compose
 - GitHub Actions

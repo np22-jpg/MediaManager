@@ -10,7 +10,6 @@ from media_manager.torrent.models import Quality
 IndexerQueryResultId = typing.NewType("IndexerQueryResultId", UUID)
 
 
-# TODO: use something like strategy pattern to make sorting more user customizable
 class IndexerQueryResult(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

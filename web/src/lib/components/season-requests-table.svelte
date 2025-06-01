@@ -124,6 +124,7 @@
                     <Table.Cell>
                         {request.authorized_by?.email ?? 'N/A'}
                     </Table.Cell>
+                    <!-- TODO: ADD DIALOGUE TO MODIFY REQUEST -->
                     <Table.Cell class="flex flex-col items-center gap-1">
                         {#if user().is_superuser}
                             <Button

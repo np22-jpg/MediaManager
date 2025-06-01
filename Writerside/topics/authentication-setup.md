@@ -12,14 +12,18 @@ enable OpenID Connect (OAuth 2.0) for integration with external identity provide
 |-------------------------|--------------------------------------------------------------------------|-----------------|-------------------------------------------|----------|
 | `AUTH_TOKEN_SECRET`     | Strong secret key for signing JWTs (create with `openssl rand -hex 32`). | -               | `AUTH_TOKEN_SECRET=your_super_secret_key` | Yes      |
 | `AUTH_SESSION_LIFETIME` | Lifetime of user sessions in seconds.                                    | `86400` (1 day) | `AUTH_SESSION_LIFETIME=604800` (1 week)   | No       |
-| `AUTH_ADMIN_EMAIL`      | Email address of the administrator accounts.                             | -               | `AUTH_ADMIN_EMAIL=admin@example.com`      | Yes      |
+| `AUTH_ADMIN_EMAIL`      | A list  of email address of the administrator accounts.                  | -               | `AUTH_ADMIN_EMAIL=admin@example.com`      | Yes      |
 | `FRONTEND_URL`          | The url the frontend will be accessed from.                              | -               | `https://mediamanager.example`            | Yes      |
 
 <note>
-On login/registration, every user whose email is in `AUTH_ADMIN_EMAIL` will be granted admin privileges.
-Users whose email is not in `AUTH_ADMIN_EMAIL` will be regular users and will need to be verified by an administrator,
+On login/registration, every user whose email is in <code>AUTH_ADMIN_EMAIL</code> will be granted admin privileges.
+Users whose email is not in <code>AUTH_ADMIN_EMAIL</code> will be regular users and will need to be verified by an administrator,
 this can be done in the settings page.
 </note>
+<tip>
+    <include from="notes.topic" element-id="list-format"/>
+</tip>
+
 ## OpenID Connect (OAuth 2.0)
 
 | Variable                        | Description                                                                                      | Default  | Example                                                                                     |

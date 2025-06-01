@@ -2,12 +2,16 @@
 
 These variables configure the core backend application, database connections, authentication, and integrations.
 
+<note>
+    <include from="notes.topic" element-id="list-format"/>
+</note>
+
 ## General Settings
 
-| Variable        | Description                                                                      | Default   |
-|-----------------|----------------------------------------------------------------------------------|-----------|
-| `API_BASE_PATH` | The url base of the backend                                                      | `/api/v1` |
-| `CORS_URLS`     | Enter the origins you are going to access the api from (e.g. https://mm.example) | -         |
+| Variable        | Description                                                                            | Default   |
+|-----------------|----------------------------------------------------------------------------------------|-----------|
+| `API_BASE_PATH` | The url base of the backend                                                            | `/api/v1` |
+| `CORS_URLS`     | Enter a list of origins you are going to access the api from (e.g. https://mm.example) | -         |
 
 ## Database Settings
 
@@ -65,7 +69,7 @@ generate a free API key in your account settings.
 ## Directory Settings
 
 <note>
-    Normally you don't need to change these, as the default mountpoints are usually sufficient. In your `docker-compose.yaml`, you can just mount `/any/directory` to `/data/torrents`.
+    Normally you don't need to change these, as the default mountpoints are usually sufficient. In your <code>docker-compose.yaml</code>, you can just mount <code>/any/directory</code> to <code>/data/torrents</code>.
 </note>
 
 | Variable            | Description                                       | Default          |
