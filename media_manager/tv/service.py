@@ -5,7 +5,7 @@ import media_manager.metadataProvider
 import media_manager.torrent.repository
 import media_manager.tv.repository
 from media_manager.database import SessionLocal
-from media_manager.indexer import IndexerQueryResult
+from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
 from media_manager.torrent.repository import get_seasons_files_of_torrent
