@@ -124,6 +124,7 @@
                     <Table.Cell>
                         {request.authorized_by?.email ?? 'N/A'}
                     </Table.Cell>
+                    <!-- TODO: ADD DIALOGUE TO MODIFY REQUEST -->
                     <Table.Cell class="flex flex-col items-center gap-1">
                         {#if user().is_superuser}
                             <Button
@@ -150,6 +151,12 @@
                     </Table.Cell>
                 </Table.Row>
             {/if}
+        {:else }
+            <Table.Row>
+                <Table.Cell colspan="8" class="text-center">
+                    There are currently no requests.
+                </Table.Cell>
+            </Table.Row>
         {/each}
     </Table.Body>
 </Table.Root>

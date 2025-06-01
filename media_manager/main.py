@@ -1,8 +1,10 @@
 import logging
+import os
 import sys
 from logging.config import dictConfig
 
 from pythonjsonlogger.json import JsonFormatter
+
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -46,13 +48,20 @@ log = logging.getLogger(__name__)
 
 from media_manager.database import init_db
 import media_manager.tv.router as tv_router
+from media_manager.tv.service import auto_download_all_approved_season_requests
 import media_manager.torrent.router as torrent_router
-init_db()
-log.info("Database initialized")
-
 from media_manager.config import BasicConfig
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
+from contextlib import asynccontextmanager
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+import media_manager.torrent.service
+from media_manager.database import SessionLocal
+
+init_db()
+log.info("Database initialized")
 
 basic_config = BasicConfig()
 if basic_config.DEVELOPMENT:
@@ -64,17 +73,35 @@ if basic_config.DEVELOPMENT:
 else:
     log.info("Development Mode not activated!")
 
-app = FastAPI(root_path="/api/v1")
 
-if basic_config.DEVELOPMENT:
-    origins = [
-        "*",
-    ]
-else:
-    origins = basic_config.CORS_URLS.split(",")
-    log.info("CORS URLs activated for following origins:")
-    for origin in origins:
-        log.info(f" - {origin}")
+def hourly_tasks():
+    log.info(f"Tasks are running at {datetime.now()}")
+    auto_download_all_approved_season_requests()
+    media_manager.torrent.service.TorrentService(
+        db=SessionLocal()
+    ).import_all_torrents()
+
+
+scheduler = BackgroundScheduler()
+trigger = CronTrigger(minute=0, hour="*")
+scheduler.add_job(hourly_tasks, trigger)
+scheduler.start()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    scheduler.shutdown()
+
+
+base_path = os.getenv("API_BASE_PATH") or "/api/v1"
+log.info("Base Path for API: %s", base_path)
+app = FastAPI(root_path=base_path, lifespan=lifespan)
+
+origins = basic_config.CORS_URLS.split(",")
+log.info("CORS URLs activated for following origins:")
+for origin in origins:
+    log.info(f" - {origin}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -161,6 +188,8 @@ app.mount(
     StaticFiles(directory=basic_config.image_directory),
     name="static-images",
 )
+
+log.info("Hello World!")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)

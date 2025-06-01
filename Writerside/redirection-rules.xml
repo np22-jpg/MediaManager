@@ -22,4 +22,8 @@
         <description>Created after removal of "Quick Start Guide" from MediaManager</description>
         <accepts>Quick-Start-Guide.html</accepts>
     </rule>
+    <rule id="570cb9d1">
+        <description>Created after removal of "user-guide" from MediaManager</description>
+        <accepts>user-guide.html</accepts>
+    </rule>
 </rules>

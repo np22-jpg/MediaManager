@@ -6,6 +6,7 @@ on:
       - master
     tags:
       - 'v*.*.*'
+      - 'v*.*'
     paths:
       - 'web/**'
       - '.github/workflows/build-push-frontend.yml'
@@ -35,7 +36,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/frontend
           tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
             type=ref,event=tag
             type=ref,event=branch
             type=semver,pattern={{version}}

@@ -9,10 +9,10 @@ import {browser} from "$app/environment";
 const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
 
 export const qualityMap: { [key: number]: string } = {
-	1: 'high',
-	2: 'medium',
-	3: 'low',
-	4: 'very low',
+	1: '4K/UHD',
+	2: '1080p/FullHD',
+	3: '720p/HD',
+	4: '480p/SD',
 	5: 'unknown'
 };
 export const torrentStatusMap: { [key: number]: string } = {

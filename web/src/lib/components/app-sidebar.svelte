@@ -40,12 +40,12 @@
 		navSecondary: [
 			{
 				title: 'Support',
-				url: '#',
+				url: 'https://github.com/maxdorninger/MediaManager/issues',
 				icon: LifeBuoy
 			},
 			{
 				title: 'Feedback',
-				url: '#',
+				url: 'https://github.com/maxdorninger/MediaManager/issues',
 				icon: Send
 			},
 			{

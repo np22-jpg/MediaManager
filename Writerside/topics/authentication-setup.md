@@ -3,32 +3,61 @@
 MediaManager supports multiple authentication methods. Email/password authentication is the default, but you can also
 enable OpenID Connect (OAuth 2.0) for integration with external identity providers.
 
-
 <note>
    Note the lack of a trailing slash in some env vars like FRONTEND_URL. This is important.
 </note>
 
-| Variable                | Description                                                              | Default         | Example                                   | Required |
-|-------------------------|--------------------------------------------------------------------------|-----------------|-------------------------------------------|----------|
-| `AUTH_TOKEN_SECRET`     | Strong secret key for signing JWTs (create with `openssl rand -hex 32`). | -               | `AUTH_TOKEN_SECRET=your_super_secret_key` | Yes      |
-| `AUTH_SESSION_LIFETIME` | Lifetime of user sessions in seconds.                                    | `86400` (1 day) | `AUTH_SESSION_LIFETIME=604800` (1 week)   | No       |
-| `AUTH_ADMIN_EMAIL`      | Email address of the administrator accounts.                             | -               | `AUTH_ADMIN_EMAIL=admin@example.com`      | Yes      |
-| `FRONTEND_URL`          | The url the frontend will be accessed from.                              | -               | `https://mediamanager.example`            | Yes      |
+## General Authentication Settings
+
+### `AUTH_TOKEN_SECRET`
+
+Strong secret key for signing JWTs (create with `openssl rand -hex 32`). This is a required field. Example:
+`AUTH_TOKEN_SECRET=your_super_secret_key`.
+
+### `AUTH_SESSION_LIFETIME`
+
+Lifetime of user sessions in seconds. Default is `86400` (1 day). Example: `AUTH_SESSION_LIFETIME=604800` (1 week).
+
+### `AUTH_ADMIN_EMAIL`
+
+A list of email addresses for administrator accounts. This is a required field. Example:
+`AUTH_ADMIN_EMAIL=admin@example.com`.
+
+### `FRONTEND_URL`
+
+The URL the frontend will be accessed from. This is a required field. Example: `https://mediamanager.example`.
 
 <note>
-On login/registration, every user whose email is in `AUTH_ADMIN_EMAIL` will be granted admin privileges.
-Users whose email is not in `AUTH_ADMIN_EMAIL` will be regular users and will need to be verified by an administrator,
+On login/registration, every user whose email is in <code>AUTH_ADMIN_EMAIL</code> will be granted admin privileges.
+Users whose email is not in <code>AUTH_ADMIN_EMAIL</code> will be regular users and will need to be verified by an administrator,
 this can be done in the settings page.
 </note>
+<tip>
+    <include from="notes.topic" element-id="list-format"/>
+</tip>
+
 ## OpenID Connect (OAuth 2.0)
 
-| Variable                        | Description                                                                                      | Default  | Example                                                                                     |
-|---------------------------------|--------------------------------------------------------------------------------------------------|----------|---------------------------------------------------------------------------------------------|
-| `OPENID_ENABLED`                | Enables OpenID authentication                                                                    | `FALSE`  | `TRUE`                                                                                      |
-| `OPENID_CLIENT_ID`              | Client ID from your OpenID provider.                                                             | -        | -                                                                                           |
-| `OPENID_CLIENT_SECRET`          | Client Secret from your OpenID provider.                                                         | -        | -                                                                                           |
-| `OPENID_CONFIGURATION_ENDPOINT` | URL of your OpenID provider's discovery document (e.g., `.../.well-known/openid-configuration`). | -        | `https://authentik.example.com/application/o/mediamanager/.well-known/openid-configuration` |
-| `OPENID_NAME`                   | Display name for this OpenID provider.                                                           | `OpenID` | `Authentik`                                                                                 |
+### `OPENID_ENABLED`
+
+Enables OpenID authentication. Default is `FALSE`. Example: `TRUE`.
+
+### `OPENID_CLIENT_ID`
+
+Client ID from your OpenID provider.
+
+### `OPENID_CLIENT_SECRET`
+
+Client Secret from your OpenID provider.
+
+### `OPENID_CONFIGURATION_ENDPOINT`
+
+URL of your OpenID provider's discovery document (e.g., `.../.well-known/openid-configuration`). Example:
+`https://authentik.example.com/application/o/mediamanager/.well-known/openid-configuration`.
+
+### `OPENID_NAME`
+
+Display name for this OpenID provider. Default is `OpenID`. Example: `Authentik`.
 
 ### Configuring OpenID Connect
 

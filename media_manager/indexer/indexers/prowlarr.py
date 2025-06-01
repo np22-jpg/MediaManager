@@ -2,7 +2,7 @@ import logging
 
 import requests
 
-from media_manager.indexer import GenericIndexer
+from media_manager.indexer.indexers.generic import GenericIndexer
 from media_manager.indexer.config import ProwlarrConfig
 from media_manager.indexer.schemas import IndexerQueryResult
 
@@ -23,7 +23,7 @@ class Prowlarr(GenericIndexer):
         self.url = config.url
         log.debug("Registering Prowlarr as Indexer")
 
-    def get_search_results(self, query: str) -> list[IndexerQueryResult]:
+    def search(self, query: str) -> list[IndexerQueryResult]:
         log.debug("Searching for " + query)
         url = self.url + "/api/v1/search"
         headers = {"accept": "application/json", "X-Api-Key": self.api_key}

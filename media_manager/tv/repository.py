@@ -289,3 +289,24 @@ def get_season_request(
         db: Session, season_request_id: SeasonRequestId
 ) -> SeasonRequestSchema:
     return SeasonRequestSchema.model_validate(db.get(SeasonRequest, season_request_id))
+
+
+def get_show_by_season_id(db: Session, season_id: SeasonId) -> ShowSchema | None:
+    """
+    Retrieve a show by one of its season's ID.
+
+    :param db: The database session.
+    :param season_id: The ID of the season to retrieve the show for.
+    :return: A ShowSchema object if found, otherwise None.
+    """
+    stmt = (
+        select(Show)
+        .join(Season, Show.id == Season.show_id)
+        .where(Season.id == season_id)
+    )
+
+    result = db.execute(stmt).unique().scalar_one_or_none()
+    if not result:
+        return None
+
+    return ShowSchema.model_validate(result)

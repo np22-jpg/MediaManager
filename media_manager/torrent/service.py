@@ -8,7 +8,6 @@ from pathlib import Path
 import bencoder
 import qbittorrentapi
 import requests
-from fastapi_utils.tasks import repeat_every
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.orm import Session
 
@@ -16,7 +15,7 @@ import media_manager.torrent.repository
 import media_manager.tv.repository
 import media_manager.tv.service
 from media_manager.config import BasicConfig
-from media_manager.indexer import IndexerQueryResult
+from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.repository import (
     get_seasons_files_of_torrent,
     get_show_of_torrent,
@@ -291,10 +290,10 @@ class TorrentService:
             for x in media_manager.torrent.repository.get_all_torrents(db=self.db)
         ]
 
-    def get_torrent_by_id(self, id: TorrentId) -> Torrent:
+    def get_torrent_by_id(self, torrent_id: TorrentId) -> Torrent:
         return self.get_torrent_status(
             media_manager.torrent.repository.get_torrent_by_id(
-                torrent_id=id, db=self.db
+                torrent_id=torrent_id, db=self.db
             )
         )
 
@@ -308,10 +307,10 @@ class TorrentService:
             )
         media_manager.torrent.repository.delete_torrent(db=self.db, torrent_id=t.id)
 
-    @repeat_every(seconds=3600)
     def import_all_torrents(self) -> list[Torrent]:
         log.info("Importing all torrents")
         torrents = self.get_all_torrents()
+        log.info("Found %d torrents to import", len(torrents))
         imported_torrents = []
         for t in torrents:
             if t.imported == False and t.status == TorrentStatus.finished:

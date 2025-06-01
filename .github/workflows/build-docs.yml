@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "master" ]
     paths:
-      - 'docs/**'
+      - 'Writerside/**'
       - '.github/workflows/build-docs.yml'
   workflow_dispatch:
 
