@@ -7,7 +7,6 @@
     <build-profile instance="mm">
         <variables>
             <noindex-content>false</noindex-content>
-            <content-max-width>2000</content-max-width>
             <custom-favicons>favicon.ico</custom-favicons>
             <header-logo>logo.svg</header-logo>
 
