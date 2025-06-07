@@ -4,4 +4,5 @@ class MediaAlreadyExists(ValueError):
 
 class NotFoundError(Exception):
     """Custom exception for when an entity is not found."""
+
     pass

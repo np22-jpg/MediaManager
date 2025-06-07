@@ -23,7 +23,12 @@ from media_manager.tv.schemas import (
     UpdateSeasonRequest,
     RichSeasonRequest,
 )
-from media_manager.tv.dependencies import tv_service_dep, season_dep, show_dep, tv_repository_dep
+from media_manager.tv.dependencies import (
+    tv_service_dep,
+    season_dep,
+    show_dep,
+    tv_repository_dep,
+)
 
 router = APIRouter()
 
@@ -45,7 +50,9 @@ router = APIRouter()
         status.HTTP_409_CONFLICT: {"model": str, "description": "Show already exists"},
     },
 )
-def add_a_show(tv_service: tv_service_dep, show_id: int, metadata_provider: str = "tmdb"):
+def add_a_show(
+        tv_service: tv_service_dep, show_id: int, metadata_provider: str = "tmdb"
+):
     try:
         show = tv_service.add_show(
             external_id=show_id,
@@ -118,9 +125,6 @@ def get_a_shows_torrents(show: show_dep, tv_service: tv_service_dep):
     return tv_service.get_torrents_for_show(show=show)
 
 
-
-
-
 # --------------------------------
 # MANAGE REQUESTS
 # --------------------------------
@@ -163,13 +167,9 @@ def delete_season_request(
         user: Annotated[User, Depends(current_active_user)],
         request_id: SeasonRequestId,
 ):
-    request = tv_service.get_season_request_by_id(
-        season_request_id=request_id
-    )
+    request = tv_service.get_season_request_by_id(season_request_id=request_id)
     if user.is_superuser or request.requested_by.id == user.id:
-        tv_service.delete_season_request(
-            season_request_id=request_id
-        )
+        tv_service.delete_season_request(season_request_id=request_id)
         log.info(f"User {user.id} deleted season request {request_id}.")
     else:
         log.warning(
@@ -216,21 +216,21 @@ def update_request(
     )
     if request.requested_by.id == user.id or user.is_superuser:
         updated_season_request.requested_by = UserRead.model_validate(user)
-        tv_service.update_season_request(
-            season_request=updated_season_request
-        )
+        tv_service.update_season_request(season_request=updated_season_request)
     return
 
 
 @router.get(
     "/seasons/{season_id}/files",
     dependencies=[Depends(current_active_user)],
-    response_model=list[PublicSeasonFile]
+    response_model=list[PublicSeasonFile],
 )
 def get_season_files(
         season: season_dep, tv_service: tv_service_dep
 ) -> list[PublicSeasonFile]:
     return tv_service.get_public_season_files_by_season_id(season_id=season.id)
+
+
 # --------------------------------
 # MANAGE TORRENTS
 # --------------------------------
@@ -289,9 +289,7 @@ def download_a_torrent(
 def search_metadata_providers_for_a_show(
         tv_service: tv_service_dep, query: str, metadata_provider: str = "tmdb"
 ):
-    return tv_service.search_for_show(
-        query=query, metadata_provider=metadata_provider
-    )
+    return tv_service.search_for_show(query=query, metadata_provider=metadata_provider)
 
 
 @router.get(
@@ -300,6 +298,4 @@ def search_metadata_providers_for_a_show(
     response_model=list[MetaDataProviderShowSearchResult],
 )
 def get_recommended_shows(tv_service: tv_service_dep, metadata_provider: str = "tmdb"):
-    return tv_service.get_popular_shows(
-        metadata_provider=metadata_provider
-    )
+    return tv_service.get_popular_shows(metadata_provider=metadata_provider)

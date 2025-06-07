@@ -1,5 +1,8 @@
 from sqlalchemy import select, delete
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError  # Keep SQLAlchemyError for broader exception handling
+from sqlalchemy.exc import (
+    IntegrityError,
+    SQLAlchemyError,
+)  # Keep SQLAlchemyError for broader exception handling
 from sqlalchemy.orm import Session, joinedload
 
 from media_manager.torrent.models import Torrent
@@ -174,7 +177,9 @@ class TvRepository:
         except IntegrityError as e:
             self.db.rollback()
             log.error(f"Integrity error while saving show {show.name}: {e}")
-            raise ValueError(f"Show with this primary key or unique constraint violation: {e.orig}")
+            raise ValueError(
+                f"Show with this primary key or unique constraint violation: {e.orig}"
+            )
         except SQLAlchemyError as e:
             self.db.rollback()
             log.error(f"Database error while saving show {show.name}: {e}")
@@ -275,16 +280,23 @@ class TvRepository:
         try:
             request_to_delete = self.db.get(SeasonRequest, season_request_id)
             if not request_to_delete:
-                log.warning(f"Season request with id {season_request_id} not found for deletion.")
-                raise NotFoundError(f"Season request with id {season_request_id} not found.")
+                log.warning(
+                    f"Season request with id {season_request_id} not found for deletion."
+                )
+                raise NotFoundError(
+                    f"Season request with id {season_request_id} not found."
+                )
 
             stmt = delete(SeasonRequest).where(SeasonRequest.id == season_request_id)
             result = self.db.execute(stmt)
             if result.rowcount == 0:
                 log.warning(
-                    f"Season request with id {season_request_id} not found during delete execution (rowcount 0).")
+                    f"Season request with id {season_request_id} not found during delete execution (rowcount 0)."
+                )
             self.db.commit()
-            log.info(f"Successfully deleted season request with id: {season_request_id}")
+            log.info(
+                f"Successfully deleted season request with id: {season_request_id}"
+            )
         except SQLAlchemyError as e:
             self.db.rollback()
             log.error(
@@ -292,9 +304,7 @@ class TvRepository:
             )
             raise
 
-    def get_season_by_number(
-            self, season_number: int, show_id: ShowId
-    ) -> SeasonSchema:
+    def get_season_by_number(self, season_number: int, show_id: ShowId) -> SeasonSchema:
         """
         Retrieve a season by its number and show ID.
 
@@ -348,16 +358,12 @@ class TvRepository:
             )
             results = self.db.execute(stmt).scalars().unique().all()
             log.info(f"Successfully retrieved {len(results)} season requests.")
-            return [
-                RichSeasonRequestSchema.model_validate(x) for x in results
-            ]
+            return [RichSeasonRequestSchema.model_validate(x) for x in results]
         except SQLAlchemyError as e:
             log.error(f"Database error while retrieving season requests: {e}")
             raise
 
-    def add_season_file(
-            self, season_file: SeasonFileSchema
-    ) -> SeasonFileSchema:
+    def add_season_file(self, season_file: SeasonFileSchema) -> SeasonFileSchema:
         """
         Adds a season file record to the database.
 
@@ -374,7 +380,9 @@ class TvRepository:
             self.db.refresh(db_model)
             # Assuming SeasonFile model has an 'id' attribute after refresh for logging.
             # If not, this line or the model needs adjustment.
-            log.info(f"Successfully added season file. Torrent ID: {db_model.torrent_id}, Path: {db_model.file_path}")
+            log.info(
+                f"Successfully added season file. Torrent ID: {db_model.torrent_id}, Path: {db_model.file_path}"
+            )
             return SeasonFileSchema.model_validate(db_model)
         except IntegrityError as e:
             self.db.rollback()
@@ -393,9 +401,7 @@ class TvRepository:
         :return: The number of season files removed.
         :raises SQLAlchemyError: If a database error occurs.
         """
-        log.debug(
-            f"Attempting to remove season files for torrent_id: {torrent_id}"
-        )
+        log.debug(f"Attempting to remove season files for torrent_id: {torrent_id}")
         try:
             stmt = delete(SeasonFile).where(SeasonFile.torrent_id == torrent_id)
             result = self.db.execute(stmt)
@@ -429,18 +435,14 @@ class TvRepository:
             log.info(
                 f"Successfully retrieved {len(results)} season files for season_id: {season_id}"
             )
-            return [
-                SeasonFileSchema.model_validate(sf) for sf in results
-            ]
+            return [SeasonFileSchema.model_validate(sf) for sf in results]
         except SQLAlchemyError as e:
             log.error(
                 f"Database error retrieving season files for season_id {season_id}: {e}"
             )
             raise
 
-    def get_torrents_by_show_id(
-            self, show_id: ShowId
-    ) -> list[TorrentSchema]:
+    def get_torrents_by_show_id(self, show_id: ShowId) -> list[TorrentSchema]:
         """
         Retrieve all torrents associated with a given show ID.
 
@@ -463,9 +465,7 @@ class TvRepository:
             )
             return [TorrentSchema.model_validate(torrent) for torrent in results]
         except SQLAlchemyError as e:
-            log.error(
-                f"Database error retrieving torrents for show_id {show_id}: {e}"
-            )
+            log.error(f"Database error retrieving torrents for show_id {show_id}: {e}")
             raise
 
     def get_all_shows_with_torrents(self) -> list[ShowSchema]:
@@ -493,9 +493,7 @@ class TvRepository:
             log.error(f"Database error retrieving all shows with torrents: {e}")
             raise
 
-    def get_seasons_by_torrent_id(
-            self, torrent_id: TorrentId
-    ) -> list[SeasonNumber]:
+    def get_seasons_by_torrent_id(self, torrent_id: TorrentId) -> list[SeasonNumber]:
         """
         Retrieve season numbers associated with a given torrent ID.
 
@@ -533,15 +531,11 @@ class TvRepository:
         :raises NotFoundError: If the season request is not found.
         :raises SQLAlchemyError: If a database error occurs.
         """
-        log.debug(
-            f"Attempting to retrieve season request with id: {season_request_id}"
-        )
+        log.debug(f"Attempting to retrieve season request with id: {season_request_id}")
         try:
             request = self.db.get(SeasonRequest, season_request_id)
             if not request:
-                log.warning(
-                    f"Season request with id {season_request_id} not found."
-                )
+                log.warning(f"Season request with id {season_request_id} not found.")
                 raise NotFoundError(
                     f"Season request with id {season_request_id} not found."
                 )
@@ -579,7 +573,5 @@ class TvRepository:
             log.info(f"Successfully retrieved show for season_id: {season_id}")
             return ShowSchema.model_validate(result)
         except SQLAlchemyError as e:
-            log.error(
-                f"Database error retrieving show by season_id {season_id}: {e}"
-            )
+            log.error(f"Database error retrieving show by season_id {season_id}: {e}")
             raise
