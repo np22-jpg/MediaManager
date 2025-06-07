@@ -28,7 +28,7 @@ from media_manager.tv.schemas import (
 )
 from media_manager.torrent.schemas import QualityStrings
 from media_manager.tv.repository import TvRepository
-from tv.exceptions import NotFoundError
+from media_manager.tv.exceptions import NotFoundError
 
 
 class TvService:
