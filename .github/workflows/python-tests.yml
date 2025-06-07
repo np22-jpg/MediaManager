@@ -13,25 +13,19 @@ on:
       - 'tests/**'
   workflow_dispatch:
 
-
 jobs:
-  test:
+  run-tests:
+    name: Run Python Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [ "3.13" ]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v4
 
       - name: Install uv
-        run: pip install uv
+        uses: astral-sh/setup-uv@v5
 
-      - name: Install dependencies
-        run: uv pip install .[dev]
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+
+      - name: Run tests
+        run: uv run pytest tests
