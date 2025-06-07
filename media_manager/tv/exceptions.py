@@ -1,6 +1,10 @@
 class MediaAlreadyExists(ValueError):
     """Raised when a show already exists"""
 
+    pass
 
-class MediaDoesNotExist(ValueError):
-    """Raised when a does not show exist"""
+
+class NotFoundError(Exception):
+    """Custom exception for when an entity is not found."""
+
+    pass

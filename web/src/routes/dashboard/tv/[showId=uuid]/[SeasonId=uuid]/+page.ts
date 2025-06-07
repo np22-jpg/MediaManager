@@ -5,7 +5,7 @@ import {browser} from "$app/environment";
 const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
 
 export const load: PageLoad = async ({fetch, params}) => {
-	const url = `${apiUrl}/tv/shows/${params.showId}/${params.SeasonNumber}/files`;
+	const url = `${apiUrl}/tv/seasons/${params.SeasonId}/files`;
 
 	try {
 		console.log(`Fetching data from: ${url}`);

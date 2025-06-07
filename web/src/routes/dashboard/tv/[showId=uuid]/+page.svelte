@@ -99,7 +99,7 @@
 						{#each show().seasons as season (season.id)}
 							<Table.Row
                                     link={true}
-                                    onclick={() => goto('/dashboard/tv/' + show().id + '/' + season.number)}
+									onclick={() => goto('/dashboard/tv/' + show().id + '/' + season.id)}
 							>
 								<Table.Cell class="min-w-[10px] font-medium">{season.number}</Table.Cell>
 								<Table.Cell class="min-w-[10px] font-medium">

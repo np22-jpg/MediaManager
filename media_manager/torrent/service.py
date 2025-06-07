@@ -202,8 +202,8 @@ class TorrentService:
         # Fetch show and season information
         show: Show = get_show_of_torrent(db=self.db, torrent_id=torrent.id)
         show_file_path = (
-                BasicConfig().tv_directory
-                / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
+            BasicConfig().tv_directory
+            / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
         )
         season_files: list[SeasonFile] = get_seasons_files_of_torrent(
             db=self.db, torrent_id=torrent.id
@@ -232,11 +232,11 @@ class TorrentService:
                     episode_file_name += f" - {season_file.file_path_suffix}"
 
                 pattern = (
-                        r".*[.]S0?"
-                        + str(season.number)
-                        + r"E0?"
-                        + str(episode.number)
-                        + r"[.].*"
+                    r".*[.]S0?"
+                    + str(season.number)
+                    + r"E0?"
+                    + str(episode.number)
+                    + r"[.].*"
                 )
                 subtitle_pattern = pattern + r"[.]([A-Za-z]{2})[.]srt"
                 target_file_name = season_path / episode_file_name

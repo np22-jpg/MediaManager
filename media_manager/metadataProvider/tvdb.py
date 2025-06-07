@@ -81,7 +81,7 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         return show
 
     def search_show(
-            self, query: str | None = None
+        self, query: str | None = None
     ) -> list[MetaDataProviderShowSearchResult]:
         if query is None:
             results = self.tvdb_client.get_all_series()

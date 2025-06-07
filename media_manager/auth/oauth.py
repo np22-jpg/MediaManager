@@ -21,20 +21,20 @@ class OAuth2AuthorizeResponse(BaseModel):
 
 
 def generate_state_token(
-        data: dict[str, str], secret: SecretType, lifetime_seconds: int = 3600
+    data: dict[str, str], secret: SecretType, lifetime_seconds: int = 3600
 ) -> str:
     data["aud"] = STATE_TOKEN_AUDIENCE
     return generate_jwt(data, secret, lifetime_seconds)
 
 
 def get_oauth_router(
-        oauth_client: BaseOAuth2,
-        backend: AuthenticationBackend[models.UP, models.ID],
-        get_user_manager: UserManagerDependency[models.UP, models.ID],
-        state_secret: SecretType,
-        redirect_url: Optional[str] = None,
-        associate_by_email: bool = False,
-        is_verified_by_default: bool = False,
+    oauth_client: BaseOAuth2,
+    backend: AuthenticationBackend[models.UP, models.ID],
+    get_user_manager: UserManagerDependency[models.UP, models.ID],
+    state_secret: SecretType,
+    redirect_url: Optional[str] = None,
+    associate_by_email: bool = False,
+    is_verified_by_default: bool = False,
 ) -> APIRouter:
     """Generate a router with the OAuth routes."""
     router = APIRouter()
@@ -57,7 +57,7 @@ def get_oauth_router(
         response_model=OAuth2AuthorizeResponse,
     )
     async def authorize(
-            request: Request, scopes: list[str] = ["openid", "profile", "email"]
+        request: Request, scopes: list[str] = ["openid", "profile", "email"]
     ) -> OAuth2AuthorizeResponse:
         if redirect_url is not None:
             authorize_redirect_url = redirect_url
@@ -99,12 +99,12 @@ def get_oauth_router(
         },
     )
     async def callback(
-            request: Request,
-            access_token_state: tuple[OAuth2Token, str] = Depends(
-                oauth2_authorize_callback
-            ),
-            user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
-            strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
+        request: Request,
+        access_token_state: tuple[OAuth2Token, str] = Depends(
+            oauth2_authorize_callback
+        ),
+        user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+        strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
     ):
         token, state = access_token_state
         account_id, account_email = await oauth_client.get_id_email(

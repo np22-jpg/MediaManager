@@ -28,10 +28,22 @@ torrents and authentication.
 ## Roadmap
 
 - [ ] support for movies
-- [ ] support for more torrent indexers
-- [ ] fully automatic downloads
+- [x] support for more torrent indexers
+- [x] fully automatic downloads
 - [ ] responsive ui
-
+- [ ] add check at startup if hardlinks work
+- [ ] support multiple OIDC servers at once
+- [ ] make API return proper error codes
+- [ ] add in-depth documentation on the architecure of the codebase
+- [ ] expand README with more information and a quickstart guide
+- [ ] make indexer module multithreaded
+- [ ] add notification system
+- [ ] _maybe_ rework the logo
+- [ ] add tests
+- [ ] optimize images for web in the backend and merging frontend with backend container
+- [ ] add more logs/errors
+- [ ] add support for deluge and transmission
+- [ ] automatically download new seasons/episodes of shows
 
 See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a full list of proposed features (and known issues).
 

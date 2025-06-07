@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import String, Integer
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
@@ -9,7 +11,7 @@ from media_manager.torrent.schemas import Quality
 
 class IndexerQueryResult(Base):
     __tablename__ = "indexer_query_result"
-    id: Mapped[IndexerQueryResultId] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
     title: Mapped[str]
     download_url: Mapped[str]
     seeders: Mapped[int]

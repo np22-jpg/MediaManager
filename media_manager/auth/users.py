@@ -25,8 +25,8 @@ SECRET = config.token_secret
 LIFETIME = config.session_lifetime
 
 if (
-        os.getenv("OPENID_ENABLED") is not None
-        and os.getenv("OPENID_ENABLED").upper() == "TRUE"
+    os.getenv("OPENID_ENABLED") is not None
+    and os.getenv("OPENID_ENABLED").upper() == "TRUE"
 ):
     openid_config = OpenIdConfig()
     openid_client = OpenID(
@@ -53,17 +53,17 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             await self.update(user=user, user_update=updated_user)
 
     async def on_after_forgot_password(
-            self, user: User, token: str, request: Optional[Request] = None
+        self, user: User, token: str, request: Optional[Request] = None
     ):
         print(f"User {user.id} has forgot their password. Reset token: {token}")
 
     async def on_after_reset_password(
-            self, user: User, request: Optional[Request] = None
+        self, user: User, request: Optional[Request] = None
     ):
         print(f"User {user.id} has reset their password.")
 
     async def on_after_request_verify(
-            self, user: User, token: str, request: Optional[Request] = None
+        self, user: User, token: str, request: Optional[Request] = None
     ):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
 

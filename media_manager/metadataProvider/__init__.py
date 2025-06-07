@@ -19,7 +19,7 @@ def get_show_metadata(id: int = None, provider: str = "tmdb") -> Show:
 
 @cached(search_show_cache)
 def search_show(
-        query: str | None = None, provider: str = "tmdb"
+    query: str | None = None, provider: str = "tmdb"
 ) -> list[MetaDataProviderShowSearchResult]:
     """
     If no query is provided, it will return the most popular shows.
