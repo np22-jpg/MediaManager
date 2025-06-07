@@ -102,18 +102,6 @@ class TvService:
             result.append(season_file)
         return result
 
-    def get_public_season_files_by_season_number(self, season_number: SeasonNumber, show_id: ShowId) -> list[
-        PublicSeasonFile]:
-        """
-        Get all public season files for a given season number and show ID.
-
-        :param season_number: The number of the season.
-        :param show_id: The ID of the show.
-        :return: A list of public season files.
-        """
-        season = self.tv_repository.get_season_by_number(season_number=season_number, show_id=show_id)
-        return self.get_public_season_files_by_season_id(season_id=season.id)
-
     def check_if_show_exists(self, external_id: int = None, metadata_provider: str = None,
                              show_id: ShowId = None) -> bool:
         """
@@ -361,7 +349,7 @@ class TvService:
             self.tv_repository.add_season_file(season_file=season_file)
         return show_torrent
 
-    def download_approved_season_request(self, season_request: SeasonRequest, show_id: ShowId) -> bool:
+    def download_approved_season_request(self, season_request: SeasonRequest, show: Show) -> bool:
         """
         Download an approved season request.
 
@@ -377,7 +365,7 @@ class TvService:
         log.info(f"Downloading approved season request {season_request.id}")
 
         season = self.get_season(season_id=season_request.season_id)
-        torrents = self.get_all_available_torrents_for_a_season(season_number=season.number, show_id=show_id)
+        torrents = self.get_all_available_torrents_for_a_season(season_number=season.number, show_id=show.id)
         available_torrents: list[IndexerQueryResult] = []
 
         for torrent in torrents:

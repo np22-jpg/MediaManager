@@ -6,6 +6,7 @@ from media_manager.torrent.models import Torrent
 from media_manager.torrent.schemas import TorrentId, Torrent as TorrentSchema
 from media_manager.tv import log
 from media_manager.tv.models import Season, Show, Episode, SeasonRequest, SeasonFile
+from media_manager.tv.exceptions import NotFoundError
 from media_manager.tv.schemas import (
     Season as SeasonSchema,
     SeasonId,
@@ -17,11 +18,6 @@ from media_manager.tv.schemas import (
     SeasonRequestId,
     RichSeasonRequest as RichSeasonRequestSchema,
 )
-
-
-class NotFoundError(Exception):
-    """Custom exception for when an entity is not found."""
-    pass
 
 
 class TvRepository:
@@ -239,23 +235,18 @@ class TvRepository:
         :raises SQLAlchemyError: If a database error occurs.
         """
         log.debug(f"Adding season request: {season_request.model_dump_json()}")
-        # Ensure IDs are correctly typed if necessary, or that the ORM handles it.
-        # If season_request.id, season_request.requested_by.id, etc., are UUIDs
-        # and the DB model expects something else (like int for SeasonRequestId),
-        # this would need conversion or  adjustment.
-        # For now, assuming the types are compatible or handled by Pydantic/SQLAlchemy.
         db_model = SeasonRequest(
-            id=season_request.id,  # Assuming season_request.id is compatible with SeasonRequest.id type
+            id=season_request.id,
             season_id=season_request.season_id,
             wanted_quality=season_request.wanted_quality,
             min_quality=season_request.min_quality,
             requested_by_id=season_request.requested_by.id
             if season_request.requested_by
-            else None,  # Assuming requested_by.id is compatible
+            else None,
             authorized=season_request.authorized,
             authorized_by_id=season_request.authorized_by.id
             if season_request.authorized_by
-            else None,  # Assuming authorized_by.id is compatible
+            else None,
         )
         try:
             self.db.add(db_model)
@@ -579,7 +570,7 @@ class TvRepository:
                 select(Show)
                 .join(Season, Show.id == Season.show_id)
                 .where(Season.id == season_id)
-                .options(joinedload(Show.seasons).joinedload(Season.episodes))  # Eager load
+                .options(joinedload(Show.seasons).joinedload(Season.episodes))
             )
             result = self.db.execute(stmt).unique().scalar_one_or_none()
             if not result:
