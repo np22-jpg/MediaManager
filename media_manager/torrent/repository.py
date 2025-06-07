@@ -8,7 +8,7 @@ from media_manager.tv.schemas import SeasonFile as SeasonFileSchema, Show as Sho
 
 
 def get_seasons_files_of_torrent(
-        db: Session, torrent_id: TorrentId
+    db: Session, torrent_id: TorrentId
 ) -> list[SeasonFileSchema]:
     stmt = select(SeasonFile).where(SeasonFile.torrent_id == torrent_id)
     result = db.execute(stmt).scalars().all()

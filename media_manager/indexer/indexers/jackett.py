@@ -33,8 +33,8 @@ class Jackett(GenericIndexer):
         for indexer in self.indexers:
             log.debug(f"Searching in indexer: {indexer}")
             url = (
-                    self.url
-                    + f"/api/v2.0/indexers/{indexer}/results/torznab/api?apikey={self.api_key}&t=tvsearch&q={query}"
+                self.url
+                + f"/api/v2.0/indexers/{indexer}/results/torznab/api?apikey={self.api_key}&t=tvsearch&q={query}"
             )
             response = requests.get(url)
             responses.append(response)

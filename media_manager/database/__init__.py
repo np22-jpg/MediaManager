@@ -14,17 +14,17 @@ log = logging.getLogger(__name__)
 config = DbConfig()
 
 db_url = (
-        "postgresql+psycopg"
-        + "://"
-        + config.USER
-        + ":"
-        + config.PASSWORD
-        + "@"
-        + config.HOST
-        + ":"
-        + str(config.PORT)
-        + "/"
-        + config.DBNAME
+    "postgresql+psycopg"
+    + "://"
+    + config.USER
+    + ":"
+    + config.PASSWORD
+    + "@"
+    + config.HOST
+    + ":"
+    + str(config.PORT)
+    + "/"
+    + config.DBNAME
 )
 
 engine = create_engine(db_url, echo=False)

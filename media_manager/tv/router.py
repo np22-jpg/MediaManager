@@ -51,7 +51,7 @@ router = APIRouter()
     },
 )
 def add_a_show(
-        tv_service: tv_service_dep, show_id: int, metadata_provider: str = "tmdb"
+    tv_service: tv_service_dep, show_id: int, metadata_provider: str = "tmdb"
 ):
     try:
         show = tv_service.add_show(
@@ -83,7 +83,7 @@ def delete_a_show(tv_repository: tv_repository_dep, show_id: ShowId):
     "/shows", dependencies=[Depends(current_active_user)], response_model=list[Show]
 )
 def get_all_shows(
-        tv_service: tv_service_dep, external_id: int = None, metadata_provider: str = "tmdb"
+    tv_service: tv_service_dep, external_id: int = None, metadata_provider: str = "tmdb"
 ):
     if external_id is not None:
         return tv_service.get_show_by_external_id(
@@ -132,9 +132,9 @@ def get_a_shows_torrents(show: show_dep, tv_service: tv_service_dep):
 
 @router.post("/seasons/requests", status_code=status.HTTP_204_NO_CONTENT)
 def request_a_season(
-        user: Annotated[User, Depends(current_active_user)],
-        season_request: CreateSeasonRequest,
-        tv_service: tv_service_dep,
+    user: Annotated[User, Depends(current_active_user)],
+    season_request: CreateSeasonRequest,
+    tv_service: tv_service_dep,
 ):
     """
     adds request flag to a season
@@ -163,9 +163,9 @@ def get_season_requests(tv_service: tv_service_dep) -> list[RichSeasonRequest]:
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_season_request(
-        tv_service: tv_service_dep,
-        user: Annotated[User, Depends(current_active_user)],
-        request_id: SeasonRequestId,
+    tv_service: tv_service_dep,
+    user: Annotated[User, Depends(current_active_user)],
+    request_id: SeasonRequestId,
 ):
     request = tv_service.get_season_request_by_id(season_request_id=request_id)
     if user.is_superuser or request.requested_by.id == user.id:
@@ -185,10 +185,10 @@ def delete_season_request(
     "/seasons/requests/{season_request_id}", status_code=status.HTTP_204_NO_CONTENT
 )
 def authorize_request(
-        tv_service: tv_service_dep,
-        user: Annotated[User, Depends(current_superuser)],
-        season_request_id: SeasonRequestId,
-        authorized_status: bool = False,
+    tv_service: tv_service_dep,
+    user: Annotated[User, Depends(current_superuser)],
+    season_request_id: SeasonRequestId,
+    authorized_status: bool = False,
 ):
     """
     updates the request flag to true
@@ -206,9 +206,9 @@ def authorize_request(
 
 @router.put("/seasons/requests", status_code=status.HTTP_204_NO_CONTENT)
 def update_request(
-        tv_service: tv_service_dep,
-        user: Annotated[User, Depends(current_active_user)],
-        season_request: UpdateSeasonRequest,
+    tv_service: tv_service_dep,
+    user: Annotated[User, Depends(current_active_user)],
+    season_request: UpdateSeasonRequest,
 ):
     updated_season_request: SeasonRequest = SeasonRequest.model_validate(season_request)
     request = tv_service.get_season_request_by_id(
@@ -226,7 +226,7 @@ def update_request(
     response_model=list[PublicSeasonFile],
 )
 def get_season_files(
-        season: season_dep, tv_service: tv_service_dep
+    season: season_dep, tv_service: tv_service_dep
 ) -> list[PublicSeasonFile]:
     return tv_service.get_public_season_files_by_season_id(season_id=season.id)
 
@@ -244,10 +244,10 @@ def get_season_files(
     response_model=list[PublicIndexerQueryResult],
 )
 def get_torrents_for_a_season(
-        tv_service: tv_service_dep,
-        show_id: ShowId,
-        season_number: int = 1,
-        search_query_override: str = None,
+    tv_service: tv_service_dep,
+    show_id: ShowId,
+    season_number: int = 1,
+    search_query_override: str = None,
 ):
     return tv_service.get_all_available_torrents_for_a_season(
         season_number=season_number,
@@ -264,10 +264,10 @@ def get_torrents_for_a_season(
     dependencies=[Depends(current_superuser)],
 )
 def download_a_torrent(
-        tv_service: tv_service_dep,
-        public_indexer_result_id: IndexerQueryResultId,
-        show_id: ShowId,
-        override_file_path_suffix: str = "",
+    tv_service: tv_service_dep,
+    public_indexer_result_id: IndexerQueryResultId,
+    show_id: ShowId,
+    override_file_path_suffix: str = "",
 ):
     return tv_service.download_torrent(
         public_indexer_result_id=public_indexer_result_id,
@@ -287,7 +287,7 @@ def download_a_torrent(
     response_model=list[MetaDataProviderShowSearchResult],
 )
 def search_metadata_providers_for_a_show(
-        tv_service: tv_service_dep, query: str, metadata_provider: str = "tmdb"
+    tv_service: tv_service_dep, query: str, metadata_provider: str = "tmdb"
 ):
     return tv_service.search_for_show(query=query, metadata_provider=metadata_provider)
 

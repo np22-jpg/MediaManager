@@ -77,10 +77,10 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         # all pictures from TMDB should already be jpeg, so no need to convert
         if show_metadata["poster_path"] is not None:
             poster_url = (
-                    "https://image.tmdb.org/t/p/original" + show_metadata["poster_path"]
+                "https://image.tmdb.org/t/p/original" + show_metadata["poster_path"]
             )
             if media_manager.metadataProvider.utils.download_poster_image(
-                    storage_path=self.storage_path, poster_url=poster_url, show=show
+                storage_path=self.storage_path, poster_url=poster_url, show=show
             ):
                 log.info("Successfully downloaded poster image for show " + show.name)
             else:
@@ -91,7 +91,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         return show
 
     def search_show(
-            self, query: str | None = None, max_pages: int = 5
+        self, query: str | None = None, max_pages: int = 5
     ) -> list[MetaDataProviderShowSearchResult]:
         """
         Search for shows using TMDB API.
@@ -118,7 +118,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
             try:
                 if result["poster_path"] is not None:
                     poster_url = (
-                            "https://image.tmdb.org/t/p/original" + result["poster_path"]
+                        "https://image.tmdb.org/t/p/original" + result["poster_path"]
                     )
                 else:
                     poster_url = None

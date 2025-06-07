@@ -59,7 +59,7 @@ class TvService:
         return self.tv_repository.add_season_request(season_request=season_request)
 
     def get_season_request_by_id(
-            self, season_request_id: SeasonRequestId
+        self, season_request_id: SeasonRequestId
     ) -> SeasonRequest | None:
         """
         Get a season request by its ID.
@@ -90,7 +90,7 @@ class TvService:
         self.tv_repository.delete_season_request(season_request_id=season_request_id)
 
     def get_public_season_files_by_season_id(
-            self, season_id: SeasonId
+        self, season_id: SeasonId
     ) -> list[PublicSeasonFile]:
         """
         Get all public season files for a given season ID.
@@ -110,10 +110,10 @@ class TvService:
         return result
 
     def check_if_show_exists(
-            self,
-            external_id: int = None,
-            metadata_provider: str = None,
-            show_id: ShowId = None,
+        self,
+        external_id: int = None,
+        metadata_provider: str = None,
+        show_id: ShowId = None,
     ) -> bool:
         """
         Check if a show exists in the database.
@@ -144,7 +144,7 @@ class TvService:
             )
 
     def get_all_available_torrents_for_a_season(
-            self, season_number: int, show_id: ShowId, search_query_override: str = None
+        self, season_number: int, show_id: ShowId, search_query_override: str = None
     ) -> list[IndexerQueryResult]:
         """
         Get all available torrents for a given season.
@@ -190,7 +190,7 @@ class TvService:
         return self.tv_repository.get_shows()
 
     def search_for_show(
-            self, query: str, metadata_provider: str
+        self, query: str, metadata_provider: str
     ) -> list[MetaDataProviderShowSearchResult]:
         """
         Search for shows using a given query.
@@ -202,13 +202,13 @@ class TvService:
         results = media_manager.metadataProvider.search_show(query, metadata_provider)
         for result in results:
             if self.check_if_show_exists(
-                    external_id=result.external_id, metadata_provider=metadata_provider
+                external_id=result.external_id, metadata_provider=metadata_provider
             ):
                 result.added = True
         return results
 
     def get_popular_shows(
-            self, metadata_provider: str
+        self, metadata_provider: str
     ) -> list[MetaDataProviderShowSearchResult]:
         """
         Get popular shows from a given metadata provider.
@@ -223,7 +223,7 @@ class TvService:
         filtered_results = []
         for result in results:
             if not self.check_if_show_exists(
-                    external_id=result.external_id, metadata_provider=metadata_provider
+                external_id=result.external_id, metadata_provider=metadata_provider
             ):
                 filtered_results.append(result)
 
@@ -286,7 +286,7 @@ class TvService:
         return False
 
     def get_show_by_external_id(
-            self, external_id: int, metadata_provider: str
+        self, external_id: int, metadata_provider: str
     ) -> Show | None:
         """
         Get a show by its external ID and metadata provider.
@@ -361,10 +361,10 @@ class TvService:
         return [self.get_torrents_for_show(show=show) for show in shows]
 
     def download_torrent(
-            self,
-            public_indexer_result_id: IndexerQueryResultId,
-            show_id: ShowId,
-            override_show_file_path_suffix: str = "",
+        self,
+        public_indexer_result_id: IndexerQueryResultId,
+        show_id: ShowId,
+        override_show_file_path_suffix: str = "",
     ) -> Torrent:
         """
         Download a torrent for a given indexer result and show.
@@ -395,7 +395,7 @@ class TvService:
         return show_torrent
 
     def download_approved_season_request(
-            self, season_request: SeasonRequest, show: Show
+        self, season_request: SeasonRequest, show: Show
     ) -> bool:
         """
         Download an approved season request.
@@ -423,9 +423,9 @@ class TvService:
 
         for torrent in torrents:
             if (
-                    torrent.quality > season_request.wanted_quality
-                    or torrent.quality < season_request.min_quality
-                    or torrent.seeders < 3
+                torrent.quality > season_request.wanted_quality
+                or torrent.quality < season_request.min_quality
+                or torrent.seeders < 3
             ):
                 log.info(
                     f"Skipping torrent {torrent.title} with quality {torrent.quality} for season {season.id}, because it does not match the requested quality {season_request.wanted_quality}"
@@ -482,7 +482,7 @@ def auto_download_all_approved_season_requests() -> None:
                 season_id=season_request.season_id
             )
             if tv_service.download_approved_season_request(
-                    season_request=season_request, show_id=show.id
+                season_request=season_request, show_id=show.id
             ):
                 count += 1
             else:

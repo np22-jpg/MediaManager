@@ -65,17 +65,17 @@ class DbConfig(BaseSettings):
 
 db_config = DbConfig()
 db_url = (
-        "postgresql+psycopg"
-        + "://"
-        + db_config.USER
-        + ":"
-        + db_config.PASSWORD
-        + "@"
-        + db_config.HOST
-        + ":"
-        + str(db_config.PORT)
-        + "/"
-        + db_config.DBNAME
+    "postgresql+psycopg"
+    + "://"
+    + db_config.USER
+    + ":"
+    + db_config.PASSWORD
+    + "@"
+    + db_config.HOST
+    + ":"
+    + str(db_config.PORT)
+    + "/"
+    + db_config.DBNAME
 )
 
 config.set_main_option("sqlalchemy.url", db_url)

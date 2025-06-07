@@ -59,7 +59,7 @@ class TvRepository:
             raise
 
     def get_show_by_external_id(
-            self, external_id: int, metadata_provider: str
+        self, external_id: int, metadata_provider: str
     ) -> ShowSchema:
         """
         Retrieve a show by its external ID, including nested seasons and episodes.
@@ -229,7 +229,7 @@ class TvRepository:
             raise
 
     def add_season_request(
-            self, season_request: SeasonRequestSchema
+        self, season_request: SeasonRequestSchema
     ) -> SeasonRequestSchema:
         """
         Adds a Season to the SeasonRequest table, which marks it as requested.
@@ -419,7 +419,7 @@ class TvRepository:
             raise
 
     def get_season_files_by_season_id(
-            self, season_id: SeasonId
+        self, season_id: SeasonId
     ) -> list[SeasonFileSchema]:
         """
         Retrieve all season files for a given season ID.
@@ -521,7 +521,7 @@ class TvRepository:
             raise
 
     def get_season_request(
-            self, season_request_id: SeasonRequestId
+        self, season_request_id: SeasonRequestId
     ) -> SeasonRequestSchema:
         """
         Retrieve a season request by its ID.

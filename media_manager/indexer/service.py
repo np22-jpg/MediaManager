@@ -20,6 +20,6 @@ def search(query: str, db: Session) -> list[IndexerQueryResult]:
 
 
 def get_indexer_query_result(
-        result_id: IndexerQueryResultId, db: Session
+    result_id: IndexerQueryResultId, db: Session
 ) -> IndexerQueryResult:
     return media_manager.indexer.repository.get_result(result_id=result_id, db=db)
