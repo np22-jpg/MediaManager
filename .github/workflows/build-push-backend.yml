@@ -14,10 +14,36 @@ on:
       - 'pyproject.toml'
       - 'uv.lock'
       - '.github/workflows/build-push-backend.yml'
+      - 'tests/**'
   workflow_dispatch:
 
 jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.13" ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: uv pip install .[dev]
+
+      - name: Run tests
+        run: pytest
+
   build-and-push:
+    needs: run-tests
     runs-on: ubuntu-latest
     permissions:
       contents: read
