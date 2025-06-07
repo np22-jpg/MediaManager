@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
 
 from media_manager.auth.db import User
@@ -67,7 +67,7 @@ def add_a_show(
 
 @router.delete(
     "/shows/{show_id}",
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(current_active_user)],
 )
 def delete_a_show(tv_repository: tv_repository_dep, show_id: ShowId):
@@ -171,13 +171,14 @@ def delete_season_request(
     if user.is_superuser or request.requested_by.id == user.id:
         tv_service.delete_season_request(season_request_id=request_id)
         log.info(f"User {user.id} deleted season request {request_id}.")
+        return None
     else:
         log.warning(
             f"User {user.id} tried to delete season request {request_id} but is not authorized."
         )
-        return JSONResponse(
+        return HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            content={"message": "Not authorized to delete this request."},
+            detail="Not authorized to delete this request",
         )
 
 
