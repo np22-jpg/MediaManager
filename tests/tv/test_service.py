@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from media_manager.tv.exceptions import NotFoundError
+from media_manager.exceptions import NotFoundError
 from media_manager.tv.schemas import Show, ShowId
 from media_manager.tv.service import TvService
 from media_manager.indexer.schemas import IndexerQueryResult, IndexerQueryResultId
