@@ -9,7 +9,6 @@
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
 	import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils';
 	import {env} from "$env/dynamic/public";
-	import {browser} from "$app/environment";
 	import ShowPicture from "$lib/components/show-picture.svelte";
 
 	const apiUrl = env.PUBLIC_API_URL
