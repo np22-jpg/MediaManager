@@ -1,11 +1,13 @@
 import logging
 from cachetools import TTLCache, cached
 
-import media_manager.metadataProvider.tmdb
-import media_manager.metadataProvider.tvdb
+import media_manager.metadataProvider.tmdb as tmdb
+import media_manager.metadataProvider.tvdb as tvdb
 from media_manager.metadataProvider.abstractMetaDataProvider import metadata_providers
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
 from media_manager.tv.schemas import Show
+
+_ = tvdb, tmdb
 
 log = logging.getLogger(__name__)
 search_show_cache = TTLCache(maxsize=128, ttl=24 * 60 * 60)  # Cache for 24 hours

@@ -4,11 +4,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from media_manager.tv.exceptions import NotFoundError
-from media_manager.tv.schemas import Show, ShowId, SeasonId
+from media_manager.tv.schemas import Show, ShowId
 from media_manager.tv.service import TvService
 from media_manager.indexer.schemas import IndexerQueryResult, IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
-from media_manager.torrent.models import Quality
 
 
 @pytest.fixture
@@ -20,9 +19,11 @@ def mock_tv_repository():
 def mock_torrent_service():
     return MagicMock()
 
+
 @pytest.fixture
 def mock_indexer_service():
     return MagicMock()
+
 
 @pytest.fixture
 def tv_service(mock_tv_repository, mock_torrent_service, mock_indexer_service):
@@ -61,7 +62,9 @@ def test_add_show(tv_service, mock_tv_repository, mock_torrent_service):
         assert result == show_data
 
 
-def test_add_show_with_invalid_metadata(monkeypatch, tv_service, mock_tv_repository, mock_torrent_service):
+def test_add_show_with_invalid_metadata(
+    monkeypatch, tv_service, mock_tv_repository, mock_torrent_service
+):
     external_id = 123
     metadata_provider = "tmdb"
     # Simulate metadata provider returning None
@@ -75,7 +78,9 @@ def test_add_show_with_invalid_metadata(monkeypatch, tv_service, mock_tv_reposit
     assert result is None
 
 
-def test_check_if_show_exists_by_external_id(tv_service, mock_tv_repository, mock_torrent_service):
+def test_check_if_show_exists_by_external_id(
+    tv_service, mock_tv_repository, mock_torrent_service
+):
     external_id = 123
     metadata_provider = "tmdb"
     mock_tv_repository.get_show_by_external_id.return_value = "show_obj"
@@ -92,7 +97,9 @@ def test_check_if_show_exists_by_external_id(tv_service, mock_tv_repository, moc
     )
 
 
-def test_check_if_show_exists_by_show_id(tv_service, mock_tv_repository, mock_torrent_service):
+def test_check_if_show_exists_by_show_id(
+    tv_service, mock_tv_repository, mock_torrent_service
+):
     show_id = ShowId(uuid.uuid4())
     mock_tv_repository.get_show_by_id.return_value = "show_obj"
     assert tv_service.check_if_show_exists(show_id=show_id)
@@ -102,7 +109,9 @@ def test_check_if_show_exists_by_show_id(tv_service, mock_tv_repository, mock_to
     assert not tv_service.check_if_show_exists(show_id=show_id)
 
 
-def test_check_if_show_exists_with_invalid_uuid(tv_service, mock_tv_repository, mock_torrent_service):
+def test_check_if_show_exists_with_invalid_uuid(
+    tv_service, mock_tv_repository, mock_torrent_service
+):
     # Simulate NotFoundError for a random UUID
     show_id = uuid.uuid4()
     mock_tv_repository.get_show_by_id.side_effect = NotFoundError
@@ -196,7 +205,9 @@ def test_get_show_by_external_id(tv_service, mock_tv_repository, mock_torrent_se
     assert result == show
 
 
-def test_get_show_by_external_id_not_found(tv_service, mock_tv_repository, mock_torrent_service):
+def test_get_show_by_external_id_not_found(
+    tv_service, mock_tv_repository, mock_torrent_service
+):
     external_id = 123
     metadata_provider = "tmdb"
     mock_tv_repository.get_show_by_external_id.side_effect = NotFoundError
@@ -274,14 +285,18 @@ def test_get_public_season_files_by_season_id_not_downloaded(
     assert result[0].downloaded is False
 
 
-def test_get_public_season_files_by_season_id_empty(tv_service, mock_tv_repository, mock_torrent_service):
+def test_get_public_season_files_by_season_id_empty(
+    tv_service, mock_tv_repository, mock_torrent_service
+):
     season_id = uuid.uuid4()
     mock_tv_repository.get_season_files_by_season_id.return_value = []
     result = tv_service.get_public_season_files_by_season_id(season_id)
     assert result == []
 
 
-def test_is_season_downloaded_true(monkeypatch, tv_service, mock_tv_repository, mock_torrent_service):
+def test_is_season_downloaded_true(
+    monkeypatch, tv_service, mock_tv_repository, mock_torrent_service
+):
     season_id = MagicMock()
     season_file = MagicMock()
     mock_tv_repository.get_season_files_by_season_id.return_value = [season_file]
@@ -291,7 +306,9 @@ def test_is_season_downloaded_true(monkeypatch, tv_service, mock_tv_repository, 
     assert tv_service.is_season_downloaded(season_id) is True
 
 
-def test_is_season_downloaded_false(monkeypatch, tv_service, mock_tv_repository, mock_torrent_service):
+def test_is_season_downloaded_false(
+    monkeypatch, tv_service, mock_tv_repository, mock_torrent_service
+):
     season_id = MagicMock()
     season_file = MagicMock()
     mock_tv_repository.get_season_files_by_season_id.return_value = [season_file]
@@ -301,7 +318,9 @@ def test_is_season_downloaded_false(monkeypatch, tv_service, mock_tv_repository,
     assert tv_service.is_season_downloaded(season_id) is False
 
 
-def test_is_season_downloaded_with_no_files(tv_service, mock_tv_repository, mock_torrent_service):
+def test_is_season_downloaded_with_no_files(
+    tv_service, mock_tv_repository, mock_torrent_service
+):
     season_id = uuid.uuid4()
     mock_tv_repository.get_season_files_by_season_id.return_value = []
     assert tv_service.is_season_downloaded(season_id) is False
@@ -313,16 +332,22 @@ def test_season_file_exists_on_file_none(monkeypatch, tv_service, mock_torrent_s
     assert tv_service.season_file_exists_on_file(season_file) is True
 
 
-def test_season_file_exists_on_file_imported(monkeypatch, tv_service, mock_torrent_service):
+def test_season_file_exists_on_file_imported(
+    monkeypatch, tv_service, mock_torrent_service
+):
     season_file = MagicMock()
     season_file.torrent_id = "torrent_id"
     torrent_file = MagicMock(imported=True)
     # Patch the repository method on the torrent_service instance
-    tv_service.torrent_service.torrent_repository.get_torrent_by_id = MagicMock(return_value=torrent_file)
+    tv_service.torrent_service.torrent_repository.get_torrent_by_id = MagicMock(
+        return_value=torrent_file
+    )
     assert tv_service.season_file_exists_on_file(season_file) is True
 
 
-def test_season_file_exists_on_file_not_imported(monkeypatch, tv_service, mock_torrent_service):
+def test_season_file_exists_on_file_not_imported(
+    monkeypatch, tv_service, mock_torrent_service
+):
     season_file = MagicMock()
     season_file.torrent_id = "torrent_id"
     torrent_file = MagicMock()
@@ -332,7 +357,9 @@ def test_season_file_exists_on_file_not_imported(monkeypatch, tv_service, mock_t
     assert tv_service.season_file_exists_on_file(season_file) is False
 
 
-def test_season_file_exists_on_file_with_none_imported(monkeypatch, tv_service, mock_torrent_service):
+def test_season_file_exists_on_file_with_none_imported(
+    monkeypatch, tv_service, mock_torrent_service
+):
     class DummyFile:
         def __init__(self):
             self.torrent_id = uuid.uuid4()
@@ -342,11 +369,15 @@ def test_season_file_exists_on_file_with_none_imported(monkeypatch, tv_service, 
     class DummyTorrent:
         imported = True
 
-    tv_service.torrent_service.torrent_repository.get_torrent_by_id = MagicMock(return_value=DummyTorrent())
+    tv_service.torrent_service.torrent_repository.get_torrent_by_id = MagicMock(
+        return_value=DummyTorrent()
+    )
     assert tv_service.season_file_exists_on_file(dummy_file) is True
 
 
-def test_season_file_exists_on_file_with_none_not_imported(monkeypatch, tv_service, mock_torrent_service):
+def test_season_file_exists_on_file_with_none_not_imported(
+    monkeypatch, tv_service, mock_torrent_service
+):
     class DummyFile:
         def __init__(self):
             self.torrent_id = uuid.uuid4()
@@ -356,7 +387,9 @@ def test_season_file_exists_on_file_with_none_not_imported(monkeypatch, tv_servi
     class DummyTorrent:
         imported = False
 
-    tv_service.torrent_service.get_torrent_by_id = MagicMock(return_value=DummyTorrent())
+    tv_service.torrent_service.get_torrent_by_id = MagicMock(
+        return_value=DummyTorrent()
+    )
     assert tv_service.season_file_exists_on_file(dummy_file) is False
 
 
@@ -418,7 +451,13 @@ def test_get_all_available_torrents_for_a_season_no_override(
         size=100,
     )  # Different season
 
-    mock_indexer_service.search.return_value = [torrent1, torrent2, torrent3, torrent4, torrent5]
+    mock_indexer_service.search.return_value = [
+        torrent1,
+        torrent2,
+        torrent3,
+        torrent4,
+        torrent5,
+    ]
 
     results = tv_service.get_all_available_torrents_for_a_season(
         season_number=season_number, show_id=show_id
@@ -627,11 +666,12 @@ def test_get_popular_shows_all_added(tv_service, mock_torrent_service, monkeypat
     assert results == []
 
 
-def test_get_popular_shows_empty_from_provider(tv_service, mock_torrent_service, monkeypatch):
+def test_get_popular_shows_empty_from_provider(
+    tv_service, mock_torrent_service, monkeypatch
+):
     metadata_provider = "tmdb"
     mock_search_show = MagicMock(return_value=[])
     monkeypatch.setattr("media_manager.metadataProvider.search_show", mock_search_show)
 
     results = tv_service.get_popular_shows(metadata_provider=metadata_provider)
     assert results == []
-

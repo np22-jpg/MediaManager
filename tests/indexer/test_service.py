@@ -58,4 +58,3 @@ def test_get_result_returns_result(mock_indexer_repository):
     result = service.get_result(result_id)
     assert result == expected_result
     mock_indexer_repository.get_result.assert_called_once_with(result_id=result_id)
-

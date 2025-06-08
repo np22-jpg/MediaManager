@@ -1,6 +1,5 @@
 import uuid
 import pytest
-from unittest.mock import MagicMock
 from media_manager.indexer.schemas import IndexerQueryResult, IndexerQueryResultId
 from media_manager.indexer.repository import IndexerRepository
 
@@ -62,4 +61,3 @@ def test_save_result_calls_db_methods(repo, dummy_db):
     repo.save_result(result)
     assert dummy_db.added[0].title == "Another Title"
     assert dummy_db.committed
-

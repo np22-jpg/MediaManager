@@ -32,7 +32,6 @@ from media_manager.tv.schemas import (
 from media_manager.torrent.schemas import QualityStrings
 from media_manager.tv.repository import TvRepository
 from media_manager.tv.exceptions import NotFoundError
-import mimetypes
 import pprint
 from pathlib import Path
 from media_manager.config import BasicConfig
@@ -596,7 +595,8 @@ def auto_download_all_approved_season_requests() -> None:
                 season_id=season_request.season_id
             )
             if tv_service.download_approved_season_request(
-                season_request=season_request, show=show):
+                season_request=season_request, show=show
+            ):
                 count += 1
             else:
                 log.warning(

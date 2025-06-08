@@ -64,6 +64,7 @@ class IndexerQueryResult(BaseModel):
             return self.quality.value > other.quality.value
         return self.seeders < other.seeders
 
+
 class PublicIndexerQueryResult(BaseModel):
     title: str
     quality: Quality

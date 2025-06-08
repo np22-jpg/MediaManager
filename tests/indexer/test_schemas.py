@@ -1,4 +1,3 @@
-import pytest
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.models import Quality
 

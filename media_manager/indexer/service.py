@@ -1,9 +1,5 @@
-from sqlalchemy.orm import Session
-
-import media_manager.indexer.repository
 from media_manager.indexer import log, indexers
 from media_manager.indexer.schemas import IndexerQueryResultId, IndexerQueryResult
-from media_manager.tv.schemas import Show
 from media_manager.indexer.repository import IndexerRepository
 
 
@@ -14,9 +10,7 @@ class IndexerService:
     def get_result(self, result_id: IndexerQueryResultId) -> IndexerQueryResult:
         return self.repository.get_result(result_id=result_id)
 
-    def search(
-        self, query: str
-    ) -> list[IndexerQueryResult]:
+    def search(self, query: str) -> list[IndexerQueryResult]:
         """
         Search for results using the indexers based on a query.
 

@@ -57,8 +57,6 @@ from datetime import datetime
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-import media_manager.torrent.service
-from media_manager.database import SessionLocal
 
 init_db()
 log.info("Database initialized")
@@ -79,7 +77,7 @@ def hourly_tasks():
     auto_download_all_approved_season_requests()
     # media_manager.torrent.service.TorrentService(
     #    db=SessionLocal()
-    #).import_all_torrents()
+    # ).import_all_torrents()
 
 
 scheduler = BackgroundScheduler()

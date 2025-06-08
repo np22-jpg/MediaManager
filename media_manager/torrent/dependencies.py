@@ -13,6 +13,7 @@ def get_torrent_repository(db: DbSessionDependency) -> TorrentRepository:
 
 torrent_repository_dep = Annotated[TorrentRepository, Depends(get_torrent_repository)]
 
+
 def get_torrent_service(torrent_repository: torrent_repository_dep) -> TorrentService:
     return TorrentService(torrent_repository=torrent_repository)
 

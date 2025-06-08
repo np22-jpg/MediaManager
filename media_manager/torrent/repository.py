@@ -1,5 +1,4 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from media_manager.database import DbSessionDependency
 from media_manager.torrent.models import Torrent
