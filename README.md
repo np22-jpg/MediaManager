@@ -33,7 +33,7 @@ torrents and authentication.
 - [ ] responsive ui
 - [ ] add check at startup if hardlinks work
 - [ ] support multiple OIDC servers at once
-- [ ] make API return proper error codes
+- [x] make API return proper error codes
 - [ ] add in-depth documentation on the architecure of the codebase
 - [ ] expand README with more information and a quickstart guide
 - [ ] make indexer module multithreaded
@@ -41,7 +41,7 @@ torrents and authentication.
 - [ ] _maybe_ rework the logo
 - [ ] add tests
 - [ ] optimize images for web in the backend and merging frontend with backend container
-- [ ] add more logs/errors
+- [x] add more logs/errors
 - [ ] add support for deluge and transmission
 - [ ] automatically download new seasons/episodes of shows
 
