@@ -33,17 +33,17 @@ torrents and authentication.
 - [x] add more logs/errors
 - [x] make API return proper error codes
 - [x] optimize images for web in the backend
+- [x] responsive ui
 - [ ] support for movies
-- [ ] responsive ui
-- [ ] add check at startup if hardlinks work
-- [ ] support styling the login with OIDC button
-- [ ] add in-depth documentation on the architecture of the codebase
-- [ ] expand README with more information and a quickstart guide
-- [ ] make indexer module multithreaded
-- [ ] add notification system
-- [ ] _maybe_ rework the logo
-- [ ] add support for deluge and transmission
+- [ ] automatically metadata of shows
 - [ ] automatically download new seasons/episodes of shows
+- [ ] expand README with more information and a quickstart guide
+- [ ] add notification system
+- [ ] add in-depth documentation on the architecture of the codebase
+- [ ] add check at startup if hardlinks work
+- [ ] add support for deluge and transmission
+- [ ] make indexer module multithreaded
+- [ ] _maybe_ rework the logo
 
 See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a full list of proposed features (and known issues).
 
