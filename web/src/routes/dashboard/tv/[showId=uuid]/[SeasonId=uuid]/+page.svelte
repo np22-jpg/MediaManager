@@ -55,16 +55,16 @@
 	{getFullyQualifiedShowName(show())} Season {season.number}
 </h1>
 <div class="flex flex-1 flex-col gap-4 p-4">
-	<div class="flex items-center gap-2">
-		<div class="max-h-50% w-1/3 max-w-sm rounded-xl bg-muted/50">
+	<div class="flex flex-col md:flex-row md:items-stretch gap-4">
+		<div class="w-full md:w-1/3 md:max-w-sm rounded-xl bg-muted/50 overflow-hidden">
 			<ShowPicture show={show()}/>
 		</div>
-		<div class="h-full w-1/4 flex-auto rounded-xl bg-muted/50 p-4">
+		<div class="w-full md:w-1/4 flex-auto rounded-xl bg-muted/50 p-4">
 			<p class="leading-7 [&:not(:first-child)]:mt-6">
 				{show().overview}
 			</p>
 		</div>
-		<div class="h-full w-1/3 flex-auto rounded-xl bg-muted/50 p-4">
+		<div class="w-full md:w-1/3 flex-auto rounded-xl bg-muted/50 p-4">
 			<Table.Root>
 				<Table.Caption>A list of all downloaded/downloading versions of this season.</Table.Caption>
 				<Table.Header>
@@ -94,7 +94,7 @@
 			</Table.Root>
 		</div>
 	</div>
-	<div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 p-4 md:min-h-min">
+	<div class="flex-1 rounded-xl bg-muted/50 p-4">
 		<div class="w-full overflow-x-auto">
 			<Table.Root>
 				<Table.Caption>A list of all episodes.</Table.Caption>

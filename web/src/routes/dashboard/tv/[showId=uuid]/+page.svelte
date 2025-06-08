@@ -52,8 +52,8 @@
     {getFullyQualifiedShowName(show())}
 </h1>
 <div class="flex flex-1 flex-col gap-4 p-4">
-    <div class="flex items-center gap-2">
-        <div class="max-h-50% w-1/3 max-w-sm rounded-xl bg-muted/50">
+    <div class="flex flex-col md:flex-row items-stretch md:items-center gap-4">
+        <div class="w-full md:w-1/3 md:max-w-sm rounded-xl bg-muted/50 overflow-hidden">
             {#if show().id}
                 <ShowPicture show={show()}/>
             {:else}
@@ -64,13 +64,13 @@
                 </div>
             {/if}
         </div>
-        <div class="h-full flex-auto rounded-xl bg-muted/50 p-4">
+        <div class="w-full md:flex-auto rounded-xl bg-muted/50 p-4">
             <p class="leading-7 [&:not(:first-child)]:mt-6">
                 {show().overview}
             </p>
         </div>
         <div
-                class="flex h-full flex-auto flex-col items-center justify-center gap-2 rounded-xl bg-muted/50 p-4"
+                class="flex w-full md:flex-auto flex-col items-center justify-center gap-2 rounded-xl bg-muted/50 p-4"
         >
             {#if user().is_superuser}
                 <DownloadSeasonDialog show={show()}/>
@@ -78,7 +78,7 @@
             <RequestSeasonDialog show={show()}/>
         </div>
     </div>
-    <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 p-4 md:min-h-min">
+    <div class="flex-1 rounded-xl bg-muted/50 p-4">
         <div class="w-full overflow-x-auto">
             <Table.Root>
                 <Table.Caption>A list of all seasons.</Table.Caption>
@@ -114,7 +114,7 @@
             </Table.Root>
         </div>
     </div>
-    <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 p-4 md:min-h-min">
+    <div class="flex-1 rounded-xl bg-muted/50 p-4">
         <div class="w-full overflow-x-auto">
             <TorrentTable torrents={torrents.torrents}/>
         </div>
