@@ -80,7 +80,7 @@
 	</div>
 </header>
 
-<div class="flex w-full flex-1 flex-col items-center gap-4 p-4 pt-0">
+<div class="flex w-full flex-1 max-w-[90vw] flex-col items-center gap-4 p-4 pt-0">
 	<div class="grid w-full max-w-sm items-center gap-12">
 		<h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
 			Add a show
@@ -128,7 +128,7 @@
 			<h3 class="mx-auto">No Shows found.</h3>
 		{:else}
 			<div
-					class="grid w-full max-w-full auto-rows-min gap-4 sm:grid-cols-1
+					class="grid w-full auto-rows-min gap-4 sm:grid-cols-1
              md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
 			>
 				{#each results as result}

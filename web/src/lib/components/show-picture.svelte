@@ -18,7 +18,7 @@
     />
     <img
             alt="{getFullyQualifiedShowName(show)}'s Poster Image"
-            class="aspect-9/16 center h-auto max-w-full rounded-lg object-cover"
+            class="aspect-9/16 center h-auto w-full rounded-lg object-cover"
             src="{apiUrl}/static/image/{show.id}.jpeg"
     />
 </picture>

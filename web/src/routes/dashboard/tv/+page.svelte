@@ -57,7 +57,7 @@
 			{:then tvShows}
 				{#each tvShows as show}
 					<a href={'/dashboard/tv/' + show.id}>
-						<Card.Root class="h-full ">
+						<Card.Root class="col-span-full max-w-[90vw] ">
 							<Card.Header>
 								<Card.Title class="h-6 truncate">{getFullyQualifiedShowName(show)}</Card.Title>
 								<Card.Description class="truncate">{show.overview}</Card.Description>
@@ -67,6 +67,7 @@
 							</Card.Content>
 						</Card.Root>
 					</a>
+
 				{:else}
 					<div class="col-span-full text-center text-muted-foreground">
 						No TV shows added yet.

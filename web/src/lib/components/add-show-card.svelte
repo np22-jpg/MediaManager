@@ -33,9 +33,9 @@
 	}
 </script>
 
-<Card.Root class="h-full max-w-sm">
+<Card.Root class="h-full overflow-x-hidden col-span-full">
 	<Card.Header>
-		<Card.Title class="flex h-12 items-center overflow-hidden leading-tight">
+		<Card.Title class="flex h-12 items-center leading-tight">
 			{result.name}
 			{#if result.year != null}
 				({result.year})
