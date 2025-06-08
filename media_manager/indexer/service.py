@@ -2,24 +2,36 @@ from sqlalchemy.orm import Session
 
 import media_manager.indexer.repository
 from media_manager.indexer import log, indexers
-from media_manager.indexer.repository import save_result
 from media_manager.indexer.schemas import IndexerQueryResultId, IndexerQueryResult
+from media_manager.tv.schemas import Show
+from media_manager.indexer.repository import IndexerRepository
 
 
-def search(query: str, db: Session) -> list[IndexerQueryResult]:
-    results = []
+class IndexerService:
+    def __init__(self, indexer_repository: IndexerRepository):
+        self.repository = indexer_repository
 
-    log.debug(f"Searching for Torrent: {query}")
+    def get_result(self, result_id: IndexerQueryResultId) -> IndexerQueryResult:
+        return self.repository.get_result(result_id=result_id)
 
-    for i in indexers:
-        results.extend(i.search(query))
-    for result in results:
-        save_result(result=result, db=db)
-    log.debug(f"Found Torrents: {results}")
-    return results
+    def search(
+        self, query: str
+    ) -> list[IndexerQueryResult]:
+        """
+        Search for results using the indexers based on a query.
 
+        :param query: The search query.
+        :param db: The database session.
+        :return: A list of search results.
+        """
+        log.debug(f"Searching for: {query}")
+        results = []
 
-def get_indexer_query_result(
-    result_id: IndexerQueryResultId, db: Session
-) -> IndexerQueryResult:
-    return media_manager.indexer.repository.get_result(result_id=result_id, db=db)
+        for indexer in indexers:
+            results.extend(indexer.search(query))
+
+        for result in results:
+            self.repository.save_result(result=result)
+
+        log.debug(f"Found torrents: {results}")
+        return results

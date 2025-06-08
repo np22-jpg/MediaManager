@@ -37,12 +37,13 @@ from pathlib import Path
 from media_manager.config import BasicConfig
 from media_manager.torrent.repository import TorrentRepository
 from media_manager.torrent.utils import import_file, import_torrent
-
+from media_manager.indexer.service import IndexerService
 
 class TvService:
-    def __init__(self, tv_repository: TvRepository, torrent_service: TorrentService):
+    def __init__(self, tv_repository: TvRepository, torrent_service: TorrentService, indexer_service: IndexerService):
         self.tv_repository = tv_repository
         self.torrent_service = torrent_service
+        self.indexer_service = indexer_service
 
     def add_show(self, external_id: int, metadata_provider: str) -> Show | None:
         """
