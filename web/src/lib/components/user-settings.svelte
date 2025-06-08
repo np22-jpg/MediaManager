@@ -7,7 +7,7 @@
 	import {Input} from '$lib/components/ui/input/index.js';
 	import {browser} from "$app/environment";
 
-	const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
+	const apiUrl = env.PUBLIC_API_URL
 	let newPassword: string = $state('');
 	let newEmail: string = $state('');
 	let dialogOpen = $state(false);

@@ -14,7 +14,7 @@
 	import {toast} from 'svelte-sonner';
 	import {browser} from "$app/environment";
 
-	const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
+	const apiUrl = env.PUBLIC_API_URL
 	let searchTerm: string = $state('');
 	let metadataProvider: string = $state('tmdb');
 	let results: MetaDataProviderShowSearchResult[] | null = $state(null);

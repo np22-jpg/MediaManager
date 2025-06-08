@@ -5,7 +5,7 @@ import {base} from '$app/paths';
 import {browser} from "$app/environment";
 import {goto} from '$app/navigation';
 
-const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
+const apiUrl = env.PUBLIC_API_URL;
 
 export const load: LayoutLoad = async ({fetch}) => {
 	const response = await fetch(apiUrl + '/users/me', {

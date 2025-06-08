@@ -9,9 +9,8 @@
     import {toast} from 'svelte-sonner';
     import {goto} from '$app/navigation';
     import {base} from '$app/paths';
-    import {browser} from "$app/environment";
 
-    const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
+    const apiUrl = env.PUBLIC_API_URL
     let {
         requests,
         filter = () => {

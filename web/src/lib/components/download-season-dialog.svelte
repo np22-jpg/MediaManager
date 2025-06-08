@@ -12,9 +12,8 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import {browser} from "$app/environment";
 
-	const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
+	const apiUrl = env.PUBLIC_API_URL
     let {show} = $props();
 	let dialogueState = $state(false);
 	let selectedSeasonNumber: number = $state(1);

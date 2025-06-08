@@ -8,11 +8,11 @@
 	import type {PublicSeasonFile, Season, Show} from '$lib/types';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
 	import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils';
-	import {toOptimizedURL} from "sveltekit-image-optimize/components";
 	import {env} from "$env/dynamic/public";
 	import {browser} from "$app/environment";
+	import ShowPicture from "$lib/components/show-picture.svelte";
 
-	const apiUrl = env.PUBLIC_SSR_API_URL;
+	const apiUrl = env.PUBLIC_API_URL
 	const SeasonNumber = page.params.SeasonNumber;
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let show: Show = getContext('show');
@@ -61,11 +61,7 @@
 <div class="flex flex-1 flex-col gap-4 p-4">
 	<div class="flex items-center gap-2">
 		<div class="max-h-50% w-1/3 max-w-sm rounded-xl bg-muted/50">
-			<img
-					class="aspect-9/16 h-auto w-full rounded-lg object-cover"
-					alt="{show().name}'s Poster Image"
-					src={toOptimizedURL(`${apiUrl}/static/image/${show().id}.jpg`)}
-			/>
+			<ShowPicture show={show()}/>
 		</div>
 		<div class="h-full w-1/4 flex-auto rounded-xl bg-muted/50 p-4">
 			<p class="leading-7 [&:not(:first-child)]:mt-6">

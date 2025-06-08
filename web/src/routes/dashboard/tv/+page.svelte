@@ -5,12 +5,12 @@
 	import {Separator} from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import {toOptimizedURL} from 'sveltekit-image-optimize/components';
 	import {getFullyQualifiedShowName} from '$lib/utils';
 	import logo from '$lib/images/svelte-logo.svg';
 	import LoadingBar from '$lib/components/loading-bar.svelte';
+	import ShowPicture from "$lib/components/show-picture.svelte";
 
-	const apiUrl = env.PUBLIC_SSR_API_URL
+	const apiUrl = env.PUBLIC_API_URL
 	let tvShowsPromise = page.data.tvShows;
 </script>
 
@@ -63,14 +63,7 @@
 								<Card.Description class="truncate">{show.overview}</Card.Description>
 							</Card.Header>
 							<Card.Content>
-								<img
-										class="aspect-9/16 center h-auto max-w-full rounded-lg object-cover"
-										src={toOptimizedURL(`${apiUrl}/static/image/${show.id}.jpg`)}
-										alt="{getFullyQualifiedShowName(show)}'s Poster Image"
-										on:error={(e) => {
-										e.target.src = logo;
-									}}
-								/>
+								<ShowPicture show={show}/>
 							</Card.Content>
 						</Card.Root>
 					</a>

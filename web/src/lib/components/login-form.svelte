@@ -10,7 +10,7 @@
     import LoadingBar from '$lib/components/loading-bar.svelte';
     import {browser} from "$app/environment";
 
-    const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
+    const apiUrl = env.PUBLIC_API_URL
 
     let {oauthProvider} = $props();
     let oauthProviderName = $derived(oauthProvider.oauth_name);

@@ -6,7 +6,7 @@ import {base} from '$app/paths';
 import {toast} from 'svelte-sonner';
 import {browser} from "$app/environment";
 
-const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
+const apiUrl = env.PUBLIC_API_URL;
 
 export const qualityMap: { [key: number]: string } = {
 	1: '4K/UHD',
