@@ -33,7 +33,7 @@
 		Dashboard
 	</h1>
 	<div class="min-h-[100vh] flex-1 items-center justify-center rounded-xl p-4 md:min-h-min">
-		<div class="mx-auto sm:max-w-[200px] md:max-w-[500px] lg:max-w-[750px] xl:max-w-[1200px]">
+		<div class="mx-auto max-w-[80vw] sm:max-w-[200px] md:max-w-[500px] lg:max-w-[750px] xl:max-w-[1200px]">
 			<h3 class="my-4 scroll-m-20 text-center text-2xl font-semibold tracking-tight">
 				Trending Shows
 			</h3>

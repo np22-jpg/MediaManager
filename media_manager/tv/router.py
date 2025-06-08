@@ -22,6 +22,7 @@ from media_manager.tv.schemas import (
     SeasonRequestId,
     UpdateSeasonRequest,
     RichSeasonRequest,
+    Season,
 )
 from media_manager.tv.dependencies import (
     season_dep,
@@ -221,6 +222,15 @@ def update_request(
         updated_season_request.requested_by = UserRead.model_validate(user)
         tv_service.update_season_request(season_request=updated_season_request)
     return
+
+
+@router.get(
+    "/seasons/{season_id}",
+    dependencies=[Depends(current_active_user)],
+    response_model=Season,
+)
+def get_season_files(season: season_dep) -> Season:
+    return season
 
 
 @router.get(

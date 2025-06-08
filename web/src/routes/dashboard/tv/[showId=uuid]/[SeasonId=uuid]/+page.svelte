@@ -12,12 +12,9 @@
 	import ShowPicture from "$lib/components/show-picture.svelte";
 
 	const apiUrl = env.PUBLIC_API_URL
-	const SeasonNumber = page.params.SeasonNumber;
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
+	let season: Season = $state(page.data.season);
 	let show: Show = getContext('show');
-	let season: Season = $derived(
-			show().seasons.find((item) => item.number === parseInt(SeasonNumber))
-	);
 
 	console.log('loaded files', seasonFiles);
 </script>
@@ -48,14 +45,14 @@
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block"/>
 				<Breadcrumb.Item>
-					<Breadcrumb.Page>Season {SeasonNumber}</Breadcrumb.Page>
+					<Breadcrumb.Page>Season {season.number}</Breadcrumb.Page>
 				</Breadcrumb.Item>
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
 	</div>
 </header>
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-	{getFullyQualifiedShowName(show())} Season {SeasonNumber}
+	{getFullyQualifiedShowName(show())} Season {season.number}
 </h1>
 <div class="flex flex-1 flex-col gap-4 p-4">
 	<div class="flex items-center gap-2">
