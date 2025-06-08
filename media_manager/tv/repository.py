@@ -358,7 +358,19 @@ class TvRepository:
             )
             results = self.db.execute(stmt).scalars().unique().all()
             log.info(f"Successfully retrieved {len(results)} season requests.")
-            return [RichSeasonRequestSchema.model_validate(x) for x in results]
+            return [
+                RichSeasonRequestSchema(
+                    min_quality=x.min_quality,
+                    wanted_quality=x.wanted_quality,
+                    season_id=x.season_id,
+                    show=x.season.show,
+                    season=x.season,
+                    requested_by=x.requested_by,
+                    authorized_by=x.authorized_by,
+                    authorized=x.authorized,
+                )
+                for x in results
+            ]
         except SQLAlchemyError as e:
             log.error(f"Database error while retrieving season requests: {e}")
             raise

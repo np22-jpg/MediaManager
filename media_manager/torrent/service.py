@@ -174,32 +174,28 @@ class TorrentService:
     def get_all_torrents(self) -> list[Torrent]:
         return [
             self.get_torrent_status(x)
-            for x in media_manager.torrent.repository.get_all_torrents(db=self.db)
+            for x in self.torrent_repository.get_all_torrents()
         ]
 
     def get_torrent_by_id(self, torrent_id: TorrentId) -> Torrent:
         return self.get_torrent_status(
-            media_manager.torrent.repository.get_torrent_by_id(
-                torrent_id=torrent_id, db=self.db
-            )
+            self.torrent_repository.get_torrent_by_id(torrent_id=torrent_id)
         )
+    # TODO: extract deletion logic to tv module
+    #def delete_torrent(self, torrent_id: TorrentId):
+    #    t = self.torrent_repository.get_torrent_by_id(torrent_id=torrent_id)
+    #    if not t.imported:
+    #        from media_manager.tv.repository import remove_season_files_by_torrent_id
+    #        remove_season_files_by_torrent_id(db=self.db, torrent_id=torrent_id)
+    #    media_manager.torrent.repository.delete_torrent(db=self.db, torrent_id=t.id)
 
-    def delete_torrent(self, torrent_id: TorrentId):
-        t = media_manager.torrent.repository.get_torrent_by_id(
-            torrent_id=torrent_id, db=self.db
-        )
-        if not t.imported:
-            from media_manager.tv.repository import remove_season_files_by_torrent_id
-            remove_season_files_by_torrent_id(db=self.db, torrent_id=torrent_id)
-        media_manager.torrent.repository.delete_torrent(db=self.db, torrent_id=t.id)
-
-    def import_all_torrents(self) -> list[Torrent]:
-        log.info("Importing all torrents")
-        torrents = self.get_all_torrents()
-        log.info("Found %d torrents to import", len(torrents))
-        imported_torrents = []
-        for t in torrents:
-            if t.imported == False and t.status == TorrentStatus.finished:
-                imported_torrents.append(self.import_torrent(t))
-        log.info("Finished importing all torrents")
-        return imported_torrents
+    #def import_all_torrents(self) -> list[Torrent]:
+    #    log.info("Importing all torrents")
+    #    torrents = self.get_all_torrents()
+    #    log.info("Found %d torrents to import", len(torrents))
+    #    imported_torrents = []
+    #    for t in torrents:
+    #        if t.imported == False and t.status == TorrentStatus.finished:
+    #            imported_torrents.append(self.import_torrent(t))
+    #    log.info("Finished importing all torrents")
+    #    return imported_torrents
