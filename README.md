@@ -17,7 +17,7 @@
   </p>
 </div>
 
-Media Manager aims to be a replacement for Sonarr/Radarr/Prowlarr/Overseer,
+Media Manager aims to be a replacement for Sonarr/Radarr/Overseer/Jellyseer,
 it is a comprehensive solution for organizing your media library, including TV shows and movies.
 It provides a modern web interface and integrates with various services for metadata,
 torrents and authentication.
