@@ -17,7 +17,7 @@
   </p>
 </div>
 
-Media Manager aims to be a replacement for Sonarr/Radarr/Prowlarr/Overseer,
+Media Manager aims to be a replacement for Sonarr/Radarr/Overseer/Jellyseer,
 it is a comprehensive solution for organizing your media library, including TV shows and movies.
 It provides a modern web interface and integrates with various services for metadata,
 torrents and authentication.
@@ -27,21 +27,21 @@ torrents and authentication.
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] support for movies
 - [x] support for more torrent indexers
 - [x] fully automatic downloads
+- [x] add tests
+- [x] add more logs/errors
+- [x] make API return proper error codes
+- [ ] support for movies
 - [ ] responsive ui
 - [ ] add check at startup if hardlinks work
-- [ ] support multiple OIDC servers at once
-- [x] make API return proper error codes
+- [ ] support styling the login with OIDC button
 - [ ] add in-depth documentation on the architecure of the codebase
 - [ ] expand README with more information and a quickstart guide
 - [ ] make indexer module multithreaded
 - [ ] add notification system
 - [ ] _maybe_ rework the logo
-- [ ] add tests
 - [ ] optimize images for web in the backend and merging frontend with backend container
-- [x] add more logs/errors
 - [ ] add support for deluge and transmission
 - [ ] automatically download new seasons/episodes of shows
 

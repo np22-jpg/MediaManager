@@ -1,27 +1,16 @@
 import hashlib
 import logging
-import mimetypes
-import pprint
-import re
-from pathlib import Path
 
 import bencoder
 import qbittorrentapi
 import requests
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy.orm import Session
 
-import media_manager.torrent.repository
 from media_manager.config import BasicConfig
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.repository import TorrentRepository
 from media_manager.torrent.schemas import Torrent, TorrentStatus, TorrentId
-from media_manager.torrent.utils import (
-    list_files_recursively,
-    get_torrent_filepath,
-    extract_archives,
-)
-from media_manager.tv.schemas import SeasonFile
+from media_manager.tv.schemas import SeasonFile, Show
 
 log = logging.getLogger(__name__)
 
@@ -75,7 +64,17 @@ class TorrentService:
         :param torrent: the torrent to get the season files of
         :return: list of season files
         """
-        return self.torrent_repository.get_seasons_files_of_torrent(torrent_id=torrent.id)
+        return self.torrent_repository.get_seasons_files_of_torrent(
+            torrent_id=torrent.id
+        )
+
+    def get_show_of_torrent(self, torrent: Torrent) -> Show|None:
+        """
+        Returns the show of a torrent
+        :param torrent: the torrent to get the show of
+        :return: the show of the torrent
+        """
+        return self.torrent_repository.get_show_of_torrent(torrent_id=torrent.id)
 
     def download(self, indexer_result: IndexerQueryResult) -> Torrent:
         log.info(f"Attempting to download torrent: {indexer_result.title}")
@@ -186,21 +185,12 @@ class TorrentService:
         return self.get_torrent_status(
             self.torrent_repository.get_torrent_by_id(torrent_id=torrent_id)
         )
+
     # TODO: extract deletion logic to tv module
-    #def delete_torrent(self, torrent_id: TorrentId):
+    # def delete_torrent(self, torrent_id: TorrentId):
     #    t = self.torrent_repository.get_torrent_by_id(torrent_id=torrent_id)
     #    if not t.imported:
     #        from media_manager.tv.repository import remove_season_files_by_torrent_id
     #        remove_season_files_by_torrent_id(db=self.db, torrent_id=torrent_id)
     #    media_manager.torrent.repository.delete_torrent(db=self.db, torrent_id=t.id)
 
-    #def import_all_torrents(self) -> list[Torrent]:
-    #    log.info("Importing all torrents")
-    #    torrents = self.get_all_torrents()
-    #    log.info("Found %d torrents to import", len(torrents))
-    #    imported_torrents = []
-    #    for t in torrents:
-    #        if t.imported == False and t.status == TorrentStatus.finished:
-    #            imported_torrents.append(self.import_torrent(t))
-    #    log.info("Finished importing all torrents")
-    #    return imported_torrents

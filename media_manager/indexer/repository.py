@@ -10,18 +10,18 @@ from media_manager.indexer.schemas import (
 
 log = logging.getLogger(__name__)
 
-def get_result(
-    result_id: IndexerQueryResultId, db: Session
-) -> IndexerQueryResultSchema:
-    return IndexerQueryResultSchema.model_validate(
-        db.get(IndexerQueryResult, result_id)
-    )
 
+class IndexerRepository:
+    def __init__(self, db: Session):
+        self.db = db
 
-def save_result(
-    result: IndexerQueryResultSchema, db: Session
-) -> IndexerQueryResultSchema:
-    log.debug("Saving indexer query result: %s", result)
-    db.add(IndexerQueryResult(**result.model_dump()))
-    db.commit()
-    return result
+    def get_result(self, result_id: IndexerQueryResultId) -> IndexerQueryResultSchema:
+        return IndexerQueryResultSchema.model_validate(
+            self.db.get(IndexerQueryResult, result_id)
+        )
+
+    def save_result(self, result: IndexerQueryResultSchema) -> IndexerQueryResultSchema:
+        log.debug("Saving indexer query result: %s", result)
+        self.db.add(IndexerQueryResult(**result.model_dump()))
+        self.db.commit()
+        return result

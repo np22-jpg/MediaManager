@@ -6,11 +6,12 @@ from sqlalchemy.orm import Session
 import media_manager.indexer.service
 import media_manager.metadataProvider
 import media_manager.torrent.repository
+from media_manager.indexer.repository import IndexerRepository
 from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
-from media_manager.torrent.schemas import Torrent
+from media_manager.torrent.schemas import Torrent, TorrentStatus
 from media_manager.torrent.service import TorrentService
 from media_manager.tv import log
 from media_manager.tv.schemas import (
@@ -30,19 +31,25 @@ from media_manager.tv.schemas import (
 )
 from media_manager.torrent.schemas import QualityStrings
 from media_manager.tv.repository import TvRepository
-from media_manager.tv.exceptions import NotFoundError
-import mimetypes
+from media_manager.exceptions import NotFoundError
 import pprint
 from pathlib import Path
 from media_manager.config import BasicConfig
 from media_manager.torrent.repository import TorrentRepository
 from media_manager.torrent.utils import import_file, import_torrent
+from media_manager.indexer.service import IndexerService
 
 
 class TvService:
-    def __init__(self, tv_repository: TvRepository, torrent_service: TorrentService):
+    def __init__(
+        self,
+        tv_repository: TvRepository,
+        torrent_service: TorrentService,
+        indexer_service: IndexerService,
+    ):
         self.tv_repository = tv_repository
         self.torrent_service = torrent_service
+        self.indexer_service = indexer_service
 
     def add_show(self, external_id: int, metadata_provider: str) -> Show | None:
         """
@@ -173,8 +180,8 @@ class TvService:
             # TODO: add more Search query strings and combine all the results, like "season 3", "s03", "s3"
             search_query = show.name + " s" + str(season_number).zfill(2)
 
-        torrents: list[IndexerQueryResult] = media_manager.indexer.service.search(
-            query=search_query, db=self.tv_repository.db
+        torrents: list[IndexerQueryResult] = self.indexer_service.search(
+            query=search_query
         )
 
         if search_query_override:
@@ -384,8 +391,8 @@ class TvService:
         :param override_show_file_path_suffix: Optional override for the file path suffix.
         :return: The downloaded torrent.
         """
-        indexer_result = media_manager.indexer.service.get_indexer_query_result(
-            db=self.tv_repository.db, result_id=public_indexer_result_id
+        indexer_result = self.indexer_service.get_result(
+            result_id=public_indexer_result_id
         )
         show_torrent = self.torrent_service.download(indexer_result=indexer_result)
 
@@ -568,7 +575,12 @@ def auto_download_all_approved_season_requests() -> None:
     db: Session = SessionLocal()
     tv_repository = TvRepository(db=db)
     torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
-    tv_service = TvService(tv_repository=tv_repository, torrent_service=torrent_service)
+    indexer_service = IndexerService(indexer_repository=IndexerRepository(db=db))
+    tv_service = TvService(
+        tv_repository=tv_repository,
+        torrent_service=torrent_service,
+        indexer_service=indexer_service,
+    )
 
     log.info("Auto downloading all approved season requests")
     season_requests = tv_repository.get_season_requests()
@@ -583,7 +595,8 @@ def auto_download_all_approved_season_requests() -> None:
                 season_id=season_request.season_id
             )
             if tv_service.download_approved_season_request(
-                season_request=season_request, show=show):
+                season_request=season_request, show=show
+            ):
                 count += 1
             else:
                 log.warning(
@@ -592,3 +605,29 @@ def auto_download_all_approved_season_requests() -> None:
 
     log.info(f"Auto downloaded {count} approved season requests")
     db.close()
+
+
+def import_all_torrents() -> None:
+    db: Session = SessionLocal()
+    tv_repository = TvRepository(db=db)
+    torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
+    indexer_service = IndexerService(indexer_repository=IndexerRepository(db=db))
+    tv_service = TvService(
+        tv_repository=tv_repository,
+        torrent_service=torrent_service,
+        indexer_service=indexer_service,
+    )
+    log.info("Importing all torrents")
+    torrents = torrent_service.get_all_torrents()
+    log.info("Found %d torrents to import", len(torrents))
+    imported_torrents = []
+    for t in torrents:
+        if t.imported == False and t.status == TorrentStatus.finished:
+            show = torrent_service.get_show_of_torrent(torrent=t)
+            if show is None:
+                log.warning(
+                    f"torrent {t.title} is not a tv torrent, skipping import."
+                )
+                continue
+            imported_torrents.append(tv_service.import_torrent_files(torrent=t, show=show))
+    log.info("Finished importing all torrents")

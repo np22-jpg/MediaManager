@@ -6,7 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql.sqltypes import BigInteger
 
 from media_manager.database import Base
-from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.torrent.schemas import Quality
 
 

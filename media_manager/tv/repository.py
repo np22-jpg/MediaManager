@@ -9,7 +9,7 @@ from media_manager.torrent.models import Torrent
 from media_manager.torrent.schemas import TorrentId, Torrent as TorrentSchema
 from media_manager.tv import log
 from media_manager.tv.models import Season, Show, Episode, SeasonRequest, SeasonFile
-from media_manager.tv.exceptions import NotFoundError
+from media_manager.exceptions import NotFoundError
 from media_manager.tv.schemas import (
     Season as SeasonSchema,
     SeasonId,
@@ -414,7 +414,7 @@ class TvRepository:
             log.info(
                 f"Successfully removed {deleted_count} season files for torrent_id: {torrent_id}"
             )
-            return deleted_count
+            return deleted_count()
         except SQLAlchemyError as e:
             self.db.rollback()
             log.error(
