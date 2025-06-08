@@ -20,10 +20,17 @@ def mock_tv_repository():
 def mock_torrent_service():
     return MagicMock()
 
+@pytest.fixture
+def mock_indexer_service():
+    return MagicMock()
 
 @pytest.fixture
-def tv_service(mock_tv_repository, mock_torrent_service):
-    return TvService(tv_repository=mock_tv_repository, torrent_service=mock_torrent_service)
+def tv_service(mock_tv_repository, mock_torrent_service, mock_indexer_service):
+    return TvService(
+        tv_repository=mock_tv_repository,
+        torrent_service=mock_torrent_service,
+        indexer_service=mock_indexer_service,
+    )
 
 
 def test_add_show(tv_service, mock_tv_repository, mock_torrent_service):
@@ -354,7 +361,7 @@ def test_season_file_exists_on_file_with_none_not_imported(monkeypatch, tv_servi
 
 
 def test_get_all_available_torrents_for_a_season_no_override(
-    tv_service, mock_tv_repository, mock_torrent_service, monkeypatch
+    tv_service, mock_tv_repository, mock_torrent_service, mock_indexer_service
 ):
     show_id = ShowId(uuid.uuid4())
     season_number = 1
@@ -411,18 +418,15 @@ def test_get_all_available_torrents_for_a_season_no_override(
         size=100,
     )  # Different season
 
-    mock_search = MagicMock(
-        return_value=[torrent1, torrent2, torrent3, torrent4, torrent5]
-    )
-    monkeypatch.setattr("media_manager.indexer.service.search", mock_search)
+    mock_indexer_service.search.return_value = [torrent1, torrent2, torrent3, torrent4, torrent5]
 
     results = tv_service.get_all_available_torrents_for_a_season(
         season_number=season_number, show_id=show_id
     )
 
     mock_tv_repository.get_show_by_id.assert_called_once_with(show_id=show_id)
-    mock_search.assert_called_once_with(
-        query=f"{show_name} s{str(season_number).zfill(2)}", db=mock_tv_repository.db
+    mock_indexer_service.search.assert_called_once_with(
+        query=f"{show_name} s{str(season_number).zfill(2)}"
     )
     assert len(results) == 3
     assert torrent1 in results
@@ -436,7 +440,7 @@ def test_get_all_available_torrents_for_a_season_no_override(
 
 
 def test_get_all_available_torrents_for_a_season_with_override(
-    tv_service, mock_tv_repository, mock_torrent_service, monkeypatch
+    tv_service, mock_tv_repository, mock_torrent_service, mock_indexer_service
 ):
     show_id = ShowId(uuid.uuid4())
     season_number = 1
@@ -461,8 +465,7 @@ def test_get_all_available_torrents_for_a_season_with_override(
         size=100,
         season=[1],
     )
-    mock_search = MagicMock(return_value=[torrent1])
-    monkeypatch.setattr("media_manager.indexer.service.search", mock_search)
+    mock_indexer_service.search.return_value = [torrent1]
 
     results = tv_service.get_all_available_torrents_for_a_season(
         season_number=season_number,
@@ -470,12 +473,12 @@ def test_get_all_available_torrents_for_a_season_with_override(
         search_query_override=override_query,
     )
 
-    mock_search.assert_called_once_with(query=override_query, db=mock_tv_repository.db)
+    mock_indexer_service.search.assert_called_once_with(query=override_query)
     assert results == [torrent1]
 
 
 def test_get_all_available_torrents_for_a_season_no_results(
-    tv_service, mock_tv_repository, mock_torrent_service, monkeypatch
+    tv_service, mock_tv_repository, mock_torrent_service, mock_indexer_service
 ):
     show_id = ShowId(uuid.uuid4())
     season_number = 1
@@ -490,8 +493,7 @@ def test_get_all_available_torrents_for_a_season_no_results(
     )
     mock_tv_repository.get_show_by_id.return_value = mock_show
 
-    mock_search = MagicMock(return_value=[])
-    monkeypatch.setattr("media_manager.indexer.service.search", mock_search)
+    mock_indexer_service.search.return_value = []
 
     results = tv_service.get_all_available_torrents_for_a_season(
         season_number=season_number, show_id=show_id

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 import media_manager.indexer.service
 import media_manager.metadataProvider
 import media_manager.torrent.repository
-from indexer.repository import IndexerRepository
+from media_manager.indexer.repository import IndexerRepository
 from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
