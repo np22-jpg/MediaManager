@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy import String, Integer
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.sqltypes import BigInteger
 
 from media_manager.database import Base
 from media_manager.indexer.schemas import IndexerQueryResultId
@@ -18,4 +19,4 @@ class IndexerQueryResult(Base):
     flags = mapped_column(ARRAY(String))
     quality: Mapped[Quality]
     season = mapped_column(ARRAY(Integer))
-    size = Mapped[int]
+    size = mapped_column(BigInteger)

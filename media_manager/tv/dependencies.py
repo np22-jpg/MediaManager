@@ -9,6 +9,8 @@ from media_manager.tv.service import TvService
 from media_manager.tv.exceptions import NotFoundError
 from fastapi import HTTPException
 
+from media_manager.torrent.dependencies import TorrentServiceDependency
+
 
 def get_tv_repository(db_session: DbSessionDependency) -> TvRepository:
     return TvRepository(db_session)
@@ -19,8 +21,9 @@ tv_repository_dep = Annotated[TvRepository, Depends(get_tv_repository)]
 
 def get_tv_service(
     tv_repository: tv_repository_dep,
+    torrent_service: TorrentServiceDependency
 ) -> TvService:
-    return TvService(tv_repository)
+    return TvService(tv_repository, torrent_service)
 
 
 tv_service_dep = Annotated[TvService, Depends(get_tv_service)]
