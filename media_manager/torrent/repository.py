@@ -5,7 +5,7 @@ from media_manager.torrent.models import Torrent
 from media_manager.torrent.schemas import TorrentId, Torrent as TorrentSchema
 from media_manager.tv.models import SeasonFile, Show, Season
 from media_manager.tv.schemas import SeasonFile as SeasonFileSchema, Show as ShowSchema
-from tv.exceptions import NotFoundError
+from media_manager.exceptions import NotFoundError
 
 
 class TorrentRepository:
