@@ -20,7 +20,7 @@ services:
       - DB_HOST=db
       #- DB_NAME=
       #- DB_PORT=
-      #- DB_PASSOWORD=
+      #- DB_PASSWORD=
       #- DB_DBNAME=
 
       - AUTH_TOKEN_SECRET=
