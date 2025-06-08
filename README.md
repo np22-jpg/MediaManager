@@ -27,21 +27,21 @@ torrents and authentication.
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] support for movies
 - [x] support for more torrent indexers
 - [x] fully automatic downloads
+- [x] add tests
+- [x] add more logs/errors
+- [ ] support for movies
 - [ ] responsive ui
 - [ ] add check at startup if hardlinks work
-- [ ] support multiple OIDC servers at once
+- [ ] support styling the login with OIDC button
 - [ ] make API return proper error codes
 - [ ] add in-depth documentation on the architecure of the codebase
 - [ ] expand README with more information and a quickstart guide
 - [ ] make indexer module multithreaded
 - [ ] add notification system
 - [ ] _maybe_ rework the logo
-- [ ] add tests
 - [ ] optimize images for web in the backend and merging frontend with backend container
-- [ ] add more logs/errors
 - [ ] add support for deluge and transmission
 - [ ] automatically download new seasons/episodes of shows
 
