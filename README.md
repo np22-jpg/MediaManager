@@ -35,7 +35,7 @@ torrents and authentication.
 - [x] optimize images for web in the backend
 - [x] responsive ui
 - [ ] support for movies
-- [ ] automatically metadata of shows
+- [ ] automatically update metadata of shows
 - [ ] automatically download new seasons/episodes of shows
 - [ ] expand README with more information and a quickstart guide
 - [ ] add notification system
