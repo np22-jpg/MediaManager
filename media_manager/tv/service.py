@@ -1,5 +1,6 @@
 import re
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 import media_manager.indexer.service
@@ -430,14 +431,14 @@ class TvService:
 
         for torrent in torrents:
             if (
-                torrent.quality > season_request.wanted_quality
-                or torrent.quality < season_request.min_quality
-                or torrent.seeders < 3
+                (torrent.quality.value < season_request.wanted_quality.value)
+                or (torrent.quality.value > season_request.min_quality.value)
+                or (torrent.seeders < 3)
             ):
                 log.info(
                     f"Skipping torrent {torrent.title} with quality {torrent.quality} for season {season.id}, because it does not match the requested quality {season_request.wanted_quality}"
                 )
-            elif torrent.season == [season.number]:
+            elif torrent.season != [season.number]:
                 log.info(
                     f"Skipping torrent {torrent.title} with quality {torrent.quality} for season {season.id}, because it contains to many/wrong seasons {torrent.season} (wanted: {season.number})"
                 )
@@ -462,7 +463,13 @@ class TvService:
             torrent_id=torrent.id,
             file_path_suffix=QualityStrings[torrent.quality.name].value.upper(),
         )
-        self.tv_repository.add_season_file(season_file=season_file)
+        try:
+            self.tv_repository.add_season_file(season_file=season_file)
+        except IntegrityError:
+            log.warning(
+                f"Season file for season {season.id} and quality {torrent.quality} already exists, skipping."
+            )
+        self.delete_season_request(season_request.id)
         return True
 
     def import_torrent_files(self, torrent: Torrent, show: Show) -> None:
@@ -566,6 +573,7 @@ def auto_download_all_approved_season_requests() -> None:
     log.info("Auto downloading all approved season requests")
     season_requests = tv_repository.get_season_requests()
     log.info(f"Found {len(season_requests)} season requests to process")
+    log.debug(f"Season requests:  {[x.model_dump() for x in season_requests]}")
     count = 0
 
     for season_request in season_requests:

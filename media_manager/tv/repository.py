@@ -278,15 +278,6 @@ class TvRepository:
         """
         log.debug(f"Attempting to delete season request with id: {season_request_id}")
         try:
-            request_to_delete = self.db.get(SeasonRequest, season_request_id)
-            if not request_to_delete:
-                log.warning(
-                    f"Season request with id {season_request_id} not found for deletion."
-                )
-                raise NotFoundError(
-                    f"Season request with id {season_request_id} not found."
-                )
-
             stmt = delete(SeasonRequest).where(SeasonRequest.id == season_request_id)
             result = self.db.execute(stmt)
             if result.rowcount == 0:
@@ -360,6 +351,7 @@ class TvRepository:
             log.info(f"Successfully retrieved {len(results)} season requests.")
             return [
                 RichSeasonRequestSchema(
+                    id=x.id,
                     min_quality=x.min_quality,
                     wanted_quality=x.wanted_quality,
                     season_id=x.season_id,
@@ -393,7 +385,7 @@ class TvRepository:
             # Assuming SeasonFile model has an 'id' attribute after refresh for logging.
             # If not, this line or the model needs adjustment.
             log.info(
-                f"Successfully added season file. Torrent ID: {db_model.torrent_id}, Path: {db_model.file_path}"
+                f"Successfully added season file. Torrent ID: {db_model.torrent_id}, Path: {db_model.file_path_suffix}"
             )
             return SeasonFileSchema.model_validate(db_model)
         except IntegrityError as e:

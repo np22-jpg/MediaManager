@@ -89,6 +89,11 @@ class TorrentService:
 
         url = indexer_result.download_url
         torrent_filepath = BasicConfig().torrent_directory / f"{torrent.title}.torrent"
+
+        if torrent_filepath.exists():
+            log.warning(f"Torrent already exists: {torrent_filepath}")
+            return self.get_torrent_status(torrent=torrent)
+
         with open(torrent_filepath, "wb") as file:
             content = requests.get(url).content
             file.write(content)

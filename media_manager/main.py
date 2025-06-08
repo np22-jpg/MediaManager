@@ -77,13 +77,13 @@ else:
 def hourly_tasks():
     log.info(f"Tasks are running at {datetime.now()}")
     auto_download_all_approved_season_requests()
-    media_manager.torrent.service.TorrentService(
-        db=SessionLocal()
-    ).import_all_torrents()
+    # media_manager.torrent.service.TorrentService(
+    #    db=SessionLocal()
+    #).import_all_torrents()
 
 
 scheduler = BackgroundScheduler()
-trigger = CronTrigger(minute=0, hour="*")
+trigger = CronTrigger(second=0, hour="*")
 scheduler.add_job(hourly_tasks, trigger)
 scheduler.start()
 
