@@ -32,16 +32,16 @@ torrents and authentication.
 - [x] add tests
 - [x] add more logs/errors
 - [x] make API return proper error codes
+- [x] optimize images for web in the backend
 - [ ] support for movies
 - [ ] responsive ui
 - [ ] add check at startup if hardlinks work
 - [ ] support styling the login with OIDC button
-- [ ] add in-depth documentation on the architecure of the codebase
+- [ ] add in-depth documentation on the architecture of the codebase
 - [ ] expand README with more information and a quickstart guide
 - [ ] make indexer module multithreaded
 - [ ] add notification system
 - [ ] _maybe_ rework the logo
-- [ ] optimize images for web in the backend and merging frontend with backend container
 - [ ] add support for deluge and transmission
 - [ ] automatically download new seasons/episodes of shows
 
