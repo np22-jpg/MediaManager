@@ -98,7 +98,7 @@ base_path = os.getenv("API_BASE_PATH") or "/api/v1"
 log.info("Base Path for API: %s", base_path)
 app = FastAPI(root_path=base_path, lifespan=lifespan)
 
-origins = basic_config.CORS_URLS.split(",")
+origins = basic_config.CORS_URLS
 log.info("CORS URLs activated for following origins:")
 for origin in origins:
     log.info(f" - {origin}")

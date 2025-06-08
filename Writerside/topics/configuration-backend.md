@@ -14,29 +14,29 @@ The url base of the backend. Default is `/api/v1`.
 
 ### `CORS_URLS`
 
-Enter a list of origins you are going to access the api from. Example: `https://mm.example`.
+Enter a list of origins you are going to access the api from. Example: `["https://mm.example"]`.
 
 ## Database Settings
 
 ### `DB_HOST`
 
-Hostname or IP of the PostgreSQL server. Default is `localhost`. Example: `postgres`.
+Hostname or IP of the PostgreSQL server. Default is `localhost`.
 
 ### `DB_PORT`
 
-Port number of the PostgreSQL server. Default is `5432`. Example: `5432`.
+Port number of the PostgreSQL server. Default is `5432`.
 
 ### `DB_USER`
 
-Username for PostgreSQL connection. Default is `MediaManager`. Example: `myuser`.
+Username for PostgreSQL connection. Default is `MediaManager`.
 
 ### `DB_PASSWORD`
 
-Password for the PostgreSQL user. Default is `MediaManager`. Example: `mypassword`.
+Password for the PostgreSQL user. Default is `MediaManager`.
 
 ### `DB_DBNAME`
 
-Name of the PostgreSQL database. Default is `MediaManager`. Example: `mydatabase`.
+Name of the PostgreSQL database. Default is `MediaManager`.
 
 ## Download Client Settings
 
@@ -75,7 +75,7 @@ an account and generate a free API key in your account settings.
 
 #### `TMDB_API_KEY`
 
-Your TMDB API key. Example: `your_tmdb_api_key_here`.
+Your TMDB API key.
 
 ### TVDB (The TVDB)
 
@@ -88,7 +88,7 @@ generate a free API key in your account settings.
 
 #### `TVDB_API_KEY`
 
-Your TVDB API key. Example: `your_tvdb_api_key_here`.
+Your TVDB API key.
 
 ## Directory Settings
 
