@@ -1,3 +1,5 @@
+import re
+
 from sqlalchemy.orm import Session
 
 import media_manager.indexer.service
@@ -7,7 +9,6 @@ from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
-from media_manager.torrent.repository import get_seasons_files_of_torrent
 from media_manager.torrent.schemas import Torrent
 from media_manager.torrent.service import TorrentService
 from media_manager.tv import log
@@ -29,11 +30,18 @@ from media_manager.tv.schemas import (
 from media_manager.torrent.schemas import QualityStrings
 from media_manager.tv.repository import TvRepository
 from media_manager.tv.exceptions import NotFoundError
+import mimetypes
+import pprint
+from pathlib import Path
+from media_manager.config import BasicConfig
+from media_manager.torrent.repository import TorrentRepository
+from media_manager.torrent.utils import import_file, import_torrent
 
 
 class TvService:
-    def __init__(self, tv_repository: TvRepository):
+    def __init__(self, tv_repository: TvRepository, torrent_service: TorrentService):
         self.tv_repository = tv_repository
+        self.torrent_service = torrent_service
 
     def add_show(self, external_id: int, metadata_provider: str) -> Show | None:
         """
@@ -278,10 +286,11 @@ class TvService:
         if season_file.torrent_id is None:
             return True
         else:
-            torrent_file = media_manager.torrent.repository.get_torrent_by_id(
-                db=self.tv_repository.db, torrent_id=season_file.torrent_id
+            torrent_file = self.torrent_service.get_torrent_by_id(
+                torrent_id=season_file.torrent_id
             )
             if torrent_file.imported:
+                print("Servas")
                 return True
         return False
 
@@ -329,8 +338,8 @@ class TvService:
             seasons = self.tv_repository.get_seasons_by_torrent_id(
                 torrent_id=show_torrent.id
             )
-            season_files = get_seasons_files_of_torrent(
-                db=self.tv_repository.db, torrent_id=show_torrent.id
+            season_files = self.torrent_service.get_season_files_of_torrent(
+                torrent=show_torrent
             )
             file_path_suffix = season_files[0].file_path_suffix if season_files else ""
             season_torrent = RichSeasonTorrent(
@@ -377,9 +386,7 @@ class TvService:
         indexer_result = media_manager.indexer.service.get_indexer_query_result(
             db=self.tv_repository.db, result_id=public_indexer_result_id
         )
-        show_torrent = TorrentService(db=self.tv_repository.db).download(
-            indexer_result=indexer_result
-        )
+        show_torrent = self.torrent_service.download(indexer_result=indexer_result)
 
         for season_number in indexer_result.season:
             season = self.tv_repository.get_season_by_number(
@@ -401,7 +408,7 @@ class TvService:
         Download an approved season request.
 
         :param season_request: The season request to download.
-        :param show_id: The ID of the show.
+        :param show: The Show object.
         :return: True if the download was successful, False otherwise.
         :raises ValueError: If the season request is not authorized.
         """
@@ -448,9 +455,7 @@ class TvService:
 
         available_torrents.sort()
 
-        torrent = TorrentService(db=self.tv_repository.db).download(
-            indexer_result=available_torrents[0]
-        )
+        torrent = self.torrent_service.download(indexer_result=available_torrents[0])
         season_file = SeasonFile(
             season_id=season.id,
             quality=torrent.quality,
@@ -460,6 +465,93 @@ class TvService:
         self.tv_repository.add_season_file(season_file=season_file)
         return True
 
+    def import_torrent_files(self, torrent: Torrent, show: Show) -> None:
+        """
+        Organizes files from a torrent into the TV directory structure, mapping them to seasons and episodes.
+        :param torrent: The Torrent object
+        :param show: The Show object
+        """
+
+        video_files, subtitle_files = import_torrent(torrent=torrent)
+
+        log.info(
+            f"Importing these {len(video_files)} files:\n" + pprint.pformat(video_files)
+        )
+
+        show_file_path = (
+            BasicConfig().tv_directory
+            / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
+        )
+        season_files = self.torrent_service.get_season_files_of_torrent(torrent=torrent)
+        log.info(
+            f"Found {len(season_files)} season files associated with torrent {torrent.title}"
+        )
+
+        for season_file in season_files:
+            season = self.get_season(season_id=season_file.season_id)
+            season_path = show_file_path / Path(f"Season {season.number}")
+            try:
+                season_path.mkdir(parents=True, exist_ok=True)
+            except Exception as e:
+                log.warning(f"Could not create path {season_path}: {e}")
+            for episode in season.episodes:
+                episode_file_name = (
+                    f"{show.name} S{season.number:02d}E{episode.number:02d}"
+                )
+                if season_file.file_path_suffix != "":
+                    episode_file_name += f" - {season_file.file_path_suffix}"
+                pattern = (
+                    r".*[.]S0?"
+                    + str(season.number)
+                    + r"E0?"
+                    + str(episode.number)
+                    + r"[.].*"
+                )
+                subtitle_pattern = pattern + r"[.]([A-Za-z]{2})[.]srt"
+                target_file_name = season_path / episode_file_name
+
+                # import subtitles
+                for subtitle_file in subtitle_files:
+                    log.debug(
+                        f"Searching for pattern {subtitle_pattern} in subtitle file: {subtitle_file.name}"
+                    )
+                    regex_result = re.search(subtitle_pattern, subtitle_file.name)
+                    if regex_result:
+                        language_code = regex_result.group(1)
+                        log.debug(
+                            f"Found matching pattern: {subtitle_pattern} in subtitle file: {subtitle_file.name},"
+                            + f" extracted language code: {language_code}"
+                        )
+                        target_subtitle_file = target_file_name.with_suffix(
+                            f".{language_code}.srt"
+                        )
+                        import_file(
+                            target_file=target_subtitle_file, source_file=subtitle_file
+                        )
+                    else:
+                        log.debug(
+                            f"Didn't find any pattern {subtitle_pattern} in subtitle file: {subtitle_file.name}"
+                        )
+
+                # import episode videos
+                for file in video_files:
+                    log.debug(
+                        f"Searching for pattern {pattern} in video file: {file.name}"
+                    )
+                    if re.search(pattern, file.name):
+                        log.debug(
+                            f"Found matching pattern: {pattern} in file {file.name}"
+                        )
+                        target_video_file = target_file_name.with_suffix(file.suffix)
+                        import_file(target_file=target_video_file, source_file=file)
+                        break
+                else:
+                    # TODO: notify admin that no video file was found for this episode
+                    log.warning(
+                        f"S{season.number}E{episode.number} in Torrent {torrent.title}'s files not found."
+                    )
+        log.info(f"Finished organizing files for torrent {torrent.title}")
+
 
 def auto_download_all_approved_season_requests() -> None:
     """
@@ -467,8 +559,9 @@ def auto_download_all_approved_season_requests() -> None:
     This is a standalone function as it creates its own DB session.
     """
     db: Session = SessionLocal()
-    tv_repository = TvRepository(db)
-    tv_service = TvService(tv_repository)
+    tv_repository = TvRepository(db=db)
+    torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
+    tv_service = TvService(tv_repository=tv_repository, torrent_service=torrent_service)
 
     log.info("Auto downloading all approved season requests")
     season_requests = tv_repository.get_season_requests()
@@ -482,8 +575,7 @@ def auto_download_all_approved_season_requests() -> None:
                 season_id=season_request.season_id
             )
             if tv_service.download_approved_season_request(
-                season_request=season_request, show_id=show.id
-            ):
+                season_request=season_request, show=show):
                 count += 1
             else:
                 log.warning(
