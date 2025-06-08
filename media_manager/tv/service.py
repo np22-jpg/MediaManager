@@ -11,7 +11,7 @@ from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
-from media_manager.torrent.schemas import Torrent
+from media_manager.torrent.schemas import Torrent, TorrentStatus
 from media_manager.torrent.service import TorrentService
 from media_manager.tv import log
 from media_manager.tv.schemas import (
@@ -605,3 +605,29 @@ def auto_download_all_approved_season_requests() -> None:
 
     log.info(f"Auto downloaded {count} approved season requests")
     db.close()
+
+
+def import_all_torrents() -> None:
+    db: Session = SessionLocal()
+    tv_repository = TvRepository(db=db)
+    torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
+    indexer_service = IndexerService(indexer_repository=IndexerRepository(db=db))
+    tv_service = TvService(
+        tv_repository=tv_repository,
+        torrent_service=torrent_service,
+        indexer_service=indexer_service,
+    )
+    log.info("Importing all torrents")
+    torrents = torrent_service.get_all_torrents()
+    log.info("Found %d torrents to import", len(torrents))
+    imported_torrents = []
+    for t in torrents:
+        if t.imported == False and t.status == TorrentStatus.finished:
+            show = torrent_service.get_show_of_torrent(torrent=t)
+            if show is None:
+                log.warning(
+                    f"torrent {t.title} is not a tv torrent, skipping import."
+                )
+                continue
+            imported_torrents.append(tv_service.import_torrent_files(torrent=t, show=show))
+    log.info("Finished importing all torrents")

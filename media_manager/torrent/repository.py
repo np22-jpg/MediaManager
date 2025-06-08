@@ -18,7 +18,7 @@ class TorrentRepository:
         result = self.db.execute(stmt).scalars().all()
         return [SeasonFileSchema.model_validate(season_file) for season_file in result]
 
-    def get_show_of_torrent(self, torrent_id: TorrentId) -> ShowSchema:
+    def get_show_of_torrent(self, torrent_id: TorrentId) -> ShowSchema | None:
         stmt = (
             select(Show)
             .join(SeasonFile.season)
@@ -26,6 +26,8 @@ class TorrentRepository:
             .where(SeasonFile.torrent_id == torrent_id)
         )
         result = self.db.execute(stmt).unique().scalar_one_or_none()
+        if result is None:
+            return None
         return ShowSchema.model_validate(result)
 
     def save_torrent(self, torrent: TorrentSchema) -> TorrentSchema:

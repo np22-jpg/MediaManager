@@ -18,4 +18,4 @@ def get_torrent_service(torrent_repository: torrent_repository_dep) -> TorrentSe
     return TorrentService(torrent_repository=torrent_repository)
 
 
-tv_service_dep = Annotated[TorrentService, Depends(get_torrent_service)]
+torrent_service_dep = Annotated[TorrentService, Depends(get_torrent_service)]

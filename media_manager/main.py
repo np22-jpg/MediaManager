@@ -48,7 +48,10 @@ log = logging.getLogger(__name__)
 
 from media_manager.database import init_db
 import media_manager.tv.router as tv_router
-from media_manager.tv.service import auto_download_all_approved_season_requests
+from media_manager.tv.service import (
+    auto_download_all_approved_season_requests,
+    import_all_torrents,
+)
 import media_manager.torrent.router as torrent_router
 from media_manager.config import BasicConfig
 from fastapi import FastAPI
@@ -75,10 +78,7 @@ else:
 def hourly_tasks():
     log.info(f"Tasks are running at {datetime.now()}")
     auto_download_all_approved_season_requests()
-    # media_manager.torrent.service.TorrentService(
-    #    db=SessionLocal()
-    # ).import_all_torrents()
-
+    import_all_torrents()
 
 scheduler = BackgroundScheduler()
 trigger = CronTrigger(second=0, hour="*")
