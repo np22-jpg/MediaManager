@@ -55,7 +55,7 @@ Port of the QBittorrent API. Default is `8080`. Example: `443`.
 
 Username for QBittorrent. Default is `admin`.
 
-### `QBITTORRENT_PASS`
+### `QBITTORRENT_PASSWORD`
 
 Password for QBittorrent. Default is `admin`.
 
