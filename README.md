@@ -31,11 +31,11 @@ torrents and authentication.
 - [x] fully automatic downloads
 - [x] add tests
 - [x] add more logs/errors
+- [x] make API return proper error codes
 - [ ] support for movies
 - [ ] responsive ui
 - [ ] add check at startup if hardlinks work
 - [ ] support styling the login with OIDC button
-- [ ] make API return proper error codes
 - [ ] add in-depth documentation on the architecure of the codebase
 - [ ] expand README with more information and a quickstart guide
 - [ ] make indexer module multithreaded

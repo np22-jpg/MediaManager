@@ -31,7 +31,7 @@ from media_manager.tv.schemas import (
 )
 from media_manager.torrent.schemas import QualityStrings
 from media_manager.tv.repository import TvRepository
-from media_manager.tv.exceptions import NotFoundError
+from media_manager.exceptions import NotFoundError
 import pprint
 from pathlib import Path
 from media_manager.config import BasicConfig

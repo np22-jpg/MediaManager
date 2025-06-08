@@ -10,7 +10,7 @@ from media_manager.indexer.schemas import PublicIndexerQueryResult, IndexerQuery
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
 from media_manager.torrent.schemas import Torrent
 from media_manager.tv import log
-from media_manager.tv.exceptions import MediaAlreadyExists
+from media_manager.exceptions import MediaAlreadyExists
 from media_manager.tv.schemas import (
     Show,
     SeasonRequest,

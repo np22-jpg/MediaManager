@@ -5,6 +5,7 @@ from media_manager.torrent.models import Torrent
 from media_manager.torrent.schemas import TorrentId, Torrent as TorrentSchema
 from media_manager.tv.models import SeasonFile, Show, Season
 from media_manager.tv.schemas import SeasonFile as SeasonFileSchema, Show as ShowSchema
+from tv.exceptions import NotFoundError
 
 
 class TorrentRepository:
@@ -44,7 +45,10 @@ class TorrentRepository:
         ]
 
     def get_torrent_by_id(self, torrent_id: TorrentId) -> TorrentSchema:
-        return TorrentSchema.model_validate(self.db.get(Torrent, torrent_id))
+        result = self.db.get(Torrent, torrent_id)
+        if result is None:
+            raise NotFoundError(f"Torrent with ID {torrent_id} not found.")
+        return TorrentSchema.model_validate(result)
 
     def delete_torrent(self, torrent_id: TorrentId):
         self.db.delete(self.db.get(Torrent, torrent_id))
