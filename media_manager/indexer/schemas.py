@@ -56,13 +56,13 @@ class IndexerQueryResult(BaseModel):
 
     def __gt__(self, other) -> bool:
         if self.quality.value != other.quality.value:
-            return self.quality.value > other.quality.value
-        return self.seeders < other.seeders
+            return self.quality.value < other.quality.value
+        return self.seeders > other.seeders
 
     def __lt__(self, other) -> bool:
         if self.quality.value != other.quality.value:
-            return self.quality.value < other.quality.value
-        return self.seeders > other.seeders
+            return self.quality.value > other.quality.value
+        return self.seeders < other.seeders
 
 class PublicIndexerQueryResult(BaseModel):
     title: str
