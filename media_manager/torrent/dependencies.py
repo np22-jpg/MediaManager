@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from exceptions import NotFoundError
+from media_manager.exceptions import NotFoundError
 from media_manager.database import DbSessionDependency
 from media_manager.torrent.service import TorrentService
 from media_manager.torrent.repository import TorrentRepository

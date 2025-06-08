@@ -52,8 +52,9 @@ from media_manager.tv.service import (
     auto_download_all_approved_season_requests,
     import_all_torrents,
 )
-import media_manager.torrent.router as torrent_router
 from media_manager.config import BasicConfig
+
+import media_manager.torrent.router as torrent_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
@@ -80,8 +81,9 @@ def hourly_tasks():
     auto_download_all_approved_season_requests()
     import_all_torrents()
 
+
 scheduler = BackgroundScheduler()
-trigger = CronTrigger(second=0, hour="*")
+trigger = CronTrigger(minute=0, hour="*")
 scheduler.add_job(hourly_tasks, trigger)
 scheduler.start()
 
@@ -180,7 +182,6 @@ if openid_client is not None:
 app.include_router(tv_router.router, prefix="/tv", tags=["tv"])
 app.include_router(torrent_router.router, prefix="/torrent", tags=["torrent"])
 
-# static file routers
 app.mount(
     "/static/image",
     StaticFiles(directory=basic_config.image_directory),
