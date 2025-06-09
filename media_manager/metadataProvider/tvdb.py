@@ -35,7 +35,9 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
 
         if show_metadata["image"] is not None:
             media_manager.metadataProvider.utils.download_poster_image(
-                storage_path=self.storage_path, poster_url=show_metadata["image"], show=show
+                storage_path=self.storage_path,
+                poster_url=show_metadata["image"],
+                show=show,
             )
             log.info("Successfully downloaded poster image for show " + show.name)
             return True
@@ -76,6 +78,8 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
             year = series["year"]
         except KeyError:
             year = None
+        # NOTE: the TVDB API is fucking shit and seems to be very poorly documentated, I can't for the life of me
+        #  figure out which statuses this fucking api returns
         show = Show(
             name=series["name"],
             overview=series["overview"],
@@ -83,12 +87,13 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
             external_id=series["id"],
             metadata_provider=self.name,
             seasons=seasons,
+            ended=False,
         )
 
         return show
 
     def search_show(
-            self, query: str | None = None
+        self, query: str | None = None
     ) -> list[MetaDataProviderShowSearchResult]:
         if query is None:
             results = self.tvdb_client.get_all_series()

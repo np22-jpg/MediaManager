@@ -17,12 +17,17 @@ class TmdbConfig(BaseSettings):
     TMDB_API_KEY: str | None = None
 
 
+ENDED_STATUS = {"Ended", "Canceled"}
+
 config = TmdbConfig()
 log = logging.getLogger(__name__)
 
 
 class TmdbMetadataProvider(AbstractMetadataProvider):
     name = "tmdb"
+
+    def __init__(self, api_key: str = None):
+        tmdbsimple.API_KEY = api_key
 
     def download_show_poster_image(self, show: Show) -> bool:
         show_metadata = TV(show.external_id).info()
@@ -92,6 +97,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
             year=year,
             seasons=season_list,
             metadata_provider=self.name,
+            ended=show_metadata["status"] in ENDED_STATUS,
         )
 
         return show
@@ -146,8 +152,6 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
                 log.warning(f"Error processing search result {result}: {e}")
         return formatted_results
 
-    def __init__(self, api_key: str = None):
-        tmdbsimple.API_KEY = api_key
 
 
 if config.TMDB_API_KEY is not None:

@@ -34,7 +34,7 @@ def tv_service(mock_tv_repository, mock_torrent_service, mock_indexer_service):
     )
 
 
-def test_add_show(tv_service, mock_tv_repository, mock_torrent_service):
+def test_add_show(tv_service, mock_tv_repository, mock_torrent_service, monkeypatch):
     external_id = 123
     metadata_provider = "tmdb"
     show_data = Show(
@@ -46,7 +46,7 @@ def test_add_show(tv_service, mock_tv_repository, mock_torrent_service):
         metadata_provider=metadata_provider,
         seasons=[],
     )
-
+    monkeypatch.setattr("media_manager.metadataProvider.download_show_poster_image", lambda show:True)
     with patch(
         "media_manager.metadataProvider.get_show_metadata", return_value=show_data
     ) as mock_get_metadata:
@@ -71,6 +71,8 @@ def test_add_show_with_invalid_metadata(
     monkeypatch.setattr(
         "media_manager.metadataProvider.get_show_metadata", lambda id, provider: None
     )
+    monkeypatch.setattr("media_manager.metadataProvider.download_show_poster_image", lambda show:False)
+
     mock_tv_repository.save_show.return_value = None
     result = tv_service.add_show(
         external_id=external_id, metadata_provider=metadata_provider
