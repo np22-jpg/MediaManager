@@ -24,6 +24,15 @@ class AbstractMetadataProvider(ABC):
     def search_show(self, query) -> list[MetaDataProviderShowSearchResult]:
         pass
 
+    @abstractmethod
+    def download_show_poster_image(self, show: Show) -> bool:
+        """
+        Downloads the poster image for a show.
+        :param show: The show to download the poster image for.
+        :return: True if the image was downloaded successfully, False otherwise.
+        """
+        pass
+
 
 metadata_providers = {}
 

@@ -19,6 +19,14 @@ def get_show_metadata(id: int = None, provider: str = "tmdb") -> Show:
     return metadata_providers[provider].get_show_metadata(id)
 
 
+def download_show_poster_image(show: Show) -> bool:
+    """
+    Downloads the poster image for a show.
+    :param show: The show to download the poster image for.
+    :return: True if the image was downloaded successfully, False otherwise.
+    """
+    return metadata_providers[show.metadata_provider].download_show_poster_image(show)
+
 @cached(search_show_cache)
 def search_show(
     query: str | None = None, provider: str = "tmdb"

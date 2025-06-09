@@ -24,6 +24,27 @@ log = logging.getLogger(__name__)
 class TmdbMetadataProvider(AbstractMetadataProvider):
     name = "tmdb"
 
+    def download_show_poster_image(self, show: Show) -> bool:
+        show_metadata = TV(show.external_id).info()
+        # downloading the poster
+        # all pictures from TMDB should already be jpeg, so no need to convert
+        if show_metadata["poster_path"] is not None:
+            poster_url = (
+                "https://image.tmdb.org/t/p/original" + show_metadata["poster_path"]
+            )
+            if media_manager.metadataProvider.utils.download_poster_image(
+                storage_path=self.storage_path, poster_url=poster_url, show=show
+            ):
+                log.info("Successfully downloaded poster image for show " + show.name)
+            else:
+                log.warning(f"download for image of show {show.name} failed")
+                return False
+        else:
+            log.warning(f"image for show {show.name} could not be downloaded")
+            return False
+        return True
+
+
     def get_show_metadata(self, id: int = None) -> Show:
         """
 
@@ -72,21 +93,6 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
             seasons=season_list,
             metadata_provider=self.name,
         )
-
-        # downloading the poster
-        # all pictures from TMDB should already be jpeg, so no need to convert
-        if show_metadata["poster_path"] is not None:
-            poster_url = (
-                "https://image.tmdb.org/t/p/original" + show_metadata["poster_path"]
-            )
-            if media_manager.metadataProvider.utils.download_poster_image(
-                storage_path=self.storage_path, poster_url=poster_url, show=show
-            ):
-                log.info("Successfully downloaded poster image for show " + show.name)
-            else:
-                log.warning(f"download for image of show {show.name} failed")
-        else:
-            log.warning(f"image for show {show.name} could not be downloaded")
 
         return show
 

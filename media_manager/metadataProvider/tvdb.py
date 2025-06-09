@@ -24,10 +24,24 @@ log = logging.getLogger(__name__)
 
 class TvdbMetadataProvider(AbstractMetadataProvider):
     name = "tvdb"
+
     tvdb_client: tvdb_v4_official.TVDB
 
     def __init__(self, api_key: str = None):
         self.tvdb_client = tvdb_v4_official.TVDB(api_key)
+
+    def download_show_poster_image(self, show: Show) -> bool:
+        show_metadata = self.tvdb_client.get_series_extended(show.external_id)
+
+        if show_metadata["image"] is not None:
+            media_manager.metadataProvider.utils.download_poster_image(
+                storage_path=self.storage_path, poster_url=show_metadata["image"], show=show
+            )
+            log.info("Successfully downloaded poster image for show " + show.name)
+            return True
+        else:
+            log.warning(f"image for show {show.name} could not be downloaded")
+            return False
 
     def get_show_metadata(self, id: int = None) -> Show:
         """
@@ -71,17 +85,10 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
             seasons=seasons,
         )
 
-        if series["image"] is not None:
-            media_manager.metadataProvider.utils.download_poster_image(
-                storage_path=self.storage_path, poster_url=series["image"], show=show
-            )
-        else:
-            log.warning(f"image for show {show.name} could not be downloaded")
-
         return show
 
     def search_show(
-        self, query: str | None = None
+            self, query: str | None = None
     ) -> list[MetaDataProviderShowSearchResult]:
         if query is None:
             results = self.tvdb_client.get_all_series()
