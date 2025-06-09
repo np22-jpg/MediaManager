@@ -49,6 +49,7 @@ class Show(BaseModel):
     overview: str
     year: int | None
 
+    ended: bool = False
     external_id: int
     metadata_provider: str
 
@@ -153,5 +154,7 @@ class PublicShow(BaseModel):
 
     external_id: int
     metadata_provider: str
+
+    ended: bool = False
 
     seasons: list[PublicSeason]

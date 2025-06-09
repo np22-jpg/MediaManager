@@ -581,7 +581,9 @@ class TvService:
         log.debug(f"Found show: {db_show.name} for metadata update.")
         # old_poster_url = db_show.poster_url # poster_url removed from db_show
 
-        fresh_show_data = media_manager.metadataProvider.get_show_metadata(id=db_show.external_id, provider=db_show.metadata_provider)
+        fresh_show_data = media_manager.metadataProvider.get_show_metadata(
+            id=db_show.external_id, provider=db_show.metadata_provider
+        )
         if not fresh_show_data:
             log.warning(
                 f"Could not fetch fresh metadata for show {db_show.name} (External ID: {db_show.external_id}) from {db_show.metadata_provider}."
@@ -594,7 +596,8 @@ class TvService:
             show_id=db_show.id,
             name=fresh_show_data.name,
             overview=fresh_show_data.overview,
-            year=fresh_show_data.year
+            year=fresh_show_data.year,
+            ended=fresh_show_data.ended
         )
 
         # Process seasons and episodes

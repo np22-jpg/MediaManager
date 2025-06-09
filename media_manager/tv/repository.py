@@ -147,6 +147,7 @@ class TvRepository:
                 name=show.name,
                 overview=show.overview,
                 year=show.year,
+                ended=show.ended,
                 seasons=[
                     Season(
                         id=season.id,
@@ -667,7 +668,7 @@ class TvRepository:
         log.info(f"Successfully added episode {db_episode.number} (ID: {db_episode.id}) to season {season_id}.")
         return EpisodeSchema.model_validate(db_episode)
 
-    def update_show_attributes(self, show_id: ShowId, name: str | None = None, overview: str | None = None, year: int | None = None) -> ShowSchema: # Removed poster_url from params
+    def update_show_attributes(self, show_id: ShowId, name: str | None = None, overview: str | None = None, year: int | None = None, ended: bool|None = None) -> ShowSchema: # Removed poster_url from params
         """
         Update attributes of an existing show.
 
@@ -675,10 +676,8 @@ class TvRepository:
         :param name: The new name for the show.
         :param overview: The new overview for the show.
         :param year: The new year for the show.
-        # :param poster_url: The new poster URL for the show. # Removed poster_url doc
+        :param ended: The new ended status for the show.
         :return: The updated ShowSchema object.
-        :raises NotFoundError: If the show is not found.
-        :raises SQLAlchemyError: If a database error occurs.
         """
         log.debug(f"Attempting to update attributes for show ID: {show_id}")
         db_show = self.db.get(Show, show_id)
@@ -696,9 +695,9 @@ class TvRepository:
         if year is not None and db_show.year != year:
             db_show.year = year
             updated = True
-        # if poster_url is not None and db_show.poster_url != poster_url: # Removed poster_url update logic
-        #     db_show.poster_url = poster_url
-        #     updated = True
+        if ended is not None and db_show.ended != ended:
+            db_show.ended = ended
+            updated = True
 
         if updated:
             self.db.commit()
