@@ -707,6 +707,7 @@ def auto_download_all_approved_season_requests() -> None:
                 )
 
     log.info(f"Auto downloaded {count} approved season requests")
+    db.commit()
     db.close()
 
 
@@ -734,3 +735,33 @@ def import_all_torrents() -> None:
                 continue
             imported_torrents.append(tv_service.import_torrent_files(torrent=t, show=show))
     log.info("Finished importing all torrents")
+    db.commit()
+    db.close()
+
+
+def update_all_non_ended_shows_metadata() -> None:
+    """
+    Updates the metadata of all non-ended shows.
+    """
+    db: Session = SessionLocal()
+    tv_repository = TvRepository(db=db)
+    tv_service = TvService(
+        tv_repository=tv_repository,
+        torrent_service=TorrentService(torrent_repository=TorrentRepository(db=db)),
+        indexer_service=IndexerService(indexer_repository=IndexerRepository(db=db)),
+    )
+
+    log.info("Updating metadata for all non-ended shows")
+
+    shows = [show for show in tv_repository.get_shows() if not show.ended]
+
+    log.info(f"Found {len(shows)} non-ended shows to update")
+
+    for show in shows:
+        updated_show = tv_service.update_show_metadata(db_show=show)
+        if updated_show:
+            log.info(f"Successfully updated metadata for show: {updated_show.name}")
+        else:
+            log.warning(f"Failed to update metadata for show: {show.name}")
+    db.commit()
+    db.close()

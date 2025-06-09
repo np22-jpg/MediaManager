@@ -51,7 +51,9 @@ import media_manager.tv.router as tv_router
 from media_manager.tv.service import (
     auto_download_all_approved_season_requests,
     import_all_torrents,
+    update_all_non_ended_shows_metadata,
 )
+
 from media_manager.config import BasicConfig
 
 import media_manager.torrent.router as torrent_router
@@ -77,14 +79,20 @@ else:
 
 
 def hourly_tasks():
-    log.info(f"Tasks are running at {datetime.now()}")
+    log.info(f"Hourly tasks are running at {datetime.now()}")
     auto_download_all_approved_season_requests()
     import_all_torrents()
+
+def weekly_tasks():
+    log.info(f"Weekly tasks are running at {datetime.now()}")
+    update_all_non_ended_shows_metadata()
 
 
 scheduler = BackgroundScheduler()
 trigger = CronTrigger(minute=0, hour="*")
+weekly_trigger = CronTrigger(day_of_week="mon", hour=0, minute=0, jitter=60*60*24*2)
 scheduler.add_job(hourly_tasks, trigger)
+scheduler.add_job(weekly_tasks, trigger)
 scheduler.start()
 
 
