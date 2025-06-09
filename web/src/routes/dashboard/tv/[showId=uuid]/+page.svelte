@@ -51,8 +51,8 @@
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
     {getFullyQualifiedShowName(show())}
 </h1>
-<div class="flex flex-1 flex-col gap-4 p-4">
-    <div class="flex flex-col md:flex-row items-stretch md:items-center gap-4">
+<div class="flex flex-1 w-full flex-col gap-4 p-4">
+    <div class="flex flex-col md:flex-row md:items-stretch gap-4">
         <div class="w-full md:w-1/3 md:max-w-sm rounded-xl bg-muted/50 overflow-hidden">
             {#if show().id}
                 <ShowPicture show={show()}/>
@@ -64,13 +64,13 @@
                 </div>
             {/if}
         </div>
-        <div class="w-full md:flex-auto rounded-xl bg-muted/50 p-4">
+        <div class="w-full md:w-1/4 flex-auto rounded-xl bg-muted/50 p-4">
             <p class="leading-7 [&:not(:first-child)]:mt-6">
                 {show().overview}
             </p>
         </div>
         <div
-                class="flex w-full md:flex-auto flex-col items-center justify-center gap-2 rounded-xl bg-muted/50 p-4"
+                class="w-full md:w-1/3 flex-auto rounded-xl bg-muted/50 p-4"
         >
             {#if user().is_superuser}
                 <DownloadSeasonDialog show={show()}/>
