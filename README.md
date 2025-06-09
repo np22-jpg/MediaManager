@@ -44,6 +44,7 @@ torrents and authentication.
 - [ ] add support for deluge and transmission
 - [ ] make indexer module multithreaded
 - [ ] _maybe_ rework the logo
+- [ ] _maybe_ add support for configuration via toml config file
 
 See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a full list of proposed features (and known issues).
 
