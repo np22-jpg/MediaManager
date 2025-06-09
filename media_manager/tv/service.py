@@ -568,21 +568,16 @@ class TvService:
                     )
         log.info(f"Finished organizing files for torrent {torrent.title}")
 
-    def update_show_metadata(self, show_id: ShowId) -> Show | None:
+    def update_show_metadata(self, db_show: Show) -> Show | None:
         """
         Updates the metadata of a show.
         This includes adding new seasons and episodes if available from the metadata provider.
         It also updates existing show, season, and episode attributes if they have changed.
 
-        :param show_id: The ID of the show to update.
+        :param db_show: The Show to update
         :return: The updated Show object, or None if the show is not found or an error occurs.
         """
-        log.info(f"Starting metadata update for show ID: {show_id}")
         # Get the existing show from the database
-        db_show = self.tv_repository.get_show_by_id(show_id=show_id)
-        if not db_show:
-            log.warning(f"Show with ID {show_id} not found for metadata update.")
-            return None
         log.debug(f"Found show: {db_show.name} for metadata update.")
         # old_poster_url = db_show.poster_url # poster_url removed from db_show
 
@@ -663,8 +658,8 @@ class TvService:
                     season_data=season_schema
                 )
 
-        updated_show = self.tv_repository.get_show_by_id(show_id=show_id)
-        log.info(f"Successfully updated metadata for show ID: {show_id}")
+        updated_show = self.tv_repository.get_show_by_id(show_id=db_show.id)
+        log.info(f"Successfully updated metadata for show ID: {db_show.id}")
         media_manager.metadataProvider.download_show_poster_image(show=updated_show)
         return updated_show
 

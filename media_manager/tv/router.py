@@ -71,8 +71,8 @@ def add_a_show(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(current_active_user)],
 )
-def delete_a_show(tv_repository: tv_repository_dep, show_id: ShowId):
-    tv_repository.delete_show(show_id=show_id)
+def delete_a_show(tv_repository: tv_repository_dep, show: show_dep):
+    tv_repository.delete_show(show_id=show.id)
 
 
 # --------------------------------
@@ -114,6 +114,19 @@ def get_shows_with_torrents(tv_service: tv_service_dep):
     response_model=PublicShow,
 )
 def get_a_show(show: show_dep, tv_service: tv_service_dep) -> PublicShow:
+    return tv_service.get_public_show_by_id(show_id=show.id)
+
+
+@router.post(
+    "/shows/{show_id}/metadata",
+    dependencies=[Depends(current_active_user)],
+    response_model=PublicShow,
+)
+def get_a_show(show: show_dep, tv_service: tv_service_dep) -> PublicShow:
+    """
+    Updates a shows metadata.
+    """
+    tv_service.update_show_metadata(db_show=show)
     return tv_service.get_public_show_by_id(show_id=show.id)
 
 
