@@ -164,7 +164,7 @@
         {/if}
     {/await}
 {/snippet}
-<Tabs.Root class="w-[400px]" value={tabValue}>
+<Tabs.Root value={tabValue}>
     <Tabs.Content value="login">
         <Card.Root class="mx-auto max-w-sm">
             <Card.Header>
