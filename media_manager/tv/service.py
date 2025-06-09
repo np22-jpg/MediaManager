@@ -596,12 +596,12 @@ class TvService:
         )
 
         # Process seasons and episodes
-        existing_season_numbers = {s.number: s for s in db_show.seasons}
+        existing_season_external_ids = {s.external_id: s for s in db_show.seasons}
 
         for fresh_season_data in fresh_show_data.seasons:
-            if fresh_season_data.number in existing_season_numbers:
+            if fresh_season_data.external_id in existing_season_external_ids:
                 # Update existing season
-                existing_season = existing_season_numbers[fresh_season_data.number]
+                existing_season = existing_season_external_ids[fresh_season_data.external_id]
                 log.debug(f"Updating existing season {existing_season.number} for show {db_show.name}")
                 self.tv_repository.update_season_attributes(
                     season_id=existing_season.id,
@@ -610,11 +610,11 @@ class TvService:
                 )
 
                 # Process episodes for this season
-                existing_episode_numbers = {ep.number: ep for ep in existing_season.episodes}
+                existing_episode_external_ids = {ep.external_id: ep for ep in existing_season.episodes}
                 for fresh_episode_data in fresh_season_data.episodes:
-                    if fresh_episode_data.number in existing_episode_numbers:
+                    if fresh_episode_data.number in existing_episode_external_ids:
                         # Update existing episode
-                        existing_episode = existing_episode_numbers[fresh_episode_data.number]
+                        existing_episode = existing_episode_external_ids[fresh_episode_data.external_id]
                         log.debug(f"Updating existing episode {existing_episode.number} for season {existing_season.number}")
                         self.tv_repository.update_episode_attributes(
                             episode_id=existing_episode.id,
