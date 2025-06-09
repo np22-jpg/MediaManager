@@ -583,7 +583,9 @@ class TvService:
 
         fresh_show_data = media_manager.metadataProvider.get_show_metadata(id=db_show.external_id, provider=db_show.metadata_provider)
         if not fresh_show_data:
-            log.warning(f"Could not fetch fresh metadata for show {db_show.name} (External ID: {db_show.external_id}) from {db_show.metadata_provider}.")
+            log.warning(
+                f"Could not fetch fresh metadata for show {db_show.name} (External ID: {db_show.external_id}) from {db_show.metadata_provider}."
+            )
             return db_show
         log.debug(f"Fetched fresh metadata for show: {fresh_show_data.name}")
 
