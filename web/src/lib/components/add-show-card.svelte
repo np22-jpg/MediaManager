@@ -33,7 +33,7 @@
 	}
 </script>
 
-<Card.Root class="h-full overflow-x-hidden col-span-full">
+<Card.Root class="h-full overflow-x-hidden col-span-full sm:col-span-1">
 	<Card.Header>
 		<Card.Title class="flex h-12 items-center leading-tight">
 			{result.name}
