@@ -84,17 +84,8 @@ def delete_a_show(tv_repository: tv_repository_dep, show: show_dep):
 @router.get(
     "/shows", dependencies=[Depends(current_active_user)], response_model=list[Show]
 )
-def get_all_shows(
-    tv_service: tv_service_dep,
-    metadata_provider: metadata_provider_dep,
-    external_id: int = None,
-):
-    if external_id is not None:
-        return tv_service.get_show_by_external_id(
-            external_id=external_id, metadata_provider=metadata_provider
-        )
-    else:
-        return tv_service.get_all_shows()
+def get_all_shows(tv_service: tv_service_dep):
+    return tv_service.get_all_shows()
 
 
 @router.get(
