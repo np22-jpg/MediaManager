@@ -18,11 +18,13 @@ class AbstractMetadataProvider(ABC):
 
     @abstractmethod
     def get_show_metadata(self, id: int = None) -> Show:
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
-    def search_show(self, query) -> list[MetaDataProviderShowSearchResult]:
-        pass
+    def search_show(
+        self, query: str | None = None
+    ) -> list[MetaDataProviderShowSearchResult]:
+        raise NotImplementedError()
 
     @abstractmethod
     def download_show_poster_image(self, show: Show) -> bool:
@@ -31,7 +33,7 @@ class AbstractMetadataProvider(ABC):
         :param show: The show to download the poster image for.
         :return: True if the image was downloaded successfully, False otherwise.
         """
-        pass
+        raise NotImplementedError()
 
 
 metadata_providers = {}

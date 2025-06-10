@@ -6,6 +6,7 @@ import logging
 from pydantic_settings import BaseSettings
 
 import media_manager.metadataProvider.utils
+from media_manager.exceptions import InvalidConfigError
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
     register_metadata_provider,
@@ -18,7 +19,6 @@ class TvdbConfig(BaseSettings):
     TVDB_API_KEY: str | None = None
 
 
-config = TvdbConfig()
 log = logging.getLogger(__name__)
 
 
@@ -28,7 +28,10 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
     tvdb_client: tvdb_v4_official.TVDB
 
     def __init__(self, api_key: str = None):
-        self.tvdb_client = tvdb_v4_official.TVDB(api_key)
+        config = TvdbConfig()
+        if config.TVDB_API_KEY is None:
+            raise InvalidConfigError("TVDB_API_KEY is not set")
+        self.tvdb_client = tvdb_v4_official.TVDB(config.TVDB_API_KEY)
 
     def download_show_poster_image(self, show: Show) -> bool:
         show_metadata = self.tvdb_client.get_series_extended(show.external_id)
@@ -123,17 +126,3 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
             except Exception as e:
                 log.warning(f"Error processing search result {result}: {e}")
         return formatted_results
-
-
-if config.TVDB_API_KEY is not None:
-    log.info("Registering TVDB as metadata provider")
-    register_metadata_provider(
-        metadata_provider=TvdbMetadataProvider(config.TVDB_API_KEY)
-    )
-
-if __name__ == "__main__":
-    tvdb = TvdbMetadataProvider(config.TVDB_API_KEY)
-    # show_metadata = tvdb.get_show_metadata(id=328724)  # Replace with a valid TVDB ID
-    # pprint.pprint(dict(show_metadata))
-    search_results = tvdb.search_show("Simpsons Declassified")
-    pprint.pprint(search_results)

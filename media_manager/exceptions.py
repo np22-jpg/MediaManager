@@ -8,3 +8,9 @@ class NotFoundError(Exception):
     """Custom exception for when an entity is not found."""
 
     pass
+
+
+class InvalidConfigError(Exception):
+    """Custom exception for when an entity is not found."""
+
+    pass

@@ -5,9 +5,9 @@ from pydantic_settings import BaseSettings
 from tmdbsimple import TV, TV_Seasons
 
 import media_manager.metadataProvider.utils
+from media_manager.exceptions import InvalidConfigError
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
-    register_metadata_provider,
 )
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
 from media_manager.tv.schemas import Episode, Season, Show, SeasonNumber, EpisodeNumber
@@ -19,7 +19,6 @@ class TmdbConfig(BaseSettings):
 
 ENDED_STATUS = {"Ended", "Canceled"}
 
-config = TmdbConfig()
 log = logging.getLogger(__name__)
 
 
@@ -27,7 +26,10 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
     name = "tmdb"
 
     def __init__(self, api_key: str = None):
-        tmdbsimple.API_KEY = api_key
+        config = TmdbConfig()
+        if config.TMDB_API_KEY is None:
+            raise InvalidConfigError("TMDB_API_KEY is not set")
+        tmdbsimple.API_KEY = config.TMDB_API_KEY
 
     def download_show_poster_image(self, show: Show) -> bool:
         show_metadata = TV(show.external_id).info()
@@ -151,11 +153,3 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
             except Exception as e:
                 log.warning(f"Error processing search result {result}: {e}")
         return formatted_results
-
-
-
-if config.TMDB_API_KEY is not None:
-    log.info("Registering TMDB as metadata provider")
-    register_metadata_provider(
-        metadata_provider=TmdbMetadataProvider(config.TMDB_API_KEY)
-    )

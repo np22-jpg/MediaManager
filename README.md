@@ -34,8 +34,8 @@ torrents and authentication.
 - [x] make API return proper error codes
 - [x] optimize images for web in the backend
 - [x] responsive ui
+- [x] automatically update metadata of shows
 - [ ] support for movies
-- [ ] automatically update metadata of shows
 - [ ] automatically download new seasons/episodes of shows
 - [ ] expand README with more information and a quickstart guide
 - [ ] add notification system
@@ -43,6 +43,7 @@ torrents and authentication.
 - [ ] add check at startup if hardlinks work
 - [ ] add support for deluge and transmission
 - [ ] make indexer module multithreaded
+- [ ] improve reliability of scheduled tasks
 - [ ] _maybe_ rework the logo
 - [ ] _maybe_ add support for configuration via toml config file
 
