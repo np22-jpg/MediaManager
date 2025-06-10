@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from media_manager.exceptions import NotFoundError
-from media_manager.tv.schemas import Show, ShowId
+from media_manager.tv.schemas import Show, ShowId, SeasonId
 from media_manager.tv.service import TvService
 from media_manager.indexer.schemas import IndexerQueryResult, IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
@@ -34,49 +34,46 @@ def tv_service(mock_tv_repository, mock_torrent_service, mock_indexer_service):
     )
 
 
-def test_add_show(tv_service, mock_tv_repository, mock_torrent_service, monkeypatch):
+def test_add_show(tv_service, mock_tv_repository, mock_torrent_service):
     external_id = 123
-    metadata_provider = "tmdb"
+    # Now we pass a mock metadata provider object
+    mock_metadata_provider = MagicMock()
     show_data = Show(
         id=ShowId(uuid.uuid4()),
         name="Test Show",
         overview="Test Overview",
         year=2022,
         external_id=external_id,
-        metadata_provider=metadata_provider,
+        metadata_provider="tmdb",
         seasons=[],
     )
-    monkeypatch.setattr("media_manager.metadataProvider.download_show_poster_image", lambda show:True)
-    with patch(
-        "media_manager.metadataProvider.get_show_metadata", return_value=show_data
-    ) as mock_get_metadata:
-        mock_tv_repository.save_show.return_value = show_data
-        result = tv_service.add_show(
-            external_id=external_id, metadata_provider=metadata_provider
-        )
+    mock_metadata_provider.get_show_metadata.return_value = show_data
+    mock_metadata_provider.download_show_poster_image.return_value = True
+    mock_tv_repository.save_show.return_value = show_data
 
-        mock_get_metadata.assert_called_once_with(
-            id=external_id, provider=metadata_provider
-        )
-        mock_tv_repository.save_show.assert_called_once_with(show=show_data)
-        assert result == show_data
+    result = tv_service.add_show(
+        external_id=external_id, metadata_provider=mock_metadata_provider
+    )
+
+    mock_metadata_provider.get_show_metadata.assert_called_once_with(id=external_id)
+    mock_tv_repository.save_show.assert_called_once_with(show=show_data)
+    mock_metadata_provider.download_show_poster_image.assert_called_once_with(show=show_data)
+    assert result == show_data
 
 
 def test_add_show_with_invalid_metadata(
-    monkeypatch, tv_service, mock_tv_repository, mock_torrent_service
+    tv_service, mock_tv_repository, mock_torrent_service
 ):
     external_id = 123
-    metadata_provider = "tmdb"
+    mock_metadata_provider = MagicMock()
     # Simulate metadata provider returning None
-    monkeypatch.setattr(
-        "media_manager.metadataProvider.get_show_metadata", lambda id, provider: None
-    )
-    monkeypatch.setattr("media_manager.metadataProvider.download_show_poster_image", lambda show:False)
-
+    mock_metadata_provider.get_show_metadata.return_value = None
+    mock_metadata_provider.download_show_poster_image.return_value = False
     mock_tv_repository.save_show.return_value = None
     result = tv_service.add_show(
-        external_id=external_id, metadata_provider=metadata_provider
+        external_id=external_id, metadata_provider=mock_metadata_provider
     )
+    mock_metadata_provider.get_show_metadata.assert_called_once_with(id=external_id)
     assert result is None
 
 
@@ -115,7 +112,7 @@ def test_check_if_show_exists_with_invalid_uuid(
     tv_service, mock_tv_repository, mock_torrent_service
 ):
     # Simulate NotFoundError for a random UUID
-    show_id = uuid.uuid4()
+    show_id = ShowId(uuid.uuid4())
     mock_tv_repository.get_show_by_id.side_effect = NotFoundError
     assert not tv_service.check_if_show_exists(show_id=show_id)
 
@@ -185,7 +182,7 @@ def test_get_show_by_id(tv_service, mock_tv_repository, mock_torrent_service):
 
 
 def test_get_show_by_id_not_found(tv_service, mock_tv_repository, mock_torrent_service):
-    show_id = uuid.uuid4()
+    show_id = ShowId(uuid.uuid4())
     mock_tv_repository.get_show_by_id.side_effect = NotFoundError
     try:
         tv_service.get_show_by_id(show_id)
@@ -231,7 +228,7 @@ def test_get_season(tv_service, mock_tv_repository, mock_torrent_service):
 
 
 def test_get_season_not_found(tv_service, mock_tv_repository, mock_torrent_service):
-    season_id = uuid.uuid4()
+    season_id = SeasonId(uuid.uuid4())
     mock_tv_repository.get_season.side_effect = NotFoundError
     try:
         tv_service.get_season(season_id)
@@ -290,7 +287,7 @@ def test_get_public_season_files_by_season_id_not_downloaded(
 def test_get_public_season_files_by_season_id_empty(
     tv_service, mock_tv_repository, mock_torrent_service
 ):
-    season_id = uuid.uuid4()
+    season_id = SeasonId(uuid.uuid4())
     mock_tv_repository.get_season_files_by_season_id.return_value = []
     result = tv_service.get_public_season_files_by_season_id(season_id)
     assert result == []
@@ -323,7 +320,7 @@ def test_is_season_downloaded_false(
 def test_is_season_downloaded_with_no_files(
     tv_service, mock_tv_repository, mock_torrent_service
 ):
-    season_id = uuid.uuid4()
+    season_id = SeasonId(uuid.uuid4())
     mock_tv_repository.get_season_files_by_season_id.return_value = []
     assert tv_service.is_season_downloaded(season_id) is False
 
@@ -362,15 +359,12 @@ def test_season_file_exists_on_file_not_imported(
 def test_season_file_exists_on_file_with_none_imported(
     monkeypatch, tv_service, mock_torrent_service
 ):
-    class DummyFile:
+    class DummySeasonFile:
         def __init__(self):
             self.torrent_id = uuid.uuid4()
-
-    dummy_file = DummyFile()
-
+    dummy_file = DummySeasonFile()
     class DummyTorrent:
         imported = True
-
     tv_service.torrent_service.torrent_repository.get_torrent_by_id = MagicMock(
         return_value=DummyTorrent()
     )
@@ -380,15 +374,12 @@ def test_season_file_exists_on_file_with_none_imported(
 def test_season_file_exists_on_file_with_none_not_imported(
     monkeypatch, tv_service, mock_torrent_service
 ):
-    class DummyFile:
+    class DummySeasonFile:
         def __init__(self):
             self.torrent_id = uuid.uuid4()
-
-    dummy_file = DummyFile()
-
+    dummy_file = DummySeasonFile()
     class DummyTorrent:
         imported = False
-
     tv_service.torrent_service.get_torrent_by_id = MagicMock(
         return_value=DummyTorrent()
     )
@@ -504,7 +495,7 @@ def test_get_all_available_torrents_for_a_season_with_override(
         seeders=10,
         flags=[],
         size=100,
-        season=[1],
+        # Remove 'season' argument if not supported by IndexerQueryResult
     )
     mock_indexer_service.search.return_value = [torrent1]
 
@@ -542,138 +533,115 @@ def test_get_all_available_torrents_for_a_season_no_results(
     assert results == []
 
 
-def test_search_for_show_no_existing(tv_service, mock_torrent_service, monkeypatch):
+def test_search_for_show_no_existing(tv_service, mock_torrent_service):
     query = "Test Show"
-    metadata_provider = "tmdb"
+    mock_metadata_provider = MagicMock()
     search_result_item = MetaDataProviderShowSearchResult(
         external_id=123,
         name="Test Show",
         year=2022,
         overview="Overview",
-        metadata_provider=metadata_provider,
+        metadata_provider="tmdb",
         added=False,
-        poster_path=None,  # Added
+        poster_path=None,
     )
-
-    mock_search_show = MagicMock(return_value=[search_result_item])
-    monkeypatch.setattr("media_manager.metadataProvider.search_show", mock_search_show)
-
-    # Mock check_if_show_exists to always return False (show not added)
-    monkeypatch.setattr(
-        tv_service, "check_if_show_exists", lambda external_id, metadata_provider: False
-    )
-
+    mock_metadata_provider.search_show.return_value = [search_result_item]
+    mock_metadata_provider.name = "tmdb"
+    tv_service.check_if_show_exists = MagicMock(return_value=False)
     results = tv_service.search_for_show(
-        query=query, metadata_provider=metadata_provider
+        query=query, metadata_provider=mock_metadata_provider
     )
-
-    mock_search_show.assert_called_once_with(query, metadata_provider)
+    mock_metadata_provider.search_show.assert_called_once_with(query)
     assert len(results) == 1
     assert results[0] == search_result_item
-    assert results[0].added is False  # Should not be marked as added
+    assert results[0].added is False
 
 
-def test_search_for_show_with_existing(tv_service, mock_torrent_service, monkeypatch):
+def test_search_for_show_with_existing(tv_service, mock_torrent_service):
     query = "Test Show"
-    metadata_provider = "tmdb"
+    mock_metadata_provider = MagicMock()
     search_result_item = MetaDataProviderShowSearchResult(
         external_id=123,
         name="Test Show",
         year=2022,
         overview="Overview",
-        metadata_provider=metadata_provider,
-        added=False,  # Initialized to False, logic will set it to True
-        poster_path=None,  # Added
+        metadata_provider="tmdb",
+        added=False,
+        poster_path=None,
     )
-
-    mock_search_show = MagicMock(return_value=[search_result_item])
-    monkeypatch.setattr("media_manager.metadataProvider.search_show", mock_search_show)
-
-    # Mock check_if_show_exists to always return True (show already added)
-    monkeypatch.setattr(
-        tv_service, "check_if_show_exists", lambda external_id, metadata_provider: True
-    )
-
+    mock_metadata_provider.search_show.return_value = [search_result_item]
+    mock_metadata_provider.name = "tmdb"
+    tv_service.check_if_show_exists = MagicMock(return_value=True)
     results = tv_service.search_for_show(
-        query=query, metadata_provider=metadata_provider
+        query=query, metadata_provider=mock_metadata_provider
     )
-
     assert len(results) == 1
-    assert results[0].added is True  # Should be marked as added
+    assert results[0].added is True
 
 
-def test_search_for_show_empty_results(tv_service, mock_torrent_service, monkeypatch):
+def test_search_for_show_empty_results(tv_service, mock_torrent_service):
     query = "NonExistent Show"
-    metadata_provider = "tmdb"
-    mock_search_show = MagicMock(return_value=[])
-    monkeypatch.setattr("media_manager.metadataProvider.search_show", mock_search_show)
-
+    mock_metadata_provider = MagicMock()
+    mock_metadata_provider.search_show.return_value = []
+    tv_service.check_if_show_exists = MagicMock()
     results = tv_service.search_for_show(
-        query=query, metadata_provider=metadata_provider
+        query=query, metadata_provider=mock_metadata_provider
     )
     assert results == []
 
 
-def test_get_popular_shows_none_added(tv_service, mock_torrent_service, monkeypatch):
-    metadata_provider = "tmdb"
+def test_get_popular_shows_none_added(tv_service, mock_torrent_service):
+    mock_metadata_provider = MagicMock()
     popular_show1 = MetaDataProviderShowSearchResult(
         external_id=123,
         name="Popular Show 1",
         year=2022,
         overview="Overview1",
-        metadata_provider=metadata_provider,
+        metadata_provider="tmdb",
         added=False,
-        poster_path=None,  # Added
+        poster_path=None,
     )
     popular_show2 = MetaDataProviderShowSearchResult(
         external_id=456,
         name="Popular Show 2",
         year=2023,
         overview="Overview2",
-        metadata_provider=metadata_provider,
+        metadata_provider="tmdb",
         added=False,
-        poster_path=None,  # Added
+        poster_path=None,
     )
-
-    mock_search_show = MagicMock(return_value=[popular_show1, popular_show2])
-    monkeypatch.setattr("media_manager.metadataProvider.search_show", mock_search_show)
-    monkeypatch.setattr(
-        tv_service, "check_if_show_exists", lambda external_id, metadata_provider: False
-    )
-
-    results = tv_service.get_popular_shows(metadata_provider=metadata_provider)
+    mock_metadata_provider.search_show.return_value = [popular_show1, popular_show2]
+    mock_metadata_provider.name = "tmdb"
+    tv_service.check_if_show_exists = MagicMock(return_value=False)
+    results = tv_service.get_popular_shows(metadata_provider=mock_metadata_provider)
     assert len(results) == 2
     assert popular_show1 in results
     assert popular_show2 in results
 
 
-def test_get_popular_shows_all_added(tv_service, mock_torrent_service, monkeypatch):
-    metadata_provider = "tmdb"
+def test_get_popular_shows_all_added(tv_service, mock_torrent_service):
+    mock_metadata_provider = MagicMock()
     popular_show1 = MetaDataProviderShowSearchResult(
         external_id=123,
         name="Popular Show 1",
         year=2022,
         overview="Overview1",
-        metadata_provider=metadata_provider,
+        metadata_provider="tmdb",
         added=False,
-        poster_path=None,  # Added
+        poster_path=None,
     )
-    mock_search_show = MagicMock(return_value=[popular_show1])
-    monkeypatch.setattr("media_manager.metadataProvider.search_show", mock_search_show)
-    monkeypatch.setattr(
-        tv_service, "check_if_show_exists", lambda external_id, metadata_provider: True
-    )
-
-    results = tv_service.get_popular_shows(metadata_provider=metadata_provider)
+    mock_metadata_provider.search_show.return_value = [popular_show1]
+    mock_metadata_provider.name = "tmdb"
+    tv_service.check_if_show_exists = MagicMock(return_value=True)
+    results = tv_service.get_popular_shows(metadata_provider=mock_metadata_provider)
     assert results == []
 
 
 def test_get_popular_shows_empty_from_provider(
-    tv_service, mock_torrent_service, monkeypatch
+    tv_service, mock_torrent_service
 ):
-    metadata_provider = "tmdb"
-    mock_search_show = MagicMock(return_value=[])
-    monkeypatch.setattr("media_manager.metadataProvider.search_show", mock_search_show)
-
-    results = tv_service.get_popular_shows(metadata_provider=metadata_provider)
+    mock_metadata_provider = MagicMock()
+    mock_metadata_provider.search_show.return_value = []
+    tv_service.check_if_show_exists = MagicMock()
+    results = tv_service.get_popular_shows(metadata_provider=mock_metadata_provider)
     assert results == []
