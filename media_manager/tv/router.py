@@ -30,6 +30,7 @@ from media_manager.tv.dependencies import (
     tv_repository_dep,
     tv_service_dep,
 )
+from media_manager.metadataProvider.dependencies import metadata_provider_dep
 
 router = APIRouter()
 
@@ -52,7 +53,7 @@ router = APIRouter()
     },
 )
 def add_a_show(
-    tv_service: tv_service_dep, show_id: int, metadata_provider: str = "tmdb"
+    tv_service: tv_service_dep, metadata_provider: metadata_provider_dep, show_id: int
 ):
     try:
         show = tv_service.add_show(
@@ -84,7 +85,9 @@ def delete_a_show(tv_repository: tv_repository_dep, show: show_dep):
     "/shows", dependencies=[Depends(current_active_user)], response_model=list[Show]
 )
 def get_all_shows(
-    tv_service: tv_service_dep, external_id: int = None, metadata_provider: str = "tmdb"
+    tv_service: tv_service_dep,
+    metadata_provider: metadata_provider_dep,
+    external_id: int = None,
 ):
     if external_id is not None:
         return tv_service.get_show_by_external_id(
@@ -313,7 +316,7 @@ def download_a_torrent(
     response_model=list[MetaDataProviderShowSearchResult],
 )
 def search_metadata_providers_for_a_show(
-    tv_service: tv_service_dep, query: str, metadata_provider: str = "tmdb"
+    tv_service: tv_service_dep, query: str, metadata_provider: metadata_provider_dep
 ):
     return tv_service.search_for_show(query=query, metadata_provider=metadata_provider)
 
@@ -323,5 +326,5 @@ def search_metadata_providers_for_a_show(
     dependencies=[Depends(current_active_user)],
     response_model=list[MetaDataProviderShowSearchResult],
 )
-def get_recommended_shows(tv_service: tv_service_dep, metadata_provider: str = "tmdb"):
+def get_recommended_shows(tv_service: tv_service_dep, metadata_provider: metadata_provider_dep):
     return tv_service.get_popular_shows(metadata_provider=metadata_provider)
