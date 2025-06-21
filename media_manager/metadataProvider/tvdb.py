@@ -12,7 +12,7 @@ from media_manager.metadataProvider.abstractMetaDataProvider import (
     register_metadata_provider,
 )
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
-from media_manager.tv.schemas import Episode, Season, Show
+from media_manager.tv.schemas import Episode, Season, Show, SeasonNumber
 
 
 class TvdbConfig(BaseSettings):
@@ -58,8 +58,20 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         """
         series = self.tvdb_client.get_series_extended(id)
         seasons = []
-        for season in series["seasons"]:
-            s = self.tvdb_client.get_season_extended(season["id"])
+        seasons_ids = [season["id"] for season in series["seasons"]]
+
+        for season in seasons_ids:
+            s = self.tvdb_client.get_season_extended(season)
+            # the seasons need to be filtered to a certain type,
+            # otherwise the same season will be imported in aired and dvd order,
+            # which causes duplicate season number + show ids which in turn violates a unique constraint of the season table
+            pprint.pprint(s)
+            if s["type"]["id"] != 1:
+                log.info(
+                    f"Season {s['type']['id']} will not be downloaded because it is not a 'aired order' season"
+                )
+                continue
+
             episodes = [
                 Episode(
                     number=episode["number"],
@@ -70,10 +82,10 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
             ]
             seasons.append(
                 Season(
-                    number=s["number"],
+                    number=SeasonNumber(s["number"]),
                     name="TVDB doesn't provide Season Names",
                     overview="TVDB doesn't provide Season Overviews",
-                    external_id=s["id"],
+                    external_id=int(s["id"]),
                     episodes=episodes,
                 )
             )
