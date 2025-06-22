@@ -44,6 +44,7 @@ torrents and authentication.
 - [ ] make indexer module multithreaded
 - [ ] add support for deluge and transmission
 - [ ] improve reliability of scheduled tasks
+- [ ] add fallback to just copy files if hardlinks don't work
 - [ ] _maybe_ rework the logo
 - [ ] _maybe_ add support for configuration via toml config file
 
