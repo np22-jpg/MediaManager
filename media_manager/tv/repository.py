@@ -651,7 +651,9 @@ class TvRepository:
         stmt = select(Episode).where(Episode.season_id == season_id).where(Episode.number == episode_data.number)
         existing_db_episode = self.db.execute(stmt).scalar_one_or_none()
         if existing_db_episode:
-            log.info(f"Episode {episode_data.number} already exists for season {season_id} (ID: {existing_db_episode.id}). Skipping add.")
+            log.info(
+                f"Episode {episode_data.number} already exists for season {season_id} (ID: {existing_db_episode.id}). Skipping add."
+            )
             return EpisodeSchema.model_validate(existing_db_episode)
 
         db_episode = Episode(
@@ -668,7 +670,7 @@ class TvRepository:
         log.info(f"Successfully added episode {db_episode.number} (ID: {db_episode.id}) to season {season_id}.")
         return EpisodeSchema.model_validate(db_episode)
 
-    def update_show_attributes(self, show_id: ShowId, name: str | None = None, overview: str | None = None, year: int | None = None, ended: bool|None = None) -> ShowSchema: # Removed poster_url from params
+    def update_show_attributes(self, show_id: ShowId, name: str | None = None, overview: str | None = None, year: int | None = None, ended: bool|None = None, continuous_download: bool|None = None) -> ShowSchema: # Removed poster_url from params
         """
         Update attributes of an existing show.
 
@@ -697,6 +699,9 @@ class TvRepository:
             updated = True
         if ended is not None and db_show.ended != ended:
             db_show.ended = ended
+            updated = True
+        if continuous_download is not None and db_show.continuous_download != continuous_download:
+            db_show.continuous_download = continuous_download
             updated = True
 
         if updated:

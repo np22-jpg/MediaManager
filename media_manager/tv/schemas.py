@@ -53,6 +53,8 @@ class Show(BaseModel):
     external_id: int
     metadata_provider: str
 
+    continuous_download: bool = False
+
     seasons: list[Season]
 
 
@@ -156,5 +158,6 @@ class PublicShow(BaseModel):
     metadata_provider: str
 
     ended: bool = False
+    continuous_download: bool = False
 
     seasons: list[PublicSeason]

@@ -124,6 +124,23 @@ def get_a_show(show: show_dep, tv_service: tv_service_dep) -> PublicShow:
     return tv_service.get_public_show_by_id(show_id=show.id)
 
 
+@router.post(
+    "/shows/{show_id}/continuousDownload",
+    dependencies=[Depends(current_superuser)],
+    response_model=PublicShow,
+)
+def set_continuous_download(
+    show: show_dep, tv_service: tv_service_dep, continuous_download: bool
+) -> PublicShow:
+    """
+    Toggles whether future seasons of a show will be downloaded.
+    """
+    tv_service.set_show_continuous_download(
+        show_id=show.id, continuous_download=continuous_download
+    )
+    return tv_service.get_public_show_by_id(show_id=show.id)
+
+
 @router.get(
     "/shows/{show_id}/torrents",
     dependencies=[Depends(current_active_user)],

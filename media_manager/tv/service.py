@@ -11,7 +11,7 @@ from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
-from media_manager.torrent.schemas import Torrent, TorrentStatus
+from media_manager.torrent.schemas import Torrent, TorrentStatus, Quality
 from media_manager.torrent.service import TorrentService
 from media_manager.tv import log
 from media_manager.tv.schemas import (
@@ -40,7 +40,9 @@ from media_manager.config import BasicConfig
 from media_manager.torrent.repository import TorrentRepository
 from media_manager.torrent.utils import import_file, import_torrent
 from media_manager.indexer.service import IndexerService
-from media_manager.metadataProvider.abstractMetaDataProvider import AbstractMetadataProvider
+from media_manager.metadataProvider.abstractMetaDataProvider import (
+    AbstractMetadataProvider,
+)
 from media_manager.metadataProvider.tmdb import TmdbMetadataProvider
 from media_manager.metadataProvider.tvdb import TvdbMetadataProvider
 
@@ -686,6 +688,19 @@ class TvService:
         metadata_provider.download_show_poster_image(show=updated_show)
         return updated_show
 
+    def set_show_continuous_download(
+        self, show_id: ShowId, continuous_download: bool
+    ) -> Show:
+        """
+        Set the continuous download flag for a show.
+
+        :param show_id: The ID of the show.
+        :param continuous_download: True to enable continuous download, False to disable.
+        :return: The updated Show object.
+        """
+        return self.tv_repository.update_show_attributes(
+            show_id=show_id, continuous_download=continuous_download
+        )
 
 def auto_download_all_approved_season_requests() -> None:
     """
@@ -790,9 +805,24 @@ def update_all_non_ended_shows_metadata() -> None:
                 f"Error initializing metadata provider {show.metadata_provider} for show {show.name}: {str(e)}"
             )
             continue
-        updated_show = tv_service.update_show_metadata(db_show=show, metadata_provider=metadata_provider)
+        updated_show = tv_service.update_show_metadata(
+            db_show=show, metadata_provider=metadata_provider
+        )
+
+        # Automatically add season requests for new seasons
+        existing_seasons = [x.id for x in show.seasons]
+        new_seasons = [x for x in updated_show.seasons if x.id not in existing_seasons]
+
+        if show.continuous_download:
+            for new_season in new_seasons:
+                log.info(
+                    f"Automatically adding season requeest for new season {new_season.number} of show {updated_show.name}"
+                )
+                tv_service.add_season_request(SeasonRequest(min_quality=Quality.sd, wanted_quality=Quality.uhd, season_id=new_season.id, authorized=True))
+
         if updated_show:
             log.info(f"Successfully updated metadata for show: {updated_show.name}")
+            log.debug(f"Added new seasons: {len(new_seasons)} to show: {updated_show.name}")
         else:
             log.warning(f"Failed to update metadata for show: {show.name}")
     db.commit()
