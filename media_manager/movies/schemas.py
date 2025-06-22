@@ -1,0 +1,55 @@
+import typing
+import uuid
+from uuid import UUID
+
+from pydantic import BaseModel, Field, ConfigDict, model_validator
+
+from media_manager.auth.schemas import UserRead
+from media_manager.torrent.models import Quality
+from media_manager.torrent.schemas import TorrentId, TorrentStatus
+
+MovieId = typing.NewType("MovieId", UUID)
+MovieRequestId = typing.NewType("MovieRequestId", UUID)
+
+
+class Movie(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: MovieId = Field(default_factory=uuid.uuid4)
+    name: str
+    overview: str
+    year: int | None
+
+    external_id: int
+    metadata_provider: str
+
+
+class MovieRequestBase(BaseModel):
+    min_quality: Quality
+    wanted_quality: Quality
+
+    @model_validator(mode="after")
+    def ensure_wanted_quality_is_eq_or_gt_min_quality(self) -> "MovieRequestBase":
+        if self.min_quality.value < self.wanted_quality.value:
+            raise ValueError("Error text")
+        return self
+
+
+class CreateMovieRequest(MovieRequestBase):
+    movie_id: MovieId
+
+
+class UpdateMovieRequest(MovieRequestBase):
+    id: MovieRequestId
+
+
+class MovieRequest(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: MovieRequestId = Field(default_factory=uuid.uuid4)
+
+    movie_id: MovieId
+
+    requested_by: UserRead | None = None
+    authorized: bool = False
+    authorized_by: UserRead | None = None
