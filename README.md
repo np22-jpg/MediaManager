@@ -35,14 +35,14 @@ torrents and authentication.
 - [x] optimize images for web in the backend
 - [x] responsive ui
 - [x] automatically update metadata of shows
+- [x] automatically download new seasons/episodes of shows
 - [ ] support for movies
-- [ ] automatically download new seasons/episodes of shows
 - [ ] expand README with more information and a quickstart guide
 - [ ] add notification system
 - [ ] add in-depth documentation on the architecture of the codebase
 - [ ] add check at startup if hardlinks work
-- [ ] add support for deluge and transmission
 - [ ] make indexer module multithreaded
+- [ ] add support for deluge and transmission
 - [ ] improve reliability of scheduled tasks
 - [ ] _maybe_ rework the logo
 - [ ] _maybe_ add support for configuration via toml config file
