@@ -16,11 +16,32 @@
     import RequestSeasonDialog from '$lib/components/request-season-dialog.svelte';
     import {browser} from "$app/environment";
     import ShowPicture from "$lib/components/show-picture.svelte";
+    import {Checkbox} from "$lib/components/ui/checkbox/index.js";
+    import {toast} from 'svelte-sonner';
+    import {Label} from "$lib/components/ui/label";
 
     const apiUrl = env.PUBLIC_API_URL
-    let show: Show = getContext('show');
-    let user: User = getContext('user');
+    let show: () => Show = getContext('show');
+    let user: () => User = getContext('user');
     let torrents: RichShowTorrent = page.data.torrentsData;
+
+    async function toggle_continuous_download() {
+        let url = new URL(apiUrl + "/tv/shows/" + show().id + "/continuousDownload");
+        url.searchParams.append('continuous_download', !show().continuous_download);
+        console.log("Toggling continuous download for show", show().name, "to", !show().continuous_download);
+        const response = await fetch(url, {
+            method: 'POST',
+            credentials: 'include'
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            toast.error("Failed to toggle continuous download: " + errorText);
+        } else {
+            show().continuous_download = !show().continuous_download;
+            toast.success("Continuous download toggled successfully.");
+        }
+    }
+    
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -73,6 +94,20 @@
                 class="w-full md:w-1/3 flex-auto rounded-xl bg-muted/50 p-4"
         >
             {#if user().is_superuser}
+                <div class="my-2 mx-1 block">
+                    <Checkbox
+                            checked={show().continuous_download}
+                            onCheckedChange={() => {
+                                toggle_continuous_download()
+                            }}
+                            id="continuous-download-checkbox"
+
+                    />
+                    <Label for="continuous-download-checkbox">
+                        Enable automatic download of future seasons
+                    </Label>
+                    <hr>
+                </div>
                 <DownloadSeasonDialog show={show()}/>
             {/if}
             <RequestSeasonDialog show={show()}/>

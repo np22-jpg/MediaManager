@@ -103,6 +103,7 @@ export interface Show {
 	metadata_provider: string;
 	seasons: Season[]; // items: { $ref: #/components/schemas/Season }, type: array
 	id: string; // type: string, format: uuid
+	continuous_download: boolean;
 }
 
 export interface PublicShow {
@@ -113,6 +114,8 @@ export interface PublicShow {
 	metadata_provider: string;
 	seasons: PublicSeason[]; // items: { $ref: #/components/schemas/Season }, type: array
 	id: string; // type: string, format: uuid
+	continuous_download: boolean;
+
 }
 
 export interface Torrent {
