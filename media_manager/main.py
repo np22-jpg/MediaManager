@@ -56,6 +56,7 @@ from media_manager.tv.service import (  # noqa: E402
 )
 
 from media_manager.config import BasicConfig  # noqa: E402
+import shutil # noqa: E402
 
 import media_manager.torrent.router as torrent_router  # noqa: E402
 from fastapi import FastAPI  # noqa: E402
@@ -202,7 +203,7 @@ app.mount(
 
 log.info("Hello World!")
 
-# Startup checks
+# Startup filesystem checks
 try:
     test_dir = basic_config.tv_directory / Path(".media_manager_test_dir")
     test_dir.mkdir(parents=True, exist_ok=True)
@@ -213,11 +214,6 @@ try:
     test_dir.mkdir(parents=True, exist_ok=True)
     test_dir.rmdir()
     log.info(f"Successfully created test dir in Movie directory at: {test_dir}")
-
-    test_dir = basic_config.image_directory / Path(".media_manager_test_dir")
-    test_dir.touch()
-    test_dir.unlink()
-    log.info(f"Successfully created test file in Image directory at: {test_dir}")
 
     test_dir = basic_config.image_directory / Path(".media_manager_test_dir")
     test_dir.touch()
@@ -235,14 +231,19 @@ try:
     test_torrent_file.touch()
 
     test_hardlink = test_dir / Path(".media_manager.test.hardlink")
-    test_hardlink.hardlink_to(test_torrent_file)
-    if not test_hardlink.samefile(test_torrent_file):
-        log.critical("Hardlink creation failed!")
-
-    test_hardlink.unlink()
-    test_torrent_file.unlink()
-    torrent_dir.rmdir()
-    test_dir.rmdir()
+    try:
+        test_hardlink.hardlink_to(test_torrent_file)
+        if not test_hardlink.samefile(test_torrent_file):
+            log.critical("Hardlink creation failed!")
+        log.info("Successfully created test hardlink in TV directory")
+    except OSError as e:
+        log.error(f"Hardlink creation failed, falling back to copying files. Error: {e}")
+        shutil.copy(src=test_torrent_file, dst=test_hardlink)
+    finally:
+        test_hardlink.unlink()
+        test_torrent_file.unlink()
+        torrent_dir.rmdir()
+        test_dir.rmdir()
 
 except Exception as e:
     log.error(f"Error creating test directory: {e}")

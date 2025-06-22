@@ -1,7 +1,7 @@
 import logging
 import mimetypes
 from pathlib import Path
-
+import shutil
 import patoolib
 
 from media_manager.config import BasicConfig
@@ -43,7 +43,14 @@ def get_torrent_filepath(torrent: Torrent):
 def import_file(target_file: Path, source_file: Path):
     if target_file.exists():
         target_file.unlink()
-    target_file.hardlink_to(source_file)
+    try:
+        target_file.hardlink_to(source_file)
+    except OSError as e:
+        log.error(
+            f"Failed to create hardlink from {source_file} to {target_file}: {e}. "
+            "Falling back to copying the file."
+        )
+        shutil.copy(src=source_file, dst=target_file)
 
 
 def import_torrent(torrent: Torrent) -> (list[Path], list[Path], list[Path]):

@@ -36,6 +36,7 @@ torrents and authentication.
 - [x] responsive ui
 - [x] automatically update metadata of shows
 - [x] automatically download new seasons/episodes of shows
+- [x] add fallback to just copy files if hardlinks don't work
 - [ ] support for movies
 - [ ] expand README with more information and a quickstart guide
 - [ ] add notification system
@@ -44,7 +45,6 @@ torrents and authentication.
 - [ ] make indexer module multithreaded
 - [ ] add support for deluge and transmission
 - [ ] improve reliability of scheduled tasks
-- [ ] add fallback to just copy files if hardlinks don't work
 - [ ] _maybe_ rework the logo
 - [ ] _maybe_ add support for configuration via toml config file
 
