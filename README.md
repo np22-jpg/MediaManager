@@ -38,6 +38,7 @@ torrents and authentication.
 - [x] automatically download new seasons/episodes of shows
 - [x] add fallback to just copy files if hardlinks don't work
 - [x] add check at startup if hardlinks work
+- [ ] create separate metadata relay service, so that api keys for TMDB and TVDB are not strictly needed
 - [ ] support for movies
 - [ ] expand README with more information and a quickstart guide
 - [ ] add notification system
