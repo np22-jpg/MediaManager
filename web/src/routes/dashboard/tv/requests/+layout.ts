@@ -1,6 +1,5 @@
 import {env} from '$env/dynamic/public';
 import type {LayoutLoad} from './$types';
-import {browser} from "$app/environment";
 
 const apiUrl = env.PUBLIC_API_URL;
 export const load: LayoutLoad = async ({fetch}) => {

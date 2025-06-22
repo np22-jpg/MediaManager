@@ -5,9 +5,8 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import {Label} from '$lib/components/ui/label/index.js';
 	import {Input} from '$lib/components/ui/input/index.js';
-	import {browser} from "$app/environment";
 
-	const apiUrl = env.PUBLIC_API_URL
+	const apiUrl = env.PUBLIC_API_URL;
 	let newPassword: string = $state('');
 	let newEmail: string = $state('');
 	let dialogOpen = $state(false);

@@ -13,7 +13,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
 
-	const apiUrl = env.PUBLIC_API_URL
+    const apiUrl = env.PUBLIC_API_URL;
     let {show} = $props();
 	let dialogueState = $state(false);
 	let selectedSeasonNumber: number = $state(1);

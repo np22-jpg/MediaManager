@@ -1,16 +1,13 @@
 <script lang="ts">
 	import {page} from '$app/state';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import {env} from '$env/dynamic/public';
 	import {Separator} from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import {getFullyQualifiedShowName} from '$lib/utils';
-	import logo from '$lib/images/svelte-logo.svg';
 	import LoadingBar from '$lib/components/loading-bar.svelte';
-	import ShowPicture from "$lib/components/show-picture.svelte";
+	import ShowPicture from '$lib/components/show-picture.svelte';
 
-	const apiUrl = env.PUBLIC_API_URL
 	let tvShowsPromise = page.data.tvShows;
 </script>
 
@@ -63,15 +60,12 @@
 								<Card.Description class="truncate">{show.overview}</Card.Description>
 							</Card.Header>
 							<Card.Content>
-								<ShowPicture show={show}/>
+								<ShowPicture {show}/>
 							</Card.Content>
 						</Card.Root>
 					</a>
-
 				{:else}
-					<div class="col-span-full text-center text-muted-foreground">
-						No TV shows added yet.
-					</div>
+					<div class="col-span-full text-center text-muted-foreground">No TV shows added yet.</div>
 				{/each}
 			{/await}
 		{/await}

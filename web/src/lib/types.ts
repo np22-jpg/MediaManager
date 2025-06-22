@@ -105,7 +105,6 @@ export interface Show {
 	id: string; // type: string, format: uuid
 	continuous_download: boolean;
 	ended: boolean;
-
 }
 
 export interface PublicShow {
@@ -118,7 +117,6 @@ export interface PublicShow {
 	id: string; // type: string, format: uuid
 	continuous_download: boolean;
 	ended: boolean;
-
 }
 
 export interface Torrent {

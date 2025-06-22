@@ -1,8 +1,8 @@
 <script lang="ts">
-    import {setContext} from 'svelte';
-    import type {LayoutProps} from './$types';
+	import {setContext} from 'svelte';
+	import type {LayoutProps} from './$types';
 
-    let {data, children}: LayoutProps = $props();
+	let {data, children}: LayoutProps = $props();
 
 	const showData = $derived(data.showData);
 	setContext('show', () => showData);

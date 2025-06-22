@@ -4,7 +4,6 @@ import {env} from '$env/dynamic/public';
 import {goto} from '$app/navigation';
 import {base} from '$app/paths';
 import {toast} from 'svelte-sonner';
-import {browser} from "$app/environment";
 
 const apiUrl = env.PUBLIC_API_URL;
 

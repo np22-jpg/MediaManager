@@ -8,10 +8,8 @@
 	import type {PublicSeasonFile, Season, Show} from '$lib/types';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
 	import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils';
-	import {env} from "$env/dynamic/public";
-	import ShowPicture from "$lib/components/show-picture.svelte";
+	import ShowPicture from '$lib/components/show-picture.svelte';
 
-	const apiUrl = env.PUBLIC_API_URL
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let season: Season = $state(page.data.season);
 	let show: Show = getContext('show');
@@ -55,16 +53,16 @@
 	{getFullyQualifiedShowName(show())} Season {season.number}
 </h1>
 <div class="flex flex-1 flex-col gap-4 p-4">
-	<div class="flex flex-col md:flex-row md:items-stretch gap-4">
-		<div class="w-full md:w-1/3 md:max-w-sm rounded-xl bg-muted/50 overflow-hidden">
+	<div class="flex flex-col gap-4 md:flex-row md:items-stretch">
+		<div class="w-full overflow-hidden rounded-xl bg-muted/50 md:w-1/3 md:max-w-sm">
 			<ShowPicture show={show()}/>
 		</div>
-		<div class="w-full md:w-1/4 flex-auto rounded-xl bg-muted/50 p-4">
+		<div class="w-full flex-auto rounded-xl bg-muted/50 p-4 md:w-1/4">
 			<p class="leading-7 [&:not(:first-child)]:mt-6">
 				{show().overview}
 			</p>
 		</div>
-		<div class="w-full md:w-1/3 flex-auto rounded-xl bg-muted/50 p-4">
+		<div class="w-full flex-auto rounded-xl bg-muted/50 p-4 md:w-1/3">
 			<Table.Root>
 				<Table.Caption>A list of all downloaded/downloading versions of this season.</Table.Caption>
 				<Table.Header>

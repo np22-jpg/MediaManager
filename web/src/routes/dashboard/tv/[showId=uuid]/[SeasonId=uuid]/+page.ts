@@ -1,13 +1,11 @@
 import {env} from '$env/dynamic/public';
 import type {PageLoad} from './$types';
-import {browser} from "$app/environment";
 
 const apiUrl = env.PUBLIC_API_URL;
 
 export const load: PageLoad = async ({fetch, params}) => {
 	const url = `${apiUrl}/tv/seasons/${params.SeasonId}/files`;
 	const url2 = `${apiUrl}/tv/seasons/${params.SeasonId}`;
-
 
 	try {
 		console.log(`Fetching data from: ${url} and ${url2}`);
@@ -29,7 +27,6 @@ export const load: PageLoad = async ({fetch, params}) => {
 			const errorText = await response.text();
 			console.error(`API request failed with status ${response.status}: ${errorText}`);
 		}
-
 
 		const filesData = await response.json();
 		const seasonData = await response2.json();

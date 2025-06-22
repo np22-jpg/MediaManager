@@ -1,6 +1,6 @@
 <script lang="ts" module>
-	import {Home, Info, LifeBuoy, Send, Settings, TvIcon} from 'lucide-svelte';
-	import {PUBLIC_VERSION} from '$env/static/public';
+    import {Home, Info, LifeBuoy, Send, Settings, TvIcon} from 'lucide-svelte';
+    import {PUBLIC_VERSION} from '$env/static/public';
 
 	const data = {
 		navMain: [
@@ -62,11 +62,11 @@
 	import NavSecondary from '$lib/components/nav-secondary.svelte';
 	import NavUser from '$lib/components/nav-user.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import type {ComponentProps} from 'svelte';
+    import type {ComponentProps} from 'svelte';
 	import logo from '$lib/images/logo.svg';
-	import {base} from '$app/paths';
+    import {base} from '$app/paths';
 
-	let {ref = $bindable(null), ...restProps}: ComponentProps<typeof Sidebar.Root> = $props();
+    let {ref = $bindable(null), ...restProps}: ComponentProps<typeof Sidebar.Root> = $props();
 </script>
 
 <Sidebar.Root {...restProps} bind:ref variant="inset">
@@ -74,9 +74,9 @@
 		<Sidebar.Menu>
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton size="lg">
-					{#snippet child({props})}
+                    {#snippet child({props})}
 						<a href="{base}/dashboard" {...props}>
-							<img class="size-12" src={logo} alt="Media Manager Logo"/>
+                            <img class="size-12" src={logo} alt="Media Manager Logo"/>
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-semibold">Media Manager</span>
 								<span class="truncate text-xs">v{PUBLIC_VERSION}</span>
@@ -88,11 +88,11 @@
 		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
-		<NavMain items={data.navMain}/>
+        <NavMain items={data.navMain}/>
 		<!--  <NavProjects projects={data.projects}/> -->
-		<NavSecondary class="mt-auto" items={data.navSecondary}/>
+        <NavSecondary class="mt-auto" items={data.navSecondary}/>
 	</Sidebar.Content>
 	<Sidebar.Footer>
-		<NavUser/>
+        <NavUser/>
 	</Sidebar.Footer>
 </Sidebar.Root>

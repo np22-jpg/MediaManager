@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import {useSidebar} from '$lib/components/ui/sidebar/index.js';
+    import {useSidebar} from '$lib/components/ui/sidebar/index.js';
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
 	import Folder from '@lucide/svelte/icons/folder';
 	import Share from '@lucide/svelte/icons/share';
@@ -28,38 +28,38 @@
 		{#each projects as item (item.name)}
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton>
-					{#snippet child({props})}
+                    {#snippet child({props})}
 						<a href={item.url} {...props}>
-							<item.icon/>
+                            <item.icon/>
 							<span>{item.name}</span>
 						</a>
 					{/snippet}
 				</Sidebar.MenuButton>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
-						{#snippet child({props})}
+                        {#snippet child({props})}
 							<Sidebar.MenuAction showOnHover {...props}>
-								<Ellipsis/>
+                                <Ellipsis/>
 								<span class="sr-only">More</span>
 							</Sidebar.MenuAction>
 						{/snippet}
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content
-							class="w-48"
-							side={sidebar.isMobile ? 'bottom' : 'right'}
-							align={sidebar.isMobile ? 'end' : 'start'}
+                            class="w-48"
+                            side={sidebar.isMobile ? 'bottom' : 'right'}
+                            align={sidebar.isMobile ? 'end' : 'start'}
 					>
 						<DropdownMenu.Item>
-							<Folder class="text-muted-foreground"/>
+                            <Folder class="text-muted-foreground"/>
 							<span>View Project</span>
 						</DropdownMenu.Item>
 						<DropdownMenu.Item>
-							<Share class="text-muted-foreground"/>
+                            <Share class="text-muted-foreground"/>
 							<span>Share Project</span>
 						</DropdownMenu.Item>
-						<DropdownMenu.Separator/>
+                        <DropdownMenu.Separator/>
 						<DropdownMenu.Item>
-							<Trash2 class="text-muted-foreground"/>
+                            <Trash2 class="text-muted-foreground"/>
 							<span>Delete Project</span>
 						</DropdownMenu.Item>
 					</DropdownMenu.Content>

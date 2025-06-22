@@ -8,9 +8,8 @@
     import type {CreateSeasonRequest, PublicShow, Quality} from '$lib/types.js';
     import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils.js';
     import {toast} from 'svelte-sonner';
-    import {browser} from "$app/environment";
 
-    const apiUrl = env.PUBLIC_API_URL
+    const apiUrl = env.PUBLIC_API_URL;
     let {show}: { show: PublicShow } = $props();
 
     let dialogOpen = $state(false);

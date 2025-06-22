@@ -7,7 +7,7 @@
 	import {base} from '$app/paths';
 	import type {MetaDataProviderShowSearchResult} from '$lib/types.js';
 
-	const apiUrl = env.PUBLIC_API_URL
+	const apiUrl = env.PUBLIC_API_URL;
 	let loading = $state(false);
 	let errorMessage = $state(null);
 	let {result}: { result: MetaDataProviderShowSearchResult } = $props();
@@ -33,7 +33,7 @@
 	}
 </script>
 
-<Card.Root class="h-full overflow-x-hidden col-span-full sm:col-span-1">
+<Card.Root class="col-span-full h-full overflow-x-hidden sm:col-span-1">
 	<Card.Header>
 		<Card.Title class="flex h-12 items-center leading-tight">
 			{result.name}

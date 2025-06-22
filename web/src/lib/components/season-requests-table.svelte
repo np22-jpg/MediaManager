@@ -10,7 +10,7 @@
     import {goto} from '$app/navigation';
     import {base} from '$app/paths';
 
-    const apiUrl = env.PUBLIC_API_URL
+    const apiUrl = env.PUBLIC_API_URL;
     let {
         requests,
         filter = () => {
@@ -124,7 +124,7 @@
                         {request.authorized_by?.email ?? 'N/A'}
                     </Table.Cell>
                     <!-- TODO: ADD DIALOGUE TO MODIFY REQUEST -->
-                    <Table.Cell class="flex flex-col max-w-[150px] gap-1">
+                    <Table.Cell class="flex max-w-[150px] flex-col gap-1">
                         {#if user().is_superuser}
                             <Button
                                     class=""
@@ -150,11 +150,9 @@
                     </Table.Cell>
                 </Table.Row>
             {/if}
-        {:else }
+        {:else}
             <Table.Row>
-                <Table.Cell colspan="8" class="text-center">
-                    There are currently no requests.
-                </Table.Cell>
+                <Table.Cell colspan="8" class="text-center">There are currently no requests.</Table.Cell>
             </Table.Row>
         {/each}
     </Table.Body>

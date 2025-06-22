@@ -12,9 +12,8 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import AddShowCard from '$lib/components/add-show-card.svelte';
 	import {toast} from 'svelte-sonner';
-	import {browser} from "$app/environment";
 
-	const apiUrl = env.PUBLIC_API_URL
+	const apiUrl = env.PUBLIC_API_URL;
 	let searchTerm: string = $state('');
 	let metadataProvider: string = $state('tmdb');
 	let results: MetaDataProviderShowSearchResult[] | null = $state(null);
@@ -80,7 +79,7 @@
 	</div>
 </header>
 
-<div class="flex w-full flex-1 max-w-[90vw] flex-col items-center gap-4 p-4 pt-0">
+<div class="flex w-full max-w-[90vw] flex-1 flex-col items-center gap-4 p-4 pt-0">
 	<div class="grid w-full max-w-sm items-center gap-12">
 		<h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
 			Add a show

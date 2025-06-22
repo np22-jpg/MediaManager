@@ -12,5 +12,5 @@ export const load: PageLoad = async ({fetch}) => {
 		credentials: 'include'
 	});
 
-	return {tvShows: response};
+    return {tvShows: response};
 };
