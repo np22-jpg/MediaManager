@@ -604,6 +604,7 @@ class TvService:
             overview=fresh_show_data.overview,
             year=fresh_show_data.year,
             ended=fresh_show_data.ended,
+            continuous_download=db_show.continuous_download if fresh_show_data.ended is False else False,
         )
 
         # Process seasons and episodes
@@ -684,6 +685,7 @@ class TvService:
                 )
 
         updated_show = self.tv_repository.get_show_by_id(show_id=db_show.id)
+
         log.info(f"Successfully updated metadata for show ID: {db_show.id}")
         metadata_provider.download_show_poster_image(show=updated_show)
         return updated_show

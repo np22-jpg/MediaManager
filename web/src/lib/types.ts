@@ -104,6 +104,8 @@ export interface Show {
 	seasons: Season[]; // items: { $ref: #/components/schemas/Season }, type: array
 	id: string; // type: string, format: uuid
 	continuous_download: boolean;
+	ended: boolean;
+
 }
 
 export interface PublicShow {
@@ -115,6 +117,7 @@ export interface PublicShow {
 	seasons: PublicSeason[]; // items: { $ref: #/components/schemas/Season }, type: array
 	id: string; // type: string, format: uuid
 	continuous_download: boolean;
+	ended: boolean;
 
 }
 

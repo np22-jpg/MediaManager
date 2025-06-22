@@ -116,11 +116,13 @@ def get_a_show(show: show_dep, tv_service: tv_service_dep) -> PublicShow:
     dependencies=[Depends(current_active_user)],
     response_model=PublicShow,
 )
-def get_a_show(show: show_dep, tv_service: tv_service_dep) -> PublicShow:
+def update_shows_metadata(
+    show: show_dep, tv_service: tv_service_dep, metadata_provider: metadata_provider_dep
+) -> PublicShow:
     """
     Updates a shows metadata.
     """
-    tv_service.update_show_metadata(db_show=show)
+    tv_service.update_show_metadata(db_show=show, metadata_provider=metadata_provider)
     return tv_service.get_public_show_by_id(show_id=show.id)
 
 

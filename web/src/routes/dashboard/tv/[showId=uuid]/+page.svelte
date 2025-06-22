@@ -94,20 +94,22 @@
                 class="w-full md:w-1/3 flex-auto rounded-xl bg-muted/50 p-4"
         >
             {#if user().is_superuser}
-                <div class="my-2 mx-1 block">
-                    <Checkbox
-                            checked={show().continuous_download}
-                            onCheckedChange={() => {
+                {#if !show().ended}
+                    <div class="my-2 mx-1 block">
+                        <Checkbox
+                                checked={show().continuous_download}
+                                onCheckedChange={() => {
                                 toggle_continuous_download()
                             }}
-                            id="continuous-download-checkbox"
+                                id="continuous-download-checkbox"
 
-                    />
-                    <Label for="continuous-download-checkbox">
-                        Enable automatic download of future seasons
-                    </Label>
-                    <hr>
-                </div>
+                        />
+                        <Label for="continuous-download-checkbox">
+                            Enable automatic download of future seasons
+                        </Label>
+                        <hr>
+                    </div>
+                {/if}
                 <DownloadSeasonDialog show={show()}/>
             {/if}
             <RequestSeasonDialog show={show()}/>
