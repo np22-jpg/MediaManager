@@ -9,8 +9,9 @@ from media_manager.exceptions import InvalidConfigError
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
 )
-from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
+from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 from media_manager.tv.schemas import Episode, Season, Show, SeasonNumber, EpisodeNumber
+from media_manager.movies.schemas import Movie
 
 
 class TmdbConfig(BaseSettings):
@@ -40,7 +41,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
                 "https://image.tmdb.org/t/p/original" + show_metadata["poster_path"]
             )
             if media_manager.metadataProvider.utils.download_poster_image(
-                storage_path=self.storage_path, poster_url=poster_url, show=show
+                storage_path=self.storage_path, poster_url=poster_url, id=show.id
             ):
                 log.info("Successfully downloaded poster image for show " + show.name)
             else:
@@ -87,7 +88,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
                 )
             )
 
-        year = media_manager.metadataProvider.utils.get_year_from_first_air_date(
+        year = media_manager.metadataProvider.utils.get_year_from_date(
             show_metadata["first_air_date"]
         )
 
@@ -105,7 +106,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
 
     def search_show(
         self, query: str | None = None, max_pages: int = 5
-    ) -> list[MetaDataProviderShowSearchResult]:
+    ) -> list[MetaDataProviderSearchResult]:
         """
         Search for shows using TMDB API.
         If no query is provided, it will return the most popular shows.
@@ -136,12 +137,12 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
                 else:
                     poster_url = None
                 formatted_results.append(
-                    MetaDataProviderShowSearchResult(
+                    MetaDataProviderSearchResult(
                         poster_path=poster_url,
                         overview=result["overview"],
                         name=result["name"],
                         external_id=result["id"],
-                        year=media_manager.metadataProvider.utils.get_year_from_first_air_date(
+                        year=media_manager.metadataProvider.utils.get_year_from_date(
                             result["first_air_date"]
                         ),
                         metadata_provider=self.name,
@@ -152,3 +153,117 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
             except Exception as e:
                 log.warning(f"Error processing search result {result}: {e}")
         return formatted_results
+
+    def get_movie_metadata(self, id: int = None) -> Movie:
+        """
+
+        :param id: the external id of the show
+        :type id: int
+        :return: returns a ShowMetadata object
+        :rtype: ShowMetadata
+        """
+        movie_metadata = tmdbsimple.Movies(id).info()
+        year = media_manager.metadataProvider.utils.get_year_from_date(
+            movie_metadata["release_date"]
+        )
+
+        movie = Movie(
+            external_id=id,
+            name=movie_metadata["title"],
+            overview=movie_metadata["overview"],
+            year=year,
+            metadata_provider=self.name,
+        )
+
+        return movie
+
+    def search_movie(
+        self, query: str | None = None, max_pages: int = 5
+    ) -> list[MetaDataProviderSearchResult]:
+        """
+        Search for movies using TMDB API.
+        If no query is provided, it will return the most popular movies.
+        """
+        if query is None:
+            result_factory = lambda page: tmdbsimple.Trending(media_type="movie").info()  # noqa: E731
+        else:
+            result_factory = lambda page: tmdbsimple.Search().movie(  # noqa: E731
+                page=page, query=query, include_adult=True
+            )
+
+        results = []
+        for i in range(1, max_pages + 1):
+            result_page = result_factory(i)
+
+            if not result_page["results"]:
+                break
+            else:
+                results.extend(result_page["results"])
+
+        formatted_results = []
+        for result in results:
+            try:
+                if result["poster_path"] is not None:
+                    poster_url = (
+                        "https://image.tmdb.org/t/p/original" + result["poster_path"]
+                    )
+                else:
+                    poster_url = None
+                formatted_results.append(
+                    MetaDataProviderSearchResult(
+                        poster_path=poster_url,
+                        overview=result["overview"],
+                        name=result["title"],
+                        external_id=result["id"],
+                        year=media_manager.metadataProvider.utils.get_year_from_date(
+                            result["release_date"]
+                        ),
+                        metadata_provider=self.name,
+                        added=False,
+                        vote_average=result["vote_average"],
+                    )
+                )
+            except Exception as e:
+                log.warning(f"Error processing search result {result}: {e}")
+        return formatted_results
+
+    def download_movie_poster_image(self, movie: Movie) -> bool:
+        movie_metadata = tmdbsimple.Movies(movie.external_id).info()
+        # downloading the poster
+        # all pictures from TMDB should already be jpeg, so no need to convert
+        if movie_metadata["poster_path"] is not None:
+            poster_url = (
+                "https://image.tmdb.org/t/p/original" + movie_metadata["poster_path"]
+            )
+            if media_manager.metadataProvider.utils.download_poster_image(
+                storage_path=self.storage_path, poster_url=poster_url, id=movie.id
+            ):
+                log.info("Successfully downloaded poster image for show " + movie.name)
+            else:
+                log.warning(f"download for image of show {movie.name} failed")
+                return False
+        else:
+            log.warning(f"image for show {movie.name} could not be downloaded")
+            return False
+        return True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
