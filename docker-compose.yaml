@@ -39,10 +39,7 @@ services:
       #- DEVELOPMENT=
 
     volumes:
-      - ./data:/data/images
-      - ./tv:/data/tv
-      - ./movie:/data/movies
-      - ./torrent:/data/torrents
+      - ./data/:/data/
   frontend:
     image: ghcr.io/maxdorninger/mediamanager/frontend:latest
     container_name: frontend

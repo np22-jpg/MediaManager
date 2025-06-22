@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 from logging.config import dictConfig
+from pathlib import Path
 
 from pythonjsonlogger.json import JsonFormatter
 
@@ -46,23 +47,23 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-from media_manager.database import init_db
-import media_manager.tv.router as tv_router
-from media_manager.tv.service import (
+from media_manager.database import init_db  # noqa: E402
+import media_manager.tv.router as tv_router  # noqa: E402
+from media_manager.tv.service import (  # noqa: E402
     auto_download_all_approved_season_requests,
     import_all_torrents,
     update_all_non_ended_shows_metadata,
 )
 
-from media_manager.config import BasicConfig
+from media_manager.config import BasicConfig  # noqa: E402
 
-import media_manager.torrent.router as torrent_router
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from datetime import datetime
-from contextlib import asynccontextmanager
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
+import media_manager.torrent.router as torrent_router  # noqa: E402
+from fastapi import FastAPI  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from datetime import datetime  # noqa: E402
+from contextlib import asynccontextmanager  # noqa: E402
+from apscheduler.schedulers.background import BackgroundScheduler  # noqa: E402
+from apscheduler.triggers.cron import CronTrigger  # noqa: E402
 
 init_db()
 log.info("Database initialized")
@@ -83,6 +84,7 @@ def hourly_tasks():
     auto_download_all_approved_season_requests()
     import_all_torrents()
 
+
 def weekly_tasks():
     log.info(f"Weekly tasks are running at {datetime.now()}")
     update_all_non_ended_shows_metadata()
@@ -90,7 +92,9 @@ def weekly_tasks():
 
 scheduler = BackgroundScheduler()
 trigger = CronTrigger(minute=0, hour="*")
-weekly_trigger = CronTrigger(day_of_week="mon", hour=0, minute=0, jitter=60*60*24*2)
+weekly_trigger = CronTrigger(
+    day_of_week="mon", hour=0, minute=0, jitter=60 * 60 * 24 * 2
+)
 scheduler.add_job(hourly_tasks, trigger)
 scheduler.add_job(weekly_tasks, trigger)
 scheduler.start()
@@ -119,16 +123,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-import uvicorn
-from fastapi.staticfiles import StaticFiles
-from media_manager.auth.users import openid_client
-from media_manager.auth.users import SECRET as AUTH_USERS_SECRET
-from media_manager.auth.router import users_router as custom_users_router
-from media_manager.auth.router import auth_metadata_router
-from media_manager.auth.schemas import UserCreate, UserRead, UserUpdate
-from media_manager.auth.oauth import get_oauth_router
+import uvicorn  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+from media_manager.auth.users import openid_client  # noqa: E402
+from media_manager.auth.users import SECRET as AUTH_USERS_SECRET  # noqa: E402
+from media_manager.auth.router import users_router as custom_users_router  # noqa: E402
+from media_manager.auth.router import auth_metadata_router  # noqa: E402
+from media_manager.auth.schemas import UserCreate, UserRead, UserUpdate  # noqa: E402
+from media_manager.auth.oauth import get_oauth_router  # noqa: E402
 
-from media_manager.auth.users import (
+from media_manager.auth.users import (  # noqa: E402
     bearer_auth_backend,
     fastapi_users,
     cookie_auth_backend,
@@ -197,6 +201,52 @@ app.mount(
 )
 
 log.info("Hello World!")
+
+# Startup checks
+try:
+    test_dir = basic_config.tv_directory / Path(".media_manager_test_dir")
+    test_dir.mkdir(parents=True, exist_ok=True)
+    test_dir.rmdir()
+    log.info(f"Successfully created test dir in TV directory at: {test_dir}")
+
+    test_dir = basic_config.movie_directory / Path(".media_manager_test_dir")
+    test_dir.mkdir(parents=True, exist_ok=True)
+    test_dir.rmdir()
+    log.info(f"Successfully created test dir in Movie directory at: {test_dir}")
+
+    test_dir = basic_config.image_directory / Path(".media_manager_test_dir")
+    test_dir.touch()
+    test_dir.unlink()
+    log.info(f"Successfully created test file in Image directory at: {test_dir}")
+
+    test_dir = basic_config.image_directory / Path(".media_manager_test_dir")
+    test_dir.touch()
+    test_dir.unlink()
+    log.info(f"Successfully created test file in Image directory at: {test_dir}")
+
+    # check if hardlink creation works
+    test_dir = basic_config.tv_directory / Path(".media_manager_test_dir")
+    test_dir.mkdir(parents=True, exist_ok=True)
+
+    torrent_dir = basic_config.torrent_directory / Path(".media_manager_test_dir")
+    torrent_dir.mkdir(parents=True, exist_ok=True)
+
+    test_torrent_file = torrent_dir / Path(".media_manager.test.torrent")
+    test_torrent_file.touch()
+
+    test_hardlink = test_dir / Path(".media_manager.test.hardlink")
+    test_hardlink.hardlink_to(test_torrent_file)
+    if not test_hardlink.samefile(test_torrent_file):
+        log.critical("Hardlink creation failed!")
+
+    test_hardlink.unlink()
+    test_torrent_file.unlink()
+    torrent_dir.rmdir()
+    test_dir.rmdir()
+
+except Exception as e:
+    log.error(f"Error creating test directory: {e}")
+    raise
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)
