@@ -65,7 +65,6 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
             # the seasons need to be filtered to a certain type,
             # otherwise the same season will be imported in aired and dvd order,
             # which causes duplicate season number + show ids which in turn violates a unique constraint of the season table
-            pprint.pprint(s)
             if s["type"]["id"] != 1:
                 log.info(
                     f"Season {s['type']['id']} will not be downloaded because it is not a 'aired order' season"
