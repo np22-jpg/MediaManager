@@ -37,11 +37,11 @@ torrents and authentication.
 - [x] automatically update metadata of shows
 - [x] automatically download new seasons/episodes of shows
 - [x] add fallback to just copy files if hardlinks don't work
+- [x] add check at startup if hardlinks work
 - [ ] support for movies
 - [ ] expand README with more information and a quickstart guide
 - [ ] add notification system
 - [ ] add in-depth documentation on the architecture of the codebase
-- [ ] add check at startup if hardlinks work
 - [ ] make indexer module multithreaded
 - [ ] add support for deluge and transmission
 - [ ] improve reliability of scheduled tasks
