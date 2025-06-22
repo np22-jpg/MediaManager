@@ -39,7 +39,6 @@ class Season(Base):
     name: Mapped[str]
     overview: Mapped[str]
 
-
     show: Mapped["Show"] = relationship(back_populates="seasons")
     episodes: Mapped[list["Episode"]] = relationship(
         back_populates="season", cascade="all, delete"

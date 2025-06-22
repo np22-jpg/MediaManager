@@ -68,7 +68,7 @@ class TorrentService:
             torrent_id=torrent.id
         )
 
-    def get_show_of_torrent(self, torrent: Torrent) -> Show|None:
+    def get_show_of_torrent(self, torrent: Torrent) -> Show | None:
         """
         Returns the show of a torrent
         :param torrent: the torrent to get the show of
@@ -193,4 +193,3 @@ class TorrentService:
     #        from media_manager.tv.repository import remove_season_files_by_torrent_id
     #        remove_season_files_by_torrent_id(db=self.db, torrent_id=torrent_id)
     #    media_manager.torrent.repository.delete_torrent(db=self.db, torrent_id=t.id)
-

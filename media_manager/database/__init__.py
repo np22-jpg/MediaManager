@@ -1,10 +1,8 @@
 import logging
-import pprint
 from contextvars import ContextVar
 from typing import Annotated, Any, Generator
 
 from fastapi import Depends
-from jsonschema.validators import extend
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 

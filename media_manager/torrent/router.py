@@ -4,7 +4,7 @@ from fastapi.params import Depends
 
 from media_manager.auth.users import current_active_user, current_superuser
 from media_manager.torrent.dependencies import torrent_service_dep, torrent_dep
-from media_manager.torrent.schemas import TorrentId, Torrent
+from media_manager.torrent.schemas import Torrent
 
 router = APIRouter()
 

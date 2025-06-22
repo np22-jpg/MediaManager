@@ -1,5 +1,3 @@
-import pprint
-
 import tvdb_v4_official
 import logging
 
@@ -9,7 +7,6 @@ import media_manager.metadataProvider.utils
 from media_manager.exceptions import InvalidConfigError
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
-    register_metadata_provider,
 )
 from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
 from media_manager.tv.schemas import Episode, Season, Show, SeasonNumber

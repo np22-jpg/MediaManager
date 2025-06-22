@@ -51,7 +51,6 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
             return False
         return True
 
-
     def get_show_metadata(self, id: int = None) -> Show:
         """
 
@@ -112,9 +111,9 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         If no query is provided, it will return the most popular shows.
         """
         if query is None:
-            result_factory = lambda page: tmdbsimple.Trending(media_type="tv").info()
+            result_factory = lambda page: tmdbsimple.Trending(media_type="tv").info()  # noqa: E731
         else:
-            result_factory = lambda page: tmdbsimple.Search().tv(
+            result_factory = lambda page: tmdbsimple.Search().tv(  # noqa: E731
                 page=page, query=query, include_adult=True
             )
 

@@ -3,8 +3,6 @@ import re
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-import media_manager.indexer.service
-import media_manager.torrent.repository
 from media_manager.exceptions import InvalidConfigError
 from media_manager.indexer.repository import IndexerRepository
 from media_manager.database import SessionLocal
@@ -604,7 +602,9 @@ class TvService:
             overview=fresh_show_data.overview,
             year=fresh_show_data.year,
             ended=fresh_show_data.ended,
-            continuous_download=db_show.continuous_download if fresh_show_data.ended is False else False,
+            continuous_download=db_show.continuous_download
+            if fresh_show_data.ended is False
+            else False,
         )
 
         # Process seasons and episodes
@@ -704,6 +704,7 @@ class TvService:
             show_id=show_id, continuous_download=continuous_download
         )
 
+
 def auto_download_all_approved_season_requests() -> None:
     """
     Auto download all approved season requests.
@@ -760,7 +761,7 @@ def import_all_torrents() -> None:
     log.info("Found %d torrents to import", len(torrents))
     imported_torrents = []
     for t in torrents:
-        if t.imported == False and t.status == TorrentStatus.finished:
+        if not t.imported and t.status == TorrentStatus.finished:
             show = torrent_service.get_show_of_torrent(torrent=t)
             if show is None:
                 log.warning(f"torrent {t.title} is not a tv torrent, skipping import.")
@@ -820,11 +821,20 @@ def update_all_non_ended_shows_metadata() -> None:
                 log.info(
                     f"Automatically adding season requeest for new season {new_season.number} of show {updated_show.name}"
                 )
-                tv_service.add_season_request(SeasonRequest(min_quality=Quality.sd, wanted_quality=Quality.uhd, season_id=new_season.id, authorized=True))
+                tv_service.add_season_request(
+                    SeasonRequest(
+                        min_quality=Quality.sd,
+                        wanted_quality=Quality.uhd,
+                        season_id=new_season.id,
+                        authorized=True,
+                    )
+                )
 
         if updated_show:
             log.info(f"Successfully updated metadata for show: {updated_show.name}")
-            log.debug(f"Added new seasons: {len(new_seasons)} to show: {updated_show.name}")
+            log.debug(
+                f"Added new seasons: {len(new_seasons)} to show: {updated_show.name}"
+            )
         else:
             log.warning(f"Failed to update metadata for show: {show.name}")
     db.commit()

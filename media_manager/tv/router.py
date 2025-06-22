@@ -255,7 +255,7 @@ def update_request(
     dependencies=[Depends(current_active_user)],
     response_model=Season,
 )
-def get_season_files(season: season_dep) -> Season:
+def get_season(season: season_dep) -> Season:
     return season
 
 
@@ -336,5 +336,7 @@ def search_metadata_providers_for_a_show(
     dependencies=[Depends(current_active_user)],
     response_model=list[MetaDataProviderShowSearchResult],
 )
-def get_recommended_shows(tv_service: tv_service_dep, metadata_provider: metadata_provider_dep):
+def get_recommended_shows(
+    tv_service: tv_service_dep, metadata_provider: metadata_provider_dep
+):
     return tv_service.get_popular_shows(metadata_provider=metadata_provider)

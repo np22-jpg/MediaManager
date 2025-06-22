@@ -583,7 +583,9 @@ class TvRepository:
             log.error(f"Database error retrieving show by season_id {season_id}: {e}")
             raise
 
-    def add_season_to_show(self, show_id: ShowId, season_data: SeasonSchema) -> SeasonSchema:
+    def add_season_to_show(
+        self, show_id: ShowId, season_data: SeasonSchema
+    ) -> SeasonSchema:
         """
         Adds a new season and its episodes to a show.
         If the season number already exists for the show, it returns the existing season.
@@ -600,10 +602,16 @@ class TvRepository:
             log.warning(f"Show with id {show_id} not found when trying to add season.")
             raise NotFoundError(f"Show with id {show_id} not found.")
 
-        stmt = select(Season).where(Season.show_id == show_id).where(Season.number == season_data.number)
+        stmt = (
+            select(Season)
+            .where(Season.show_id == show_id)
+            .where(Season.number == season_data.number)
+        )
         existing_db_season = self.db.execute(stmt).scalar_one_or_none()
         if existing_db_season:
-            log.info(f"Season {season_data.number} already exists for show {show_id} (ID: {existing_db_season.id}). Skipping add.")
+            log.info(
+                f"Season {season_data.number} already exists for show {show_id} (ID: {existing_db_season.id}). Skipping add."
+            )
             return SeasonSchema.model_validate(existing_db_season)
 
         db_season = Season(
@@ -620,18 +628,22 @@ class TvRepository:
                     number=ep_schema.number,
                     external_id=ep_schema.external_id,
                     title=ep_schema.title,
-                ) for ep_schema in season_data.episodes
-            ]
+                )
+                for ep_schema in season_data.episodes
+            ],
         )
-
 
         self.db.add(db_season)
         self.db.commit()
         self.db.refresh(db_season)
-        log.info(f"Successfully added season {db_season.number} (ID: {db_season.id}) to show {show_id}.")
+        log.info(
+            f"Successfully added season {db_season.number} (ID: {db_season.id}) to show {show_id}."
+        )
         return SeasonSchema.model_validate(db_season)
 
-    def add_episode_to_season(self, season_id: SeasonId, episode_data: EpisodeSchema) -> EpisodeSchema:
+    def add_episode_to_season(
+        self, season_id: SeasonId, episode_data: EpisodeSchema
+    ) -> EpisodeSchema:
         """
         Adds a new episode to a season.
         If the episode number already exists for the season, it returns the existing episode.
@@ -642,13 +654,21 @@ class TvRepository:
         :raises NotFoundError: If the season is not found.
         :raises SQLAlchemyError: If a database error occurs.
         """
-        log.debug(f"Attempting to add episode {episode_data.number} to season {season_id}")
+        log.debug(
+            f"Attempting to add episode {episode_data.number} to season {season_id}"
+        )
         db_season = self.db.get(Season, season_id)
         if not db_season:
-            log.warning(f"Season with id {season_id} not found when trying to add episode.")
+            log.warning(
+                f"Season with id {season_id} not found when trying to add episode."
+            )
             raise NotFoundError(f"Season with id {season_id} not found.")
 
-        stmt = select(Episode).where(Episode.season_id == season_id).where(Episode.number == episode_data.number)
+        stmt = (
+            select(Episode)
+            .where(Episode.season_id == season_id)
+            .where(Episode.number == episode_data.number)
+        )
         existing_db_episode = self.db.execute(stmt).scalar_one_or_none()
         if existing_db_episode:
             log.info(
@@ -667,10 +687,20 @@ class TvRepository:
         self.db.add(db_episode)
         self.db.commit()
         self.db.refresh(db_episode)
-        log.info(f"Successfully added episode {db_episode.number} (ID: {db_episode.id}) to season {season_id}.")
+        log.info(
+            f"Successfully added episode {db_episode.number} (ID: {db_episode.id}) to season {season_id}."
+        )
         return EpisodeSchema.model_validate(db_episode)
 
-    def update_show_attributes(self, show_id: ShowId, name: str | None = None, overview: str | None = None, year: int | None = None, ended: bool|None = None, continuous_download: bool|None = None) -> ShowSchema: # Removed poster_url from params
+    def update_show_attributes(
+        self,
+        show_id: ShowId,
+        name: str | None = None,
+        overview: str | None = None,
+        year: int | None = None,
+        ended: bool | None = None,
+        continuous_download: bool | None = None,
+    ) -> ShowSchema:  # Removed poster_url from params
         """
         Update attributes of an existing show.
 
@@ -700,7 +730,10 @@ class TvRepository:
         if ended is not None and db_show.ended != ended:
             db_show.ended = ended
             updated = True
-        if continuous_download is not None and db_show.continuous_download != continuous_download:
+        if (
+            continuous_download is not None
+            and db_show.continuous_download != continuous_download
+        ):
             db_show.continuous_download = continuous_download
             updated = True
 
@@ -712,7 +745,9 @@ class TvRepository:
             log.info(f"No attribute changes needed for show ID: {show_id}")
         return ShowSchema.model_validate(db_show)
 
-    def update_season_attributes(self, season_id: SeasonId, name: str | None = None, overview: str | None = None) -> SeasonSchema:
+    def update_season_attributes(
+        self, season_id: SeasonId, name: str | None = None, overview: str | None = None
+    ) -> SeasonSchema:
         """
         Update attributes of an existing season.
 
@@ -746,8 +781,9 @@ class TvRepository:
             log.info(f"No attribute changes needed for season ID: {season_id}")
         return SeasonSchema.model_validate(db_season)
 
-
-    def update_episode_attributes(self, episode_id: EpisodeId, title: str | None = None) -> EpisodeSchema:
+    def update_episode_attributes(
+        self, episode_id: EpisodeId, title: str | None = None
+    ) -> EpisodeSchema:
         """
         Update attributes of an existing episode.
 

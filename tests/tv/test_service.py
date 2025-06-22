@@ -1,5 +1,5 @@
 import uuid
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -57,7 +57,9 @@ def test_add_show(tv_service, mock_tv_repository, mock_torrent_service):
 
     mock_metadata_provider.get_show_metadata.assert_called_once_with(id=external_id)
     mock_tv_repository.save_show.assert_called_once_with(show=show_data)
-    mock_metadata_provider.download_show_poster_image.assert_called_once_with(show=show_data)
+    mock_metadata_provider.download_show_poster_image.assert_called_once_with(
+        show=show_data
+    )
     assert result == show_data
 
 
@@ -362,9 +364,12 @@ def test_season_file_exists_on_file_with_none_imported(
     class DummySeasonFile:
         def __init__(self):
             self.torrent_id = uuid.uuid4()
+
     dummy_file = DummySeasonFile()
+
     class DummyTorrent:
         imported = True
+
     tv_service.torrent_service.torrent_repository.get_torrent_by_id = MagicMock(
         return_value=DummyTorrent()
     )
@@ -377,9 +382,12 @@ def test_season_file_exists_on_file_with_none_not_imported(
     class DummySeasonFile:
         def __init__(self):
             self.torrent_id = uuid.uuid4()
+
     dummy_file = DummySeasonFile()
+
     class DummyTorrent:
         imported = False
+
     tv_service.torrent_service.get_torrent_by_id = MagicMock(
         return_value=DummyTorrent()
     )
@@ -637,9 +645,7 @@ def test_get_popular_shows_all_added(tv_service, mock_torrent_service):
     assert results == []
 
 
-def test_get_popular_shows_empty_from_provider(
-    tv_service, mock_torrent_service
-):
+def test_get_popular_shows_empty_from_provider(tv_service, mock_torrent_service):
     mock_metadata_provider = MagicMock()
     mock_metadata_provider.search_show.return_value = []
     tv_service.check_if_show_exists = MagicMock()

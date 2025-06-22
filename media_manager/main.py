@@ -56,7 +56,7 @@ from media_manager.tv.service import (  # noqa: E402
 )
 
 from media_manager.config import BasicConfig  # noqa: E402
-import shutil # noqa: E402
+import shutil  # noqa: E402
 
 import media_manager.torrent.router as torrent_router  # noqa: E402
 from fastapi import FastAPI  # noqa: E402
@@ -237,7 +237,9 @@ try:
             log.critical("Hardlink creation failed!")
         log.info("Successfully created test hardlink in TV directory")
     except OSError as e:
-        log.error(f"Hardlink creation failed, falling back to copying files. Error: {e}")
+        log.error(
+            f"Hardlink creation failed, falling back to copying files. Error: {e}"
+        )
         shutil.copy(src=test_torrent_file, dst=test_hardlink)
     finally:
         test_hardlink.unlink()
