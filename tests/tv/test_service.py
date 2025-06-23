@@ -7,7 +7,7 @@ from media_manager.exceptions import NotFoundError
 from media_manager.tv.schemas import Show, ShowId, SeasonId
 from media_manager.tv.service import TvService
 from media_manager.indexer.schemas import IndexerQueryResult, IndexerQueryResultId
-from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
+from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 
 
 @pytest.fixture
@@ -544,7 +544,7 @@ def test_get_all_available_torrents_for_a_season_no_results(
 def test_search_for_show_no_existing(tv_service, mock_torrent_service):
     query = "Test Show"
     mock_metadata_provider = MagicMock()
-    search_result_item = MetaDataProviderShowSearchResult(
+    search_result_item = MetaDataProviderSearchResult(
         external_id=123,
         name="Test Show",
         year=2022,
@@ -568,7 +568,7 @@ def test_search_for_show_no_existing(tv_service, mock_torrent_service):
 def test_search_for_show_with_existing(tv_service, mock_torrent_service):
     query = "Test Show"
     mock_metadata_provider = MagicMock()
-    search_result_item = MetaDataProviderShowSearchResult(
+    search_result_item = MetaDataProviderSearchResult(
         external_id=123,
         name="Test Show",
         year=2022,
@@ -600,7 +600,7 @@ def test_search_for_show_empty_results(tv_service, mock_torrent_service):
 
 def test_get_popular_shows_none_added(tv_service, mock_torrent_service):
     mock_metadata_provider = MagicMock()
-    popular_show1 = MetaDataProviderShowSearchResult(
+    popular_show1 = MetaDataProviderSearchResult(
         external_id=123,
         name="Popular Show 1",
         year=2022,
@@ -609,7 +609,7 @@ def test_get_popular_shows_none_added(tv_service, mock_torrent_service):
         added=False,
         poster_path=None,
     )
-    popular_show2 = MetaDataProviderShowSearchResult(
+    popular_show2 = MetaDataProviderSearchResult(
         external_id=456,
         name="Popular Show 2",
         year=2023,
@@ -629,7 +629,7 @@ def test_get_popular_shows_none_added(tv_service, mock_torrent_service):
 
 def test_get_popular_shows_all_added(tv_service, mock_torrent_service):
     mock_metadata_provider = MagicMock()
-    popular_show1 = MetaDataProviderShowSearchResult(
+    popular_show1 = MetaDataProviderSearchResult(
         external_id=123,
         name="Popular Show 1",
         year=2022,

@@ -42,7 +42,7 @@ class MovieFile(Base):
 
 class MovieRequest(Base):
     __tablename__ = "movie_request"
-    __table_args__ = (UniqueConstraint("season_id", "wanted_quality"),)
+    __table_args__ = (UniqueConstraint("movie_id", "wanted_quality"),)
     id: Mapped[UUID] = mapped_column(primary_key=True)
     movie_id: Mapped[UUID] = mapped_column(
         ForeignKey(column="movie.id", ondelete="CASCADE"),

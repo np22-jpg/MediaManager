@@ -7,7 +7,6 @@ from media_manager.tv.models import SeasonFile, Show, Season
 from media_manager.tv.schemas import SeasonFile as SeasonFileSchema, Show as ShowSchema
 from media_manager.exceptions import NotFoundError
 
-
 class TorrentRepository:
     def __init__(self, db: DbSessionDependency):
         self.db = db

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class MetaDataProviderShowSearchResult(BaseModel):
+class MetaDataProviderSearchResult(BaseModel):
     poster_path: str | None
     overview: str | None
     name: str
