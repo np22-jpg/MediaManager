@@ -1,3 +1,5 @@
+import pprint
+
 import tvdb_v4_official
 import logging
 
@@ -141,27 +143,34 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
             results = self.tvdb_client.get_all_movies()
         else:
             results = self.tvdb_client.search(query)
+        results = results[0:20] # this will return the first 20 results
+        log.info(f"got {len(results)} results from TVDB search")
         formatted_results = []
         for result in results:
+            # this is needed because get_all_movies and search return different result formats
             try:
-                if result["type"] == "movie":
-                    try:
-                        year = result["year"]
-                    except KeyError:
-                        year = None
+                result = self.tvdb_client.get_movie_extended(result["id"])
+            except Exception:
+                result = self.tvdb_client.get_movie_extended(result["tvdb_id"])
 
-                    formatted_results.append(
-                        MetaDataProviderSearchResult(
-                            poster_path=result["image_url"],
-                            overview="TVDB doesn't provide Movie Overviews",
-                            name=result["name"],
-                            external_id=result["tvdb_id"],
-                            year=year,
-                            metadata_provider=self.name,
-                            added=False,
-                            vote_average=None,
-                        )
+            try:
+                try:
+                    year = result["year"]
+                except KeyError:
+                    year = None
+
+                formatted_results.append(
+                    MetaDataProviderSearchResult(
+                        poster_path=result["image"],
+                        overview="TVDB does not provide overviews",
+                        name=result["name"],
+                        external_id=result["id"],
+                        year=year,
+                        metadata_provider=self.name,
+                        added=False,
+                        vote_average=None,
                     )
+                )
             except Exception as e:
                 log.warning(f"Error processing search result {result}: {e}")
         return formatted_results
@@ -197,7 +206,7 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
 
         movie = Movie(
             name=movie["name"],
-            overview="TVDB doesn't provide Movie Overviews",
+            overview="TVDB does not provide overviews",
             year=year,
             external_id=movie["id"],
             metadata_provider=self.name,

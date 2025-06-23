@@ -48,10 +48,10 @@ class AbstractMetadataProvider(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def download_movie_poster_image(self, show: Show) -> bool:
+    def download_movie_poster_image(self, movie: Movie) -> bool:
         """
         Downloads the poster image for a show.
-        :param show: The show to download the poster image for.
+        :param movie: The show to download the poster image for.
         :return: True if the image was downloaded successfully, False otherwise.
         """
         raise NotImplementedError()
