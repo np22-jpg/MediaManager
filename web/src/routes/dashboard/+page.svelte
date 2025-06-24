@@ -7,8 +7,26 @@
     import {base} from '$app/paths';
     import {page} from '$app/state';
     import type {MetaDataProviderShowSearchResult} from '$lib/types';
+	import {onMount} from 'svelte';
+	import {env} from "$env/dynamic/public";
 
-	let recommendedShows: Promise<MetaDataProviderShowSearchResult[]> = page.data.tvRecommendations;
+	const apiUrl = env.PUBLIC_API_URL;
+	let recommendedShows: any[] = [];
+	let loading = true;
+
+	onMount(async () => {
+		const res = await fetch(apiUrl + '/tv/recommended', {
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
+			credentials: 'include',
+			method: 'GET'
+		});
+		recommendedShows = await res.json();
+		loading = false;
+	});
+
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -34,16 +52,17 @@
 	</h1>
 	<div class="min-h-[100vh] flex-1 items-center justify-center rounded-xl p-4 md:min-h-min">
         <div
-                class="mx-auto max-w-[80vw] sm:max-w-[200px] md:max-w-[500px] lg:max-w-[750px] xl:max-w-[1200px]"
+				class="mx-auto max-w-[70vw] md:max-w-[80vw]"
         >
-			<h3 class="my-4 scroll-m-20 text-center text-2xl font-semibold tracking-tight">
+			<h3 class="my-4 text-center text-2xl font-semibold ">
 				Trending Shows
 			</h3>
-			{#await recommendedShows}
-                <LoadingBar/>
-			{:then recommendations}
-                <RecommendedShowsCarousel shows={recommendations}/>
-			{/await}
+			{#if loading}
+				<LoadingBar/>
+			{:else}
+
+				<RecommendedShowsCarousel shows={recommendedShows}/>
+			{/if}
 		</div>
 	</div>
 

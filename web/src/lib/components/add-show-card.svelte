@@ -33,7 +33,7 @@
 	}
 </script>
 
-<Card.Root class="col-span-full h-full overflow-x-hidden sm:col-span-1">
+<Card.Root class="col-span-full flex h-full flex-col overflow-x-hidden sm:col-span-1">
 	<Card.Header>
 		<Card.Title class="flex h-12 items-center leading-tight">
 			{result.name}
@@ -45,10 +45,10 @@
 		>{result.overview !== '' ? result.overview : 'No overview available'}</Card.Description
 		>
 	</Card.Header>
-	<Card.Content class="flex h-96 w-full items-center justify-center">
+	<Card.Content class="flex flex-1 items-center justify-center">
 		{#if result.poster_path != null}
 			<img
-					class="max-h-full max-w-full rounded-lg object-contain"
+					class="h-full w-full rounded-lg object-contain"
 					src={result.poster_path}
 					alt="{result.name}'s Poster Image"
 			/>

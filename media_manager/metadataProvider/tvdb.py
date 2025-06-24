@@ -103,7 +103,7 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         )
 
         return show
-
+    # TODO: fuck this mess
     def search_show(
         self, query: str | None = None
     ) -> list[MetaDataProviderSearchResult]:

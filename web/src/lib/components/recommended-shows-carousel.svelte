@@ -12,21 +12,22 @@
 		align: 'start',
 		loop: true
 	}}
+        class="max-w-[80vw]"
         plugins={[
 		Autoplay({
-			delay: 4000,
+			delay: 5000,
 			stopOnInteraction: false,
 			stopOnMouseEnter: true,
-			playOnInit: true
+			playOnInit: true,
+			stopOnFocusIn: true
 		})
 	]}
 >
-    <Carousel.Content class="-ml-1">
+
+    <Carousel.Content>
         {#each shows as show}
-            <Carousel.Item class="pl-1 md:basis-1/2 lg:basis-1/3">
-                <div class="p-1">
-                    <AddShowCard result={show}/>
-                </div>
+            <Carousel.Item class="md:basis-1/2 md:max-w-[40vw] xl:max-w-[20vw]">
+                <AddShowCard result={show}/>
             </Carousel.Item>
         {/each}
     </Carousel.Content>
