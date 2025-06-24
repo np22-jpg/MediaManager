@@ -46,6 +46,7 @@ def get_session() -> Generator[Session, Any, None]:
     except Exception as e:
         db.rollback()
         log.critical(f"error occurred: {e}")
+        raise e
     finally:
         db.close()
 
