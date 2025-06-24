@@ -6,6 +6,11 @@ from media_manager.torrent.schemas import TorrentId, Torrent as TorrentSchema
 from media_manager.tv.models import SeasonFile, Show, Season
 from media_manager.tv.schemas import SeasonFile as SeasonFileSchema, Show as ShowSchema
 from media_manager.exceptions import NotFoundError
+from media_manager.movies.models import Movie, MovieFile
+from media_manager.movies.schemas import (
+    Movie as MovieSchema,
+    MovieFile as MovieFileSchema,
+)
 
 class TorrentRepository:
     def __init__(self, db: DbSessionDependency):
@@ -51,3 +56,19 @@ class TorrentRepository:
 
     def delete_torrent(self, torrent_id: TorrentId):
         self.db.delete(self.db.get(Torrent, torrent_id))
+
+    def get_movie_of_torrent(self, torrent_id: TorrentId):
+        stmt = (
+            select(Movie)
+            .join(MovieFile.movie_id)
+            .where(MovieFile.torrent_id == torrent_id)
+        )
+        result = self.db.execute(stmt).unique().scalar_one_or_none()
+        if result is None:
+            return None
+        return MovieSchema.model_validate(result)
+
+    def get_movie_files_of_torrent(self, torrent_id: TorrentId):
+        stmt = select(MovieFile).where(MovieFile.torrent_id == torrent_id)
+        result = self.db.execute(stmt).scalars().all()
+        return [MovieFileSchema.model_validate(movie_file) for movie_file in result]

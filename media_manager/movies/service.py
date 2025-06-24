@@ -174,7 +174,7 @@ class MovieService:
         if search_query_override:
             search_query = search_query_override
         else:
-            search_query = f"{movie.name} {movie.year}"
+            search_query = f"{movie.name}"
 
         torrents: list[IndexerQueryResult] = self.indexer_service.search(
             query=search_query
@@ -444,15 +444,25 @@ class MovieService:
 
         video_files, subtitle_files = import_torrent(torrent=torrent)
 
+        if len(video_files) != 0:
+            # TODO: send notification
+            log.error(
+                "Found multiple video files in movie torrent, only the first will be imported. Manual intervention is recommended.."
+            )
         log.info(
-            f"Importing these {len(video_files)} files:\n" + pprint.pformat(video_files)
+            f"Importing these {len(video_files) + len(subtitle_files)} files:\n"
+            + pprint.pformat(video_files)
+            + "\n"
+            + pprint.pformat(subtitle_files)
         )
 
         movie_file_path = (
             BasicConfig().movie_directory
             / f"{movie.name} ({movie.year})  [{movie.metadata_provider}id-{movie.external_id}]"
         )
-        movie_files = self.torrent_service.get_movie_files_of_torrent(torrent=torrent)
+        movie_files: list[MovieFile] = self.torrent_service.get_movie_files_of_torrent(
+            torrent=torrent
+        )
         log.info(
             f"Found {len(movie_files)} movie files associated with torrent {torrent.title}"
         )
@@ -479,8 +489,13 @@ class MovieService:
                 language_code_match = re.search(
                     r"\.([a-z]{2})\.srt$", subtitle_file.name, re.IGNORECASE
                 )
+                if not language_code_match:
+                    log.warning(
+                        f"Subtitle file {subtitle_file.name} does not match expected format, can't extract language code, skipping."
+                    )
+                    continue
                 language_code = (
-                    language_code_match.group(1) if language_code_match else "en"
+                    language_code_match.group(1)
                 )
                 target_subtitle_file = (
                     movie_file_path / f"{movie_file_name}.{language_code}.srt"
@@ -519,7 +534,7 @@ class MovieService:
         updated_movie = self.movie_repository.get_movie_by_id(movie_id=db_movie.id)
 
         log.info(f"Successfully updated metadata for movie ID: {db_movie.id}")
-        metadata_provider.download_movie_poster_image()
+        metadata_provider.download_movie_poster_image(movie=updated_movie)
         return updated_movie
 
 

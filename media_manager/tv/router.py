@@ -7,7 +7,7 @@ from media_manager.auth.db import User
 from media_manager.auth.schemas import UserRead
 from media_manager.auth.users import current_active_user, current_superuser
 from media_manager.indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
-from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
+from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 from media_manager.torrent.schemas import Torrent
 from media_manager.tv import log
 from media_manager.exceptions import MediaAlreadyExists
@@ -240,6 +240,7 @@ def update_request(
     user: Annotated[User, Depends(current_active_user)],
     season_request: UpdateSeasonRequest,
 ):
+    # NOTE: wtf is this code
     updated_season_request: SeasonRequest = SeasonRequest.model_validate(season_request)
     request = tv_service.get_season_request_by_id(
         season_request_id=updated_season_request.id
@@ -323,7 +324,7 @@ def download_a_torrent(
 @router.get(
     "/search",
     dependencies=[Depends(current_active_user)],
-    response_model=list[MetaDataProviderShowSearchResult],
+    response_model=list[MetaDataProviderSearchResult],
 )
 def search_metadata_providers_for_a_show(
     tv_service: tv_service_dep, query: str, metadata_provider: metadata_provider_dep
@@ -334,7 +335,7 @@ def search_metadata_providers_for_a_show(
 @router.get(
     "/recommended",
     dependencies=[Depends(current_active_user)],
-    response_model=list[MetaDataProviderShowSearchResult],
+    response_model=list[MetaDataProviderSearchResult],
 )
 def get_recommended_shows(
     tv_service: tv_service_dep, metadata_provider: metadata_provider_dep

@@ -56,11 +56,7 @@ class CreateMovieRequest(MovieRequestBase):
     movie_id: MovieId
 
 
-class UpdateMovieRequest(MovieRequestBase):
-    id: MovieRequestId
-
-
-class MovieRequest(BaseModel):
+class MovieRequest(MovieRequestBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: MovieRequestId = Field(default_factory=uuid.uuid4)

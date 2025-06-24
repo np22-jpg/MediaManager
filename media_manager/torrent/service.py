@@ -11,6 +11,7 @@ from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.repository import TorrentRepository
 from media_manager.torrent.schemas import Torrent, TorrentStatus, TorrentId
 from media_manager.tv.schemas import SeasonFile, Show
+from media_manager.movies.schemas import Movie
 
 log = logging.getLogger(__name__)
 
@@ -75,6 +76,16 @@ class TorrentService:
         :return: the show of the torrent
         """
         return self.torrent_repository.get_show_of_torrent(torrent_id=torrent.id)
+
+    def get_movie_of_torrent(self, torrent: Torrent) -> Movie | None:
+        """
+        Returns the movie of a torrent
+        :param torrent: the torrent to get the movie of
+        :return: the movie of the torrent
+        """
+        return self.torrent_repository.get_movie_of_torrent(torrent_id=torrent.id)
+
+
 
     def download(self, indexer_result: IndexerQueryResult) -> Torrent:
         log.info(f"Attempting to download torrent: {indexer_result.title}")
@@ -193,3 +204,7 @@ class TorrentService:
     #        from media_manager.tv.repository import remove_season_files_by_torrent_id
     #        remove_season_files_by_torrent_id(db=self.db, torrent_id=torrent_id)
     #    media_manager.torrent.repository.delete_torrent(db=self.db, torrent_id=t.id)
+    def get_movie_files_of_torrent(self, torrent: Torrent):
+        return self.torrent_repository.get_movie_files_of_torrent(
+            torrent_id=torrent.id
+        )

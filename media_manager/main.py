@@ -48,7 +48,11 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 from media_manager.database import init_db  # noqa: E402
+
 import media_manager.tv.router as tv_router  # noqa: E402
+import media_manager.torrent.router as torrent_router  # noqa: E402
+import media_manager.movies.router as movies_router  # noqa: E402
+
 from media_manager.tv.service import (  # noqa: E402
     auto_download_all_approved_season_requests,
     import_all_torrents,
@@ -58,7 +62,7 @@ from media_manager.tv.service import (  # noqa: E402
 from media_manager.config import BasicConfig  # noqa: E402
 import shutil  # noqa: E402
 
-import media_manager.torrent.router as torrent_router  # noqa: E402
+
 from fastapi import FastAPI  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from datetime import datetime  # noqa: E402
@@ -194,7 +198,7 @@ if openid_client is not None:
 
 app.include_router(tv_router.router, prefix="/tv", tags=["tv"])
 app.include_router(torrent_router.router, prefix="/torrent", tags=["torrent"])
-
+app.include_router(movies_router.router, prefix="/movie", tags=["movie"])
 app.mount(
     "/static/image",
     StaticFiles(directory=basic_config.image_directory),

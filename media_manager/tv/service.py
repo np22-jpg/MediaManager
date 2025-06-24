@@ -8,7 +8,7 @@ from media_manager.indexer.repository import IndexerRepository
 from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
-from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
+from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 from media_manager.torrent.schemas import Torrent, TorrentStatus, Quality
 from media_manager.torrent.service import TorrentService
 from media_manager.tv import log
@@ -212,7 +212,7 @@ class TvService:
 
     def search_for_show(
         self, query: str, metadata_provider: AbstractMetadataProvider
-    ) -> list[MetaDataProviderShowSearchResult]:
+    ) -> list[MetaDataProviderSearchResult]:
         """
         Search for shows using a given query.
 
@@ -230,14 +230,14 @@ class TvService:
 
     def get_popular_shows(
         self, metadata_provider: AbstractMetadataProvider
-    ) -> list[MetaDataProviderShowSearchResult]:
+    ) -> list[MetaDataProviderSearchResult]:
         """
         Get popular shows from a given metadata provider.
 
         :param metadata_provider: The metadata provider to use.
         :return: A list of metadata provider show search results.
         """
-        results: list[MetaDataProviderShowSearchResult] = (
+        results: list[MetaDataProviderSearchResult] = (
             metadata_provider.search_show()
         )
 

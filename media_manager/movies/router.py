@@ -19,7 +19,6 @@ from media_manager.movies.schemas import (
     PublicMovieFile,
     CreateMovieRequest,
     MovieRequestId,
-    UpdateMovieRequest,
     RichMovieRequest,
 )
 from media_manager.movies.dependencies import (
@@ -27,6 +26,7 @@ from media_manager.movies.dependencies import (
     movie_service_dep,
 )
 from media_manager.metadataProvider.dependencies import metadata_provider_dep
+from media_manager.movies.schemas import MovieRequestBase
 
 router = APIRouter()
 
@@ -115,22 +115,7 @@ def get_all_movies_with_torrents(movie_service: movie_service_dep):
     return movie_service.get_all_movies_with_torrents()
 
 
-@router.get(
-    "/movies/{movie_id}",
-    dependencies=[Depends(current_active_user)],
-    response_model=PublicMovie,
-)
-def get_movie_by_id(movie_service: movie_service_dep, movie_id: MovieId):
-    return movie_service.get_public_movie_by_id(movie_id=movie_id)
 
-
-@router.get(
-    "/movies/{movie_id}/files",
-    dependencies=[Depends(current_active_user)],
-    response_model=list[PublicMovieFile],
-)
-def get_movie_files_by_movie_id(movie_service: movie_service_dep, movie_id: MovieId):
-    return movie_service.get_public_movie_files_by_movie_id(movie_id=movie_id)
 
 
 # --------------------------------
@@ -146,14 +131,22 @@ def get_movie_files_by_movie_id(movie_service: movie_service_dep, movie_id: Movi
 def create_movie_request(
     movie_service: movie_service_dep,
     movie_request: CreateMovieRequest,
-    user: UserRead = Depends(current_active_user),
+    user: Annotated[UserRead, Depends(current_active_user)],
 ):
+    log.info(f"User {user.email} is creating a movie request for {movie_request.movie_id}")
+    movie_request = MovieRequest.model_validate(movie_request)
+    movie_request.requested_by = user
+    log.info("SERVASasdasd")
+    if user.is_superuser:
+        movie_request.authorized = True
+        movie_request.authorized_by = user
+
     return movie_service.add_movie_request(movie_request=movie_request)
 
 
 @router.get(
     "/movies/requests",
-    dependencies=[Depends(current_superuser)],
+    dependencies=[Depends(current_active_user)],
     response_model=list[RichMovieRequest],
 )
 def get_all_movie_requests(movie_service: movie_service_dep):
@@ -162,21 +155,45 @@ def get_all_movie_requests(movie_service: movie_service_dep):
 
 @router.put(
     "/movies/requests/{movie_request_id}",
-    dependencies=[Depends(current_superuser)],
     response_model=MovieRequest,
 )
 def update_movie_request(
     movie_service: movie_service_dep,
     movie_request_id: MovieRequestId,
-    update_movie_request: UpdateMovieRequest,
+    update_movie_request: MovieRequestBase,
+    user: Annotated[UserRead, Depends(current_active_user)],
 ):
     movie_request = movie_service.get_movie_request_by_id(
         movie_request_id=movie_request_id
     )
-    movie_request.min_quality = update_movie_request.min_quality
-    movie_request.wanted_quality = update_movie_request.wanted_quality
+    if movie_request.requested_by.id != user.id or user.is_superuser:
+        movie_request.min_quality = update_movie_request.min_quality
+        movie_request.wanted_quality = update_movie_request.wanted_quality
+
     return movie_service.update_movie_request(movie_request=movie_request)
 
+
+@router.patch(
+    "/movies/requests/{movie_request_id}", status_code=status.HTTP_204_NO_CONTENT
+)
+def authorize_request(
+    movie_service: movie_service_dep,
+    movie_request_id: MovieRequestId,
+    user: Annotated[UserRead, Depends(current_superuser)],
+    authorized_status: bool = False,
+):
+    """
+    updates the request flag to true
+    """
+    movie_request = movie_service.get_movie_request_by_id(
+        movie_request_id=movie_request_id
+    )
+    movie_request.authorized = authorized_status
+    if authorized_status:
+        movie_request.authorized_by = user
+    else:
+        movie_request.authorized_by = None
+    return movie_service.update_movie_request(movie_request=movie_request)
 
 @router.delete(
     "/movies/requests/{movie_request_id}",
@@ -187,12 +204,19 @@ def delete_movie_request(
     movie_service: movie_service_dep, movie_request_id: MovieRequestId
 ):
     movie_service.delete_movie_request(movie_request_id=movie_request_id)
-    return JSONResponse(status_code=status.HTTP_204_NO_CONTENT)
-
 
 # --------------------------------
 # TORRENTS
 # --------------------------------
+
+
+@router.get(
+    "/movies/{movie_id}",
+    dependencies=[Depends(current_active_user)],
+    response_model=PublicMovie,
+)
+def get_movie_by_id(movie_service: movie_service_dep, movie_id: MovieId):
+    return movie_service.get_public_movie_by_id(movie_id=movie_id)
 
 
 @router.get(
@@ -220,3 +244,12 @@ def download_torrent_for_movie(
     return movie_service.download_torrent(
         public_indexer_result_id=indexer_result_id, movie_id=movie_id
     )
+
+
+@router.get(
+    "/movies/{movie_id}/files",
+    dependencies=[Depends(current_active_user)],
+    response_model=list[PublicMovieFile],
+)
+def get_movie_files_by_movie_id(movie_service: movie_service_dep, movie_id: MovieId):
+    return movie_service.get_public_movie_files_by_movie_id(movie_id=movie_id)

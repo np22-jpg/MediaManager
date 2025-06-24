@@ -6,6 +6,7 @@ from sqlalchemy.exc import (
 from sqlalchemy.orm import Session, joinedload
 import logging
 
+from media_manager.auth.db import User
 from media_manager.exceptions import NotFoundError
 from media_manager.movies.models import Movie, MovieRequest, MovieFile
 from media_manager.movies.schemas import (
@@ -183,7 +184,15 @@ class MovieRepository:
         :raises SQLAlchemyError: If a database error occurs.
         """
         log.debug(f"Adding movie request: {movie_request.model_dump_json()}")
-        db_model = MovieRequest(**movie_request.model_dump())
+        db_model = MovieRequest(
+            id=movie_request.id,
+            movie_id=movie_request.movie_id,
+            requested_by_id=movie_request.requested_by.id if movie_request.requested_by else None,
+            authorized_by_id=movie_request.authorized_by.id if movie_request.authorized_by else None,
+            wanted_quality=movie_request.wanted_quality,
+            min_quality=movie_request.min_quality,
+            authorized=movie_request.authorized,
+        )
         try:
             self.db.add(db_model)
             self.db.commit()
