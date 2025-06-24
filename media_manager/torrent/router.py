@@ -34,16 +34,6 @@ def import_torrent(service: torrent_service_dep, torrent: torrent_dep):
     return service.import_torrent(service.get_torrent_by_id(id=torrent.id))
 
 
-@router.post(
-    "/",
-    status_code=status.HTTP_200_OK,
-    dependencies=[Depends(current_active_user)],
-    response_model=list[Torrent],
-)
-def import_all_torrents(service: torrent_service_dep):
-    return service.import_all_torrents()
-
-
 @router.delete(
     "/{torrent_id}",
     status_code=status.HTTP_200_OK,
