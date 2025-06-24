@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, ConfigDict, model_validator
 
 from media_manager.auth.schemas import UserRead
 from media_manager.torrent.models import Quality
-from media_manager.torrent.schemas import TorrentId, TorrentStatus, Torrent
+from media_manager.torrent.schemas import TorrentId, Torrent
 
 MovieId = typing.NewType("MovieId", UUID)
 MovieRequestId = typing.NewType("MovieRequestId", UUID)

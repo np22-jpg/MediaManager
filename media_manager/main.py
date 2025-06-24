@@ -56,7 +56,34 @@ from media_manager.tv.service import (  # noqa: E402
     import_all_show_torrents,
     update_all_non_ended_shows_metadata,
 )
-from media_manager.movies.service import import_all_movie_torrents, update_all_movies_metadata
+from media_manager.movies.service import (
+    import_all_movie_torrents,
+    update_all_movies_metadata,
+)  # noqa: E402
+import uvicorn  # noqa: E402
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+from media_manager.auth.users import openid_client  # noqa: E402
+from media_manager.auth.users import SECRET as AUTH_USERS_SECRET  # noqa: E402
+from media_manager.auth.router import users_router as custom_users_router  # noqa: E402
+from media_manager.auth.router import auth_metadata_router  # noqa: E402
+from media_manager.auth.schemas import UserCreate, UserRead, UserUpdate  # noqa: E402
+from media_manager.auth.oauth import get_oauth_router  # noqa: E402
+
+from media_manager.auth.users import (  # noqa: E402
+    bearer_auth_backend,
+    fastapi_users,
+    cookie_auth_backend,
+    openid_cookie_auth_backend,
+)
+from media_manager.exceptions import (  # noqa: E402
+    NotFoundError,
+    not_found_error_exception_handler,
+    MediaAlreadyExists,
+    media_already_exists_exception_handler,
+    InvalidConfigError,
+    invalid_config_error_exception_handler,
+)
+
 
 import shutil  # noqa: E402
 from fastapi import FastAPI  # noqa: E402
@@ -92,6 +119,7 @@ def weekly_tasks():
     update_all_non_ended_shows_metadata()
     update_all_movies_metadata()
 
+
 scheduler = BackgroundScheduler()
 trigger = CronTrigger(minute=0, hour="*")
 weekly_trigger = CronTrigger(
@@ -125,29 +153,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-import uvicorn  # noqa: E402
-from fastapi.staticfiles import StaticFiles  # noqa: E402
-from media_manager.auth.users import openid_client  # noqa: E402
-from media_manager.auth.users import SECRET as AUTH_USERS_SECRET  # noqa: E402
-from media_manager.auth.router import users_router as custom_users_router  # noqa: E402
-from media_manager.auth.router import auth_metadata_router  # noqa: E402
-from media_manager.auth.schemas import UserCreate, UserRead, UserUpdate  # noqa: E402
-from media_manager.auth.oauth import get_oauth_router  # noqa: E402
-
-from media_manager.auth.users import (  # noqa: E402
-    bearer_auth_backend,
-    fastapi_users,
-    cookie_auth_backend,
-    openid_cookie_auth_backend,
-)
-from media_manager.exceptions import (
-    NotFoundError,
-    not_found_error_exception_handler,
-    MediaAlreadyExists,
-    media_already_exists_exception_handler,
-    InvalidConfigError,
-    invalid_config_error_exception_handler,
-)
 
 # ----------------------------
 # Standard Auth Routers

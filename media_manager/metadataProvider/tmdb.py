@@ -246,24 +246,3 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
             log.warning(f"image for show {movie.name} could not be downloaded")
             return False
         return True
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

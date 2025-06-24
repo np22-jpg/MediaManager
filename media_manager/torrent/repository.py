@@ -12,6 +12,7 @@ from media_manager.movies.schemas import (
     MovieFile as MovieFileSchema,
 )
 
+
 class TorrentRepository:
     def __init__(self, db: DbSessionDependency):
         self.db = db

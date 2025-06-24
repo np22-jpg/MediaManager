@@ -9,7 +9,7 @@ from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
-from media_manager.torrent.schemas import Torrent, TorrentStatus, Quality
+from media_manager.torrent.schemas import Torrent, TorrentStatus
 from media_manager.torrent.service import TorrentService
 from media_manager.movies import log
 from media_manager.movies.schemas import (
@@ -27,7 +27,6 @@ from media_manager.torrent.schemas import QualityStrings
 from media_manager.movies.repository import MovieRepository
 from media_manager.exceptions import NotFoundError
 import pprint
-from pathlib import Path
 from media_manager.config import BasicConfig
 from media_manager.torrent.repository import TorrentRepository
 from media_manager.torrent.utils import import_file, import_torrent
@@ -37,7 +36,6 @@ from media_manager.metadataProvider.abstractMetaDataProvider import (
 )
 from media_manager.metadataProvider.tmdb import TmdbMetadataProvider
 from media_manager.metadataProvider.tvdb import TvdbMetadataProvider
-from media_manager.movies.schemas import Movie, MovieRequest, MovieRequestId
 
 
 class MovieService:
@@ -494,9 +492,7 @@ class MovieService:
                         f"Subtitle file {subtitle_file.name} does not match expected format, can't extract language code, skipping."
                     )
                     continue
-                language_code = (
-                    language_code_match.group(1)
-                )
+                language_code = language_code_match.group(1)
                 target_subtitle_file = (
                     movie_file_path / f"{movie_file_name}.{language_code}.srt"
                 )

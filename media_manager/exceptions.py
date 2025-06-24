@@ -1,4 +1,4 @@
-from fastapi import Request, HTTPException
+from fastapi import Request
 from fastapi.responses import JSONResponse
 
 
@@ -16,17 +16,21 @@ class MediaAlreadyExists(Exception):
 
 class NotFoundError(Exception):
     """Custom exception for when an entity is not found."""
+
     def __init__(self, message: str = "The requested entity was not found."):
         super().__init__(message)
         self.message = message
+
     pass
 
 
 class InvalidConfigError(Exception):
     """Custom exception for when an entity is not found."""
+
     def __init__(self, message: str = "The server is improperly configured."):
         super().__init__(message)
         self.message = message
+
     pass
 
 

@@ -25,7 +25,6 @@ class AbstractMetadataProvider(ABC):
     def get_movie_metadata(self, id: int = None) -> Movie:
         raise NotImplementedError()
 
-
     @abstractmethod
     def search_show(
         self, query: str | None = None
@@ -55,6 +54,7 @@ class AbstractMetadataProvider(ABC):
         :return: True if the image was downloaded successfully, False otherwise.
         """
         raise NotImplementedError()
+
 
 metadata_providers = {}
 

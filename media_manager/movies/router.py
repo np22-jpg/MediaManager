@@ -22,7 +22,6 @@ from media_manager.movies.schemas import (
     RichMovieRequest,
 )
 from media_manager.movies.dependencies import (
-    movie_dep,
     movie_service_dep,
 )
 from media_manager.metadataProvider.dependencies import metadata_provider_dep
@@ -115,9 +114,6 @@ def get_all_movies_with_torrents(movie_service: movie_service_dep):
     return movie_service.get_all_movies_with_torrents()
 
 
-
-
-
 # --------------------------------
 # MOVIE REQUESTS
 # --------------------------------
@@ -133,7 +129,9 @@ def create_movie_request(
     movie_request: CreateMovieRequest,
     user: Annotated[UserRead, Depends(current_active_user)],
 ):
-    log.info(f"User {user.email} is creating a movie request for {movie_request.movie_id}")
+    log.info(
+        f"User {user.email} is creating a movie request for {movie_request.movie_id}"
+    )
     movie_request = MovieRequest.model_validate(movie_request)
     movie_request.requested_by = user
     log.info("SERVASasdasd")
@@ -195,6 +193,7 @@ def authorize_request(
         movie_request.authorized_by = None
     return movie_service.update_movie_request(movie_request=movie_request)
 
+
 @router.delete(
     "/movies/requests/{movie_request_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -204,6 +203,7 @@ def delete_movie_request(
     movie_service: movie_service_dep, movie_request_id: MovieRequestId
 ):
     movie_service.delete_movie_request(movie_request_id=movie_request_id)
+
 
 # --------------------------------
 # TORRENTS

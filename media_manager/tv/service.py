@@ -237,9 +237,7 @@ class TvService:
         :param metadata_provider: The metadata provider to use.
         :return: A list of metadata provider show search results.
         """
-        results: list[MetaDataProviderSearchResult] = (
-            metadata_provider.search_show()
-        )
+        results: list[MetaDataProviderSearchResult] = metadata_provider.search_show()
 
         filtered_results = []
         for result in results:

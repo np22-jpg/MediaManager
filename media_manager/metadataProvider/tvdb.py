@@ -1,5 +1,3 @@
-import pprint
-
 import tvdb_v4_official
 import logging
 
@@ -138,12 +136,14 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
                 log.warning(f"Error processing search result {result}: {e}")
         return formatted_results
 
-    def search_movie(self, query: str | None = None) -> list[MetaDataProviderSearchResult]:
+    def search_movie(
+        self, query: str | None = None
+    ) -> list[MetaDataProviderSearchResult]:
         if query is None:
             results = self.tvdb_client.get_all_movies()
         else:
             results = self.tvdb_client.search(query)
-        results = results[0:20] # this will return the first 20 results
+        results = results[0:20]  # this will return the first 20 results
         log.info(f"got {len(results)} results from TVDB search")
         formatted_results = []
         for result in results:
