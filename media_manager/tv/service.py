@@ -746,7 +746,7 @@ def auto_download_all_approved_season_requests() -> None:
     db.close()
 
 
-def import_all_torrents() -> None:
+def import_all_show_torrents() -> None:
     db: Session = SessionLocal()
     tv_repository = TvRepository(db=db)
     torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))

@@ -5,6 +5,7 @@ from logging.config import dictConfig
 from pathlib import Path
 from pythonjsonlogger.json import JsonFormatter
 
+
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -52,9 +53,10 @@ import media_manager.movies.router as movies_router  # noqa: E402
 import media_manager.tv.router as tv_router  # noqa: E402
 from media_manager.tv.service import (  # noqa: E402
     auto_download_all_approved_season_requests,
-    import_all_torrents,
+    import_all_show_torrents,
     update_all_non_ended_shows_metadata,
 )
+from media_manager.movies.service import import_all_movie_torrents, update_all_movies_metadata
 
 import shutil  # noqa: E402
 from fastapi import FastAPI  # noqa: E402
@@ -81,13 +83,14 @@ else:
 def hourly_tasks():
     log.info(f"Hourly tasks are running at {datetime.now()}")
     auto_download_all_approved_season_requests()
-    import_all_torrents()
+    import_all_show_torrents()
+    import_all_movie_torrents()
 
 
 def weekly_tasks():
     log.info(f"Weekly tasks are running at {datetime.now()}")
     update_all_non_ended_shows_metadata()
-
+    update_all_movies_metadata()
 
 scheduler = BackgroundScheduler()
 trigger = CronTrigger(minute=0, hour="*")

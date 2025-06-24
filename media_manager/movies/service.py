@@ -577,7 +577,7 @@ def auto_download_all_approved_movie_requests() -> None:
     db.close()
 
 
-def import_all_torrents() -> None:
+def import_all_movie_torrents() -> None:
     db: Session = SessionLocal()
     movie_repository = MovieRepository(db=db)
     torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
