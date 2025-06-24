@@ -3,9 +3,7 @@ import os
 import sys
 from logging.config import dictConfig
 from pathlib import Path
-
 from pythonjsonlogger.json import JsonFormatter
-
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -48,21 +46,17 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 from media_manager.database import init_db  # noqa: E402
-
-import media_manager.tv.router as tv_router  # noqa: E402
+from media_manager.config import BasicConfig  # noqa: E402
 import media_manager.torrent.router as torrent_router  # noqa: E402
 import media_manager.movies.router as movies_router  # noqa: E402
-
+import media_manager.tv.router as tv_router  # noqa: E402
 from media_manager.tv.service import (  # noqa: E402
     auto_download_all_approved_season_requests,
     import_all_torrents,
     update_all_non_ended_shows_metadata,
 )
 
-from media_manager.config import BasicConfig  # noqa: E402
 import shutil  # noqa: E402
-
-
 from fastapi import FastAPI  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from datetime import datetime  # noqa: E402
@@ -143,9 +137,19 @@ from media_manager.auth.users import (  # noqa: E402
     cookie_auth_backend,
     openid_cookie_auth_backend,
 )
+from media_manager.exceptions import (
+    NotFoundError,
+    not_found_error_exception_handler,
+    MediaAlreadyExists,
+    media_already_exists_exception_handler,
+    InvalidConfigError,
+    invalid_config_error_exception_handler,
+)
 
-
+# ----------------------------
 # Standard Auth Routers
+# ----------------------------
+
 app.include_router(
     fastapi_users.get_auth_router(bearer_auth_backend),
     prefix="/auth/jwt",
@@ -171,17 +175,24 @@ app.include_router(
     prefix="/auth",
     tags=["auth"],
 )
-# All users route router
+
+# ----------------------------
+# User Management Routers
+# ----------------------------
+
 app.include_router(custom_users_router, tags=["users"])
-# OAuth Metadata Router
-app.include_router(auth_metadata_router, tags=["openid"])
-# User Router
 app.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate),
     prefix="/users",
     tags=["users"],
 )
-# OAuth2 Routers
+
+# ----------------------------
+# OpenID Connect Routers
+# ----------------------------
+
+app.include_router(auth_metadata_router, tags=["openid"])
+
 if openid_client is not None:
     app.include_router(
         get_oauth_router(
@@ -205,9 +216,18 @@ app.mount(
     name="static-images",
 )
 
+# ----------------------------
+# Custom Exception Handlers
+# ----------------------------
+
+app.add_exception_handler(NotFoundError, not_found_error_exception_handler)
+app.add_exception_handler(MediaAlreadyExists, media_already_exists_exception_handler)
+app.add_exception_handler(InvalidConfigError, invalid_config_error_exception_handler)
 log.info("Hello World!")
 
+# ----------------------------
 # Startup filesystem checks
+# ----------------------------
 try:
     test_dir = basic_config.tv_directory / Path(".media_manager_test_dir")
     test_dir.mkdir(parents=True, exist_ok=True)
