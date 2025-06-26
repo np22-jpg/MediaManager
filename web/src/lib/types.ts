@@ -119,6 +119,25 @@ export interface PublicShow {
 	ended: boolean;
 }
 
+export interface Movie {
+	name: string;
+	overview: string;
+	year: number; // type: integer
+	external_id: number; // type: integer
+	metadata_provider: string;
+	id: string; // type: string, format: uuid
+}
+
+export interface PublicMovie {
+	name: string;
+	overview: string;
+	year: number; // type: integer
+	external_id: number; // type: integer
+	metadata_provider: string;
+	id: string; // type: string, format: uuid
+	downloaded: boolean;
+}
+
 export interface Torrent {
 	status: TorrentStatus; // $ref: #/components/schemas/TorrentStatus
 	title: string;

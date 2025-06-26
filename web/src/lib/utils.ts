@@ -32,10 +32,11 @@ export function getTorrentQualityString(value: number): string {
 export function getTorrentStatusString(value: number): string {
 	return torrentStatusMap[value] || 'unknown';
 }
-export function getFullyQualifiedShowName(show: { name: string; year: number }): string {
-	let name = show.name;
-	if (show.year != null) {
-		name += ' (' + show.year + ')';
+
+export function getFullyQualifiedMediaName(media: { name: string; year: number }): string {
+	let name = media.name;
+	if (media.year != null) {
+		name += ' (' + media.year + ')';
 	}
 	return name;
 }

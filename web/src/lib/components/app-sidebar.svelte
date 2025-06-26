@@ -1,5 +1,5 @@
 <script lang="ts" module>
-    import {Home, Info, LifeBuoy, Send, Settings, TvIcon} from 'lucide-svelte';
+	import {Home, Info, LifeBuoy, Send, Settings, TvIcon, Clapperboard} from 'lucide-svelte';
     import {PUBLIC_VERSION} from '$env/static/public';
 
 	const data = {
@@ -27,6 +27,26 @@
 					{
 						title: 'Requests',
 						url: '/dashboard/tv/requests'
+					}
+				]
+			},
+			{
+				title: 'Movies',
+				url: '/dashboard/movies',
+				icon: Clapperboard,
+				isActive: true,
+				items: [
+					{
+						title: 'Add a movie',
+						url: '/dashboard/movies/add-movie'
+					},
+					{
+						title: 'Torrents',
+						url: '/dashboard/movies/torrents'
+					},
+					{
+						title: 'Requests',
+						url: '/dashboard/movies/requests'
 					}
 				]
 			},
