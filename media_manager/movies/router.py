@@ -225,9 +225,9 @@ def get_movie_by_id(movie_service: movie_service_dep, movie_id: MovieId):
     response_model=list[PublicIndexerQueryResult],
 )
 def get_all_available_torrents_for_a_movie(
-    movie_service: movie_service_dep, movie_id: MovieId
+    movie_service: movie_service_dep, movie_id: MovieId, search_query_override: str | None = None
 ):
-    return movie_service.get_all_available_torrents_for_a_movie(movie_id=movie_id)
+    return movie_service.get_all_available_torrents_for_a_movie(movie_id=movie_id, search_query_override=search_query_override)
 
 
 @router.post(

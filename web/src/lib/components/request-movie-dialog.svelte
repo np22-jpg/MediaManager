@@ -5,15 +5,13 @@
     import {Label} from '$lib/components/ui/label';
     import * as Select from '$lib/components/ui/select/index.js';
     import LoaderCircle from '@lucide/svelte/icons/loader-circle';
-    import type {CreateSeasonRequest, PublicShow, Quality} from '$lib/types.js';
+    import type {CreateSeasonRequest, PublicMovie, PublicShow, Quality} from '$lib/types.js';
     import {getFullyQualifiedMediaName, getTorrentQualityString} from '$lib/utils.js';
     import {toast} from 'svelte-sonner';
 
     const apiUrl = env.PUBLIC_API_URL;
-    let {show}: { show: PublicShow } = $props();
-
+    let {movie}: { movie: PublicMovie } = $props();
     let dialogOpen = $state(false);
-    let selectedSeasonsIds = $state<string[]>([]);
     let minQuality = $state<Quality | undefined>(undefined);
     let wantedQuality = $state<Quality | undefined>(undefined);
     let isSubmittingRequest = $state(false);
@@ -24,54 +22,46 @@
         qualityValues.map((q) => ({value: q, label: getTorrentQualityString(q)}))
     );
     let isFormInvalid = $derived(
-        !selectedSeasonsIds ||
-        selectedSeasonsIds.length === 0 ||
         !minQuality ||
         !wantedQuality ||
         wantedQuality > minQuality
     );
 
-    async function handleRequestSeason() {
+    async function handleRequestMovie() {
         isSubmittingRequest = true;
         submitRequestError = null;
 
-        const payloads: CreateSeasonRequest = selectedSeasonsIds.map((seasonId) => ({
-            season_id: seasonId,
-            min_quality: minQuality,
-            wanted_quality: wantedQuality
-        }));
-        for (const payload of payloads) {
-            try {
-                const response = await fetch(`${apiUrl}/tv/seasons/requests`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(payload)
-                });
+        try {
+            const response = await fetch(`${apiUrl}/movies/requests`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    movie_id: movie.id,
+                    min_quality: minQuality,
+                    wanted_quality: wantedQuality
+                })
+            });
 
-                if (response.status === 204) {
-                    // Success, no content
-                    dialogOpen = false; // Close the dialog
-                    // Reset form fields
-                    selectedSeasonsIds = undefined;
-                    minQuality = undefined;
-                    wantedQuality = undefined;
-                    toast.success('Season request submitted successfully!');
-                } else {
-                    const errorData = await response.json().catch(() => ({message: response.statusText}));
-                    submitRequestError = `Failed to submit request: ${errorData.message || response.statusText}`;
-                    toast.error(submitRequestError);
-                    console.error('Failed to submit request', response.statusText, errorData);
-                }
-            } catch (error) {
-                submitRequestError = `Error submitting request: ${error instanceof Error ? error.message : String(error)}`;
+            if (response.status === 204) {
+                dialogOpen = false;
+                minQuality = undefined;
+                wantedQuality = undefined;
+                toast.success('Movie request submitted successfully!');
+            } else {
+                const errorData = await response.json().catch(() => ({message: response.statusText}));
+                submitRequestError = `Failed to submit request: ${errorData.message || response.statusText}`;
                 toast.error(submitRequestError);
-                console.error('Error submitting request:', error);
-            } finally {
-                isSubmittingRequest = false;
+                console.error('Failed to submit request', response.statusText, errorData);
             }
+        } catch (error) {
+            submitRequestError = `Error submitting request: ${error instanceof Error ? error.message : String(error)}`;
+            toast.error(submitRequestError);
+            console.error('Error submitting request:', error);
+        } finally {
+            isSubmittingRequest = false;
         }
     }
 </script>
@@ -83,39 +73,16 @@
 			dialogOpen = true;
 		}}
     >
-        Request Season
+        Request Movie
     </Dialog.Trigger>
     <Dialog.Content class="max-h-[90vh] w-fit min-w-[clamp(300px,50vw,600px)] overflow-y-auto">
         <Dialog.Header>
-            <Dialog.Title>Request a Season for {getFullyQualifiedMediaName(show)}</Dialog.Title>
+            <Dialog.Title>Request {getFullyQualifiedMediaName(movie)}</Dialog.Title>
             <Dialog.Description>
-                Select a season and desired qualities to submit a request.
+                Select desired qualities to submit a request.
             </Dialog.Description>
         </Dialog.Header>
         <div class="grid gap-4 py-4">
-            <!-- Season Select -->
-            <div class="grid grid-cols-[1fr,3fr] items-center gap-4 md:grid-cols-[100px,1fr]">
-                <Label class="text-right" for="season">Season</Label>
-                <Select.Root bind:value={selectedSeasonsIds}>
-                    <Select.Trigger class="w-full" id="season">
-                        {#each selectedSeasonsIds as seasonId (seasonId)}
-                            {#if show.seasons.find((season) => season.id === seasonId)}
-                                {show.seasons.find((season) => season.id === seasonId).number},&nbsp;
-                            {/if}
-                        {:else}
-                            Select one or more seasons
-                        {/each}
-                    </Select.Trigger>
-                    <Select.Content>
-                        {#each show.seasons as season (season.id)}
-                            <Select.Item value={season.id}>
-                                Season {season.number}{season.name ? `: ${season.name}` : ''}
-                            </Select.Item>
-                        {/each}
-                    </Select.Content>
-                </Select.Root>
-            </div>
-
             <!-- Min Quality Select -->
             <div class="grid grid-cols-[1fr,3fr] items-center gap-4 md:grid-cols-[100px,1fr]">
                 <Label class="text-right" for="min-quality">Min Quality</Label>
@@ -154,7 +121,7 @@
             <Button disabled={isSubmittingRequest} onclick={() => (dialogOpen = false)} variant="outline"
             >Cancel
             </Button>
-            <Button disabled={isFormInvalid || isSubmittingRequest} onclick={handleRequestSeason}>
+            <Button disabled={isFormInvalid || isSubmittingRequest} onclick={handleRequestMovie}>
                 {#if isSubmittingRequest}
                     <LoaderCircle class="mr-2 h-4 w-4 animate-spin"/>
                     Submitting...
