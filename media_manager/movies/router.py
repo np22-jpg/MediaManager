@@ -36,7 +36,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/movies",
+    "/",
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(current_active_user)],
     responses={
@@ -70,7 +70,7 @@ def add_a_movie(
 
 
 @router.get(
-    "/movies",
+    "/",
     dependencies=[Depends(current_active_user)],
     response_model=list[PublicMovie],
 )
@@ -79,7 +79,7 @@ def get_all_movies(movie_service: movie_service_dep):
 
 
 @router.get(
-    "/movies/search",
+    "/search",
     dependencies=[Depends(current_active_user)],
     response_model=list[MetaDataProviderSearchResult],
 )
@@ -94,7 +94,7 @@ def search_for_movie(
 
 
 @router.get(
-    "/movies/popular",
+    "/recommended",
     dependencies=[Depends(current_active_user)],
     response_model=list[MetaDataProviderSearchResult],
 )
@@ -106,7 +106,7 @@ def get_popular_movies(
 
 
 @router.get(
-    "/movies/torrents",
+    "/torrents",
     dependencies=[Depends(current_active_user)],
     response_model=list[RichMovieTorrent],
 )
@@ -120,7 +120,7 @@ def get_all_movies_with_torrents(movie_service: movie_service_dep):
 
 
 @router.post(
-    "/movies/requests",
+    "/requests",
     status_code=status.HTTP_201_CREATED,
     response_model=MovieRequest,
 )
@@ -143,7 +143,7 @@ def create_movie_request(
 
 
 @router.get(
-    "/movies/requests",
+    "/requests",
     dependencies=[Depends(current_active_user)],
     response_model=list[RichMovieRequest],
 )
@@ -152,7 +152,7 @@ def get_all_movie_requests(movie_service: movie_service_dep):
 
 
 @router.put(
-    "/movies/requests/{movie_request_id}",
+    "/requests/{movie_request_id}",
     response_model=MovieRequest,
 )
 def update_movie_request(
@@ -172,7 +172,7 @@ def update_movie_request(
 
 
 @router.patch(
-    "/movies/requests/{movie_request_id}", status_code=status.HTTP_204_NO_CONTENT
+    "/requests/{movie_request_id}", status_code=status.HTTP_204_NO_CONTENT
 )
 def authorize_request(
     movie_service: movie_service_dep,
@@ -195,7 +195,7 @@ def authorize_request(
 
 
 @router.delete(
-    "/movies/requests/{movie_request_id}",
+    "/requests/{movie_request_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(current_superuser)],
 )
@@ -211,7 +211,7 @@ def delete_movie_request(
 
 
 @router.get(
-    "/movies/{movie_id}",
+    "/{movie_id}",
     dependencies=[Depends(current_active_user)],
     response_model=PublicMovie,
 )
@@ -220,7 +220,7 @@ def get_movie_by_id(movie_service: movie_service_dep, movie_id: MovieId):
 
 
 @router.get(
-    "/movies/{movie_id}/torrents",
+    "/{movie_id}/torrents",
     dependencies=[Depends(current_active_user)],
     response_model=list[PublicIndexerQueryResult],
 )
@@ -231,7 +231,7 @@ def get_all_available_torrents_for_a_movie(
 
 
 @router.post(
-    "/movies/{movie_id}/torrents",
+    "/{movie_id}/torrents",
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(current_active_user)],
     response_model=Torrent,
@@ -247,7 +247,7 @@ def download_torrent_for_movie(
 
 
 @router.get(
-    "/movies/{movie_id}/files",
+    "/{movie_id}/files",
     dependencies=[Depends(current_active_user)],
     response_model=list[PublicMovieFile],
 )

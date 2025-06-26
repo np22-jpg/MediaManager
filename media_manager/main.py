@@ -217,7 +217,7 @@ if openid_client is not None:
 
 app.include_router(tv_router.router, prefix="/tv", tags=["tv"])
 app.include_router(torrent_router.router, prefix="/torrent", tags=["torrent"])
-app.include_router(movies_router.router, prefix="/movie", tags=["movie"])
+app.include_router(movies_router.router, prefix="/movies", tags=["movie"])
 app.mount(
     "/static/image",
     StaticFiles(directory=basic_config.image_directory),

@@ -10,12 +10,12 @@
 	const apiUrl = env.PUBLIC_API_URL;
 	let loading = $state(false);
 	let errorMessage = $state(null);
-	let {result}: { result: MetaDataProviderShowSearchResult } = $props();
+	let {result, isShow = true}: { result: MetaDataProviderShowSearchResult, isShow: boolean } = $props();
 	console.log('Add Show Card Result: ', result);
 
-	async function addShow() {
+	async function addMedia() {
 		loading = true;
-		let url = new URL(apiUrl + '/tv/shows');
+		let url = isShow ? new URL(apiUrl + '/tv/shows') : new URL(apiUrl + '/movies');
 		url.searchParams.append('show_id', String(result.external_id));
 		url.searchParams.append('metadata_provider', result.metadata_provider);
 		const response = await fetch(url, {
@@ -25,7 +25,7 @@
 		let responseData = await response.json();
 		console.log('Added Show: Response Data: ', responseData);
 		if (response.ok) {
-			await goto(base + '/dashboard/tv/' + responseData.id);
+			await goto(`${base}/dashboard/${isShow ? 'tv' : 'movies'}/` + responseData.id);
 		} else {
 			errorMessage = 'Error occurred: ' + responseData;
 		}
@@ -62,12 +62,12 @@
 		<Button
 				class="w-full font-semibold"
 				disabled={result.added || loading}
-				onclick={() => addShow(result)}
+				onclick={() => addMedia(result)}
 		>
 			{#if loading}
 				<span class="animate-pulse">Loading...</span>
 			{:else}
-				{result.added ? 'Show already exists' : 'Add Show'}
+				{result.added ? 'Show already exists' : `Add ${isShow ? 'Show' : 'Movie'}`}
 			{/if}
 		</Button>
 		<div class="flex w-full items-center gap-2">

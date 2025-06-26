@@ -2,7 +2,7 @@
     import {Separator} from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import RecommendedShowsCarousel from '$lib/components/recommended-shows-carousel.svelte';
+	import RecommendedMediaCarousel from '$lib/components/recommended-media-carousel.svelte';
 	import LoadingBar from '$lib/components/loading-bar.svelte';
     import {base} from '$app/paths';
     import {page} from '$app/state';
@@ -11,11 +11,15 @@
 	import {env} from "$env/dynamic/public";
 
 	const apiUrl = env.PUBLIC_API_URL;
+
 	let recommendedShows: any[] = [];
-	let loading = true;
+	let showsLoading = true;
+
+	let recommendedMovies: any[] = [];
+	let moviesLoading = true;
 
 	onMount(async () => {
-		const res = await fetch(apiUrl + '/tv/recommended', {
+		const showsRes = await fetch(apiUrl + '/tv/recommended', {
 			headers: {
 				'Content-Type': 'application/json',
 				'Accept': 'application/json',
@@ -23,8 +27,22 @@
 			credentials: 'include',
 			method: 'GET'
 		});
-		recommendedShows = await res.json();
-		loading = false;
+		recommendedShows = await showsRes.json();
+		showsLoading = false
+
+		const moviesRes = await fetch(apiUrl + '/movies/recommended', {
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
+			credentials: 'include',
+			method: 'GET'
+		});
+		recommendedMovies = await moviesRes.json();
+		moviesLoading = false;
+
+
+
 	});
 
 </script>
@@ -57,11 +75,19 @@
 			<h3 class="my-4 text-center text-2xl font-semibold ">
 				Trending Shows
 			</h3>
-			{#if loading}
+			{#if showsLoading}
 				<LoadingBar/>
 			{:else}
+				<RecommendedMediaCarousel isShow={true} media={recommendedShows}/>
+			{/if}
 
-				<RecommendedShowsCarousel shows={recommendedShows}/>
+			<h3 class="my-4 text-center text-2xl font-semibold ">
+				Trending Movies
+			</h3>
+			{#if showsLoading}
+				<LoadingBar/>
+			{:else}
+				<RecommendedMediaCarousel isShow={false} media={recommendedMovies}/>
 			{/if}
 		</div>
 	</div>

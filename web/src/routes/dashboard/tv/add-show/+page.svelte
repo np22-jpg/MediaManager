@@ -10,45 +10,49 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import type {MetaDataProviderShowSearchResult} from '$lib/types.js';
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
-	import AddShowCard from '$lib/components/add-show-card.svelte';
+	import AddMediaCard from '$lib/components/add-media-card.svelte';
 	import {toast} from 'svelte-sonner';
+	import {onMount} from "svelte";
 
 	const apiUrl = env.PUBLIC_API_URL;
 	let searchTerm: string = $state('');
 	let metadataProvider: string = $state('tmdb');
 	let results: MetaDataProviderShowSearchResult[] | null = $state(null);
-
+	onMount(search)
 	async function search() {
+		let url = new URL(apiUrl + '/tv/recommended');
 		if (searchTerm.length > 0) {
 			let url = new URL(apiUrl + '/tv/search');
 			url.searchParams.append('query', searchTerm);
 			url.searchParams.append('metadata_provider', metadataProvider);
 			toast.info(`Searching for "${searchTerm}" using ${metadataProvider.toUpperCase()}...`);
-			try {
-				const response = await fetch(url, {
-					method: 'GET',
-					credentials: 'include'
-				});
-				if (!response.ok) {
-					const errorText = await response.text();
-					throw new Error(`Search failed: ${response.status} ${errorText || response.statusText}`);
-				}
-				results = await response.json();
-				if (results && results.length > 0) {
-					toast.success(`Found ${results.length} result(s) for "${searchTerm}".`);
-				} else {
-					toast.info(`No results found for "${searchTerm}".`);
-				}
-			} catch (error) {
-				const errorMessage =
-						error instanceof Error ? error.message : 'An unknown error occurred during search.';
-				console.error('Search error:', error);
-				toast.error(errorMessage);
-				results = null; // Clear previous results on error
+
+		}
+
+		try {
+			const response = await fetch(url, {
+				method: 'GET',
+				credentials: 'include'
+			});
+			if (!response.ok) {
+				const errorText = await response.text();
+				throw new Error(`Search failed: ${response.status} ${errorText || response.statusText}`);
 			}
-		} else {
-			toast.warning('Please enter a search term.');
-			results = null;
+			results = await response.json();
+			if (searchTerm.length === 0) {
+				return
+			}
+			if (results && results.length > 0) {
+				toast.success(`Found ${results.length} result(s) for "${searchTerm}".`);
+			} else {
+				toast.info(`No results found for "${searchTerm}".`);
+			}
+		} catch (error) {
+			const errorMessage =
+					error instanceof Error ? error.message : 'An unknown error occurred during search.';
+			console.error('Search error:', error);
+			toast.error(errorMessage);
+			results = null; // Clear previous results on error
 		}
 	}
 </script>
@@ -131,7 +135,7 @@
              md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
 			>
 				{#each results as result}
-					<AddShowCard {result}/>
+					<AddMediaCard {result}/>
 				{/each}
 			</div>
 		{/if}
