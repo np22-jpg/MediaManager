@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils.js';
+    import {getFullyQualifiedMediaName, getTorrentQualityString} from '$lib/utils.js';
     import type {SeasonRequest, User} from '$lib/types.js';
     import CheckmarkX from '$lib/components/checkmark-x.svelte';
     import * as Table from '$lib/components/ui/table/index.js';
@@ -103,7 +103,7 @@
             {#if filter(request)}
                 <Table.Row>
                     <Table.Cell>
-                        {getFullyQualifiedShowName(request.show)}
+                        {getFullyQualifiedMediaName(request.show)}
                     </Table.Cell>
                     <Table.Cell>
                         {request.season.number}

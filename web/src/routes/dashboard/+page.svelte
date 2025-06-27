@@ -9,6 +9,7 @@
     import type {MetaDataProviderShowSearchResult} from '$lib/types';
 	import {onMount} from 'svelte';
 	import {env} from "$env/dynamic/public";
+	import {Skeleton} from "$lib/components/ui/skeleton/index.js";
 
 	const apiUrl = env.PUBLIC_API_URL;
 
@@ -75,20 +76,12 @@
 			<h3 class="my-4 text-center text-2xl font-semibold ">
 				Trending Shows
 			</h3>
-			{#if showsLoading}
-				<LoadingBar/>
-			{:else}
-				<RecommendedMediaCarousel isShow={true} media={recommendedShows}/>
-			{/if}
+			<RecommendedMediaCarousel isLoading={showsLoading} isShow={true} media={recommendedShows}/>
 
 			<h3 class="my-4 text-center text-2xl font-semibold ">
 				Trending Movies
 			</h3>
-			{#if showsLoading}
-				<LoadingBar/>
-			{:else}
-				<RecommendedMediaCarousel isShow={false} media={recommendedMovies}/>
-			{/if}
+			<RecommendedMediaCarousel isLoading={moviesLoading} isShow={false} media={recommendedMovies}/>
 		</div>
 	</div>
 

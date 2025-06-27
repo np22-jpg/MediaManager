@@ -8,13 +8,13 @@
 	import * as Table from '$lib/components/ui/table/index.js';
 	import {getContext} from 'svelte';
 	import type {RichShowTorrent, Show, User} from '$lib/types.js';
-	import {getFullyQualifiedShowName} from '$lib/utils';
+	import {getFullyQualifiedMediaName} from '$lib/utils';
 	import DownloadSeasonDialog from '$lib/components/download-season-dialog.svelte';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
 	import {page} from '$app/state';
 	import TorrentTable from '$lib/components/torrent-table.svelte';
 	import RequestSeasonDialog from '$lib/components/request-season-dialog.svelte';
-	import ShowPicture from '$lib/components/show-picture.svelte';
+	import MediaPicture from '$lib/components/media-picture.svelte';
 	import {Checkbox} from '$lib/components/ui/checkbox/index.js';
 	import {toast} from 'svelte-sonner';
 	import {Label} from '$lib/components/ui/label';
@@ -66,20 +66,20 @@
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block"/>
 				<Breadcrumb.Item>
-					<Breadcrumb.Page>{getFullyQualifiedShowName(show())}</Breadcrumb.Page>
+					<Breadcrumb.Page>{getFullyQualifiedMediaName(show())}</Breadcrumb.Page>
 				</Breadcrumb.Item>
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
 	</div>
 </header>
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-	{getFullyQualifiedShowName(show())}
+	{getFullyQualifiedMediaName(show())}
 </h1>
 <div class="flex w-full flex-1 flex-col gap-4 p-4">
 	<div class="flex flex-col gap-4 md:flex-row md:items-stretch">
 		<div class="w-full overflow-hidden rounded-xl bg-muted/50 md:w-1/3 md:max-w-sm">
 			{#if show().id}
-				<ShowPicture show={show()}/>
+				<MediaPicture media={show()}/>
 			{:else}
 				<div
 						class="aspect-9/16 flex h-auto w-full items-center justify-center rounded-lg bg-gray-200 text-gray-500"

@@ -7,7 +7,7 @@
     import CheckmarkX from '$lib/components/checkmark-x.svelte';
     import * as Table from '$lib/components/ui/table/index.js';
 
-    let {torrents} = $props();
+    let {torrents, isShow = true} = $props();
 </script>
 
 <Table.Root>
@@ -15,7 +15,9 @@
     <Table.Header>
         <Table.Row>
             <Table.Head>Name</Table.Head>
-            <Table.Head>Seasons</Table.Head>
+            {#if isShow}
+                <Table.Head>Seasons</Table.Head>
+            {/if}
             <Table.Head>Download Status</Table.Head>
             <Table.Head>Quality</Table.Head>
             <Table.Head>File Path Suffix</Table.Head>
@@ -30,11 +32,13 @@
                         {torrent.torrent_title}
                     </a>
                 </Table.Cell>
-                <Table.Cell>
-                    <a href={'/dashboard/torrents/' + torrent.torrent_id}>
-                        {convertTorrentSeasonRangeToIntegerRange(torrent)}
-                    </a>
-                </Table.Cell>
+                {#if isShow}
+                    <Table.Cell>
+                        <a href={'/dashboard/torrents/' + torrent.torrent_id}>
+                            {convertTorrentSeasonRangeToIntegerRange(torrent)}
+                        </a>
+                    </Table.Cell>
+                {/if}
                 <Table.Cell>
                     <a href={'/dashboard/torrents/' + torrent.torrent_id}>
                         {getTorrentStatusString(torrent.status)}

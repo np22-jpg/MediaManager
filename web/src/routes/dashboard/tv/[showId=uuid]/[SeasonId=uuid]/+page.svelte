@@ -7,8 +7,8 @@
 	import {getContext} from 'svelte';
 	import type {PublicSeasonFile, Season, Show} from '$lib/types';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
-	import {getFullyQualifiedShowName, getTorrentQualityString} from '$lib/utils';
-	import ShowPicture from '$lib/components/show-picture.svelte';
+	import {getFullyQualifiedMediaName, getTorrentQualityString} from '$lib/utils';
+	import MediaPicture from '$lib/components/media-picture.svelte';
 
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let season: Season = $state(page.data.season);
@@ -50,12 +50,12 @@
 	</div>
 </header>
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-	{getFullyQualifiedShowName(show())} Season {season.number}
+	{getFullyQualifiedMediaName(show())} Season {season.number}
 </h1>
 <div class="flex flex-1 flex-col gap-4 p-4">
 	<div class="flex flex-col gap-4 md:flex-row md:items-stretch">
 		<div class="w-full overflow-hidden rounded-xl bg-muted/50 md:w-1/3 md:max-w-sm">
-			<ShowPicture show={show()}/>
+			<MediaPicture media={show()}/>
 		</div>
 		<div class="w-full flex-auto rounded-xl bg-muted/50 p-4 md:w-1/4">
 			<p class="leading-7 [&:not(:first-child)]:mt-6">

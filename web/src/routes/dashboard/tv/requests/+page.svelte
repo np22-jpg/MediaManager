@@ -28,7 +28,7 @@
 				</Breadcrumb.Item>
                 <Breadcrumb.Separator class="hidden md:block"/>
 				<Breadcrumb.Item>
-					<Breadcrumb.Page>TV Torrents</Breadcrumb.Page>
+					<Breadcrumb.Page>Season Requests</Breadcrumb.Page>
 				</Breadcrumb.Item>
 			</Breadcrumb.List>
 		</Breadcrumb.Root>

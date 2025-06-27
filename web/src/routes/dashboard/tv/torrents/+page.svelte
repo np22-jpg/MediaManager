@@ -4,7 +4,7 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
     import type {RichShowTorrent} from '$lib/types';
-    import {getFullyQualifiedShowName} from '$lib/utils';
+    import {getFullyQualifiedMediaName} from '$lib/utils';
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import TorrentTable from '$lib/components/torrent-table.svelte';
@@ -51,7 +51,7 @@
 					<Card.Root>
 						<Card.Header>
 							<Card.Title>
-								{getFullyQualifiedShowName(show)}
+                                {getFullyQualifiedMediaName(show)}
 							</Card.Title>
 						</Card.Header>
 						<Card.Content>

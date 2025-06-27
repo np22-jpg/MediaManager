@@ -10,6 +10,7 @@
     import {onMount} from "svelte";
     import {toast} from "svelte-sonner";
     import {env} from '$env/dynamic/public';
+    import {Skeleton} from "$lib/components/ui/skeleton";
 
     const apiUrl = env.PUBLIC_API_URL;
     let movies
@@ -55,11 +56,19 @@
     </div>
 </header>
 {#snippet loadingbar()}
-    <div class="animate-fade-in col-span-full flex w-full flex-col items-center justify-center py-16">
-        <div class="w-1/2 max-w-xs">
-            <LoadingBar/>
-        </div>
-    </div>
+
+    <Skeleton class="h-[50vh] w-full "/>
+    <Skeleton class="h-[50vh] w-full "/>
+    <Skeleton class="h-[50vh] w-full "/>
+    <Skeleton class="h-[50vh] w-full "/>
+    <Skeleton class="h-[50vh] w-full "/>
+    <Skeleton class="h-[50vh] w-full "/>
+    <Skeleton class="h-[50vh] w-full "/>
+    <Skeleton class="h-[50vh] w-full "/>
+    <Skeleton class="h-[50vh] w-full "/>
+    <Skeleton class="h-[50vh] w-full "/>
+    <Skeleton class="h-[50vh] w-full "/>
+
 {/snippet}
 <div class="flex w-full flex-1 flex-col gap-4 p-4 pt-0">
     <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">

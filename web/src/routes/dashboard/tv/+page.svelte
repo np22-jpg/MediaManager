@@ -4,9 +4,10 @@
 	import {Separator} from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import {getFullyQualifiedShowName} from '$lib/utils';
+	import {getFullyQualifiedMediaName} from '$lib/utils';
 	import LoadingBar from '$lib/components/loading-bar.svelte';
-	import ShowPicture from '$lib/components/show-picture.svelte';
+	import MediaPicture from '$lib/components/media-picture.svelte';
+	import {Skeleton} from "$lib/components/ui/skeleton";
 
 	let tvShowsPromise = page.data.tvShows;
 </script>
@@ -33,11 +34,17 @@
 	</div>
 </header>
 {#snippet loadingbar()}
-	<div class="animate-fade-in col-span-full flex w-full flex-col items-center justify-center py-16">
-		<div class="w-1/2 max-w-xs">
-			<LoadingBar/>
-		</div>
-	</div>
+	<Skeleton class="h-[50vh] w-full "/>
+	<Skeleton class="h-[50vh] w-full "/>
+	<Skeleton class="h-[50vh] w-full "/>
+	<Skeleton class="h-[50vh] w-full "/>
+	<Skeleton class="h-[50vh] w-full "/>
+	<Skeleton class="h-[50vh] w-full "/>
+	<Skeleton class="h-[50vh] w-full "/>
+	<Skeleton class="h-[50vh] w-full "/>
+	<Skeleton class="h-[50vh] w-full "/>
+	<Skeleton class="h-[50vh] w-full "/>
+	<Skeleton class="h-[50vh] w-full "/>
 {/snippet}
 <div class="flex w-full flex-1 flex-col gap-4 p-4 pt-0">
 	<h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
@@ -56,11 +63,11 @@
 					<a href={'/dashboard/tv/' + show.id}>
 						<Card.Root class="col-span-full max-w-[90vw] ">
 							<Card.Header>
-								<Card.Title class="h-6 truncate">{getFullyQualifiedShowName(show)}</Card.Title>
+								<Card.Title class="h-6 truncate">{getFullyQualifiedMediaName(show)}</Card.Title>
 								<Card.Description class="truncate">{show.overview}</Card.Description>
 							</Card.Header>
 							<Card.Content>
-								<ShowPicture {show}/>
+								<MediaPicture media={show}/>
 							</Card.Content>
 						</Card.Root>
 					</a>
