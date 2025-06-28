@@ -56,9 +56,4 @@ class AbstractMetadataProvider(ABC):
         raise NotImplementedError()
 
 
-metadata_providers = {}
 
-
-def register_metadata_provider(metadata_provider: AbstractMetadataProvider):
-    log.info("Registering metadata provider:" + metadata_provider.name)
-    metadata_providers[metadata_provider.name] = metadata_provider
