@@ -1,4 +1,4 @@
-name: Ruff
+name: Ruff Metadata Relay
 on:
   push:
     branches:
