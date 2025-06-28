@@ -39,5 +39,5 @@
 	<h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
 		Season Requests
 	</h1>
-    <RequestsTable bind:requests/>
+	<RequestsTable bind:requests isShow={true}/>
 </div>

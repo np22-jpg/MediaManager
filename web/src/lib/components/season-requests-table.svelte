@@ -15,14 +15,15 @@
         requests,
         filter = () => {
             return true;
-        }
-    }: { requests: SeasonRequest[]; filter: (request: SeasonRequest) => boolean } = $props();
+        },
+        isShow = true
+    }: { requests: SeasonRequest[]; filter: (request: SeasonRequest) => boolean, isShow: boolean } = $props();
     const user: () => User = getContext('user');
 
     async function approveRequest(requestId: string, currentAuthorizedStatus: boolean) {
         try {
             const response = await fetch(
-                `${apiUrl}/tv/seasons/requests/${requestId}?authorized_status=${!currentAuthorizedStatus}`,
+                `${apiUrl}${isShow ? "/tv/seasons" : "/movies"}/requests/${requestId}?authorized_status=${!currentAuthorizedStatus}`,
                 {
                     method: 'PATCH',
                     headers: {
@@ -57,7 +58,7 @@
 
     async function deleteRequest(requestId: string) {
         try {
-            const response = await fetch(`${apiUrl}/tv/seasons/requests/${requestId}`, {
+            const response = await fetch(`${apiUrl}${isShow ? "/tv/seasons" : "/movies"}/requests/${requestId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -88,8 +89,10 @@
     <Table.Caption>A list of all requests.</Table.Caption>
     <Table.Header>
         <Table.Row>
-            <Table.Head>Show</Table.Head>
-            <Table.Head>Season</Table.Head>
+            <Table.Head>{isShow ? "Show" : "Movie"}</Table.Head>
+            {#if isShow}
+                <Table.Head>Season</Table.Head>
+            {/if}
             <Table.Head>Minimum Quality</Table.Head>
             <Table.Head>Wanted Quality</Table.Head>
             <Table.Head>Requested by</Table.Head>
@@ -103,11 +106,19 @@
             {#if filter(request)}
                 <Table.Row>
                     <Table.Cell>
-                        {getFullyQualifiedMediaName(request.show)}
+                        {#if isShow}
+                            {getFullyQualifiedMediaName(request.show)}
+
+                        {:else}
+                            {getFullyQualifiedMediaName(request.movie)}
+
+                        {/if}
                     </Table.Cell>
-                    <Table.Cell>
-                        {request.season.number}
-                    </Table.Cell>
+                    {#if isShow}
+                        <Table.Cell>
+                            {request.season.number}
+                        </Table.Cell>
+                    {/if}
                     <Table.Cell>
                         {getTorrentQualityString(request.min_quality)}
                     </Table.Cell>
@@ -133,14 +144,26 @@
                             >
                                 {request.authorized ? 'Unapprove' : 'Approve'}
                             </Button>
-                            <Button
-                                    class=""
-                                    size="sm"
-                                    variant="outline"
-                                    onclick={() => goto(base + '/dashboard/tv/' + request.show.id)}
-                            >
-                                Download manually
-                            </Button>
+                            {#if isShow}
+                                <Button
+                                        class=""
+                                        size="sm"
+                                        variant="outline"
+                                        onclick={() => goto(base + '/dashboard/tv/' + request.show.id)}
+                                >
+                                    Download manually
+                                </Button>
+                            {:else}
+                                <Button
+                                        class=""
+                                        size="sm"
+                                        variant="outline"
+                                        onclick={() => goto(base + '/dashboard/movies/' + request.movie.id)}
+                                >
+                                    Download manually
+                                </Button>
+                            {/if}
+
                         {/if}
                         {#if user().is_superuser || user().id === request.requested_by?.id}
                             <Button variant="destructive" size="sm" onclick={() => deleteRequest(request.id)}
