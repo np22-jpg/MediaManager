@@ -17,10 +17,23 @@
   </p>
 </div>
 
-Media Manager aims to be a replacement for Sonarr/Radarr/Overseer/Jellyseer,
-it is a comprehensive solution for organizing your media library, including TV shows and movies.
-It provides a modern web interface and integrates with various services for metadata,
-torrents and authentication.
+
+MediaManager is modern software to manage your TV and movie library. It is designed to be a replacement for Sonarr,
+Radarr, Overseer, and Jellyseer.
+It supports TVDB and TMDB for metadata, supports OIDC and OAuth 2.0 for authentication and supports Prowlarr and
+Jackett.
+MediaManager is built first and foremost for deployment with Docker, making it easy to set up.
+
+It also provides an API to interact with the software programmatically, allowing for automation and integration with
+other services.
+
+## Quick Start
+
+```
+   wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yaml   
+   # Edit docker-compose.yaml to set the environment variables!
+   docker compose up -d
+```
 
 ### [View the docs for installation instructions and more](https://maxdorninger.github.io/MediaManager/configuration-overview.html#configuration-overview)
 
@@ -40,7 +53,7 @@ torrents and authentication.
 - [x] add check at startup if hardlinks work
 - [x] create separate metadata relay service, so that api keys for TMDB and TVDB are not strictly needed
 - [x] support for movies
-- [ ] expand README with more information and a quickstart guide
+- [x] expand README with more information and a quickstart guide
 - [ ] add notification system
 - [ ] add in-depth documentation on the architecture of the codebase
 - [ ] make indexer module multithreaded
