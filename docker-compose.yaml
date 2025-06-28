@@ -14,7 +14,6 @@ services:
       - QBITTORRENT_USERNAME=
       - QBITTORRENT_PORT=
 
-      - TMDB_API_KEY=
       - CORS_URLS=
 
       - DB_HOST=db
@@ -23,19 +22,23 @@ services:
       #- DB_PASSWORD=
       #- DB_DBNAME=
 
+      # generate a random string with "openssl rand -hex 32"
       - AUTH_TOKEN_SECRET=
-      - AUTH_ADMIN_EMAIL=
-      - FRONTEND_URL=
-      #- AUTH_SESSION_LIFETIME=
 
-      #- OPENID_ENABLED=TRUE
+      # this should be you email address
+      - AUTH_ADMIN_EMAIL=
+
+      # this is the URL of your frontend, e.g. https://mediamanager.example.com
+      - FRONTEND_URL=
+
+      #- OPENID_ENABLED=FALSE
       #- OPENID_CLIENT_ID=
       #- OPENID_CLIENT_SECRET=
       #- OPENID_CONFIGURATION_ENDPOINT=
       #- OPENID_NAME=
 
+      #- AUTH_SESSION_LIFETIME=
       #- API_BASE_PATH=/api/v1
-      #- TVDB_API_KEY=
       #- DEVELOPMENT=
 
     volumes:

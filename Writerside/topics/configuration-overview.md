@@ -18,10 +18,3 @@ The recommended way to install and run Media Manager is using Docker and Docker 
 * Configure the necessary environment variables in your `docker-compose.yaml` file.
 * For more information on the available configuration options, see the [Configuration section](Configuration.md) of the
   documentation.
-
-<note>
-   It is good practice to put API keys and other sensitive information in a separate `.env` file and reference them in your
-  `docker-compose.yaml`.
-</note>
-
-
