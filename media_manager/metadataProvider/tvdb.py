@@ -1,3 +1,4 @@
+import requests
 import tvdb_v4_official
 import logging
 
@@ -14,7 +15,7 @@ from media_manager.movies.schemas import Movie
 
 
 class TvdbConfig(BaseSettings):
-    TVDB_API_KEY: str | None = None
+    TVDB_RELAY_URL: str = "https://metadata-relay.maxid.me/tvdb"
 
 
 log = logging.getLogger(__name__)
@@ -23,16 +24,33 @@ log = logging.getLogger(__name__)
 class TvdbMetadataProvider(AbstractMetadataProvider):
     name = "tvdb"
 
-    tvdb_client: tvdb_v4_official.TVDB
-
     def __init__(self):
         config = TvdbConfig()
-        if config.TVDB_API_KEY is None:
-            raise InvalidConfigError("TVDB_API_KEY is not set")
-        self.tvdb_client = tvdb_v4_official.TVDB(config.TVDB_API_KEY)
+        self.url = config.TVDB_RELAY_URL
+
+    def __get_show(self, id: int) -> dict:
+        return requests.get(f"{self.url}/tv/shows/{id}").json()
+
+    def __get_season(self, id: int) -> dict:
+        return requests.get(f"{self.url}/tv/seasons/{id}").json()
+
+    def __search_tv(self, query: str) -> dict:
+        return requests.get(f"{self.url}/tv/search", params={"query": query}).json()
+
+    def __get_trending_tv(self) -> dict:
+        return requests.get(f"{self.url}/tv/trending").json()
+
+    def __get_movie(self, id: int) -> dict:
+        return requests.get(f"{self.url}/movies/{id}").json()
+
+    def __search_movie(self, query: str) -> dict:
+        return requests.get(f"{self.url}/movies/search", params={"query": query}).json()
+
+    def __get_trending_movies(self) -> dict:
+        return requests.get(f"{self.url}/movies/trending").json()
 
     def download_show_poster_image(self, show: Show) -> bool:
-        show_metadata = self.tvdb_client.get_series_extended(show.external_id)
+        show_metadata = self.__get_show(id=show.external_id)
 
         if show_metadata["image"] is not None:
             media_manager.metadataProvider.utils.download_poster_image(
@@ -54,12 +72,12 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         :return: returns a ShowMetadata object
         :rtype: ShowMetadata
         """
-        series = self.tvdb_client.get_series_extended(id)
+        series = self.__get_show(id=id)
         seasons = []
         seasons_ids = [season["id"] for season in series["seasons"]]
 
         for season in seasons_ids:
-            s = self.tvdb_client.get_season_extended(season)
+            s = self.__get_season(id=season)
             # the seasons need to be filtered to a certain type,
             # otherwise the same season will be imported in aired and dvd order,
             # which causes duplicate season number + show ids which in turn violates a unique constraint of the season table
@@ -103,14 +121,15 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         )
 
         return show
+
     # TODO: fuck this mess
     def search_show(
         self, query: str | None = None
     ) -> list[MetaDataProviderSearchResult]:
         if query is None:
-            results = self.tvdb_client.get_all_series()
+            results = self.__get_trending_tv()
         else:
-            results = self.tvdb_client.search(query)
+            results = self.__search_tv(query=query)
         formatted_results = []
         for result in results:
             try:
@@ -140,18 +159,18 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         self, query: str | None = None
     ) -> list[MetaDataProviderSearchResult]:
         if query is None:
-            results = self.tvdb_client.get_all_movies()
+            results = self.__get_trending_movies()
         else:
-            results = self.tvdb_client.search(query)
+            results = self.__search_movie(query=query)
         results = results[0:20]  # this will return the first 20 results
         log.info(f"got {len(results)} results from TVDB search")
         formatted_results = []
         for result in results:
             # this is needed because get_all_movies and search return different result formats
             try:
-                result = self.tvdb_client.get_movie_extended(result["id"])
+                result = self.__get_movie(result["id"])
             except Exception:
-                result = self.tvdb_client.get_movie_extended(result["tvdb_id"])
+                result = self.__get_movie(result["tvdb_id"])
 
             try:
                 try:
@@ -176,7 +195,7 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         return formatted_results
 
     def download_movie_poster_image(self, movie: Movie) -> bool:
-        movie_metadata = self.tvdb_client.get_movie_extended(movie.external_id)
+        movie_metadata = self.__get_movie(movie.external_id)
 
         if movie_metadata["image"] is not None:
             media_manager.metadataProvider.utils.download_poster_image(
@@ -198,7 +217,7 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
         :return: returns a Movie object
         :rtype: Movie
         """
-        movie = self.tvdb_client.get_movie_extended(id)
+        movie = self.__get_movie(id)
         try:
             year = movie["year"]
         except KeyError:

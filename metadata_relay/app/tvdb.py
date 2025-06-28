@@ -24,7 +24,7 @@ else:
 
     @router.get("/tv/search")
     @cache_response("tvdb_tv_search", ttl=14400)
-    async def search_tvdb_tv(query: str, page: int = 1):
+    async def search_tvdb_tv(query: str):
         return tvdb_client.search(query)
 
 
