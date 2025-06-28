@@ -15,6 +15,17 @@ on:
       - 'uv.lock'
       - '.github/workflows/build-push-backend.yml'
       - 'tests/**'
+  pull_request:
+    paths:
+      - 'media_manager/**'
+      - 'alembic/**'
+      - 'alembic.ini'
+      - 'Dockerfile'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/build-push-backend.yml'
+      - 'tests/**'
+
   workflow_dispatch:
 
 jobs:

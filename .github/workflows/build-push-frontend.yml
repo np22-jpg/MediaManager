@@ -9,6 +9,11 @@ on:
     paths:
       - 'web/**'
       - '.github/workflows/build-push-frontend.yml'
+  pull_request:
+    paths:
+      - 'web/**'
+      - '.github/workflows/build-push-frontend.yml'
+
   workflow_dispatch:
 
 jobs:

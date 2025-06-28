@@ -9,6 +9,10 @@ on:
     paths:
       - 'metadata_relay/**'
       - '.github/workflows/python-lint_metadata_relay.yaml'
+  pull_request:
+    paths:
+      - 'metadata_relay/**'
+      - '.github/workflows/python-lint_metadata_relay.yaml'
   workflow_dispatch:
 
 jobs:
