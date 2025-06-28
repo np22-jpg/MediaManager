@@ -163,7 +163,7 @@ export interface UserUpdate {
 	is_verified?: boolean | null; // anyOf boolean, null
 }
 
-export interface MetaDataProviderShowSearchResult {
+export interface MetaDataProviderSearchResult {
 	poster_path: string | null;
 	overview: string | null;
 	name: string;
@@ -193,11 +193,11 @@ export interface RichShowTorrent {
 }
 
 export interface RichMovieTorrent {
-    show_id: string;
-    name: string;
-    year: number | null;
-    metadata_provider: string;
-    torrents: Torrent[];
+	show_id: string;
+	name: string;
+	year: number | null;
+	metadata_provider: string;
+	torrents: Torrent[];
 }
 
 interface SeasonRequestBase {

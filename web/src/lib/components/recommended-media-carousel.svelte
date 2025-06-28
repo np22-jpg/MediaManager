@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {MetaDataProviderShowSearchResult} from '$lib/types';
+    import type {MetaDataProviderSearchResult} from '$lib/types';
     import AddMediaCard from '$lib/components/add-media-card.svelte';
     import {Skeleton} from '$lib/components/ui/skeleton';
     import {Button} from '$lib/components/ui/button';
@@ -10,7 +10,7 @@
         isShow,
         isLoading
     }: {
-        media: MetaDataProviderShowSearchResult[];
+        media: MetaDataProviderSearchResult[];
         isShow: boolean;
         isLoading: boolean;
     } = $props();

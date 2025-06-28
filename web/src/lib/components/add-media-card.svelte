@@ -1,17 +1,17 @@
 <script lang="ts">
-    import {Button} from '$lib/components/ui/button/index.js';
-    import {env} from '$env/dynamic/public';
+	import {Button} from '$lib/components/ui/button/index.js';
+	import {env} from '$env/dynamic/public';
 	import * as Card from '$lib/components/ui/card/index.js';
-    import {ImageOff} from 'lucide-svelte';
-    import {goto} from '$app/navigation';
-    import {base} from '$app/paths';
-    import type {MetaDataProviderShowSearchResult} from '$lib/types.js';
+	import {ImageOff} from 'lucide-svelte';
+	import {goto} from '$app/navigation';
+	import {base} from '$app/paths';
+	import type {MetaDataProviderSearchResult} from '$lib/types.js';
 
 	const apiUrl = env.PUBLIC_API_URL;
 	let loading = $state(false);
 	let errorMessage = $state(null);
-    let {result, isShow = true}: { result: MetaDataProviderShowSearchResult; isShow: boolean } =
-        $props();
+	let {result, isShow = true}: { result: MetaDataProviderSearchResult; isShow: boolean } =
+			$props();
 	console.log('Add Show Card Result: ', result);
 
 	async function addMedia() {
@@ -43,27 +43,27 @@
 			{/if}
 		</Card.Title>
 		<Card.Description class="truncate"
-        >{result.overview !== '' ? result.overview : 'No overview available'}</Card.Description
+		>{result.overview !== '' ? result.overview : 'No overview available'}</Card.Description
 		>
 	</Card.Header>
 	<Card.Content class="flex flex-1 items-center justify-center">
 		{#if result.poster_path != null}
 			<img
-                    class="h-full w-full rounded-lg object-contain"
-                    src={result.poster_path}
-                    alt="{result.name}'s Poster Image"
+					class="h-full w-full rounded-lg object-contain"
+					src={result.poster_path}
+					alt="{result.name}'s Poster Image"
 			/>
 		{:else}
 			<div class="flex h-full w-full items-center justify-center">
-                <ImageOff class="h-12 w-12 text-gray-400"/>
+				<ImageOff class="h-12 w-12 text-gray-400"/>
 			</div>
 		{/if}
 	</Card.Content>
 	<Card.Footer class="flex flex-col items-start gap-2 rounded-b-lg border-t bg-card p-4">
 		<Button
-                class="w-full font-semibold"
-                disabled={result.added || loading}
-                onclick={() => addMedia(result)}
+				class="w-full font-semibold"
+				disabled={result.added || loading}
+				onclick={() => addMedia(result)}
 		>
 			{#if loading}
 				<span class="animate-pulse">Loading...</span>
@@ -75,9 +75,9 @@
 			{#if result.vote_average != null}
 				<span class="flex items-center text-sm font-medium text-yellow-600">
 					<svg class="mr-1 h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"
-                    ><path
+					><path
 							d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"
-                    /></svg
+					/></svg
 					>
 					Rating: {Math.round(result.vote_average)}/10
 				</span>

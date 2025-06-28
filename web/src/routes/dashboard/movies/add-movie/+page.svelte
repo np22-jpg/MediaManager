@@ -8,7 +8,7 @@
     import {Button} from '$lib/components/ui/button';
     import {ChevronDown} from 'lucide-svelte';
     import * as Collapsible from '$lib/components/ui/collapsible/index.js';
-    import type {MetaDataProviderShowSearchResult} from '$lib/types.js';
+    import type {MetaDataProviderSearchResult} from '$lib/types.js';
     import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
     import AddMediaCard from '$lib/components/add-media-card.svelte';
     import {toast} from 'svelte-sonner';
@@ -17,7 +17,7 @@
     const apiUrl = env.PUBLIC_API_URL;
     let searchTerm: string = $state('');
     let metadataProvider: string = $state('tmdb');
-    let results: MetaDataProviderShowSearchResult[] | null = $state(null);
+    let results: MetaDataProviderSearchResult[] | null = $state(null);
     onMount(search);
 
     async function search() {

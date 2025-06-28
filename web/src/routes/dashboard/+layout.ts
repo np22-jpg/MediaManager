@@ -23,5 +23,5 @@ export const load: LayoutLoad = async ({fetch}) => {
 			throw redirect(303, base + '/login');
 		}
 	}
-    return {user: await response.json()};
+	return {user: await response.json()};
 };

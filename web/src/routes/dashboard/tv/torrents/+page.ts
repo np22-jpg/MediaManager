@@ -8,5 +8,5 @@ export const load: PageLoad = async ({fetch}) => {
 		method: 'GET',
 		credentials: 'include'
 	});
-    return {shows: response.json()};
+	return {shows: response.json()};
 };

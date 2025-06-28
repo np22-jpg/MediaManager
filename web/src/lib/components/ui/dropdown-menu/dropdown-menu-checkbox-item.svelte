@@ -1,9 +1,9 @@
 <script lang="ts">
-    import {DropdownMenu as DropdownMenuPrimitive, type WithoutChildrenOrChild} from 'bits-ui';
+	import {DropdownMenu as DropdownMenuPrimitive, type WithoutChildrenOrChild} from 'bits-ui';
 	import Check from '@lucide/svelte/icons/check';
 	import Minus from '@lucide/svelte/icons/minus';
-    import {cn} from '$lib/utils.js';
-    import type {Snippet} from 'svelte';
+	import {cn} from '$lib/utils.js';
+	import type {Snippet} from 'svelte';
 
 	let {
 		ref = $bindable(null),
@@ -18,16 +18,16 @@
 </script>
 
 <DropdownMenuPrimitive.CheckboxItem
-        {...restProps}
-        bind:checked
-        bind:indeterminate
-        bind:ref
-        class={cn(
+		{...restProps}
+		bind:checked
+		bind:indeterminate
+		bind:ref
+		class={cn(
 		'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:opacity-50',
 		className
 	)}
 >
-    {#snippet children({checked, indeterminate})}
+	{#snippet children({checked, indeterminate})}
 		<span class="absolute left-2 flex size-3.5 items-center justify-center">
 			{#if indeterminate}
 				<Minus class="size-4"/>
