@@ -5,8 +5,6 @@ from typing import Any, Optional
 import valkey.asyncio as valkey
 import os
 from functools import wraps
-import asyncio
-import inspect
 
 log = logging.getLogger(__name__)
 
@@ -61,5 +59,7 @@ def cache_response(prefix: str, ttl: int = 3600):
             await set_cached_response(cache_key, response, ttl)
 
             return response
+
         return wrapper
+
     return decorator

@@ -50,6 +50,3 @@ else:
     @cache_response("tmdb_movie", ttl=28800)
     async def get_tmdb_movie(movie_id: int):
         return Movies(movie_id).info()
-
-
-

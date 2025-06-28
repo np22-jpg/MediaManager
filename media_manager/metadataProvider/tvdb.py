@@ -1,11 +1,9 @@
 import requests
-import tvdb_v4_official
 import logging
 
 from pydantic_settings import BaseSettings
 
 import media_manager.metadataProvider.utils
-from media_manager.exceptions import InvalidConfigError
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
 )

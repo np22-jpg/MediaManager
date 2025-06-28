@@ -171,9 +171,7 @@ def update_movie_request(
     return movie_service.update_movie_request(movie_request=movie_request)
 
 
-@router.patch(
-    "/requests/{movie_request_id}", status_code=status.HTTP_204_NO_CONTENT
-)
+@router.patch("/requests/{movie_request_id}", status_code=status.HTTP_204_NO_CONTENT)
 def authorize_request(
     movie_service: movie_service_dep,
     movie_request_id: MovieRequestId,
@@ -225,9 +223,13 @@ def get_movie_by_id(movie_service: movie_service_dep, movie_id: MovieId):
     response_model=list[PublicIndexerQueryResult],
 )
 def get_all_available_torrents_for_a_movie(
-    movie_service: movie_service_dep, movie_id: MovieId, search_query_override: str | None = None
+    movie_service: movie_service_dep,
+    movie_id: MovieId,
+    search_query_override: str | None = None,
 ):
-    return movie_service.get_all_available_torrents_for_a_movie(movie_id=movie_id, search_query_override=search_query_override)
+    return movie_service.get_all_available_torrents_for_a_movie(
+        movie_id=movie_id, search_query_override=search_query_override
+    )
 
 
 @router.post(

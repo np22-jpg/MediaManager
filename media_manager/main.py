@@ -56,10 +56,10 @@ from media_manager.tv.service import (  # noqa: E402
     import_all_show_torrents,
     update_all_non_ended_shows_metadata,
 )
-from media_manager.movies.service import (
+from media_manager.movies.service import ( # noqa: E402
     import_all_movie_torrents,
     update_all_movies_metadata,
-)  # noqa: E402
+)
 import uvicorn  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 from media_manager.auth.users import openid_client  # noqa: E402

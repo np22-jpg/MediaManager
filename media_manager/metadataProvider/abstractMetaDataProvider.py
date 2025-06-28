@@ -54,6 +54,3 @@ class AbstractMetadataProvider(ABC):
         :return: True if the image was downloaded successfully, False otherwise.
         """
         raise NotImplementedError()
-
-
-
