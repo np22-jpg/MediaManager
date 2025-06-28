@@ -48,7 +48,7 @@
                 </Breadcrumb.Item>
                 <Breadcrumb.Separator class="hidden md:block"/>
                 <Breadcrumb.Item>
-                    <Breadcrumb.Page>TV Torrents</Breadcrumb.Page>
+                    <Breadcrumb.Page>Movie Torrents</Breadcrumb.Page>
                 </Breadcrumb.Item>
             </Breadcrumb.List>
         </Breadcrumb.Root>
@@ -57,7 +57,7 @@
 
 <div class="flex w-full flex-1 flex-col items-center gap-4 p-4 pt-0">
     <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-        TV Torrents
+        Movie Torrents
     </h1>
     <Accordion.Root class="w-full" type="single">
         {#each torrents as movie}
