@@ -3,15 +3,13 @@ import re
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-import media_manager.indexer.service
-import media_manager.metadataProvider
-import media_manager.torrent.repository
+from media_manager.exceptions import InvalidConfigError
 from media_manager.indexer.repository import IndexerRepository
 from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
-from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
-from media_manager.torrent.schemas import Torrent, TorrentStatus
+from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
+from media_manager.torrent.schemas import Torrent, TorrentStatus, Quality
 from media_manager.torrent.service import TorrentService
 from media_manager.tv import log
 from media_manager.tv.schemas import (
@@ -28,6 +26,8 @@ from media_manager.tv.schemas import (
     PublicSeasonFile,
     SeasonRequestId,
     RichSeasonRequest,
+    EpisodeId,
+    Episode as EpisodeSchema,
 )
 from media_manager.torrent.schemas import QualityStrings
 from media_manager.tv.repository import TvRepository
@@ -38,6 +38,11 @@ from media_manager.config import BasicConfig
 from media_manager.torrent.repository import TorrentRepository
 from media_manager.torrent.utils import import_file, import_torrent
 from media_manager.indexer.service import IndexerService
+from media_manager.metadataProvider.abstractMetaDataProvider import (
+    AbstractMetadataProvider,
+)
+from media_manager.metadataProvider.tmdb import TmdbMetadataProvider
+from media_manager.metadataProvider.tvdb import TvdbMetadataProvider
 
 
 class TvService:
@@ -51,18 +56,18 @@ class TvService:
         self.torrent_service = torrent_service
         self.indexer_service = indexer_service
 
-    def add_show(self, external_id: int, metadata_provider: str) -> Show | None:
+    def add_show(
+        self, external_id: int, metadata_provider: AbstractMetadataProvider
+    ) -> Show | None:
         """
         Add a new show to the database.
 
-        :param external_id: The ID of the show in the metadata provider's system.
+        :param external_id: The ID of the show in the metadata provider\\\'s system.
         :param metadata_provider: The name of the metadata provider.
-        :return: The saved show object or None if it failed.
         """
-        show_with_metadata = media_manager.metadataProvider.get_show_metadata(
-            id=external_id, provider=metadata_provider
-        )
+        show_with_metadata = metadata_provider.get_show_metadata(id=external_id)
         saved_show = self.tv_repository.save_show(show=show_with_metadata)
+        metadata_provider.download_show_poster_image(show=saved_show)
         return saved_show
 
     def add_season_request(self, season_request: SeasonRequest) -> SeasonRequest:
@@ -206,8 +211,8 @@ class TvService:
         return self.tv_repository.get_shows()
 
     def search_for_show(
-        self, query: str, metadata_provider: str
-    ) -> list[MetaDataProviderShowSearchResult]:
+        self, query: str, metadata_provider: AbstractMetadataProvider
+    ) -> list[MetaDataProviderSearchResult]:
         """
         Search for shows using a given query.
 
@@ -215,31 +220,29 @@ class TvService:
         :param metadata_provider: The metadata provider to search.
         :return: A list of metadata provider show search results.
         """
-        results = media_manager.metadataProvider.search_show(query, metadata_provider)
+        results = metadata_provider.search_show(query)
         for result in results:
             if self.check_if_show_exists(
-                external_id=result.external_id, metadata_provider=metadata_provider
+                external_id=result.external_id, metadata_provider=metadata_provider.name
             ):
                 result.added = True
         return results
 
     def get_popular_shows(
-        self, metadata_provider: str
-    ) -> list[MetaDataProviderShowSearchResult]:
+        self, metadata_provider: AbstractMetadataProvider
+    ) -> list[MetaDataProviderSearchResult]:
         """
         Get popular shows from a given metadata provider.
 
         :param metadata_provider: The metadata provider to use.
         :return: A list of metadata provider show search results.
         """
-        results: list[MetaDataProviderShowSearchResult] = (
-            media_manager.metadataProvider.search_show(provider=metadata_provider)
-        )
+        results: list[MetaDataProviderSearchResult] = metadata_provider.search_show()
 
         filtered_results = []
         for result in results:
             if not self.check_if_show_exists(
-                external_id=result.external_id, metadata_provider=metadata_provider
+                external_id=result.external_id, metadata_provider=metadata_provider.name
             ):
                 filtered_results.append(result)
 
@@ -566,6 +569,139 @@ class TvService:
                     )
         log.info(f"Finished organizing files for torrent {torrent.title}")
 
+    def update_show_metadata(
+        self, db_show: Show, metadata_provider: AbstractMetadataProvider
+    ) -> Show | None:
+        """
+        Updates the metadata of a show.
+        This includes adding new seasons and episodes if available from the metadata provider.
+        It also updates existing show, season, and episode attributes if they have changed.
+
+        :param metadata_provider: The metadata provider object to fetch fresh data from.
+        :param db_show: The Show to update
+        :return: The updated Show object, or None if the show is not found or an error occurs.
+        """
+        # Get the existing show from the database
+        log.debug(f"Found show: {db_show.name} for metadata update.")
+        # old_poster_url = db_show.poster_url # poster_url removed from db_show
+
+        fresh_show_data = metadata_provider.get_show_metadata(id=db_show.external_id)
+        if not fresh_show_data:
+            log.warning(
+                f"Could not fetch fresh metadata for show {db_show.name} (External ID: {db_show.external_id}) from {db_show.metadata_provider}."
+            )
+            return db_show
+        log.debug(f"Fetched fresh metadata for show: {fresh_show_data.name}")
+
+        # Update show attributes (poster_url is not part of ShowSchema anymore)
+        self.tv_repository.update_show_attributes(
+            show_id=db_show.id,
+            name=fresh_show_data.name,
+            overview=fresh_show_data.overview,
+            year=fresh_show_data.year,
+            ended=fresh_show_data.ended,
+            continuous_download=db_show.continuous_download
+            if fresh_show_data.ended is False
+            else False,
+        )
+
+        # Process seasons and episodes
+        existing_season_external_ids = {s.external_id: s for s in db_show.seasons}
+
+        for fresh_season_data in fresh_show_data.seasons:
+            if fresh_season_data.external_id in existing_season_external_ids:
+                # Update existing season
+                existing_season = existing_season_external_ids[
+                    fresh_season_data.external_id
+                ]
+                log.debug(
+                    f"Updating existing season {existing_season.number} for show {db_show.name}"
+                )
+                self.tv_repository.update_season_attributes(
+                    season_id=existing_season.id,
+                    name=fresh_season_data.name,
+                    overview=fresh_season_data.overview,
+                )
+
+                # Process episodes for this season
+                existing_episode_external_ids = {
+                    ep.external_id: ep for ep in existing_season.episodes
+                }
+                for fresh_episode_data in fresh_season_data.episodes:
+                    if fresh_episode_data.number in existing_episode_external_ids:
+                        # Update existing episode
+                        existing_episode = existing_episode_external_ids[
+                            fresh_episode_data.external_id
+                        ]
+                        log.debug(
+                            f"Updating existing episode {existing_episode.number} for season {existing_season.number}"
+                        )
+                        self.tv_repository.update_episode_attributes(
+                            episode_id=existing_episode.id,
+                            title=fresh_episode_data.title,
+                        )
+                    else:
+                        # Add new episode
+                        log.debug(
+                            f"Adding new episode {fresh_episode_data.number} to season {existing_season.number}"
+                        )
+                        episode_schema = EpisodeSchema(
+                            id=EpisodeId(fresh_episode_data.id),
+                            number=fresh_episode_data.number,
+                            external_id=fresh_episode_data.external_id,
+                            title=fresh_episode_data.title,
+                        )
+                        self.tv_repository.add_episode_to_season(
+                            season_id=existing_season.id, episode_data=episode_schema
+                        )
+            else:
+                # Add new season (and its episodes)
+                log.debug(
+                    f"Adding new season {fresh_season_data.number} to show {db_show.name}"
+                )
+                episodes_for_schema = []
+                for ep_data in fresh_season_data.episodes:
+                    episodes_for_schema.append(
+                        EpisodeSchema(
+                            id=EpisodeId(ep_data.id),
+                            number=ep_data.number,
+                            external_id=ep_data.external_id,
+                            title=ep_data.title,
+                        )
+                    )
+
+                season_schema = Season(
+                    id=SeasonId(fresh_season_data.id),
+                    number=fresh_season_data.number,
+                    name=fresh_season_data.name,
+                    overview=fresh_season_data.overview,
+                    external_id=fresh_season_data.external_id,
+                    episodes=episodes_for_schema,
+                )
+                self.tv_repository.add_season_to_show(
+                    show_id=db_show.id, season_data=season_schema
+                )
+
+        updated_show = self.tv_repository.get_show_by_id(show_id=db_show.id)
+
+        log.info(f"Successfully updated metadata for show ID: {db_show.id}")
+        metadata_provider.download_show_poster_image(show=updated_show)
+        return updated_show
+
+    def set_show_continuous_download(
+        self, show_id: ShowId, continuous_download: bool
+    ) -> Show:
+        """
+        Set the continuous download flag for a show.
+
+        :param show_id: The ID of the show.
+        :param continuous_download: True to enable continuous download, False to disable.
+        :return: The updated Show object.
+        """
+        return self.tv_repository.update_show_attributes(
+            show_id=show_id, continuous_download=continuous_download
+        )
+
 
 def auto_download_all_approved_season_requests() -> None:
     """
@@ -604,10 +740,11 @@ def auto_download_all_approved_season_requests() -> None:
                 )
 
     log.info(f"Auto downloaded {count} approved season requests")
+    db.commit()
     db.close()
 
 
-def import_all_torrents() -> None:
+def import_all_show_torrents() -> None:
     db: Session = SessionLocal()
     tv_repository = TvRepository(db=db)
     torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
@@ -622,12 +759,81 @@ def import_all_torrents() -> None:
     log.info("Found %d torrents to import", len(torrents))
     imported_torrents = []
     for t in torrents:
-        if t.imported == False and t.status == TorrentStatus.finished:
+        if not t.imported and t.status == TorrentStatus.finished:
             show = torrent_service.get_show_of_torrent(torrent=t)
             if show is None:
-                log.warning(
-                    f"torrent {t.title} is not a tv torrent, skipping import."
+                log.warning(f"torrent {t.title} is not a tv torrent, skipping import.")
+                continue
+            imported_torrents.append(
+                tv_service.import_torrent_files(torrent=t, show=show)
+            )
+    log.info("Finished importing all torrents")
+    db.commit()
+    db.close()
+
+
+def update_all_non_ended_shows_metadata() -> None:
+    """
+    Updates the metadata of all non-ended shows.
+    """
+    db: Session = SessionLocal()
+    tv_repository = TvRepository(db=db)
+    tv_service = TvService(
+        tv_repository=tv_repository,
+        torrent_service=TorrentService(torrent_repository=TorrentRepository(db=db)),
+        indexer_service=IndexerService(indexer_repository=IndexerRepository(db=db)),
+    )
+
+    log.info("Updating metadata for all non-ended shows")
+
+    shows = [show for show in tv_repository.get_shows() if not show.ended]
+
+    log.info(f"Found {len(shows)} non-ended shows to update")
+
+    for show in shows:
+        try:
+            if show.metadata_provider == "tmdb":
+                metadata_provider = TmdbMetadataProvider()
+            elif show.metadata_provider == "tvdb":
+                metadata_provider = TvdbMetadataProvider()
+            else:
+                log.error(
+                    f"Unsupported metadata provider {show.metadata_provider} for show {show.name}, skipping update."
                 )
                 continue
-            imported_torrents.append(tv_service.import_torrent_files(torrent=t, show=show))
-    log.info("Finished importing all torrents")
+        except InvalidConfigError as e:
+            log.error(
+                f"Error initializing metadata provider {show.metadata_provider} for show {show.name}: {str(e)}"
+            )
+            continue
+        updated_show = tv_service.update_show_metadata(
+            db_show=show, metadata_provider=metadata_provider
+        )
+
+        # Automatically add season requests for new seasons
+        existing_seasons = [x.id for x in show.seasons]
+        new_seasons = [x for x in updated_show.seasons if x.id not in existing_seasons]
+
+        if show.continuous_download:
+            for new_season in new_seasons:
+                log.info(
+                    f"Automatically adding season requeest for new season {new_season.number} of show {updated_show.name}"
+                )
+                tv_service.add_season_request(
+                    SeasonRequest(
+                        min_quality=Quality.sd,
+                        wanted_quality=Quality.uhd,
+                        season_id=new_season.id,
+                        authorized=True,
+                    )
+                )
+
+        if updated_show:
+            log.info(f"Successfully updated metadata for show: {updated_show.name}")
+            log.debug(
+                f"Added new seasons: {len(new_seasons)} to show: {updated_show.name}"
+            )
+        else:
+            log.warning(f"Failed to update metadata for show: {show.name}")
+    db.commit()
+    db.close()

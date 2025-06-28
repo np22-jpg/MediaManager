@@ -3,12 +3,12 @@ import sys
 sys.path = ["", ".."] + sys.path[1:]
 
 
-from logging.config import fileConfig
+from logging.config import fileConfig  # noqa: E402
 
-from alembic import context
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from alembic import context  # noqa: E402
+from pydantic_settings import BaseSettings, SettingsConfigDict  # noqa: E402
+from sqlalchemy import engine_from_config  # noqa: E402
+from sqlalchemy import pool  # noqa: E402
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -24,12 +24,12 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-from media_manager.auth.db import User, OAuthAccount
-from media_manager.indexer.models import IndexerQueryResult
-from media_manager.torrent.models import Torrent
-from media_manager.tv.models import Show, Season, Episode, SeasonFile, SeasonRequest
+from media_manager.auth.db import User, OAuthAccount  # noqa: E402
+from media_manager.indexer.models import IndexerQueryResult  # noqa: E402
+from media_manager.torrent.models import Torrent  # noqa: E402
+from media_manager.tv.models import Show, Season, Episode, SeasonFile, SeasonRequest  # noqa: E402
 
-from media_manager.database import Base
+from media_manager.database import Base  # noqa: E402
 
 target_metadata = Base.metadata
 

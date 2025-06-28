@@ -103,6 +103,8 @@ export interface Show {
 	metadata_provider: string;
 	seasons: Season[]; // items: { $ref: #/components/schemas/Season }, type: array
 	id: string; // type: string, format: uuid
+	continuous_download: boolean;
+	ended: boolean;
 }
 
 export interface PublicShow {
@@ -113,6 +115,27 @@ export interface PublicShow {
 	metadata_provider: string;
 	seasons: PublicSeason[]; // items: { $ref: #/components/schemas/Season }, type: array
 	id: string; // type: string, format: uuid
+	continuous_download: boolean;
+	ended: boolean;
+}
+
+export interface Movie {
+	name: string;
+	overview: string;
+	year: number; // type: integer
+	external_id: number; // type: integer
+	metadata_provider: string;
+	id: string; // type: string, format: uuid
+}
+
+export interface PublicMovie {
+	name: string;
+	overview: string;
+	year: number; // type: integer
+	external_id: number; // type: integer
+	metadata_provider: string;
+	id: string; // type: string, format: uuid
+	downloaded: boolean;
 }
 
 export interface Torrent {
@@ -140,7 +163,7 @@ export interface UserUpdate {
 	is_verified?: boolean | null; // anyOf boolean, null
 }
 
-export interface MetaDataProviderShowSearchResult {
+export interface MetaDataProviderSearchResult {
 	poster_path: string | null;
 	overview: string | null;
 	name: string;
@@ -167,6 +190,14 @@ export interface RichShowTorrent {
 	year: number | null;
 	metadata_provider: string;
 	torrents: RichSeasonTorrent[];
+}
+
+export interface RichMovieTorrent {
+	show_id: string;
+	name: string;
+	year: number | null;
+	metadata_provider: string;
+	torrents: Torrent[];
 }
 
 interface SeasonRequestBase {

@@ -14,35 +14,35 @@ services:
       - QBITTORRENT_USERNAME=
       - QBITTORRENT_PORT=
 
-      - TMDB_API_KEY=
       - CORS_URLS=
 
       - DB_HOST=db
       #- DB_NAME=
       #- DB_PORT=
-      #- DB_PASSOWORD=
+      #- DB_PASSWORD=
       #- DB_DBNAME=
 
+      # generate a random string with "openssl rand -hex 32"
       - AUTH_TOKEN_SECRET=
-      - AUTH_ADMIN_EMAIL=
-      - FRONTEND_URL=
-      #- AUTH_SESSION_LIFETIME=
 
-      #- OPENID_ENABLED=TRUE
+      # this should be you email address
+      - AUTH_ADMIN_EMAIL=
+
+      # this is the URL of your frontend, e.g. https://mediamanager.example.com
+      - FRONTEND_URL=
+
+      #- OPENID_ENABLED=FALSE
       #- OPENID_CLIENT_ID=
       #- OPENID_CLIENT_SECRET=
       #- OPENID_CONFIGURATION_ENDPOINT=
       #- OPENID_NAME=
 
+      #- AUTH_SESSION_LIFETIME=
       #- API_BASE_PATH=/api/v1
-      #- TVDB_API_KEY=
       #- DEVELOPMENT=
 
     volumes:
-      - ./data:/data/images
-      - ./tv:/data/tv
-      - ./movie:/data/movies
-      - ./torrent:/data/torrents
+      - ./data/:/data/
   frontend:
     image: ghcr.io/maxdorninger/mediamanager/frontend:latest
     container_name: frontend
@@ -52,7 +52,6 @@ services:
       - ./cache:/app/cache
     environment:
       - PUBLIC_API_URL=http://localhost:8000/api/v1
-      - PUBLIC_SSR_API_URL=http://backend:8000/api/v1
   db:
     image: postgres:latest
     restart: unless-stopped

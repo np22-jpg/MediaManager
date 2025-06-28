@@ -7,7 +7,7 @@ from media_manager.auth.db import User
 from media_manager.auth.schemas import UserRead
 from media_manager.auth.users import current_active_user, current_superuser
 from media_manager.indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
-from media_manager.metadataProvider.schemas import MetaDataProviderShowSearchResult
+from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 from media_manager.torrent.schemas import Torrent
 from media_manager.tv import log
 from media_manager.exceptions import MediaAlreadyExists
@@ -22,13 +22,15 @@ from media_manager.tv.schemas import (
     SeasonRequestId,
     UpdateSeasonRequest,
     RichSeasonRequest,
+    Season,
 )
 from media_manager.tv.dependencies import (
-    torrent_service_dep,
     season_dep,
     show_dep,
     tv_repository_dep,
+    tv_service_dep,
 )
+from media_manager.metadataProvider.dependencies import metadata_provider_dep
 
 router = APIRouter()
 
@@ -51,7 +53,7 @@ router = APIRouter()
     },
 )
 def add_a_show(
-    tv_service: torrent_service_dep, show_id: int, metadata_provider: str = "tmdb"
+    tv_service: tv_service_dep, metadata_provider: metadata_provider_dep, show_id: int
 ):
     try:
         show = tv_service.add_show(
@@ -70,8 +72,8 @@ def add_a_show(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(current_active_user)],
 )
-def delete_a_show(tv_repository: tv_repository_dep, show_id: ShowId):
-    tv_repository.delete_show(show_id=show_id)
+def delete_a_show(tv_repository: tv_repository_dep, show: show_dep):
+    tv_repository.delete_show(show_id=show.id)
 
 
 # --------------------------------
@@ -82,15 +84,8 @@ def delete_a_show(tv_repository: tv_repository_dep, show_id: ShowId):
 @router.get(
     "/shows", dependencies=[Depends(current_active_user)], response_model=list[Show]
 )
-def get_all_shows(
-    tv_service: torrent_service_dep, external_id: int = None, metadata_provider: str = "tmdb"
-):
-    if external_id is not None:
-        return tv_service.get_show_by_external_id(
-            external_id=external_id, metadata_provider=metadata_provider
-        )
-    else:
-        return tv_service.get_all_shows()
+def get_all_shows(tv_service: tv_service_dep):
+    return tv_service.get_all_shows()
 
 
 @router.get(
@@ -98,7 +93,7 @@ def get_all_shows(
     dependencies=[Depends(current_active_user)],
     response_model=list[RichShowTorrent],
 )
-def get_shows_with_torrents(tv_service: torrent_service_dep):
+def get_shows_with_torrents(tv_service: tv_service_dep):
     """
     get all shows that are associated with torrents
     :return: A list of shows with all their torrents
@@ -112,7 +107,39 @@ def get_shows_with_torrents(tv_service: torrent_service_dep):
     dependencies=[Depends(current_active_user)],
     response_model=PublicShow,
 )
-def get_a_show(show: show_dep, tv_service: torrent_service_dep) -> PublicShow:
+def get_a_show(show: show_dep, tv_service: tv_service_dep) -> PublicShow:
+    return tv_service.get_public_show_by_id(show_id=show.id)
+
+
+@router.post(
+    "/shows/{show_id}/metadata",
+    dependencies=[Depends(current_active_user)],
+    response_model=PublicShow,
+)
+def update_shows_metadata(
+    show: show_dep, tv_service: tv_service_dep, metadata_provider: metadata_provider_dep
+) -> PublicShow:
+    """
+    Updates a shows metadata.
+    """
+    tv_service.update_show_metadata(db_show=show, metadata_provider=metadata_provider)
+    return tv_service.get_public_show_by_id(show_id=show.id)
+
+
+@router.post(
+    "/shows/{show_id}/continuousDownload",
+    dependencies=[Depends(current_superuser)],
+    response_model=PublicShow,
+)
+def set_continuous_download(
+    show: show_dep, tv_service: tv_service_dep, continuous_download: bool
+) -> PublicShow:
+    """
+    Toggles whether future seasons of a show will be downloaded.
+    """
+    tv_service.set_show_continuous_download(
+        show_id=show.id, continuous_download=continuous_download
+    )
     return tv_service.get_public_show_by_id(show_id=show.id)
 
 
@@ -121,7 +148,7 @@ def get_a_show(show: show_dep, tv_service: torrent_service_dep) -> PublicShow:
     dependencies=[Depends(current_active_user)],
     response_model=RichShowTorrent,
 )
-def get_a_shows_torrents(show: show_dep, tv_service: torrent_service_dep):
+def get_a_shows_torrents(show: show_dep, tv_service: tv_service_dep):
     return tv_service.get_torrents_for_show(show=show)
 
 
@@ -134,7 +161,7 @@ def get_a_shows_torrents(show: show_dep, tv_service: torrent_service_dep):
 def request_a_season(
     user: Annotated[User, Depends(current_active_user)],
     season_request: CreateSeasonRequest,
-    tv_service: torrent_service_dep,
+    tv_service: tv_service_dep,
 ):
     """
     adds request flag to a season
@@ -156,7 +183,7 @@ def request_a_season(
     dependencies=[Depends(current_active_user)],
     response_model=list[RichSeasonRequest],
 )
-def get_season_requests(tv_service: torrent_service_dep) -> list[RichSeasonRequest]:
+def get_season_requests(tv_service: tv_service_dep) -> list[RichSeasonRequest]:
     return tv_service.get_all_season_requests()
 
 
@@ -165,7 +192,7 @@ def get_season_requests(tv_service: torrent_service_dep) -> list[RichSeasonReque
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_season_request(
-    tv_service: torrent_service_dep,
+    tv_service: tv_service_dep,
     user: Annotated[User, Depends(current_active_user)],
     request_id: SeasonRequestId,
 ):
@@ -188,7 +215,7 @@ def delete_season_request(
     "/seasons/requests/{season_request_id}", status_code=status.HTTP_204_NO_CONTENT
 )
 def authorize_request(
-    tv_service: torrent_service_dep,
+    tv_service: tv_service_dep,
     user: Annotated[User, Depends(current_superuser)],
     season_request_id: SeasonRequestId,
     authorized_status: bool = False,
@@ -209,10 +236,11 @@ def authorize_request(
 
 @router.put("/seasons/requests", status_code=status.HTTP_204_NO_CONTENT)
 def update_request(
-    tv_service: torrent_service_dep,
+    tv_service: tv_service_dep,
     user: Annotated[User, Depends(current_active_user)],
     season_request: UpdateSeasonRequest,
 ):
+    # NOTE: wtf is this code
     updated_season_request: SeasonRequest = SeasonRequest.model_validate(season_request)
     request = tv_service.get_season_request_by_id(
         season_request_id=updated_season_request.id
@@ -224,12 +252,21 @@ def update_request(
 
 
 @router.get(
+    "/seasons/{season_id}",
+    dependencies=[Depends(current_active_user)],
+    response_model=Season,
+)
+def get_season(season: season_dep) -> Season:
+    return season
+
+
+@router.get(
     "/seasons/{season_id}/files",
     dependencies=[Depends(current_active_user)],
     response_model=list[PublicSeasonFile],
 )
 def get_season_files(
-    season: season_dep, tv_service: torrent_service_dep
+    season: season_dep, tv_service: tv_service_dep
 ) -> list[PublicSeasonFile]:
     return tv_service.get_public_season_files_by_season_id(season_id=season.id)
 
@@ -247,7 +284,7 @@ def get_season_files(
     response_model=list[PublicIndexerQueryResult],
 )
 def get_torrents_for_a_season(
-    tv_service: torrent_service_dep,
+    tv_service: tv_service_dep,
     show_id: ShowId,
     season_number: int = 1,
     search_query_override: str = None,
@@ -267,7 +304,7 @@ def get_torrents_for_a_season(
     dependencies=[Depends(current_superuser)],
 )
 def download_a_torrent(
-    tv_service: torrent_service_dep,
+    tv_service: tv_service_dep,
     public_indexer_result_id: IndexerQueryResultId,
     show_id: ShowId,
     override_file_path_suffix: str = "",
@@ -287,10 +324,10 @@ def download_a_torrent(
 @router.get(
     "/search",
     dependencies=[Depends(current_active_user)],
-    response_model=list[MetaDataProviderShowSearchResult],
+    response_model=list[MetaDataProviderSearchResult],
 )
 def search_metadata_providers_for_a_show(
-    tv_service: torrent_service_dep, query: str, metadata_provider: str = "tmdb"
+    tv_service: tv_service_dep, query: str, metadata_provider: metadata_provider_dep
 ):
     return tv_service.search_for_show(query=query, metadata_provider=metadata_provider)
 
@@ -298,7 +335,9 @@ def search_metadata_providers_for_a_show(
 @router.get(
     "/recommended",
     dependencies=[Depends(current_active_user)],
-    response_model=list[MetaDataProviderShowSearchResult],
+    response_model=list[MetaDataProviderSearchResult],
 )
-def get_recommended_shows(tv_service: torrent_service_dep, metadata_provider: str = "tmdb"):
+def get_recommended_shows(
+    tv_service: tv_service_dep, metadata_provider: metadata_provider_dep
+):
     return tv_service.get_popular_shows(metadata_provider=metadata_provider)

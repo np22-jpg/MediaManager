@@ -1,6 +1,6 @@
 <script lang="ts">
-	import {getContext} from 'svelte';
-	import type {User} from '$lib/types';
+	import { getContext } from 'svelte';
+	import type { User } from '$lib/types';
 
 	const user: () => User = getContext('user');
 </script>

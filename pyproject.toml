@@ -29,4 +29,6 @@ dependencies = [
     "apscheduler>=3.11.0",
     "alembic>=1.16.1",
     "pytest>=8.4.0",
+    "pillow>=11.2.1",
+    "pillow-avif-plugin>=1.5.2",
 ]

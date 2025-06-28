@@ -17,10 +17,23 @@
   </p>
 </div>
 
-Media Manager aims to be a replacement for Sonarr/Radarr/Overseer/Jellyseer,
-it is a comprehensive solution for organizing your media library, including TV shows and movies.
-It provides a modern web interface and integrates with various services for metadata,
-torrents and authentication.
+
+MediaManager is modern software to manage your TV and movie library. It is designed to be a replacement for Sonarr,
+Radarr, Overseer, and Jellyseer.
+It supports TVDB and TMDB for metadata, supports OIDC and OAuth 2.0 for authentication and supports Prowlarr and
+Jackett.
+MediaManager is built first and foremost for deployment with Docker, making it easy to set up.
+
+It also provides an API to interact with the software programmatically, allowing for automation and integration with
+other services.
+
+## Quick Start
+
+```
+   wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yaml   
+   # Edit docker-compose.yaml to set the environment variables!
+   docker compose up -d
+```
 
 ### [View the docs for installation instructions and more](https://maxdorninger.github.io/MediaManager/configuration-overview.html#configuration-overview)
 
@@ -32,18 +45,22 @@ torrents and authentication.
 - [x] add tests
 - [x] add more logs/errors
 - [x] make API return proper error codes
-- [ ] support for movies
-- [ ] responsive ui
-- [ ] add check at startup if hardlinks work
-- [ ] support styling the login with OIDC button
-- [ ] add in-depth documentation on the architecure of the codebase
-- [ ] expand README with more information and a quickstart guide
-- [ ] make indexer module multithreaded
+- [x] optimize images for web in the backend
+- [x] responsive ui
+- [x] automatically update metadata of shows
+- [x] automatically download new seasons/episodes of shows
+- [x] add fallback to just copy files if hardlinks don't work
+- [x] add check at startup if hardlinks work
+- [x] create separate metadata relay service, so that api keys for TMDB and TVDB are not strictly needed
+- [x] support for movies
+- [x] expand README with more information and a quickstart guide
 - [ ] add notification system
-- [ ] _maybe_ rework the logo
-- [ ] optimize images for web in the backend and merging frontend with backend container
+- [ ] add in-depth documentation on the architecture of the codebase
+- [ ] make indexer module multithreaded
 - [ ] add support for deluge and transmission
-- [ ] automatically download new seasons/episodes of shows
+- [ ] improve reliability of scheduled tasks
+- [ ] _maybe_ rework the logo
+- [ ] _maybe_ add support for configuration via toml config file
 
 See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a full list of proposed features (and known issues).
 

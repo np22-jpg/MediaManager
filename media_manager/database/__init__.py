@@ -1,10 +1,8 @@
 import logging
-import pprint
 from contextvars import ContextVar
 from typing import Annotated, Any, Generator
 
 from fastapi import Depends
-from jsonschema.validators import extend
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
@@ -48,6 +46,7 @@ def get_session() -> Generator[Session, Any, None]:
     except Exception as e:
         db.rollback()
         log.critical(f"error occurred: {e}")
+        raise e
     finally:
         db.close()
 

@@ -1,12 +1,11 @@
-import {type ClassValue, clsx} from 'clsx';
-import {twMerge} from 'tailwind-merge';
-import {env} from '$env/dynamic/public';
-import {goto} from '$app/navigation';
-import {base} from '$app/paths';
-import {toast} from 'svelte-sonner';
-import {browser} from "$app/environment";
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { env } from '$env/dynamic/public';
+import { goto } from '$app/navigation';
+import { base } from '$app/paths';
+import { toast } from 'svelte-sonner';
 
-const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
+const apiUrl = env.PUBLIC_API_URL;
 
 export const qualityMap: { [key: number]: string } = {
 	1: '4K/UHD',
@@ -33,10 +32,11 @@ export function getTorrentQualityString(value: number): string {
 export function getTorrentStatusString(value: number): string {
 	return torrentStatusMap[value] || 'unknown';
 }
-export function getFullyQualifiedShowName(show: { name: string; year: number }): string {
-	let name = show.name;
-	if (show.year != null) {
-		name += ' (' + show.year + ')';
+
+export function getFullyQualifiedMediaName(media: { name: string; year: number }): string {
+	let name = media.name;
+	if (media.year != null) {
+		name += ' (' + media.year + ')';
 	}
 	return name;
 }

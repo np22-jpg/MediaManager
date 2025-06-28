@@ -49,8 +49,11 @@ class Show(BaseModel):
     overview: str
     year: int | None
 
+    ended: bool = False
     external_id: int
     metadata_provider: str
+
+    continuous_download: bool = False
 
     seasons: list[Season]
 
@@ -62,7 +65,9 @@ class SeasonRequestBase(BaseModel):
     @model_validator(mode="after")
     def ensure_wanted_quality_is_eq_or_gt_min_quality(self) -> "SeasonRequestBase":
         if self.min_quality.value < self.wanted_quality.value:
-            raise ValueError("Error text")
+            raise ValueError(
+                "wanted_quality must be equal to or lower than minimum_quality."
+            )
         return self
 
 
@@ -153,5 +158,8 @@ class PublicShow(BaseModel):
 
     external_id: int
     metadata_provider: str
+
+    ended: bool = False
+    continuous_download: bool = False
 
     seasons: list[PublicSeason]

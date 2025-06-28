@@ -1,0 +1,21 @@
+name: Ruff
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'metadata_relay/**'
+      - '.github/workflows/python-lint_metadata_relay.yaml'
+  pull_request:
+    paths:
+      - 'metadata_relay/**'
+      - '.github/workflows/python-lint_metadata_relay.yaml'
+  workflow_dispatch:
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+        with:
+          src: "./metadata_relay"

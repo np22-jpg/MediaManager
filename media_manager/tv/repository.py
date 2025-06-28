@@ -15,11 +15,13 @@ from media_manager.tv.schemas import (
     SeasonId,
     Show as ShowSchema,
     ShowId,
+    Episode as EpisodeSchema,  # Added EpisodeSchema import
     SeasonRequest as SeasonRequestSchema,
     SeasonFile as SeasonFileSchema,
     SeasonNumber,
     SeasonRequestId,
     RichSeasonRequest as RichSeasonRequestSchema,
+    EpisodeId,
 )
 
 
@@ -145,6 +147,7 @@ class TvRepository:
                 name=show.name,
                 overview=show.overview,
                 year=show.year,
+                ended=show.ended,
                 seasons=[
                     Season(
                         id=season.id,
@@ -579,3 +582,233 @@ class TvRepository:
         except SQLAlchemyError as e:
             log.error(f"Database error retrieving show by season_id {season_id}: {e}")
             raise
+
+    def add_season_to_show(
+        self, show_id: ShowId, season_data: SeasonSchema
+    ) -> SeasonSchema:
+        """
+        Adds a new season and its episodes to a show.
+        If the season number already exists for the show, it returns the existing season.
+
+        :param show_id: The ID of the show to add the season to.
+        :param season_data: The SeasonSchema object for the new season.
+        :return: The added or existing SeasonSchema object.
+        :raises NotFoundError: If the show is not found.
+        :raises SQLAlchemyError: If a database error occurs.
+        """
+        log.debug(f"Attempting to add season {season_data.number} to show {show_id}")
+        db_show = self.db.get(Show, show_id)
+        if not db_show:
+            log.warning(f"Show with id {show_id} not found when trying to add season.")
+            raise NotFoundError(f"Show with id {show_id} not found.")
+
+        stmt = (
+            select(Season)
+            .where(Season.show_id == show_id)
+            .where(Season.number == season_data.number)
+        )
+        existing_db_season = self.db.execute(stmt).scalar_one_or_none()
+        if existing_db_season:
+            log.info(
+                f"Season {season_data.number} already exists for show {show_id} (ID: {existing_db_season.id}). Skipping add."
+            )
+            return SeasonSchema.model_validate(existing_db_season)
+
+        db_season = Season(
+            id=season_data.id,
+            show_id=show_id,
+            number=season_data.number,
+            external_id=season_data.external_id,
+            name=season_data.name,
+            overview=season_data.overview,
+            episodes=[
+                Episode(
+                    id=ep_schema.id,
+                    # season_id will be implicitly set by SQLAlchemy relationship
+                    number=ep_schema.number,
+                    external_id=ep_schema.external_id,
+                    title=ep_schema.title,
+                )
+                for ep_schema in season_data.episodes
+            ],
+        )
+
+        self.db.add(db_season)
+        self.db.commit()
+        self.db.refresh(db_season)
+        log.info(
+            f"Successfully added season {db_season.number} (ID: {db_season.id}) to show {show_id}."
+        )
+        return SeasonSchema.model_validate(db_season)
+
+    def add_episode_to_season(
+        self, season_id: SeasonId, episode_data: EpisodeSchema
+    ) -> EpisodeSchema:
+        """
+        Adds a new episode to a season.
+        If the episode number already exists for the season, it returns the existing episode.
+
+        :param season_id: The ID of the season to add the episode to.
+        :param episode_data: The EpisodeSchema object for the new episode.
+        :return: The added or existing EpisodeSchema object.
+        :raises NotFoundError: If the season is not found.
+        :raises SQLAlchemyError: If a database error occurs.
+        """
+        log.debug(
+            f"Attempting to add episode {episode_data.number} to season {season_id}"
+        )
+        db_season = self.db.get(Season, season_id)
+        if not db_season:
+            log.warning(
+                f"Season with id {season_id} not found when trying to add episode."
+            )
+            raise NotFoundError(f"Season with id {season_id} not found.")
+
+        stmt = (
+            select(Episode)
+            .where(Episode.season_id == season_id)
+            .where(Episode.number == episode_data.number)
+        )
+        existing_db_episode = self.db.execute(stmt).scalar_one_or_none()
+        if existing_db_episode:
+            log.info(
+                f"Episode {episode_data.number} already exists for season {season_id} (ID: {existing_db_episode.id}). Skipping add."
+            )
+            return EpisodeSchema.model_validate(existing_db_episode)
+
+        db_episode = Episode(
+            id=episode_data.id,
+            season_id=season_id,
+            number=episode_data.number,
+            external_id=episode_data.external_id,
+            title=episode_data.title,
+        )
+
+        self.db.add(db_episode)
+        self.db.commit()
+        self.db.refresh(db_episode)
+        log.info(
+            f"Successfully added episode {db_episode.number} (ID: {db_episode.id}) to season {season_id}."
+        )
+        return EpisodeSchema.model_validate(db_episode)
+
+    def update_show_attributes(
+        self,
+        show_id: ShowId,
+        name: str | None = None,
+        overview: str | None = None,
+        year: int | None = None,
+        ended: bool | None = None,
+        continuous_download: bool | None = None,
+    ) -> ShowSchema:  # Removed poster_url from params
+        """
+        Update attributes of an existing show.
+
+        :param show_id: The ID of the show to update.
+        :param name: The new name for the show.
+        :param overview: The new overview for the show.
+        :param year: The new year for the show.
+        :param ended: The new ended status for the show.
+        :return: The updated ShowSchema object.
+        """
+        log.debug(f"Attempting to update attributes for show ID: {show_id}")
+        db_show = self.db.get(Show, show_id)
+        if not db_show:
+            log.warning(f"Show with id {show_id} not found for attribute update.")
+            raise NotFoundError(f"Show with id {show_id} not found.")
+
+        updated = False
+        if name is not None and db_show.name != name:
+            db_show.name = name
+            updated = True
+        if overview is not None and db_show.overview != overview:
+            db_show.overview = overview
+            updated = True
+        if year is not None and db_show.year != year:
+            db_show.year = year
+            updated = True
+        if ended is not None and db_show.ended != ended:
+            db_show.ended = ended
+            updated = True
+        if (
+            continuous_download is not None
+            and db_show.continuous_download != continuous_download
+        ):
+            db_show.continuous_download = continuous_download
+            updated = True
+
+        if updated:
+            self.db.commit()
+            self.db.refresh(db_show)
+            log.info(f"Successfully updated attributes for show ID: {show_id}")
+        else:
+            log.info(f"No attribute changes needed for show ID: {show_id}")
+        return ShowSchema.model_validate(db_show)
+
+    def update_season_attributes(
+        self, season_id: SeasonId, name: str | None = None, overview: str | None = None
+    ) -> SeasonSchema:
+        """
+        Update attributes of an existing season.
+
+        :param season_id: The ID of the season to update.
+        :param name: The new name for the season.
+        :param overview: The new overview for the season.
+        :param external_id: The new external ID for the season.
+        :return: The updated SeasonSchema object.
+        :raises NotFoundError: If the season is not found.
+        :raises SQLAlchemyError: If a database error occurs.
+        """
+        log.debug(f"Attempting to update attributes for season ID: {season_id}")
+        db_season = self.db.get(Season, season_id)
+        if not db_season:
+            log.warning(f"Season with id {season_id} not found for attribute update.")
+            raise NotFoundError(f"Season with id {season_id} not found.")
+
+        updated = False
+        if name is not None and db_season.name != name:
+            db_season.name = name
+            updated = True
+        if overview is not None and db_season.overview != overview:
+            db_season.overview = overview
+            updated = True
+
+        if updated:
+            self.db.commit()
+            self.db.refresh(db_season)
+            log.info(f"Successfully updated attributes for season ID: {season_id}")
+        else:
+            log.info(f"No attribute changes needed for season ID: {season_id}")
+        return SeasonSchema.model_validate(db_season)
+
+    def update_episode_attributes(
+        self, episode_id: EpisodeId, title: str | None = None
+    ) -> EpisodeSchema:
+        """
+        Update attributes of an existing episode.
+
+        :param episode_id: The ID of the episode to update.
+        :param title: The new title for the episode.
+        :param external_id: The new external ID for the episode.
+        :return: The updated EpisodeSchema object.
+        :raises NotFoundError: If the episode is not found.
+        :raises SQLAlchemyError: If a database error occurs.
+        """
+        log.debug(f"Attempting to update attributes for episode ID: {episode_id}")
+        db_episode = self.db.get(Episode, episode_id)
+        if not db_episode:
+            log.warning(f"Episode with id {episode_id} not found for attribute update.")
+            raise NotFoundError(f"Episode with id {episode_id} not found.")
+
+        updated = False
+        if title is not None and db_episode.title != title:
+            db_episode.title = title
+            updated = True
+
+        if updated:
+            self.db.commit()
+            self.db.refresh(db_episode)
+            log.info(f"Successfully updated attributes for episode ID: {episode_id}")
+        else:
+            log.info(f"No attribute changes needed for episode ID: {episode_id}")
+        return EpisodeSchema.model_validate(db_episode)

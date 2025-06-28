@@ -1,13 +1,12 @@
 <script lang="ts">
-	import {Button} from '$lib/components/ui/button/index.js';
-	import {env} from '$env/dynamic/public';
-	import {toast} from 'svelte-sonner';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { env } from '$env/dynamic/public';
+	import { toast } from 'svelte-sonner';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import {Label} from '$lib/components/ui/label/index.js';
-	import {Input} from '$lib/components/ui/input/index.js';
-	import {browser} from "$app/environment";
+	import { Label } from '$lib/components/ui/label/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
 
-	const apiUrl = browser ? env.PUBLIC_API_URL : env.PUBLIC_SSR_API_URL;
+	const apiUrl = env.PUBLIC_API_URL;
 	let newPassword: string = $state('');
 	let newEmail: string = $state('');
 	let dialogOpen = $state(false);
@@ -21,8 +20,8 @@
 				},
 				credentials: 'include',
 				body: JSON.stringify({
-					...(newPassword !== '' && {password: newPassword}),
-					...(newEmail !== '' && {password: newEmail})
+					...(newPassword !== '' && { password: newPassword }),
+					...(newEmail !== '' && { password: newEmail })
 				})
 			});
 
@@ -37,7 +36,7 @@
 		} catch (error) {
 			console.error('Error updating user:', error);
 			toast.error(
-					'Error updating user: ' + (error instanceof Error ? error.message : String(error))
+				'Error updating user: ' + (error instanceof Error ? error.message : String(error))
 			);
 		} finally {
 			newPassword = '';
@@ -64,22 +63,22 @@
 			<div>
 				<Label class="mb-1 block text-sm font-medium" for="email">Email</Label>
 				<Input
-						bind:value={newEmail}
-						class="w-full"
-						id="email"
-						placeholder="Keep empty to not change the email"
-						type="email"
+					bind:value={newEmail}
+					class="w-full"
+					id="email"
+					placeholder="Keep empty to not change the email"
+					type="email"
 				/>
 			</div>
 			<!-- Password -->
 			<div>
 				<Label class="mb-1 block text-sm font-medium" for="password">Password</Label>
 				<Input
-						bind:value={newPassword}
-						class="w-full"
-						id="password"
-						placeholder="Keep empty to not change the password"
-						type="password"
+					bind:value={newPassword}
+					class="w-full"
+					id="password"
+					placeholder="Keep empty to not change the password"
+					type="password"
 				/>
 			</div>
 		</div>
