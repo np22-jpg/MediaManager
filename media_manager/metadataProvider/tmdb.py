@@ -1,5 +1,6 @@
 import logging
 
+import requests
 import tmdbsimple
 from pydantic_settings import BaseSettings
 from tmdbsimple import TV, TV_Seasons
@@ -15,6 +16,7 @@ from media_manager.movies.schemas import Movie
 
 
 class TmdbConfig(BaseSettings):
+    TMDB_RELAY_URL: str = "https://metadata-relay.maxid.me"
     TMDB_API_KEY: str | None = None
 
 
@@ -31,6 +33,15 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         if config.TMDB_API_KEY is None:
             raise InvalidConfigError("TMDB_API_KEY is not set")
         tmdbsimple.API_KEY = config.TMDB_API_KEY
+        self.url = config.TMDB_RELAY_URL
+
+    def __get_tv_metadata(self, id: int) -> dict:
+        """
+        Helper function to get TV metadata from TMDB.
+        :param id: The external ID of the TV show.
+        :return: A dictionary containing the TV show metadata.
+        """
+        return requests.get(url=f"{self.url}/tv/shows/{id}").json()
 
     def download_show_poster_image(self, show: Show) -> bool:
         show_metadata = TV(show.external_id).info()

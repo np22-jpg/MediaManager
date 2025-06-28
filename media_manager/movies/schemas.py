@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, ConfigDict, model_validator
 
 from media_manager.auth.schemas import UserRead
 from media_manager.torrent.models import Quality
-from media_manager.torrent.schemas import TorrentId, Torrent
+from media_manager.torrent.schemas import TorrentId, Torrent, TorrentStatus
 
 MovieId = typing.NewType("MovieId", UUID)
 MovieRequestId = typing.NewType("MovieRequestId", UUID)
@@ -74,9 +74,19 @@ class RichMovieRequest(MovieRequest):
     movie: Movie
 
 
+class MovieTorrent(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    torrent_id: TorrentId
+    torrent_title: str
+    status: TorrentStatus
+    quality: Quality
+    imported: bool
+    file_path_suffix: str
+
 class RichMovieTorrent(BaseModel):
     movie_id: MovieId
     name: str
     year: int | None
     metadata_provider: str
-    torrents: list[Torrent]
+    torrents: list[MovieTorrent]

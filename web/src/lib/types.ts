@@ -192,6 +192,14 @@ export interface RichShowTorrent {
 	torrents: RichSeasonTorrent[];
 }
 
+export interface RichMovieTorrent {
+    show_id: string;
+    name: string;
+    year: number | null;
+    metadata_provider: string;
+    torrents: Torrent[];
+}
+
 interface SeasonRequestBase {
 	min_quality: Quality;
 	wanted_quality: Quality;

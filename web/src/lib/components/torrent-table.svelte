@@ -29,7 +29,7 @@
             <Table.Row>
                 <Table.Cell class="font-medium">
                     <a href={'/dashboard/torrents/' + torrent.torrent_id}>
-                        {torrent.torrent_title}
+                        {isShow ? torrent.torrent_title : torrent.title}
                     </a>
                 </Table.Cell>
                 {#if isShow}

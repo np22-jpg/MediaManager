@@ -13,6 +13,7 @@
 	import AddMediaCard from '$lib/components/add-media-card.svelte';
 	import {toast} from 'svelte-sonner';
 	import {onMount} from "svelte";
+    import * as Menubar from "$lib/components/ui/menubar/index.js";
 
 	const apiUrl = env.PUBLIC_API_URL;
 	let searchTerm: string = $state('');
@@ -86,7 +87,7 @@
 <div class="flex w-full max-w-[90vw] flex-1 flex-col items-center gap-4 p-4 pt-0">
 	<div class="grid w-full max-w-sm items-center gap-12">
 		<h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-			Add a show
+            Add a Show
 		</h1>
 		<section>
 			<Label for="search-box">Show Name</Label>
@@ -94,7 +95,7 @@
 			<p class="text-sm text-muted-foreground">Search for a Show to add.</p>
 		</section>
 		<section>
-			<Collapsible.Root class="w-[350px] space-y-2">
+            <Collapsible.Root class="w-full space-y-1">
 				<Collapsible.Trigger>
 					<div class="flex items-center justify-between space-x-4 px-4">
 						<h4 class="text-sm font-semibold">Advanced Settings</h4>
@@ -104,7 +105,7 @@
 						</Button>
 					</div>
 				</Collapsible.Trigger>
-				<Collapsible.Content class="space-y-2">
+                <Collapsible.Content class="space-y-1">
 					<Label for="metadata-provider-selector">Choose which Metadata Provider to query.</Label>
 					<RadioGroup.Root bind:value={metadataProvider} id="metadata-provider-selector">
 						<div class="flex items-center space-x-2">
