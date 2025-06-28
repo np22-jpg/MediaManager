@@ -1,9 +1,9 @@
-import {env} from '$env/dynamic/public';
-import type {PageLoad} from './$types';
+import { env } from '$env/dynamic/public';
+import type { PageLoad } from './$types';
 
 const apiUrl = env.PUBLIC_API_URL;
 
-export const load: PageLoad = async ({fetch, params}) => {
+export const load: PageLoad = async ({ fetch, params }) => {
 	const url = `${apiUrl}/tv/seasons/${params.SeasonId}/files`;
 	const url2 = `${apiUrl}/tv/seasons/${params.SeasonId}`;
 

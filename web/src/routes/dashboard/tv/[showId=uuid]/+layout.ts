@@ -1,8 +1,8 @@
-import {env} from '$env/dynamic/public';
-import type {LayoutLoad} from './$types';
+import { env } from '$env/dynamic/public';
+import type { LayoutLoad } from './$types';
 
 const apiUrl = env.PUBLIC_API_URL;
-export const load: LayoutLoad = async ({params, fetch}) => {
+export const load: LayoutLoad = async ({ params, fetch }) => {
 	const showId = params.showId;
 
 	if (!showId) {

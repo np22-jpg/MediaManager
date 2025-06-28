@@ -1,13 +1,13 @@
 <script lang="ts">
-	import {page} from '$app/state';
-	import {Separator} from '$lib/components/ui/separator/index.js';
+	import { page } from '$app/state';
+	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import {getContext} from 'svelte';
-	import type {PublicSeasonFile, Season, Show} from '$lib/types';
+	import { getContext } from 'svelte';
+	import type { PublicSeasonFile, Season, Show } from '$lib/types';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
-	import {getFullyQualifiedMediaName, getTorrentQualityString} from '$lib/utils';
+	import { getFullyQualifiedMediaName, getTorrentQualityString } from '$lib/utils';
 	import MediaPicture from '$lib/components/media-picture.svelte';
 
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
@@ -19,29 +19,29 @@
 
 <header class="flex h-16 shrink-0 items-center gap-2">
 	<div class="flex items-center gap-2 px-4">
-		<Sidebar.Trigger class="-ml-1"/>
-		<Separator class="mr-2 h-4" orientation="vertical"/>
+		<Sidebar.Trigger class="-ml-1" />
+		<Separator class="mr-2 h-4" orientation="vertical" />
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
 					<Breadcrumb.Link href="/dashboard">MediaManager</Breadcrumb.Link>
 				</Breadcrumb.Item>
-				<Breadcrumb.Separator class="hidden md:block"/>
+				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
 					<Breadcrumb.Link href="/dashboard">Home</Breadcrumb.Link>
 				</Breadcrumb.Item>
-				<Breadcrumb.Separator class="hidden md:block"/>
+				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
 					<Breadcrumb.Link href="/dashboard/tv">Shows</Breadcrumb.Link>
 				</Breadcrumb.Item>
-				<Breadcrumb.Separator class="hidden md:block"/>
+				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
 					<Breadcrumb.Link href="/dashboard/tv/{show().id}">
 						{show().name}
 						{show().year == null ? '' : '(' + show().year + ')'}
 					</Breadcrumb.Link>
 				</Breadcrumb.Item>
-				<Breadcrumb.Separator class="hidden md:block"/>
+				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
 					<Breadcrumb.Page>Season {season.number}</Breadcrumb.Page>
 				</Breadcrumb.Item>
@@ -55,7 +55,7 @@
 <div class="flex flex-1 flex-col gap-4 p-4">
 	<div class="flex flex-col gap-4 md:flex-row md:items-stretch">
 		<div class="w-full overflow-hidden rounded-xl bg-muted/50 md:w-1/3 md:max-w-sm">
-			<MediaPicture media={show()}/>
+			<MediaPicture media={show()} />
 		</div>
 		<div class="w-full flex-auto rounded-xl bg-muted/50 p-4 md:w-1/4">
 			<p class="leading-7 [&:not(:first-child)]:mt-6">
@@ -82,7 +82,7 @@
 								{file.file_path_suffix}
 							</Table.Cell>
 							<Table.Cell class="w-[10px] font-medium">
-								<CheckmarkX state={file.downloaded}/>
+								<CheckmarkX state={file.downloaded} />
 							</Table.Cell>
 						</Table.Row>
 					{:else}

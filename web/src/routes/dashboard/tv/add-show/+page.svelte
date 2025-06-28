@@ -1,18 +1,18 @@
 <script lang="ts">
-	import {env} from '$env/dynamic/public';
-	import {Separator} from '$lib/components/ui/separator/index.js';
+	import { env } from '$env/dynamic/public';
+	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import {Input} from '$lib/components/ui/input';
-	import {Label} from '$lib/components/ui/label';
-	import {Button} from '$lib/components/ui/button';
-	import {ChevronDown} from 'lucide-svelte';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import { Button } from '$lib/components/ui/button';
+	import { ChevronDown } from 'lucide-svelte';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
-	import type {MetaDataProviderSearchResult} from '$lib/types.js';
+	import type { MetaDataProviderSearchResult } from '$lib/types.js';
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import AddMediaCard from '$lib/components/add-media-card.svelte';
-	import {toast} from 'svelte-sonner';
-	import {onMount} from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import { onMount } from 'svelte';
 
 	const apiUrl = env.PUBLIC_API_URL;
 	let searchTerm: string = $state('');
@@ -48,7 +48,7 @@
 			}
 		} catch (error) {
 			const errorMessage =
-					error instanceof Error ? error.message : 'An unknown error occurred during search.';
+				error instanceof Error ? error.message : 'An unknown error occurred during search.';
 			console.error('Search error:', error);
 			toast.error(errorMessage);
 			results = null; // Clear previous results on error
@@ -58,22 +58,22 @@
 
 <header class="flex h-16 shrink-0 items-center gap-2">
 	<div class="flex items-center gap-2 px-4">
-		<Sidebar.Trigger class="-ml-1"/>
-		<Separator class="mr-2 h-4" orientation="vertical"/>
+		<Sidebar.Trigger class="-ml-1" />
+		<Separator class="mr-2 h-4" orientation="vertical" />
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
 					<Breadcrumb.Link href="/dashboard">MediaManager</Breadcrumb.Link>
 				</Breadcrumb.Item>
-				<Breadcrumb.Separator class="hidden md:block"/>
+				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
 					<Breadcrumb.Link href="/dashboard">Home</Breadcrumb.Link>
 				</Breadcrumb.Item>
-				<Breadcrumb.Separator class="hidden md:block"/>
+				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
 					<Breadcrumb.Link href="/dashboard/tv">Shows</Breadcrumb.Link>
 				</Breadcrumb.Item>
-				<Breadcrumb.Separator class="hidden md:block"/>
+				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
 					<Breadcrumb.Page>Add a Show</Breadcrumb.Page>
 				</Breadcrumb.Item>
@@ -89,7 +89,7 @@
 		</h1>
 		<section>
 			<Label for="search-box">Show Name</Label>
-			<Input bind:value={searchTerm} id="search-box" placeholder="Show Name" type="text"/>
+			<Input bind:value={searchTerm} id="search-box" placeholder="Show Name" type="text" />
 			<p class="text-sm text-muted-foreground">Search for a Show to add.</p>
 		</section>
 		<section>
@@ -98,7 +98,7 @@
 					<div class="flex items-center justify-between space-x-4 px-4">
 						<h4 class="text-sm font-semibold">Advanced Settings</h4>
 						<Button class="w-9 p-0" size="sm" variant="ghost">
-							<ChevronDown/>
+							<ChevronDown />
 							<span class="sr-only">Toggle</span>
 						</Button>
 					</div>
@@ -107,11 +107,11 @@
 					<Label for="metadata-provider-selector">Choose which Metadata Provider to query.</Label>
 					<RadioGroup.Root bind:value={metadataProvider} id="metadata-provider-selector">
 						<div class="flex items-center space-x-2">
-							<RadioGroup.Item id="option-one" value="tmdb"/>
+							<RadioGroup.Item id="option-one" value="tmdb" />
 							<Label for="option-one">TMDB (Recommended)</Label>
 						</div>
 						<div class="flex items-center space-x-2">
-							<RadioGroup.Item id="option-two" value="tvdb"/>
+							<RadioGroup.Item id="option-two" value="tvdb" />
 							<Label for="option-two">TVDB</Label>
 						</div>
 					</RadioGroup.Root>
@@ -123,18 +123,18 @@
 		</section>
 	</div>
 
-	<Separator class="my-8"/>
+	<Separator class="my-8" />
 
 	{#if results != null}
 		{#if results.length === 0}
 			<h3 class="mx-auto">No Shows found.</h3>
 		{:else}
 			<div
-					class="grid w-full auto-rows-min gap-4 sm:grid-cols-1
+				class="grid w-full auto-rows-min gap-4 sm:grid-cols-1
              md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
 			>
 				{#each results as result}
-					<AddMediaCard {result}/>
+					<AddMediaCard {result} />
 				{/each}
 			</div>
 		{/if}

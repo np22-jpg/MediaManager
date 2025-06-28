@@ -1,9 +1,9 @@
-import {type ClassValue, clsx} from 'clsx';
-import {twMerge} from 'tailwind-merge';
-import {env} from '$env/dynamic/public';
-import {goto} from '$app/navigation';
-import {base} from '$app/paths';
-import {toast} from 'svelte-sonner';
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { env } from '$env/dynamic/public';
+import { goto } from '$app/navigation';
+import { base } from '$app/paths';
+import { toast } from 'svelte-sonner';
 
 const apiUrl = env.PUBLIC_API_URL;
 

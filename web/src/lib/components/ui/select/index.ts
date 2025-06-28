@@ -1,4 +1,4 @@
-import {Select as SelectPrimitive} from 'bits-ui';
+import { Select as SelectPrimitive } from 'bits-ui';
 
 import GroupHeading from './select-group-heading.svelte';
 import Item from './select-item.svelte';
@@ -12,23 +12,23 @@ const Root = SelectPrimitive.Root;
 const Group = SelectPrimitive.Group;
 
 export {
-    Root,
-    Item,
-    Group,
-    GroupHeading,
-    Content,
-    Trigger,
-    Separator,
-    ScrollDownButton,
-    ScrollUpButton,
-    //
-    Root as Select,
-    Item as SelectItem,
-    Group as SelectGroup,
-    GroupHeading as SelectGroupHeading,
-    Content as SelectContent,
-    Trigger as SelectTrigger,
-    Separator as SelectSeparator,
-    ScrollDownButton as SelectScrollDownButton,
-    ScrollUpButton as SelectScrollUpButton
+	Root,
+	Item,
+	Group,
+	GroupHeading,
+	Content,
+	Trigger,
+	Separator,
+	ScrollDownButton,
+	ScrollUpButton,
+	//
+	Root as Select,
+	Item as SelectItem,
+	Group as SelectGroup,
+	GroupHeading as SelectGroupHeading,
+	Content as SelectContent,
+	Trigger as SelectTrigger,
+	Separator as SelectSeparator,
+	ScrollDownButton as SelectScrollDownButton,
+	ScrollUpButton as SelectScrollUpButton
 };

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type {WithElementRef} from 'bits-ui';
-	import type {HTMLAttributes} from 'svelte/elements';
-	import {cn} from '$lib/utils.js';
+	import type { WithElementRef } from 'bits-ui';
+	import type { HTMLAttributes } from 'svelte/elements';
+	import { cn } from '$lib/utils.js';
 
 	let {
 		ref = $bindable(null),
@@ -12,12 +12,12 @@
 </script>
 
 <span
-		{...restProps}
-		aria-current="page"
-		aria-disabled="true"
-		bind:this={ref}
-		class={cn('font-normal text-foreground', className)}
-		role="link"
+	{...restProps}
+	aria-current="page"
+	aria-disabled="true"
+	bind:this={ref}
+	class={cn('font-normal text-foreground', className)}
+	role="link"
 >
 	{@render children?.()}
 </span>
