@@ -5,7 +5,7 @@
     import {Label} from '$lib/components/ui/label';
     import * as Select from '$lib/components/ui/select/index.js';
     import LoaderCircle from '@lucide/svelte/icons/loader-circle';
-    import type {CreateSeasonRequest, PublicMovie, PublicShow, Quality} from '$lib/types.js';
+    import type {PublicMovie, Quality} from '$lib/types.js';
     import {getFullyQualifiedMediaName, getTorrentQualityString} from '$lib/utils.js';
     import {toast} from 'svelte-sonner';
 
@@ -21,11 +21,7 @@
     let qualityOptions = $derived(
         qualityValues.map((q) => ({value: q, label: getTorrentQualityString(q)}))
     );
-    let isFormInvalid = $derived(
-        !minQuality ||
-        !wantedQuality ||
-        wantedQuality > minQuality
-    );
+    let isFormInvalid = $derived(!minQuality || !wantedQuality || wantedQuality > minQuality);
 
     async function handleRequestMovie() {
         isSubmittingRequest = true;
@@ -78,9 +74,7 @@
     <Dialog.Content class="max-h-[90vh] w-fit min-w-[clamp(300px,50vw,600px)] overflow-y-auto">
         <Dialog.Header>
             <Dialog.Title>Request {getFullyQualifiedMediaName(movie)}</Dialog.Title>
-            <Dialog.Description>
-                Select desired qualities to submit a request.
-            </Dialog.Description>
+            <Dialog.Description>Select desired qualities to submit a request.</Dialog.Description>
         </Dialog.Header>
         <div class="grid gap-4 py-4">
             <!-- Min Quality Select -->

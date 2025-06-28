@@ -6,13 +6,13 @@
     import {toast} from 'svelte-sonner';
 
     import type {PublicIndexerQueryResult} from '$lib/types.js';
-	import {convertTorrentSeasonRangeToIntegerRange, getFullyQualifiedMediaName} from '$lib/utils';
+    import {convertTorrentSeasonRangeToIntegerRange, getFullyQualifiedMediaName} from '$lib/utils';
     import {LoaderCircle} from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import {Badge} from "$lib/components/ui/badge";
+    import {Badge} from '$lib/components/ui/badge';
 
     const apiUrl = env.PUBLIC_API_URL;
     let {show} = $props();

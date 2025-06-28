@@ -12,5 +12,5 @@ export const load: PageLoad = async ({fetch}) => {
 		credentials: 'include'
 	});
 
-	return {oauthProvider: await response.json()};
+    return {oauthProvider: await response.json()};
 };

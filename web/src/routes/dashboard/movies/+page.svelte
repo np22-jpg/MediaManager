@@ -1,19 +1,17 @@
 <script lang="ts">
-    import {page} from '$app/state';
     import * as Card from '$lib/components/ui/card/index.js';
     import {Separator} from '$lib/components/ui/separator/index.js';
     import * as Sidebar from '$lib/components/ui/sidebar/index.js';
     import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
     import {getFullyQualifiedMediaName} from '$lib/utils';
-    import LoadingBar from '$lib/components/loading-bar.svelte';
     import MediaPicture from '$lib/components/media-picture.svelte';
-    import {onMount} from "svelte";
-    import {toast} from "svelte-sonner";
+    import {onMount} from 'svelte';
+    import {toast} from 'svelte-sonner';
     import {env} from '$env/dynamic/public';
-    import {Skeleton} from "$lib/components/ui/skeleton";
+    import {Skeleton} from '$lib/components/ui/skeleton';
 
     const apiUrl = env.PUBLIC_API_URL;
-    let movies
+    let movies;
     let loading = false;
     onMount(async () => {
         loading = true;
@@ -25,13 +23,13 @@
             credentials: 'include'
         });
         if (!response.ok) {
-            toast.error(`Failed to fetch movies`)
+            toast.error(`Failed to fetch movies`);
             throw new Error(`Failed to fetch movies: ${response.status} ${response.statusText}`);
         }
         movies = await response.json();
-        console.log("got movies: ", movies);
+        console.log('got movies: ', movies);
         loading = false;
-    })
+    });
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -56,7 +54,6 @@
     </div>
 </header>
 {#snippet loadingbar()}
-
     <Skeleton class="h-[50vh] w-full "/>
     <Skeleton class="h-[50vh] w-full "/>
     <Skeleton class="h-[50vh] w-full "/>
@@ -68,12 +65,9 @@
     <Skeleton class="h-[50vh] w-full "/>
     <Skeleton class="h-[50vh] w-full "/>
     <Skeleton class="h-[50vh] w-full "/>
-
 {/snippet}
 <div class="flex w-full flex-1 flex-col gap-4 p-4 pt-0">
-    <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
-        Movies
-    </h1>
+    <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">Movies</h1>
     <div
             class="grid w-full auto-rows-min gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
     >

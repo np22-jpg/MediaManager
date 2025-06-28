@@ -4,11 +4,10 @@
     import {Input} from '$lib/components/ui/input';
     import {Label} from '$lib/components/ui/label';
     import {toast} from 'svelte-sonner';
-    import {Badge} from "$lib/components/ui/badge/index.js";
-
+    import {Badge} from '$lib/components/ui/badge/index.js';
 
     import type {PublicIndexerQueryResult} from '$lib/types.js';
-    import {convertTorrentSeasonRangeToIntegerRange, getFullyQualifiedMediaName} from '$lib/utils';
+    import {getFullyQualifiedMediaName} from '$lib/utils';
     import {LoaderCircle} from 'lucide-svelte';
     import * as Dialog from '$lib/components/ui/dialog/index.js';
     import * as Tabs from '$lib/components/ui/tabs/index.js';
@@ -60,9 +59,7 @@
         }
     }
 
-    async function getTorrents(
-        override: boolean = false
-    ): Promise<PublicIndexerQueryResult[]> {
+    async function getTorrents(override: boolean = false): Promise<PublicIndexerQueryResult[]> {
         isLoadingTorrents = true;
         torrentsError = null;
         torrents = [];
@@ -157,8 +154,8 @@
                         </Select.Content>
                     </Select.Root>
                     <p class="text-sm text-muted-foreground">
-                        This is necessary to differentiate between versions of the same movie, for
-                        example a 1080p and a 4K version.
+                        This is necessary to differentiate between versions of the same movie, for example a
+                        1080p and a 4K version.
                     </p>
                     <Label for="file-suffix-display"
                     >The files will be saved in the following directory:</Label
@@ -192,7 +189,8 @@
                         </Button>
                     </div>
                     <p class="text-sm text-muted-foreground">
-                        The custom query will override the default search string like "A Minecraft Movie (2025)".
+                        The custom query will override the default search string like "A Minecraft Movie
+                        (2025)".
                     </p>
                     <Label for="file-suffix">Filepath suffix</Label>
                     <Input
@@ -203,8 +201,8 @@
                             type="text"
                     />
                     <p class="text-sm text-muted-foreground">
-                        This is necessary to differentiate between versions of the same movie, for
-                        example a 1080p and a 4K version.
+                        This is necessary to differentiate between versions of the same movie, for example a
+                        1080p and a 4K version.
                     </p>
 
                     <Label for="file-suffix-display"

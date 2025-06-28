@@ -12,14 +12,13 @@
     import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
     import AddMediaCard from '$lib/components/add-media-card.svelte';
     import {toast} from 'svelte-sonner';
-    import {onMount} from "svelte";
-    import * as Menubar from "$lib/components/ui/menubar/index.js";
+    import {onMount} from 'svelte';
 
     const apiUrl = env.PUBLIC_API_URL;
     let searchTerm: string = $state('');
     let metadataProvider: string = $state('tmdb');
     let results: MetaDataProviderShowSearchResult[] | null = $state(null);
-    onMount(search)
+    onMount(search);
 
     async function search() {
         let url = new URL(apiUrl + '/movies/recommended');
@@ -28,7 +27,6 @@
             url.searchParams.append('query', searchTerm);
             url.searchParams.append('metadata_provider', metadataProvider);
             toast.info(`Searching for "${searchTerm}" using ${metadataProvider.toUpperCase()}...`);
-
         }
 
         try {
@@ -42,7 +40,7 @@
             }
             results = await response.json();
             if (searchTerm.length === 0) {
-                return
+                return;
             }
             if (results && results.length > 0) {
                 toast.success(`Found ${results.length} result(s) for "${searchTerm}".`);
@@ -137,7 +135,7 @@
              md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
             >
                 {#each results as result}
-                    <AddMediaCard result={result} isShow={false}/>
+                    <AddMediaCard {result} isShow={false}/>
                 {/each}
             </div>
         {/if}

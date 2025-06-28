@@ -3,15 +3,11 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import RecommendedMediaCarousel from '$lib/components/recommended-media-carousel.svelte';
-	import LoadingBar from '$lib/components/loading-bar.svelte';
     import {base} from '$app/paths';
-    import {page} from '$app/state';
-    import type {MetaDataProviderShowSearchResult} from '$lib/types';
-	import {onMount} from 'svelte';
-	import {env} from "$env/dynamic/public";
-	import {Skeleton} from "$lib/components/ui/skeleton/index.js";
+    import {onMount} from 'svelte';
+    import {env} from '$env/dynamic/public';
 
-	const apiUrl = env.PUBLIC_API_URL;
+    const apiUrl = env.PUBLIC_API_URL;
 
 	let recommendedShows: any[] = [];
 	let showsLoading = true;
@@ -23,29 +19,25 @@
 		const showsRes = await fetch(apiUrl + '/tv/recommended', {
 			headers: {
 				'Content-Type': 'application/json',
-				'Accept': 'application/json',
+                Accept: 'application/json'
 			},
 			credentials: 'include',
 			method: 'GET'
 		});
 		recommendedShows = await showsRes.json();
-		showsLoading = false
+        showsLoading = false;
 
 		const moviesRes = await fetch(apiUrl + '/movies/recommended', {
 			headers: {
 				'Content-Type': 'application/json',
-				'Accept': 'application/json',
+                Accept: 'application/json'
 			},
 			credentials: 'include',
 			method: 'GET'
 		});
 		recommendedMovies = await moviesRes.json();
 		moviesLoading = false;
-
-
-
 	});
-
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -70,18 +62,16 @@
 		Dashboard
 	</h1>
 	<div class="min-h-[100vh] flex-1 items-center justify-center rounded-xl p-4 md:min-h-min">
-        <div
-				class="mx-auto max-w-[70vw] md:max-w-[80vw]"
-        >
-			<h3 class="my-4 text-center text-2xl font-semibold ">
-				Trending Shows
-			</h3>
-			<RecommendedMediaCarousel isLoading={showsLoading} isShow={true} media={recommendedShows}/>
+        <div class="mx-auto max-w-[70vw] md:max-w-[80vw]">
+            <h3 class="my-4 text-center text-2xl font-semibold">Trending Shows</h3>
+            <RecommendedMediaCarousel isLoading={showsLoading} isShow={true} media={recommendedShows}/>
 
-			<h3 class="my-4 text-center text-2xl font-semibold ">
-				Trending Movies
-			</h3>
-			<RecommendedMediaCarousel isLoading={moviesLoading} isShow={false} media={recommendedMovies}/>
+            <h3 class="my-4 text-center text-2xl font-semibold">Trending Movies</h3>
+            <RecommendedMediaCarousel
+                    isLoading={moviesLoading}
+                    isShow={false}
+                    media={recommendedMovies}
+            />
 		</div>
 	</div>
 

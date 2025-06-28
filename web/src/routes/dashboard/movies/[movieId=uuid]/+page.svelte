@@ -3,19 +3,13 @@
     import {Separator} from '$lib/components/ui/separator/index.js';
     import * as Sidebar from '$lib/components/ui/sidebar/index.js';
     import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-    import {goto} from '$app/navigation';
     import {ImageOff} from 'lucide-svelte';
-    import * as Table from '$lib/components/ui/table/index.js';
     import {getContext} from 'svelte';
-    import type {PublicMovie, RichShowTorrent, Show, User} from '$lib/types.js';
+    import type {PublicMovie, RichShowTorrent, User} from '$lib/types.js';
     import {getFullyQualifiedMediaName} from '$lib/utils';
-    import CheckmarkX from '$lib/components/checkmark-x.svelte';
     import {page} from '$app/state';
     import TorrentTable from '$lib/components/torrent-table.svelte';
     import MediaPicture from '$lib/components/media-picture.svelte';
-    import {Checkbox} from '$lib/components/ui/checkbox/index.js';
-    import {toast} from 'svelte-sonner';
-    import {Label} from '$lib/components/ui/label';
     import DownloadMovieDialog from '$lib/components/download-movie-dialog.svelte';
     import RequestMovieDialog from '$lib/components/request-movie-dialog.svelte';
 
@@ -23,7 +17,6 @@
     let movie: PublicMovie = page.data.movie;
     let user: () => User = getContext('user');
     let torrents: RichShowTorrent = page.data.torrents;
-
 </script>
 
 <header class="flex h-16 shrink-0 items-center gap-2">
@@ -74,10 +67,10 @@
         </div>
         <div class="w-full flex-auto rounded-xl bg-muted/50 p-4 md:w-1/3">
             {#if user().is_superuser}
-                <DownloadMovieDialog movie={movie}/>
+                <DownloadMovieDialog {movie}/>
                 <div class="my-4"></div>
             {/if}
-            <RequestMovieDialog movie={movie}/>
+            <RequestMovieDialog {movie}/>
         </div>
     </div>
     <!-- 	<div class="flex-1 rounded-xl bg-muted/50 p-4">

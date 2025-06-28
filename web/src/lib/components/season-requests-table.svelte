@@ -17,13 +17,17 @@
             return true;
         },
         isShow = true
-    }: { requests: SeasonRequest[]; filter: (request: SeasonRequest) => boolean, isShow: boolean } = $props();
+    }: {
+        requests: SeasonRequest[];
+        filter: (request: SeasonRequest) => boolean;
+        isShow: boolean;
+    } = $props();
     const user: () => User = getContext('user');
 
     async function approveRequest(requestId: string, currentAuthorizedStatus: boolean) {
         try {
             const response = await fetch(
-                `${apiUrl}${isShow ? "/tv/seasons" : "/movies"}/requests/${requestId}?authorized_status=${!currentAuthorizedStatus}`,
+                `${apiUrl}${isShow ? '/tv/seasons' : '/movies'}/requests/${requestId}?authorized_status=${!currentAuthorizedStatus}`,
                 {
                     method: 'PATCH',
                     headers: {
@@ -58,13 +62,16 @@
 
     async function deleteRequest(requestId: string) {
         try {
-            const response = await fetch(`${apiUrl}${isShow ? "/tv/seasons" : "/movies"}/requests/${requestId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include'
-            });
+            const response = await fetch(
+                `${apiUrl}${isShow ? '/tv/seasons' : '/movies'}/requests/${requestId}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                }
+            );
 
             if (response.ok) {
                 const index = requests.findIndex((r) => r.id === requestId);
@@ -89,7 +96,7 @@
     <Table.Caption>A list of all requests.</Table.Caption>
     <Table.Header>
         <Table.Row>
-            <Table.Head>{isShow ? "Show" : "Movie"}</Table.Head>
+            <Table.Head>{isShow ? 'Show' : 'Movie'}</Table.Head>
             {#if isShow}
                 <Table.Head>Season</Table.Head>
             {/if}
@@ -108,10 +115,8 @@
                     <Table.Cell>
                         {#if isShow}
                             {getFullyQualifiedMediaName(request.show)}
-
                         {:else}
                             {getFullyQualifiedMediaName(request.movie)}
-
                         {/if}
                     </Table.Cell>
                     {#if isShow}
@@ -163,7 +168,6 @@
                                     Download manually
                                 </Button>
                             {/if}
-
                         {/if}
                         {#if user().is_superuser || user().id === request.requested_by?.id}
                             <Button variant="destructive" size="sm" onclick={() => deleteRequest(request.id)}
