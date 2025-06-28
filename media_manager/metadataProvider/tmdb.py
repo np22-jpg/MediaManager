@@ -1,12 +1,9 @@
 import logging
 
 import requests
-import tmdbsimple
 from pydantic_settings import BaseSettings
-from tmdbsimple import TV, TV_Seasons
 
 import media_manager.metadataProvider.utils
-from media_manager.exceptions import InvalidConfigError
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
 )
@@ -16,8 +13,7 @@ from media_manager.movies.schemas import Movie
 
 
 class TmdbConfig(BaseSettings):
-    TMDB_RELAY_URL: str = "https://metadata-relay.maxid.me"
-    TMDB_API_KEY: str | None = None
+    TMDB_RELAY_URL: str = "https://metadata-relay.maxid.me/tmdb"
 
 
 ENDED_STATUS = {"Ended", "Canceled"}
@@ -28,23 +24,37 @@ log = logging.getLogger(__name__)
 class TmdbMetadataProvider(AbstractMetadataProvider):
     name = "tmdb"
 
-    def __init__(self, api_key: str = None):
+    def __init__(self):
         config = TmdbConfig()
-        if config.TMDB_API_KEY is None:
-            raise InvalidConfigError("TMDB_API_KEY is not set")
-        tmdbsimple.API_KEY = config.TMDB_API_KEY
         self.url = config.TMDB_RELAY_URL
 
-    def __get_tv_metadata(self, id: int) -> dict:
-        """
-        Helper function to get TV metadata from TMDB.
-        :param id: The external ID of the TV show.
-        :return: A dictionary containing the TV show metadata.
-        """
+    def __get_show_metadata(self, id: int) -> dict:
         return requests.get(url=f"{self.url}/tv/shows/{id}").json()
 
+    def __get_season_metadata(self, show_id: int, season_number: int) -> dict:
+        return requests.get(url=f"{self.url}/tv/shows/{show_id}/{season_number}").json()
+
+    def __search_tv(self, query: str, page: int) -> dict:
+        return requests.get(
+            url=f"{self.url}/tv/search", params={"query": query, "page": page}
+        ).json()
+
+    def __get_trending_tv(self) -> dict:
+        return requests.get(url=f"{self.url}/tv/trending").json()
+
+    def __get_movie_metadata(self, id: int) -> dict:
+        return requests.get(url=f"{self.url}/movies/{id}").json()
+
+    def __search_movie(self, query: str, page: int) -> dict:
+        return requests.get(
+            url=f"{self.url}/movies/search", params={"query": query, "page": page}
+        ).json()
+
+    def __get_trending_movies(self) -> dict:
+        return requests.get(url=f"{self.url}/movies/trending").json()
+
     def download_show_poster_image(self, show: Show) -> bool:
-        show_metadata = TV(show.external_id).info()
+        show_metadata = self.__get_show_metadata(show.external_id)
         # downloading the poster
         # all pictures from TMDB should already be jpeg, so no need to convert
         if show_metadata["poster_path"] is not None:
@@ -71,13 +81,13 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         :return: returns a ShowMetadata object
         :rtype: ShowMetadata
         """
-        show_metadata = TV(id).info()
+        show_metadata = self.__get_show_metadata(id)
         season_list = []
         # inserting all the metadata into the objects
         for season in show_metadata["seasons"]:
-            season_metadata = TV_Seasons(
-                tv_id=show_metadata["id"], season_number=season["season_number"]
-            ).info()
+            season_metadata = self.__get_season_metadata(
+                show_id=show_metadata["id"], season_number=season["season_number"]
+            )
             episode_list = []
 
             for episode in season_metadata["episodes"]:
@@ -122,21 +132,17 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         Search for shows using TMDB API.
         If no query is provided, it will return the most popular shows.
         """
-        if query is None:
-            result_factory = lambda page: tmdbsimple.Trending(media_type="tv").info()  # noqa: E731
-        else:
-            result_factory = lambda page: tmdbsimple.Search().tv(  # noqa: E731
-                page=page, query=query, include_adult=True
-            )
-
         results = []
-        for i in range(1, max_pages + 1):
-            result_page = result_factory(i)
+        if query is None:
+            results = self.__get_trending_tv()["results"]
+        else:
+            for page_number in range(1, max_pages + 1):
+                result_page = self.__search_tv(query=query, page=page_number)
 
-            if not result_page["results"]:
-                break
-            else:
-                results.extend(result_page["results"])
+                if not result_page["results"]:
+                    break
+                else:
+                    results.extend(result_page["results"])
 
         formatted_results = []
         for result in results:
@@ -173,7 +179,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         :return: returns a ShowMetadata object
         :rtype: ShowMetadata
         """
-        movie_metadata = tmdbsimple.Movies(id).info()
+        movie_metadata = self.__get_movie_metadata(id=id)
         year = media_manager.metadataProvider.utils.get_year_from_date(
             movie_metadata["release_date"]
         )
@@ -195,21 +201,17 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         Search for movies using TMDB API.
         If no query is provided, it will return the most popular movies.
         """
-        if query is None:
-            result_factory = lambda page: tmdbsimple.Trending(media_type="movie").info()  # noqa: E731
-        else:
-            result_factory = lambda page: tmdbsimple.Search().movie(  # noqa: E731
-                page=page, query=query, include_adult=True
-            )
-
         results = []
-        for i in range(1, max_pages + 1):
-            result_page = result_factory(i)
+        if query is None:
+            results = self.__get_trending_movies()["results"]
+        else:
+            for page_number in range(1, max_pages + 1):
+                result_page = self.__search_movie(query=query, page=page_number)
 
-            if not result_page["results"]:
-                break
-            else:
-                results.extend(result_page["results"])
+                if not result_page["results"]:
+                    break
+                else:
+                    results.extend(result_page["results"])
 
         formatted_results = []
         for result in results:
@@ -239,7 +241,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
         return formatted_results
 
     def download_movie_poster_image(self, movie: Movie) -> bool:
-        movie_metadata = tmdbsimple.Movies(movie.external_id).info()
+        movie_metadata = self.__get_movie_metadata(id=movie.external_id)
         # downloading the poster
         # all pictures from TMDB should already be jpeg, so no need to convert
         if movie_metadata["poster_path"] is not None:
