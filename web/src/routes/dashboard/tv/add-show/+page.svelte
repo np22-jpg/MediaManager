@@ -18,15 +18,19 @@
 	let searchTerm: string = $state('');
 	let metadataProvider: string = $state('tmdb');
 	let results: MetaDataProviderSearchResult[] | null = $state(null);
-	onMount(search);
-	async function search() {
+
+	onMount(() => {
+		search("");
+	});
+
+	async function search(query: string) {
 		let url = new URL(apiUrl + '/tv/recommended');
-		if (searchTerm.length > 0) {
-			let url = new URL(apiUrl + '/tv/search');
-			url.searchParams.append('query', searchTerm);
-			url.searchParams.append('metadata_provider', metadataProvider);
-			toast.info(`Searching for "${searchTerm}" using ${metadataProvider.toUpperCase()}...`);
+		if (query.length > 0) {
+			url = new URL(apiUrl + '/tv/search');
+			url.searchParams.append('query', query);
+			toast.info(`Searching for "${query}" using ${metadataProvider.toUpperCase()}...`);
 		}
+		url.searchParams.append('metadata_provider', metadataProvider);
 
 		try {
 			const response = await fetch(url, {
@@ -38,13 +42,14 @@
 				throw new Error(`Search failed: ${response.status} ${errorText || response.statusText}`);
 			}
 			results = await response.json();
-			if (searchTerm.length === 0) {
+			console.log("Fetched results:", results);
+			if (query.length === 0) {
 				return;
 			}
 			if (results && results.length > 0) {
-				toast.success(`Found ${results.length} result(s) for "${searchTerm}".`);
+				toast.success(`Found ${results.length} result(s) for "${query}".`);
 			} else {
-				toast.info(`No results found for "${searchTerm}".`);
+				toast.info(`No results found for "${query}".`);
 			}
 		} catch (error) {
 			const errorMessage =
@@ -119,24 +124,22 @@
 			</Collapsible.Root>
 		</section>
 		<section>
-			<Button onclick={search} type="submit">Search</Button>
+			<Button onclick={() => search(searchTerm)} type="submit">Search</Button>
 		</section>
 	</div>
 
 	<Separator class="my-8" />
 
-	{#if results != null}
-		{#if results.length === 0}
-			<h3 class="mx-auto">No Shows found.</h3>
-		{:else}
-			<div
-				class="grid w-full auto-rows-min gap-4 sm:grid-cols-1
-             md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
-			>
-				{#each results as result}
-					<AddMediaCard {result} />
-				{/each}
-			</div>
-		{/if}
+	{#if results && results.length === 0}
+		<h3 class="mx-auto">No Shows found.</h3>
+	{:else if results}
+		<div
+			class="grid w-full auto-rows-min gap-4 sm:grid-cols-1
+		 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+		>
+			{#each results as result}
+				<AddMediaCard {result} isShow={true} />
+			{/each}
+		</div>
 	{/if}
 </div>
