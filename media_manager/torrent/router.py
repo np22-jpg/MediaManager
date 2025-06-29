@@ -15,7 +15,7 @@ def get_torrent(service: torrent_service_dep, torrent: torrent_dep):
 
 
 @router.get(
-    "/",
+    "",
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(current_active_user)],
     response_model=list[Torrent],

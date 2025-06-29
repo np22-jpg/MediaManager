@@ -36,7 +36,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/",
+    "",
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(current_active_user)],
     responses={
@@ -70,7 +70,7 @@ def add_a_movie(
 
 
 @router.get(
-    "/",
+    "",
     dependencies=[Depends(current_active_user)],
     response_model=list[PublicMovie],
 )

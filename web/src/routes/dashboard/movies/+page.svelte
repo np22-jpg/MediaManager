@@ -15,7 +15,7 @@
 	let loading = false;
 	onMount(async () => {
 		loading = true;
-		const response = await fetch(apiUrl + '/movies/', {
+		const response = await fetch(apiUrl + '/movies', {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
