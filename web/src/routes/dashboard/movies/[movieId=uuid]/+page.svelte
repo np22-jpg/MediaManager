@@ -17,6 +17,11 @@
 	let torrents: RichShowTorrent = page.data.torrents;
 </script>
 
+<svelte:head>
+	<title>{getFullyQualifiedMediaName(movie)} - MediaManager</title>
+	<meta content="View details and manage downloads for {getFullyQualifiedMediaName(movie)} in MediaManager" name="description" />
+</svelte:head>
+
 <header class="flex h-16 shrink-0 items-center gap-2">
 	<div class="flex items-center gap-2 px-4">
 		<Sidebar.Trigger class="-ml-1" />

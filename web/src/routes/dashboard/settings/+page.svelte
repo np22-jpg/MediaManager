@@ -13,6 +13,11 @@
 	let users = page.data.users;
 </script>
 
+<svelte:head>
+	<title>Settings - MediaManager</title>
+	<meta content="Manage your MediaManager settings and user preferences" name="description" />
+</svelte:head>
+
 <header class="flex h-16 shrink-0 items-center gap-2">
 	<div class="flex items-center gap-2 px-4">
 		<Sidebar.Trigger class="-ml-1" />

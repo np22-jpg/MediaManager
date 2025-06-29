@@ -7,6 +7,11 @@
 	let oauthProvider = page.data.oauthProvider;
 </script>
 
+<svelte:head>
+	<title>Login - MediaManager</title>
+	<meta content="Login to MediaManager - Access your personal media management dashboard" name="description" />
+</svelte:head>
+
 <div class="grid min-h-svh lg:grid-cols-2">
 	<div class="flex flex-col gap-4 p-6 md:p-10">
 		<div class="flex justify-center gap-2 md:justify-start">

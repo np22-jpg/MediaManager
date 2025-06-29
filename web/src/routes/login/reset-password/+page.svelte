@@ -75,6 +75,11 @@
 	};
 </script>
 
+<svelte:head>
+	<title>Reset Password - MediaManager</title>
+	<meta content="Reset your MediaManager password with a secure token" name="description" />
+</svelte:head>
+
 <div class="grid min-h-svh lg:grid-cols-2">
 	<div class="flex flex-col gap-4 p-6 md:p-10">
 		<div class="flex justify-center gap-2 md:justify-start">

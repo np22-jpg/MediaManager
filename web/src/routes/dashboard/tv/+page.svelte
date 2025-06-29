@@ -11,6 +11,11 @@
 	let tvShowsPromise = page.data.tvShows;
 </script>
 
+<svelte:head>
+	<title>TV Shows - MediaManager</title>
+	<meta content="Browse and manage your TV show collection in MediaManager" name="description" />
+</svelte:head>
+
 <header class="flex h-16 shrink-0 items-center gap-2">
 	<div class="flex items-center gap-2 px-4">
 		<Sidebar.Trigger class="-ml-1" />

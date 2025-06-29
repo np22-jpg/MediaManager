@@ -5,6 +5,11 @@
 	import { handleLogout } from '$lib/utils.ts';
 </script>
 
+<svelte:head>
+	<title>Verify Account - MediaManager</title>
+	<meta content="Verify your MediaManager account to complete registration" name="description" />
+</svelte:head>
+
 <div
 	class="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8"
 >

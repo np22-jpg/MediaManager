@@ -7,6 +7,11 @@
 	import { PUBLIC_VERSION } from '$env/static/public';
 </script>
 
+<svelte:head>
+	<title>About - MediaManager</title>
+	<meta content="About MediaManager - Learn more about your smart PVR application" name="description" />
+</svelte:head>
+
 <header class="flex h-16 shrink-0 items-center gap-2">
 	<div class="flex items-center gap-2 px-4">
 		<Sidebar.Trigger class="-ml-1" />
