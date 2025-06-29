@@ -3,8 +3,11 @@ import os
 import sys
 from logging.config import dictConfig
 from pathlib import Path
+
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from pythonjsonlogger.json import JsonFormatter
 
+import media_manager.database
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -119,8 +122,11 @@ def weekly_tasks():
     update_all_non_ended_shows_metadata()
     update_all_movies_metadata()
 
+jobstores = {
+    "default": SQLAlchemyJobStore(engine=media_manager.database.engine)
+}
 
-scheduler = BackgroundScheduler()
+scheduler = BackgroundScheduler(jobstores=jobstores)
 trigger = CronTrigger(minute=0, hour="*")
 weekly_trigger = CronTrigger(
     day_of_week="mon", hour=0, minute=0, jitter=60 * 60 * 24 * 2
