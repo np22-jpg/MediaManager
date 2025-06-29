@@ -12,6 +12,7 @@ ENV OPENID_ENABLED=FALSE
 RUN apt update && apt install -y ca-certificates gcc python3-dev
 
 WORKDIR /app
+COPY --chmod=755 mediamanager-backend-startup.sh .
 COPY media_manager ./media_manager
 COPY alembic ./alembic
 COPY alembic.ini .
@@ -19,4 +20,4 @@ COPY pyproject.toml .
 COPY uv.lock .
 RUN uv sync --locked
 EXPOSE 8000
-CMD uv run alembic upgrade head && uv run fastapi run /app/media_manager/main.py
+CMD ["/app/mediamanager-backend-startup.sh"]
