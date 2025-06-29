@@ -4,7 +4,7 @@ MediaManager supports multiple authentication methods. Email/password authentica
 enable OpenID Connect (OAuth 2.0) for integration with external identity providers.
 
 <note>
-   Note the lack of a trailing slash in some env vars like FRONTEND_URL. This is important.
+   Note the lack of a trailing slash in some env vars like OPENID_CONFIGURATION_ENDPOINT. This is important.
 </note>
 
 ## General Authentication Settings
@@ -25,7 +25,7 @@ A list of email addresses for administrator accounts. This is a required field. 
 
 ### `FRONTEND_URL`
 
-The URL the frontend will be accessed from. This is a required field. Example: `https://mediamanager.example`.
+The URL the frontend will be accessed from. This is a required field. Example: `https://mediamanager.example/`.
 
 <note>
 On login/registration, every user whose email is in <code>AUTH_ADMIN_EMAIL</code> will be granted admin privileges.

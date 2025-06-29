@@ -49,7 +49,6 @@ else:
     openid_client = None
 
 
-# TODO: implement on_xxx methods
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET

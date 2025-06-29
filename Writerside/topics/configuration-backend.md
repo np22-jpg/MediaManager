@@ -61,6 +61,13 @@ Password for QBittorrent. Default is `admin`.
 
 ## Metadata Provider Settings
 
+
+<note>
+   Note the lack of a trailing slash in some env vars like <code>TMDB_RELAY_URL</code>. This is important.
+</note>
+
+
+
 These settings configure the integrations with external metadata providers like The Movie Database (TMDB) and The TVDB.
 
 ### TMDB (The Movie Database)
