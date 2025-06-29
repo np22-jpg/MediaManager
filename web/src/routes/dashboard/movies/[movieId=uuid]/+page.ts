@@ -1,9 +1,9 @@
 import type { LayoutLoad } from './$types';
-import { PUBLIC_API_URL } from '$env/dynamic/public';
+import { env } from '$env/dynamic/public';
 import { error } from '@sveltejs/kit';
 
 export const load: LayoutLoad = async ({ params, fetch }) => {
-	const res = await fetch(`${PUBLIC_API_URL}/movies/${params.movieId}`, {
+	const res = await fetch(`${env.PUBLIC_API_URL}/movies/${params.movieId}`, {
 		credentials: 'include'
 	});
 	if (!res.ok) throw error(res.status, `Failed to load movie`);
