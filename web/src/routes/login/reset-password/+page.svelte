@@ -2,15 +2,20 @@
 	import logo from '$lib/images/logo.svg';
 	import background from '$lib/images/pawel-czerwinski-NTYYL9Eb9y8-unsplash.jpg?enhanced';
 	import { page } from '$app/state';
-	import { Button } from "$lib/components/ui/button";
-	import { Input } from "$lib/components/ui/input";
-	import { Label } from "$lib/components/ui/label";
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "$lib/components/ui/card";
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import { env } from '$env/dynamic/public';
-	import {ChevronLeft} from "lucide-svelte";
-	import {onMount} from "svelte";
+	import { onMount } from 'svelte';
 
 	const apiUrl = env.PUBLIC_API_URL;
 	let newPassword = $state('');
@@ -39,7 +44,7 @@
 		isLoading = true;
 
 		try {
-			const response = await fetch(apiUrl+`/auth/reset-password`, {
+			const response = await fetch(apiUrl + `/auth/reset-password`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -85,9 +90,7 @@
 				<Card class="mx-auto max-w-sm">
 					<CardHeader>
 						<CardTitle class="text-2xl">Reset Password</CardTitle>
-						<CardDescription>
-							Enter your new password below.
-						</CardDescription>
+						<CardDescription>Enter your new password below.</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<form class="grid gap-4" onsubmit={handleSubmit}>
@@ -128,7 +131,7 @@
 							</Button>
 						</form>
 						<div class="mt-4 text-center text-sm">
-							<a href="/login" class="text-primary hover:underline font-semibold">
+							<a href="/login" class="font-semibold text-primary hover:underline">
 								Back to Login
 							</a>
 							<span class="mx-2 text-muted-foreground">•</span>

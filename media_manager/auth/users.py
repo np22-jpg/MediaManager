@@ -14,7 +14,6 @@ from fastapi_users.authentication import (
 from fastapi_users.db import SQLAlchemyUserDatabase
 from httpx_oauth.clients.openid import OpenID
 from fastapi.responses import RedirectResponse, Response
-from pydantic import AnyHttpUrl
 from starlette import status
 
 from media_manager.auth.config import AuthConfig, OpenIdConfig, EmailConfig
@@ -95,9 +94,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             if email_conf.use_tls:
                 server.starttls()
             server.login(email_conf.smtp_user, email_conf.smtp_password)
-            server.sendmail(email_conf.from_email,user.email, message.as_string())
+            server.sendmail(email_conf.from_email, user.email, message.as_string())
         log.info(f"Sent password reset email to {user.email}")
-
 
     async def on_after_reset_password(
         self, user: User, request: Optional[Request] = None
@@ -107,7 +105,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_request_verify(
         self, user: User, token: str, request: Optional[Request] = None
     ):
-        log.info(f"Verification requested for user {user.id}. Verification token: {token}")
+        log.info(
+            f"Verification requested for user {user.id}. Verification token: {token}"
+        )
 
     async def on_after_verify(self, user: User, request: Optional[Request] = None):
         log.info(f"User {user.id} has been verified")

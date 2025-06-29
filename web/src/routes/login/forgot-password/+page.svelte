@@ -1,10 +1,16 @@
 <script lang="ts">
 	import logo from '$lib/images/logo.svg';
 	import background from '$lib/images/pawel-czerwinski-NTYYL9Eb9y8-unsplash.jpg?enhanced';
-	import { Button } from "$lib/components/ui/button";
-	import { Input } from "$lib/components/ui/input";
-	import { Label } from "$lib/components/ui/label";
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "$lib/components/ui/card";
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { toast } from 'svelte-sonner';
 	import { env } from '$env/dynamic/public';
 
@@ -69,8 +75,10 @@
 						<CardTitle class="text-2xl">Forgot Password</CardTitle>
 						<CardDescription>
 							{#if isSuccess}
-								We've sent a password reset link to your email address if a SMTP server is configured. Check your inbox and follow the instructions to reset your password.
-								If you didn't receive an email, please contact an administrator, the reset link will be in the logs of MediaManager.
+								We've sent a password reset link to your email address if a SMTP server is
+								configured. Check your inbox and follow the instructions to reset your password. If
+								you didn't receive an email, please contact an administrator, the reset link will be
+								in the logs of MediaManager.
 							{:else}
 								Enter your email address and we'll send you a link to reset your password.
 							{/if}
@@ -88,7 +96,10 @@
 									<p>Didn't receive the email? Check your spam folder or</p>
 									<button
 										class="text-primary hover:underline"
-										onclick={() => { isSuccess = false; email = ''; }}
+										onclick={() => {
+											isSuccess = false;
+											email = '';
+										}}
 									>
 										try again
 									</button>
@@ -107,11 +118,7 @@
 										required
 									/>
 								</div>
-								<Button
-									type="submit"
-									class="w-full"
-									disabled={isLoading || !email}
-								>
+								<Button type="submit" class="w-full" disabled={isLoading || !email}>
 									{#if isLoading}
 										Sending Reset Email...
 									{:else}
@@ -121,7 +128,7 @@
 							</form>
 						{/if}
 						<div class="mt-4 text-center text-sm">
-							<a href="/login" class="text-primary hover:underline font-semibold">
+							<a href="/login" class="font-semibold text-primary hover:underline">
 								Back to Login
 							</a>
 						</div>

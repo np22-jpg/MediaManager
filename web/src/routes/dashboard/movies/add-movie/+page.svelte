@@ -20,7 +20,7 @@
 	let results: MetaDataProviderSearchResult[] | null = $state(null);
 
 	onMount(() => {
-		search("");
+		search('');
 	});
 
 	async function search(query: string) {
@@ -32,7 +32,6 @@
 		}
 		url.searchParams.append('metadata_provider', metadataProvider);
 
-
 		try {
 			const response = await fetch(url, {
 				method: 'GET',
@@ -43,7 +42,7 @@
 				throw new Error(`Search failed: ${response.status} ${errorText || response.statusText}`);
 			}
 			results = await response.json();
-			console.log("Fetched results:", results);
+			console.log('Fetched results:', results);
 			if (query.length === 0) {
 				return;
 			}

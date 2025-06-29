@@ -59,7 +59,7 @@ from media_manager.tv.service import (  # noqa: E402
     import_all_show_torrents,
     update_all_non_ended_shows_metadata,
 )
-from media_manager.movies.service import ( # noqa: E402
+from media_manager.movies.service import (  # noqa: E402
     import_all_movie_torrents,
     update_all_movies_metadata,
 )
@@ -122,9 +122,8 @@ def weekly_tasks():
     update_all_non_ended_shows_metadata()
     update_all_movies_metadata()
 
-jobstores = {
-    "default": SQLAlchemyJobStore(engine=media_manager.database.engine)
-}
+
+jobstores = {"default": SQLAlchemyJobStore(engine=media_manager.database.engine)}
 
 scheduler = BackgroundScheduler(jobstores=jobstores)
 trigger = CronTrigger(minute=0, hour="*")
