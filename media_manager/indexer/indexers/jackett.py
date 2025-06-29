@@ -24,7 +24,6 @@ class Jackett(GenericIndexer):
         self.indexers = config.indexers
         log.debug("Registering Jacket as Indexer")
 
-    # TODO: change architecture to build query string in the torrent module, instead of tv module
     # NOTE: this could be done in parallel, but if there aren't more than a dozen indexers, it shouldn't matter
     def search(self, query: str) -> list[IndexerQueryResult]:
         log.debug("Searching for " + query)
@@ -34,7 +33,7 @@ class Jackett(GenericIndexer):
             log.debug(f"Searching in indexer: {indexer}")
             url = (
                 self.url
-                + f"/api/v2.0/indexers/{indexer}/results/torznab/api?apikey={self.api_key}&t=tvsearch&q={query}"
+                + f"/api/v2.0/indexers/{indexer}/results/torznab/api?apikey={self.api_key}&t=search&q={query}"
             )
             response = requests.get(url)
             responses.append(response)
