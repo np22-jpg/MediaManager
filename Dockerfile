@@ -9,8 +9,7 @@ ENV MOVIE_DIRECTORY=/data/movies
 ENV TORRENT_DIRECTORY=/data/torrents
 ENV OPENID_ENABLED=FALSE
 
-RUN apt-get update && apt-get install -y ca-certificates
-
+RUN apt update && apt install -y ca-certificates gcc python3-dev
 
 WORKDIR /app
 COPY media_manager ./media_manager
