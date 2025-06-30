@@ -29,8 +29,9 @@ ENV PUBLIC_SSR_WEB=false
 
 COPY --from=build /app/build/ ./build/
 COPY package*.json ./
+COPY --chmod=755 mediamanager-frontend-startup.sh ./
 RUN npm ci --only=production
 
 EXPOSE 3000
 USER node
-CMD ["node","build/index.js"]
+CMD ["/app/mediamanager-frontend-startup.sh"]
