@@ -17,7 +17,7 @@
 	async function addMedia() {
 		loading = true;
 		let url = isShow ? new URL(apiUrl + '/tv/shows') : new URL(apiUrl + '/movies');
-		url.searchParams.append('show_id', String(result.external_id));
+		url.searchParams.append(isShow ? 'show_id' : 'movie_id', String(result.external_id));
 		url.searchParams.append('metadata_provider', result.metadata_provider);
 		const response = await fetch(url, {
 			method: 'POST',
