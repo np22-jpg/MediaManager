@@ -1,28 +1,37 @@
 ARG VERSION
 ARG BASE_URL=""
-FROM node:24-alpine AS build
-USER node:node
+FROM node:24-alpine AS deps
 WORKDIR /app
 
-COPY --chown=node:node . .
+COPY package*.json ./
+RUN npm ci --only=production
 
+FROM node:24-alpine AS build
+WORKDIR /app
+ARG VERSION
+ARG BASE_URL
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY package*.json ./
 RUN npm ci
+
+COPY . .
 RUN env PUBLIC_VERSION=${VERSION} BASE_URL=${BASE_URL} npm run build
 
 FROM node:24-alpine AS frontend
 ARG VERSION
-USER node:node
+WORKDIR /app
 LABEL version=${VERSION}
 LABEL description="Docker image for the web frontend of MediaManager"
 
 ENV PUBLIC_VERSION=${VERSION}
 ENV PUBLIC_SSR_WEB=false
-WORKDIR /app
 
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node --from=build /app/node_modules ./node_modules/
-COPY --chown=node:node --from=build /app/build/ ./build/
+COPY --from=build /app/build/ ./build/
+COPY package*.json ./
+COPY --chmod=755 mediamanager-frontend-startup.sh ./
+RUN npm ci --only=production
 
 EXPOSE 3000
-
-CMD ["node","build/index.js"]
+USER node
+CMD ["/app/mediamanager-frontend-startup.sh"]
