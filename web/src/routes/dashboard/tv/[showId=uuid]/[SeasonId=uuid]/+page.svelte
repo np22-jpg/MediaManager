@@ -19,7 +19,12 @@
 
 <svelte:head>
 	<title>{getFullyQualifiedMediaName(show())} - Season {season().number} - MediaManager</title>
-	<meta content="View episodes and manage downloads for {getFullyQualifiedMediaName(show())} Season {season().number} in MediaManager" name="description" />
+	<meta
+		content="View episodes and manage downloads for {getFullyQualifiedMediaName(
+			show()
+		)} Season {season().number} in MediaManager"
+		name="description"
+	/>
 </svelte:head>
 
 <header class="flex h-16 shrink-0 items-center gap-2">

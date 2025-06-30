@@ -9,7 +9,10 @@
 
 <svelte:head>
 	<title>About - MediaManager</title>
-	<meta content="About MediaManager - Learn more about your smart PVR application" name="description" />
+	<meta
+		content="About MediaManager - Learn more about your smart PVR application"
+		name="description"
+	/>
 </svelte:head>
 
 <header class="flex h-16 shrink-0 items-center gap-2">

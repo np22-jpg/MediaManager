@@ -43,7 +43,10 @@
 
 <svelte:head>
 	<title>Dashboard - MediaManager</title>
-	<meta content="MediaManager Dashboard - View your recommended movies and TV shows" name="description" />
+	<meta
+		content="MediaManager Dashboard - View your recommended movies and TV shows"
+		name="description"
+	/>
 </svelte:head>
 
 <header class="flex h-16 shrink-0 items-center gap-2">

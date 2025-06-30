@@ -9,7 +9,10 @@
 
 <svelte:head>
 	<title>Login - MediaManager</title>
-	<meta content="Login to MediaManager - Access your personal media management dashboard" name="description" />
+	<meta
+		content="Login to MediaManager - Access your personal media management dashboard"
+		name="description"
+	/>
 </svelte:head>
 
 <div class="grid min-h-svh lg:grid-cols-2">

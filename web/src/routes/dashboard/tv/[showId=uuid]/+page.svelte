@@ -49,7 +49,12 @@
 
 <svelte:head>
 	<title>{getFullyQualifiedMediaName(show)} - MediaManager</title>
-	<meta content="View details and manage downloads for {getFullyQualifiedMediaName(show)} in MediaManager" name="description" />
+	<meta
+		content="View details and manage downloads for {getFullyQualifiedMediaName(
+			show
+		)} in MediaManager"
+		name="description"
+	/>
 </svelte:head>
 
 <header class="flex h-16 shrink-0 items-center gap-2">

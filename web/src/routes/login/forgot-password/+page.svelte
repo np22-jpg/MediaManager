@@ -60,7 +60,10 @@
 
 <svelte:head>
 	<title>Forgot Password - MediaManager</title>
-	<meta content="Reset your MediaManager password - Enter your email to receive a reset link" name="description" />
+	<meta
+		content="Reset your MediaManager password - Enter your email to receive a reset link"
+		name="description"
+	/>
 </svelte:head>
 
 <div class="grid min-h-svh lg:grid-cols-2">
