@@ -13,7 +13,7 @@ ENV IMAGE_DIRECTORY=/data/images \
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y ca-certificates gcc mime-support curl
+    apt-get install -y ca-certificates gcc mime-support curl gzip unzip tar 7zip bzip2 unar
 
 COPY pyproject.toml uv.lock ./
 
