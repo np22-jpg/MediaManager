@@ -241,10 +241,13 @@ def get_all_available_torrents_for_a_movie(
 def download_torrent_for_movie(
     movie_service: movie_service_dep,
     movie_id: MovieId,
-    indexer_result_id: IndexerQueryResultId,
+    public_indexer_result_id: IndexerQueryResultId,
+    override_file_path_suffix: str = "",
 ):
     return movie_service.download_torrent(
-        public_indexer_result_id=indexer_result_id, movie_id=movie_id
+        public_indexer_result_id=public_indexer_result_id,
+        movie_id=movie_id,
+        override_movie_file_path_suffix=override_file_path_suffix,
     )
 
 
