@@ -489,7 +489,7 @@ class TvService:
         :param show: The Show object
         """
 
-        video_files, subtitle_files = import_torrent(torrent=torrent)
+        video_files, subtitle_files, all_files = import_torrent(torrent=torrent)
 
         log.info(
             f"Importing these {len(video_files)} files:\n" + pprint.pformat(video_files)

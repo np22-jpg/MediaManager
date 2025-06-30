@@ -440,7 +440,7 @@ class MovieService:
         :param movie: The Movie object
         """
 
-        video_files, subtitle_files = import_torrent(torrent=torrent)
+        video_files, subtitle_files, all_files = import_torrent(torrent=torrent)
 
         if len(video_files) != 0:
             # TODO: send notification
