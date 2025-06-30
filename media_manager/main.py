@@ -299,5 +299,6 @@ async def hello_world() -> dict:
     """
     return {"message": "Hello World!", "version": os.getenv("PUBLIC_VERSION")}
 
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)

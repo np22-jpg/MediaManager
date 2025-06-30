@@ -18,7 +18,7 @@ from media_manager.movies.schemas import (
     MovieTorrent as MovieTorrentSchema,
 )
 from media_manager.torrent.models import Torrent
-from media_manager.torrent.schemas import TorrentId, Torrent as TorrentSchema
+from media_manager.torrent.schemas import TorrentId
 
 log = logging.getLogger(__name__)
 
@@ -361,7 +361,7 @@ class MovieRepository:
                     status=torrent.status,
                     quality=torrent.quality,
                     imported=torrent.imported,
-                    file_path_suffix=file_path_suffix
+                    file_path_suffix=file_path_suffix,
                 )
                 formatted_results.append(movie_torrent)
             return formatted_results
