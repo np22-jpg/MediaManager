@@ -289,13 +289,12 @@ except Exception as e:
     raise
 
 
-@app.get("/", response_model={"message": str, "version": str})
-async def hello_world():
+@app.get("/")
+async def hello_world() -> dict:
     """
     A simple endpoint to check if the API is running.
     """
     return {"message": "Hello World!", "version": os.getenv("PUBLIC_VERSION")}
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)

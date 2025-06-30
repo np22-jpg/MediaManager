@@ -20,7 +20,8 @@ ENV IMAGE_DIRECTORY=/data/images \
     MOVIE_DIRECTORY=/data/movies \
     TORRENT_DIRECTORY=/data/torrents \
     OPENID_ENABLED=FALSE \
-    PUBLIC_VERSION=${VERSION}
+    PUBLIC_VERSION=${VERSION} \
+    UV_PROJECT_ENVIRONMENT=/app/.venv
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates && \
@@ -29,7 +30,8 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY --from=builder /usr/local/lib/python3.*/site-packages /usr/local/lib/python3.*/site-packages/
+COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app/pyproject.toml /app/uv.lock ./
 
 COPY --chmod=755 mediamanager-backend-startup.sh .
 COPY media_manager ./media_manager
