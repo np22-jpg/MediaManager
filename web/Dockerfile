@@ -4,16 +4,15 @@ FROM node:24-alpine AS deps
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --only=production && npm cache clean --force
 
 FROM node:24-alpine AS build
 WORKDIR /app
 ARG VERSION
 ARG BASE_URL
 
-COPY --from=deps /app/node_modules ./node_modules
 COPY package*.json ./
-RUN npm ci
+RUN npm ci && npm cache clean --force
 
 COPY . .
 RUN env PUBLIC_VERSION=${VERSION} BASE_URL=${BASE_URL} npm run build
@@ -30,7 +29,8 @@ ENV PUBLIC_SSR_WEB=false
 COPY --from=build /app/build/ ./build/
 COPY package*.json ./
 COPY --chmod=755 mediamanager-frontend-startup.sh ./
-RUN npm ci --only=production
+
+COPY --from=deps /app/node_modules ./node_modules
 
 EXPOSE 3000
 USER node
