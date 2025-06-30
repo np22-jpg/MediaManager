@@ -126,12 +126,15 @@ def weekly_tasks():
 jobstores = {"default": SQLAlchemyJobStore(engine=media_manager.database.engine)}
 
 scheduler = BackgroundScheduler(jobstores=jobstores)
-trigger = CronTrigger(minute=0, hour="*")
+hourly_trigger = CronTrigger(minute="0", hour="*")
 weekly_trigger = CronTrigger(
     day_of_week="mon", hour=0, minute=0, jitter=60 * 60 * 24 * 2
 )
-scheduler.add_job(hourly_tasks, trigger)
-scheduler.add_job(weekly_tasks, weekly_trigger)
+scheduler.add_job(auto_download_all_approved_season_requests, hourly_trigger)
+scheduler.add_job(import_all_movie_torrents, hourly_trigger)
+scheduler.add_job(import_all_show_torrents, hourly_trigger)
+scheduler.add_job(update_all_movies_metadata, weekly_trigger)
+scheduler.add_job(update_all_non_ended_shows_metadata, weekly_trigger)
 scheduler.start()
 
 
