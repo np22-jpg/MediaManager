@@ -39,9 +39,9 @@
 				toast.success(`User ${selectedUser.email} updated successfully.`);
 				dialogOpen = false;
 
-				const idx = sortedUsers.findIndex((u) => u.id === selectedUser.id);
+				const idx = sortedUsers.findIndex((u) => u.id === selectedUser!.id);
 				if (idx !== -1) {
-					sortedUsers[idx] = selectedUser;
+					sortedUsers[idx] = selectedUser!;
 				}
 
 				selectedUser = null;

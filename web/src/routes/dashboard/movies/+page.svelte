@@ -9,9 +9,10 @@
 	import { toast } from 'svelte-sonner';
 	import { env } from '$env/dynamic/public';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import type { PublicMovie } from '$lib/types';
 
 	const apiUrl = env.PUBLIC_API_URL;
-	let movies;
+	let movies: PublicMovie[] = [];
 	let loading = false;
 	onMount(async () => {
 		loading = true;

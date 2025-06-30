@@ -7,7 +7,7 @@
 	import { ImageOff } from 'lucide-svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { getContext } from 'svelte';
-	import type { RichShowTorrent, Show, User } from '$lib/types.js';
+	import type { PublicShow, RichShowTorrent, Show, User } from '$lib/types.js';
 	import { getFullyQualifiedMediaName } from '$lib/utils';
 	import DownloadSeasonDialog from '$lib/components/download-season-dialog.svelte';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
@@ -48,10 +48,10 @@
 </script>
 
 <svelte:head>
-	<title>{getFullyQualifiedMediaName(show)} - MediaManager</title>
+	<title>{getFullyQualifiedMediaName(show())} - MediaManager</title>
 	<meta
 		content="View details and manage downloads for {getFullyQualifiedMediaName(
-			show
+			show()
 		)} in MediaManager"
 		name="description"
 	/>
@@ -122,7 +122,7 @@
 				{/if}
 				<DownloadSeasonDialog show={show()} />
 			{/if}
-			<RequestSeasonDialog show={show()} />
+			<RequestSeasonDialog show={show() as PublicShow} />
 		</div>
 	</div>
 	<div class="flex-1 rounded-xl bg-muted/50 p-4">
@@ -146,7 +146,7 @@
 							>
 								<Table.Cell class="min-w-[10px] font-medium">{season.number}</Table.Cell>
 								<Table.Cell class="min-w-[10px] font-medium">
-									<CheckmarkX state={season.downloaded} />
+									<CheckmarkX state={false} />
 								</Table.Cell>
 								<Table.Cell class="min-w-[50px]">{season.name}</Table.Cell>
 								<Table.Cell class="max-w-[300px] truncate">{season.overview}</Table.Cell>
@@ -154,7 +154,7 @@
 						{/each}
 					{:else}
 						<Table.Row>
-							<Table.Cell colspan="3" class="text-center">No season data available.</Table.Cell>
+							<Table.Cell colspan={3} class="text-center">No season data available.</Table.Cell>
 						</Table.Row>
 					{/if}
 				</Table.Body>

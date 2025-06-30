@@ -12,7 +12,7 @@
 
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let season: Season = $state(page.data.season);
-	let show: ()=> Show = getContext('show');
+	let show: () => Show = getContext('show');
 
 	console.log('loaded files', seasonFiles);
 </script>

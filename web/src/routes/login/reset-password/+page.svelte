@@ -108,7 +108,7 @@
 									bind:value={newPassword}
 									disabled={isLoading}
 									required
-									minlength="1"
+									minlength={1}
 								/>
 							</div>
 							<div class="grid gap-2">
@@ -120,7 +120,7 @@
 									bind:value={confirmPassword}
 									disabled={isLoading}
 									required
-									minlength="1"
+									minlength={1}
 								/>
 							</div>
 							<Button

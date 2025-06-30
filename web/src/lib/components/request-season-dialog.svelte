@@ -14,31 +14,31 @@
 
 	let dialogOpen = $state(false);
 	let selectedSeasonsIds = $state<string[]>([]);
-	let minQuality = $state<Quality | undefined>(undefined);
-	let wantedQuality = $state<Quality | undefined>(undefined);
+	let minQuality = $state<string | undefined>(undefined);
+	let wantedQuality = $state<string | undefined>(undefined);
 	let isSubmittingRequest = $state(false);
 	let submitRequestError = $state<string | null>(null);
 
 	const qualityValues: Quality[] = [1, 2, 3, 4];
 	let qualityOptions = $derived(
-		qualityValues.map((q) => ({ value: q, label: getTorrentQualityString(q) }))
+		qualityValues.map((q) => ({ value: q.toString(), label: getTorrentQualityString(q) }))
 	);
 	let isFormInvalid = $derived(
 		!selectedSeasonsIds ||
 			selectedSeasonsIds.length === 0 ||
 			!minQuality ||
 			!wantedQuality ||
-			wantedQuality > minQuality
+			parseInt(wantedQuality) > parseInt(minQuality)
 	);
 
 	async function handleRequestSeason() {
 		isSubmittingRequest = true;
 		submitRequestError = null;
 
-		const payloads: CreateSeasonRequest = selectedSeasonsIds.map((seasonId) => ({
+		const payloads: CreateSeasonRequest[] = selectedSeasonsIds.map((seasonId) => ({
 			season_id: seasonId,
-			min_quality: minQuality,
-			wanted_quality: wantedQuality
+			min_quality: parseInt(minQuality!) as Quality,
+			wanted_quality: parseInt(wantedQuality!) as Quality
 		}));
 		for (const payload of payloads) {
 			try {
@@ -51,35 +51,38 @@
 					body: JSON.stringify(payload)
 				});
 
-				if (response.status === 204) {
-					// Success, no content
-					dialogOpen = false; // Close the dialog
-					// Reset form fields
-					selectedSeasonsIds = undefined;
-					minQuality = undefined;
-					wantedQuality = undefined;
-					toast.success('Season request submitted successfully!');
-				} else {
+				if (!response.ok) {
 					const errorData = await response.json().catch(() => ({ message: response.statusText }));
 					submitRequestError = `Failed to submit request: ${errorData.message || response.statusText}`;
 					toast.error(submitRequestError);
 					console.error('Failed to submit request', response.statusText, errorData);
+					break;
 				}
 			} catch (error) {
 				submitRequestError = `Error submitting request: ${error instanceof Error ? error.message : String(error)}`;
 				toast.error(submitRequestError);
 				console.error('Error submitting request:', error);
-			} finally {
-				isSubmittingRequest = false;
+				break;
 			}
 		}
+
+		if (!submitRequestError) {
+			dialogOpen = false;
+			// Reset form fields
+			selectedSeasonsIds = [];
+			minQuality = undefined;
+			wantedQuality = undefined;
+			toast.success('Season request(s) submitted successfully!');
+		}
+
+		isSubmittingRequest = false;
 	}
 </script>
 
 <Dialog.Root bind:open={dialogOpen}>
 	<Dialog.Trigger
 		class={buttonVariants({ variant: 'default' })}
-		on:click={() => {
+		onclick={() => {
 			dialogOpen = true;
 		}}
 	>
@@ -96,11 +99,11 @@
 			<!-- Season Select -->
 			<div class="grid grid-cols-[1fr,3fr] items-center gap-4 md:grid-cols-[100px,1fr]">
 				<Label class="text-right" for="season">Season</Label>
-				<Select.Root bind:value={selectedSeasonsIds}>
+				<Select.Root bind:value={selectedSeasonsIds} type="multiple">
 					<Select.Trigger class="w-full" id="season">
 						{#each selectedSeasonsIds as seasonId (seasonId)}
 							{#if show.seasons.find((season) => season.id === seasonId)}
-								{show.seasons.find((season) => season.id === seasonId).number},&nbsp;
+								Season {show.seasons.find((season) => season.id === seasonId)?.number},&nbsp;
 							{/if}
 						{:else}
 							Select one or more seasons
@@ -108,7 +111,7 @@
 					</Select.Trigger>
 					<Select.Content>
 						{#each show.seasons as season (season.id)}
-							<Select.Item value={season.id}>
+							<Select.Item value={season.id || ''}>
 								Season {season.number}{season.name ? `: ${season.name}` : ''}
 							</Select.Item>
 						{/each}
@@ -121,7 +124,7 @@
 				<Label class="text-right" for="min-quality">Min Quality</Label>
 				<Select.Root bind:value={minQuality} type="single">
 					<Select.Trigger class="w-full" id="min-quality">
-						{minQuality ? getTorrentQualityString(minQuality) : 'Select Minimum Quality'}
+						{minQuality ? getTorrentQualityString(parseInt(minQuality)) : 'Select Minimum Quality'}
 					</Select.Trigger>
 					<Select.Content>
 						{#each qualityOptions as option (option.value)}
@@ -136,7 +139,9 @@
 				<Label class="text-right" for="wanted-quality">Wanted Quality</Label>
 				<Select.Root bind:value={wantedQuality} type="single">
 					<Select.Trigger class="w-full" id="wanted-quality">
-						{wantedQuality ? getTorrentQualityString(wantedQuality) : 'Select Wanted Quality'}
+						{wantedQuality
+							? getTorrentQualityString(parseInt(wantedQuality))
+							: 'Select Wanted Quality'}
 					</Select.Trigger>
 					<Select.Content>
 						{#each qualityOptions as option (option.value)}

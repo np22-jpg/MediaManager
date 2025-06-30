@@ -9,7 +9,7 @@
 
 	const apiUrl = env.PUBLIC_API_URL;
 	let loading = $state(false);
-	let errorMessage = $state(null);
+	let errorMessage = $state<string | null>(null);
 	let { result, isShow = true }: { result: MetaDataProviderSearchResult; isShow: boolean } =
 		$props();
 	console.log('Add Show Card Result: ', result);
@@ -28,7 +28,7 @@
 		if (response.ok) {
 			await goto(`${base}/dashboard/${isShow ? 'tv' : 'movies'}/` + responseData.id);
 		} else {
-			errorMessage = 'Error occurred: ' + responseData;
+			errorMessage = 'Error occurred: ' + JSON.stringify(responseData);
 		}
 		loading = false;
 	}
@@ -63,7 +63,7 @@
 		<Button
 			class="w-full font-semibold"
 			disabled={result.added || loading}
-			onclick={() => addMedia(result)}
+			onclick={() => addMedia()}
 		>
 			{#if loading}
 				<span class="animate-pulse">Loading...</span>

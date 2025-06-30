@@ -6,7 +6,7 @@
 
 	const showData = $derived(data.showData);
 	setContext('show', () => showData);
-	const fetchError = $derived(data.error);
+	const fetchError = $derived((data as { error?: string }).error || null);
 </script>
 
 {#if fetchError}

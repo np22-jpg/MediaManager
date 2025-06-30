@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { cn } from '$lib/utils'; // Assuming you have the cn utility from shadcn-svelte
 
+	type Variant = 'default' | 'secondary' | 'outline' | 'destructive';
+	type Size = 'default' | 'sm' | 'lg';
+
 	let {
 		label,
 		variant = 'default',
@@ -9,8 +12,8 @@
 		class: className = ''
 	} = $props<{
 		label: string;
-		variant?: 'default' | 'secondary' | 'outline' | 'destructive';
-		size?: 'default' | 'sm' | 'lg';
+		variant?: Variant;
+		size?: Size;
 		onClose?: () => void;
 		class?: string;
 	}>();
@@ -20,7 +23,7 @@
 		'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50';
 
 	// Variant styles
-	const variantStyles = {
+	const variantStyles: Record<Variant, string> = {
 		default:
 			'border bg-background text-foreground shadow-sm hover:bg-accent hover:text-accent-foreground',
 		secondary: 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
@@ -30,7 +33,7 @@
 	};
 
 	// Size styles
-	const sizeStyles = {
+	const sizeStyles: Record<Size, string> = {
 		default: 'h-9 px-3 py-0.5', // Adjusted height for New York style
 		sm: 'h-7 px-2 py-0.5 text-xs', // Adjusted height for New York style
 		lg: 'h-10 px-4 py-0.5' // Adjusted height for New York style
@@ -41,7 +44,7 @@
 		'ml-1 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full';
 </script>
 
-<div class={cn(baseStyles, variantStyles[variant], sizeStyles[size], className)}>
+<div class={cn(baseStyles, variantStyles[variant as Variant], sizeStyles[size as Size], className)}>
 	{label}
 	{#if onClose}
 		<button

@@ -12,16 +12,18 @@
 	const apiUrl = env.PUBLIC_API_URL;
 	let { movie }: { movie: PublicMovie } = $props();
 	let dialogOpen = $state(false);
-	let minQuality = $state<Quality | undefined>(undefined);
-	let wantedQuality = $state<Quality | undefined>(undefined);
+	let minQuality = $state<string | undefined>(undefined);
+	let wantedQuality = $state<string | undefined>(undefined);
 	let isSubmittingRequest = $state(false);
 	let submitRequestError = $state<string | null>(null);
 
 	const qualityValues: Quality[] = [1, 2, 3, 4];
 	let qualityOptions = $derived(
-		qualityValues.map((q) => ({ value: q, label: getTorrentQualityString(q) }))
+		qualityValues.map((q) => ({ value: q.toString(), label: getTorrentQualityString(q) }))
 	);
-	let isFormInvalid = $derived(!minQuality || !wantedQuality || wantedQuality > minQuality);
+	let isFormInvalid = $derived(
+		!minQuality || !wantedQuality || parseInt(wantedQuality) > parseInt(minQuality)
+	);
 
 	async function handleRequestMovie() {
 		isSubmittingRequest = true;
@@ -36,8 +38,8 @@
 				credentials: 'include',
 				body: JSON.stringify({
 					movie_id: movie.id,
-					min_quality: minQuality,
-					wanted_quality: wantedQuality
+					min_quality: parseInt(minQuality!),
+					wanted_quality: parseInt(wantedQuality!)
 				})
 			});
 
@@ -65,7 +67,7 @@
 <Dialog.Root bind:open={dialogOpen}>
 	<Dialog.Trigger
 		class={buttonVariants({ variant: 'default' })}
-		on:click={() => {
+		onclick={() => {
 			dialogOpen = true;
 		}}
 	>
@@ -82,7 +84,7 @@
 				<Label class="text-right" for="min-quality">Min Quality</Label>
 				<Select.Root bind:value={minQuality} type="single">
 					<Select.Trigger class="w-full" id="min-quality">
-						{minQuality ? getTorrentQualityString(minQuality) : 'Select Minimum Quality'}
+						{minQuality ? getTorrentQualityString(parseInt(minQuality)) : 'Select Minimum Quality'}
 					</Select.Trigger>
 					<Select.Content>
 						{#each qualityOptions as option (option.value)}
@@ -97,7 +99,9 @@
 				<Label class="text-right" for="wanted-quality">Wanted Quality</Label>
 				<Select.Root bind:value={wantedQuality} type="single">
 					<Select.Trigger class="w-full" id="wanted-quality">
-						{wantedQuality ? getTorrentQualityString(wantedQuality) : 'Select Wanted Quality'}
+						{wantedQuality
+							? getTorrentQualityString(parseInt(wantedQuality))
+							: 'Select Wanted Quality'}
 					</Select.Trigger>
 					<Select.Content>
 						{#each qualityOptions as option (option.value)}

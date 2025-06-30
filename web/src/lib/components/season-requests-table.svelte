@@ -19,7 +19,7 @@
 		isShow = true
 	}: {
 		requests: SeasonRequest[];
-		filter: (request: SeasonRequest) => boolean;
+		filter?: (request: SeasonRequest) => boolean;
 		isShow: boolean;
 	} = $props();
 	const user: () => User = getContext('user');
@@ -42,7 +42,7 @@
 				if (requestIndex !== -1) {
 					let newAuthorizedStatus = !currentAuthorizedStatus;
 					requests[requestIndex].authorized = newAuthorizedStatus;
-					requests[requestIndex].authorized_by = newAuthorizedStatus ? user() : null;
+					requests[requestIndex].authorized_by = newAuthorizedStatus ? user() : undefined;
 				}
 				toast.success(
 					`Request ${!currentAuthorizedStatus ? 'approved' : 'unapproved'} successfully.`
@@ -116,7 +116,7 @@
 						{#if isShow}
 							{getFullyQualifiedMediaName(request.show)}
 						{:else}
-							{getFullyQualifiedMediaName(request.movie)}
+							{getFullyQualifiedMediaName(request.show)}
 						{/if}
 					</Table.Cell>
 					{#if isShow}
@@ -163,7 +163,7 @@
 									class=""
 									size="sm"
 									variant="outline"
-									onclick={() => goto(base + '/dashboard/movies/' + request.movie.id)}
+									onclick={() => goto(base + '/dashboard/tv/' + request.show.id)}
 								>
 									Download manually
 								</Button>
@@ -179,7 +179,7 @@
 			{/if}
 		{:else}
 			<Table.Row>
-				<Table.Cell colspan="8" class="text-center">There are currently no requests.</Table.Cell>
+				<Table.Cell colspan={8} class="text-center">There are currently no requests.</Table.Cell>
 			</Table.Row>
 		{/each}
 	</Table.Body>

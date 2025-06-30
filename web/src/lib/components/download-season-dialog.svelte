@@ -129,7 +129,10 @@
 	});
 </script>
 
-{#snippet saveDirectoryPreview(show, filePathSuffix)}
+{#snippet saveDirectoryPreview(
+	show: { name: string; metadata_provider: string; external_id: number; year: number | null },
+	filePathSuffix: string
+)}
 	/{getFullyQualifiedMediaName(show)} [{show.metadata_provider}id-{show.external_id}]/ Season XX/{show.name}
 	SXXEXX {filePathSuffix === '' ? '' : ' - ' + filePathSuffix}.mkv
 {/snippet}
@@ -167,7 +170,7 @@
 							listed in the "Seasons" cell will be imported!
 						</p>
 						<Label for="file-suffix">Filepath suffix</Label>
-						<Select.Root type="single" bind:value={filePathSuffix} id="file-suffix">
+						<Select.Root type="single" bind:value={filePathSuffix}>
 							<Select.Trigger class="w-[180px]">{filePathSuffix}</Select.Trigger>
 							<Select.Content>
 								<Select.Item value="">None</Select.Item>
@@ -284,7 +287,6 @@
 										{/each}
 									</Table.Cell>
 									<Table.Cell>
-										{torrent.seasons}
 										{convertTorrentSeasonRangeToIntegerRange(torrent)}
 									</Table.Cell>
 									<Table.Cell class="text-right">

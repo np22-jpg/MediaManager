@@ -1,8 +1,8 @@
-import type { LayoutLoad } from './$types';
+import type { PageLoad } from './$types';
 import { env } from '$env/dynamic/public';
 import { error } from '@sveltejs/kit';
 
-export const load: LayoutLoad = async ({ params, fetch }) => {
+export const load: PageLoad = async ({ params, fetch }) => {
 	const res = await fetch(`${env.PUBLIC_API_URL}/movies/${params.movieId}`, {
 		credentials: 'include'
 	});

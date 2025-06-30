@@ -1,16 +1,5 @@
-// See https://svelte.dev/docs/kit/types#app.d.ts
-// for information about these interfaces
-declare global {
-	namespace App {
-		// interface Error {}
-		// interface Locals {}
-		// interface PageData {}
-		// interface PageState {}
-		// interface Platform {}
-	}
-}
+// Ambient module declarations for SvelteKit environment variables and enhanced images
 
-// Environment variables declarations
 declare module '$env/dynamic/public' {
 	export const env: {
 		PUBLIC_API_URL: string;
@@ -28,5 +17,3 @@ declare module '*?enhanced' {
 	const value: unknown;
 	export default value;
 }
-
-export {};

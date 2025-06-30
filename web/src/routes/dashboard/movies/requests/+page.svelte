@@ -43,5 +43,5 @@
 	<h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
 		Movie Requests
 	</h1>
-	<RequestsTable bind:requests isShow={false} />
+	<RequestsTable {requests} isShow={false} />
 </div>

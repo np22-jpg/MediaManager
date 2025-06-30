@@ -6,7 +6,7 @@
 	import { base } from '$app/paths';
 	import { onMount } from 'svelte';
 	import { env } from '$env/dynamic/public';
-	import { MetaDataProviderSearchResult } from '$lib/types';
+	import type { MetaDataProviderSearchResult } from '$lib/types';
 
 	const apiUrl = env.PUBLIC_API_URL;
 

@@ -33,7 +33,7 @@ export function getTorrentStatusString(value: number): string {
 	return torrentStatusMap[value] || 'unknown';
 }
 
-export function getFullyQualifiedMediaName(media: { name: string; year: number }): string {
+export function getFullyQualifiedMediaName(media: { name: string; year: number | null }): string {
 	let name = media.name;
 	if (media.year != null) {
 		name += ' (' + media.year + ')';
@@ -45,13 +45,16 @@ export function convertTorrentSeasonRangeToIntegerRange(torrent: {
 	season?: number[];
 	seasons?: number[];
 }): string {
-	if (torrent?.season?.length === 1) return torrent.season[0]?.toString();
-	if (torrent?.season?.length >= 2)
-		return torrent.season[0]?.toString() + '-' + torrent.season.at(-1).toString();
-	if (torrent?.seasons?.length === 1) return torrent.seasons[0]?.toString();
-	if (torrent?.seasons?.length >= 2)
-		return torrent.seasons[0]?.toString() + '-' + torrent.seasons.at(-1).toString();
-	else {
+	if (torrent?.season?.length === 1) return torrent.season[0]?.toString() || '';
+	if (torrent?.season?.length && torrent.season.length >= 2) {
+		const lastSeason = torrent.season.at(-1);
+		return torrent.season[0]?.toString() + '-' + (lastSeason?.toString() || '');
+	}
+	if (torrent?.seasons?.length === 1) return torrent.seasons[0]?.toString() || '';
+	if (torrent?.seasons?.length && torrent.seasons.length >= 2) {
+		const lastSeason = torrent.seasons.at(-1);
+		return torrent.seasons[0]?.toString() + '-' + (lastSeason?.toString() || '');
+	} else {
 		console.log('Error parsing season range: ' + torrent?.seasons + torrent?.season);
 		return 'Error parsing season range: ' + torrent?.seasons + torrent?.season;
 	}

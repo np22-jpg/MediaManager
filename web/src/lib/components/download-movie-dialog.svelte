@@ -120,7 +120,10 @@
 	});
 </script>
 
-{#snippet saveDirectoryPreview(movie, filePathSuffix)}
+{#snippet saveDirectoryPreview(
+	movie: { name: string; metadata_provider: string; external_id: number; year: number | null },
+	filePathSuffix: string
+)}
 	/{getFullyQualifiedMediaName(movie)} [{movie.metadata_provider}id-{movie.external_id}
 	]/{movie.name}{filePathSuffix === '' ? '' : ' - ' + filePathSuffix}.mkv
 {/snippet}
@@ -142,7 +145,7 @@
 			<Tabs.Content value="basic">
 				<div class="grid w-full items-center gap-1.5">
 					<Label for="file-suffix">Filepath suffix</Label>
-					<Select.Root bind:value={filePathSuffix} id="file-suffix" type="single">
+					<Select.Root bind:value={filePathSuffix} type="single">
 						<Select.Trigger class="w-[180px]">{filePathSuffix}</Select.Trigger>
 						<Select.Content>
 							<Select.Item value="">None</Select.Item>

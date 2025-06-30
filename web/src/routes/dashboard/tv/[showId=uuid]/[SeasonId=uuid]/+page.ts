@@ -39,7 +39,7 @@ export const load: PageLoad = async ({ fetch, params }) => {
 	} catch (error) {
 		console.error('An error occurred while fetching TV show files:', error);
 		return {
-			error: `An unexpected error occurred: ${error.message || 'Unknown error'}`,
+			error: `An unexpected error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`,
 			files: [],
 			season: null
 		};
