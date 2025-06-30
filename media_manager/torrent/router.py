@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get("/{torrent_id}", status_code=status.HTTP_200_OK, response_model=Torrent)
 def get_torrent(service: torrent_service_dep, torrent: torrent_dep):
-    return service.get_torrent_by_id(id=torrent.id)
+    return service.get_torrent_by_id(torrent_id=torrent.id)
 
 
 @router.get(
@@ -31,7 +31,7 @@ def get_all_torrents(service: torrent_service_dep):
     response_model=Torrent,
 )
 def import_torrent(service: torrent_service_dep, torrent: torrent_dep):
-    return service.import_torrent(service.get_torrent_by_id(id=torrent.id))
+    return service.import_torrent(service.get_torrent_by_id(torrent_id=torrent.id))
 
 
 @router.delete(
