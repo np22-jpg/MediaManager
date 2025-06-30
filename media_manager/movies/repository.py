@@ -15,6 +15,7 @@ from media_manager.movies.schemas import (
     MovieRequestId,
     MovieFile as MovieFileSchema,
     RichMovieRequest as RichMovieRequestSchema,
+    MovieTorrent as MovieTorrentSchema,
 )
 from media_manager.torrent.models import Torrent
 from media_manager.torrent.schemas import TorrentId, Torrent as TorrentSchema
@@ -332,7 +333,7 @@ class MovieRepository:
             )
             raise
 
-    def get_torrents_by_movie_id(self, movie_id: MovieId) -> list[TorrentSchema]:
+    def get_torrents_by_movie_id(self, movie_id: MovieId) -> list[MovieTorrentSchema]:
         """
         Retrieve all torrents associated with a given movie ID.
 
@@ -343,16 +344,27 @@ class MovieRepository:
         log.debug(f"Attempting to retrieve torrents for movie_id: {movie_id}")
         try:
             stmt = (
-                select(Torrent)
+                select(Torrent, MovieFile.file_path_suffix)
                 .distinct()
                 .join(MovieFile, MovieFile.torrent_id == Torrent.id)
                 .where(MovieFile.movie_id == movie_id)
             )
-            results = self.db.execute(stmt).scalars().unique().all()
+            results = self.db.execute(stmt).all()
             log.info(
                 f"Successfully retrieved {len(results)} torrents for movie_id: {movie_id}"
             )
-            return [TorrentSchema.model_validate(torrent) for torrent in results]
+            formatted_results = []
+            for torrent, file_path_suffix in results:
+                movie_torrent = MovieTorrentSchema(
+                    torrent_id=torrent.id,
+                    torrent_title=torrent.title,
+                    status=torrent.status,
+                    quality=torrent.quality,
+                    imported=torrent.imported,
+                    file_path_suffix=file_path_suffix
+                )
+                formatted_results.append(movie_torrent)
+            return formatted_results
         except SQLAlchemyError as e:
             log.error(
                 f"Database error retrieving torrents for movie_id {movie_id}: {e}"
