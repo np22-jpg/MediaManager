@@ -7,11 +7,13 @@ ENV IMAGE_DIRECTORY=/data/images \
     MOVIE_DIRECTORY=/data/movies \
     TORRENT_DIRECTORY=/data/torrents \
     OPENID_ENABLED=FALSE \
-    PUBLIC_VERSION=${VERSION}
+    PUBLIC_VERSION=${VERSION} \
+    API_BASE_PATH="/api/v1"
+
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y ca-certificates gcc mime-support
+    apt-get install -y ca-certificates gcc mime-support curl
 
 COPY pyproject.toml uv.lock ./
 
@@ -22,5 +24,6 @@ COPY media_manager ./media_manager
 COPY alembic ./alembic
 COPY alembic.ini .
 
+HEALTHCHECK CMD curl -f http://localhost:8000${API_BASE_PATH}/ || exit 1
 EXPOSE 8000
 CMD ["/app/mediamanager-backend-startup.sh"]
