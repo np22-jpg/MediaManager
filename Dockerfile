@@ -36,9 +36,5 @@ COPY media_manager ./media_manager
 COPY alembic ./alembic
 COPY alembic.ini .
 
-RUN useradd -m appuser && \
-    chown -R appuser:appuser /app /data
-
-USER appuser
 EXPOSE 8000
 CMD ["/app/mediamanager-backend-startup.sh"]
