@@ -61,7 +61,7 @@ class TorrentRepository:
     def get_movie_of_torrent(self, torrent_id: TorrentId):
         stmt = (
             select(Movie)
-            .join(MovieFile.movie_id)
+            .join(MovieFile, Movie.id == MovieFile.movie_id)
             .where(MovieFile.torrent_id == torrent_id)
         )
         result = self.db.execute(stmt).unique().scalar_one_or_none()
