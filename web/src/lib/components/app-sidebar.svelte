@@ -99,7 +99,7 @@
 							<img class="size-12" src={logo} alt="Media Manager Logo" />
 							<div class="grid flex-1 text-left text-sm leading-tight">
 								<span class="truncate font-semibold">Media Manager</span>
-								<span class="truncate text-xs">v{PUBLIC_VERSION}</span>
+								<span class="truncate text-xs">{PUBLIC_VERSION}</span>
 							</div>
 						</a>
 					{/snippet}

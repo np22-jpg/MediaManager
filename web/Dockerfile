@@ -1,28 +1,39 @@
 ARG VERSION
 ARG BASE_URL=""
 FROM node:24-alpine AS build
-USER node:node
 WORKDIR /app
+ARG VERSION
+ARG BASE_URL
 
-COPY --chown=node:node . .
+# Copy package files first for better layer caching
+COPY package*.json ./
+RUN npm ci && npm cache clean --force
 
-RUN npm ci
+# Copy source code after dependencies are installed
+COPY . .
 RUN env PUBLIC_VERSION=${VERSION} BASE_URL=${BASE_URL} npm run build
 
 FROM node:24-alpine AS frontend
 ARG VERSION
-USER node:node
+
+USER node
+EXPOSE 3000
+WORKDIR /app
+
 LABEL version=${VERSION}
 LABEL description="Docker image for the web frontend of MediaManager"
 
+
 ENV PUBLIC_VERSION=${VERSION}
 ENV PUBLIC_SSR_WEB=false
-WORKDIR /app
 
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node --from=build /app/node_modules ./node_modules/
-COPY --chown=node:node --from=build /app/build/ ./build/
+# Copy built application and package files
+COPY --from=build /app/build ./build
+COPY --from=build /app/package*.json ./
+COPY --chmod=755 entrypoint.sh .
 
-EXPOSE 3000
+# Install only production dependencies needed for the Node adapter
+RUN npm ci --only=production && npm cache clean --force
 
-CMD ["node","build/index.js"]
+CMD ["/app/entrypoint.sh"]
+

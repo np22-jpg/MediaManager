@@ -131,7 +131,7 @@ weekly_trigger = CronTrigger(
     day_of_week="mon", hour=0, minute=0, jitter=60 * 60 * 24 * 2
 )
 scheduler.add_job(hourly_tasks, trigger)
-scheduler.add_job(weekly_tasks, trigger)
+scheduler.add_job(weekly_tasks, weekly_trigger)
 scheduler.start()
 
 
@@ -287,6 +287,14 @@ try:
 except Exception as e:
     log.error(f"Error creating test directory: {e}")
     raise
+
+
+@app.get("/")
+async def hello_world() -> dict:
+    """
+    A simple endpoint to check if the API is running.
+    """
+    return {"message": "Hello World!", "version": os.getenv("PUBLIC_VERSION")}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)

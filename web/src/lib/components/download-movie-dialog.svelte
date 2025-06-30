@@ -27,7 +27,7 @@
 		let url = new URL(apiUrl + `/movies/${movie.id}/torrents`);
 		url.searchParams.append('public_indexer_result_id', result_id);
 		if (filePathSuffix !== '') {
-			url.searchParams.append('file_path_suffix', filePathSuffix);
+			url.searchParams.append('override_file_path_suffix', filePathSuffix);
 		}
 		try {
 			const response = await fetch(url, {
