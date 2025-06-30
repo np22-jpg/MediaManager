@@ -131,7 +131,7 @@ weekly_trigger = CronTrigger(
     day_of_week="mon", hour=0, minute=0, jitter=60 * 60 * 24 * 2
 )
 scheduler.add_job(hourly_tasks, trigger)
-scheduler.add_job(weekly_tasks, trigger)
+scheduler.add_job(weekly_tasks, weekly_trigger)
 scheduler.start()
 
 
