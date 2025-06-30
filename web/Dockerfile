@@ -27,12 +27,10 @@ LABEL description="Docker image for the web frontend of MediaManager"
 ENV PUBLIC_VERSION=${VERSION}
 ENV PUBLIC_SSR_WEB=false
 
-# Copy built application and package files
 COPY --from=build /app/build ./build
 COPY --from=build /app/package*.json ./
 COPY --chmod=755 entrypoint.sh .
 
-# Install only production dependencies needed for the Node adapter
 RUN npm ci --only=production && npm cache clean --force
 
 CMD ["/app/entrypoint.sh"]
