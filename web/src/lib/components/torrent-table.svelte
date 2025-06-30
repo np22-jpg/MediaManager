@@ -28,36 +28,24 @@
 		{#each torrents as torrent}
 			<Table.Row>
 				<Table.Cell class="font-medium">
-					<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-						{isShow ? torrent.torrent_title : torrent.title}
-					</a>
+					{isShow ? torrent.torrent_title : torrent.title}
 				</Table.Cell>
 				{#if isShow}
 					<Table.Cell>
-						<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-							{convertTorrentSeasonRangeToIntegerRange(torrent)}
-						</a>
+						{convertTorrentSeasonRangeToIntegerRange(torrent)}
 					</Table.Cell>
 				{/if}
 				<Table.Cell>
-					<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-						{getTorrentStatusString(torrent.status)}
-					</a>
+					{getTorrentStatusString(torrent.status)}
 				</Table.Cell>
 				<Table.Cell class="font-medium">
-					<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-						{getTorrentQualityString(torrent.quality)}
-					</a>
+					{getTorrentQualityString(torrent.quality)}
 				</Table.Cell>
 				<Table.Cell class="font-medium">
-					<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-						{torrent.file_path_suffix}
-					</a>
+					{torrent.file_path_suffix}
 				</Table.Cell>
 				<Table.Cell>
-					<a href={'/dashboard/torrents/' + torrent.torrent_id}>
-						<CheckmarkX state={torrent.imported} />
-					</a>
+					<CheckmarkX state={torrent.imported} />
 				</Table.Cell>
 			</Table.Row>
 		{/each}
