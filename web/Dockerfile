@@ -29,7 +29,7 @@ ENV PUBLIC_SSR_WEB=false
 
 COPY --from=build /app/build ./build
 COPY --from=build /app/package*.json ./
-COPY --chmod=755 entrypoint.sh .
+COPY --chmod=755 entrypoint.sh ./entrypoint.sh
 
 RUN npm ci --only=production && npm cache clean --force
 
