@@ -54,11 +54,14 @@ other services.
 - [x] create separate metadata relay service, so that api keys for TMDB and TVDB are not strictly needed
 - [x] support for movies
 - [x] expand README with more information and a quickstart guide
+- [x] improve reliability of scheduled tasks
 - [ ] add notification system
 - [ ] add in-depth documentation on the architecture of the codebase
 - [ ] make indexer module multithreaded
 - [ ] add support for deluge and transmission
-- [ ] improve reliability of scheduled tasks
+- [ ] add delete button for movies/TV shows
+- [ ] rework prowlarr module (select which indexers to use, etc.)
+- [ ] add sequence diagrams to the documentation
 - [ ] _maybe_ rework the logo
 - [ ] _maybe_ add support for configuration via toml config file
 
