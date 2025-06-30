@@ -9,7 +9,7 @@
 <svelte:head>
 	<title>MediaManager</title>
 	<meta content="Smart PVR for movies and TV shows" name="description" />
-	<link href="/favicon.ico" rel="icon" type="ico" />
+	<link href="/logo.svg" rel="icon" type="image/svg" />
 </svelte:head>
 
 <ModeWatcher />
