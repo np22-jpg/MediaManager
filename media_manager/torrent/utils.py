@@ -26,10 +26,23 @@ def list_files_recursively(path: Path = Path(".")) -> list[Path]:
 
 
 def extract_archives(files):
+    archive_types = {
+        "application/zip",
+        "application/x-zip-compressedapplication/x-compressed",
+        "application/vnd.rar",
+        "application/x-7z-compressed",
+        "application/x-freearc",
+        "application/x-bzip",
+        "application/x-bzip2",
+        "application/gzip",
+        "application/x-gzip",
+        "application/x-tar",
+    }
     for file in files:
         file_type = mimetypes.guess_type(file)
         log.debug(f"File: {file}, Size: {file.stat().st_size} bytes, Type: {file_type}")
-        if file_type[0] == "application/x-compressed":
+
+        if file_type[0] in archive_types:
             log.debug(
                 f"File {file} is a compressed file, extracting it into directory {file.parent}"
             )
