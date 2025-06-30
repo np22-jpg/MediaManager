@@ -12,17 +12,17 @@
 
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let season: Season = $state(page.data.season);
-	let show: Show = getContext('show');
+	let show: ()=> Show = getContext('show');
 
 	console.log('loaded files', seasonFiles);
 </script>
 
 <svelte:head>
-	<title>{getFullyQualifiedMediaName(show())} - Season {season().number} - MediaManager</title>
+	<title>{getFullyQualifiedMediaName(show())} - Season {season.number} - MediaManager</title>
 	<meta
 		content="View episodes and manage downloads for {getFullyQualifiedMediaName(
 			show()
-		)} Season {season().number} in MediaManager"
+		)} Season {season.number} in MediaManager"
 		name="description"
 	/>
 </svelte:head>

@@ -26,7 +26,7 @@
 
 	async function toggle_continuous_download() {
 		let url = new URL(apiUrl + '/tv/shows/' + show().id + '/continuousDownload');
-		url.searchParams.append('continuous_download', !show().continuous_download);
+		url.searchParams.append('continuous_download', String(!show().continuous_download));
 		console.log(
 			'Toggling continuous download for show',
 			show().name,
