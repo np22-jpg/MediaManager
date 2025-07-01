@@ -11,6 +11,7 @@ from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 from media_manager.notification.repository import NotificationRepository
 from media_manager.notification.schemas import NotificationId, Notification
+from media_manager.notification.manager import notification_manager
 from media_manager.torrent.schemas import Torrent, TorrentStatus
 from media_manager.torrent.service import TorrentService
 from media_manager.movies import log
@@ -46,6 +47,7 @@ class NotificationService:
         notification_repository: NotificationRepository,
     ):
         self.notification_repository = notification_repository
+        self.notification_manager = notification_manager
 
     def get_notification(self, id: NotificationId) -> Notification:
         return self.notification_repository.get_notification(id=id)
@@ -68,3 +70,9 @@ class NotificationService:
     def delete_notification(self, id: NotificationId) -> None:
         return self.notification_repository.delete_notification(id=id)
 
+    def send_notification_to_all_providers(self, title: str, message: str) -> None:
+        self.notification_manager.send_notification(title, message)
+
+        internal_notification = Notification(message=f"{title}: {message}", read=False)
+        self.save_notification(internal_notification)
+        return
