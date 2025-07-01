@@ -12,4 +12,4 @@ class Notification(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True)
     message: Mapped[str]
     read: Mapped[bool]
-    timestamp = mapped_column(type=DateTime)
+    timestamp = mapped_column(DateTime, nullable=False)
