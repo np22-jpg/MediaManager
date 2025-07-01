@@ -32,9 +32,9 @@ class NotificationRepository:
         try:
             stmt = (
                 select(Notification)
-                .where(Notification.read == False)
+                .where(Notification.read == False)  # noqa: E712
                 .order_by(Notification.timestamp.desc())
-            )  # noqa: E712
+            )
             results = self.db.execute(stmt).scalars().all()
             log.info(f"Successfully retrieved {len(results)} unread notifications.")
             return [

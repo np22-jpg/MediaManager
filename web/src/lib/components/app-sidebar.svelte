@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import { Clapperboard, Home, Info, LifeBuoy, Send, Settings, TvIcon, Bell } from 'lucide-svelte';
+	import { Bell, Clapperboard, Home, Info, LifeBuoy, Settings, TvIcon } from 'lucide-svelte';
 	import { PUBLIC_VERSION } from '$env/static/public';
 
 	const data = {

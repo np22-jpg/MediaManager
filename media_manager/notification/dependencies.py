@@ -19,7 +19,7 @@ notification_repository_dep = Annotated[
 
 
 def get_notification_service(
-    notification_repository: notification_repository_dep
+    notification_repository: notification_repository_dep,
 ) -> NotificationService:
     return NotificationService(notification_repository)
 
