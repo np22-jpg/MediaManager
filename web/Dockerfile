@@ -31,7 +31,7 @@ COPY --from=build /app/build ./build
 COPY --from=build /app/package*.json ./
 COPY --chmod=755 entrypoint.sh ./entrypoint.sh
 
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --only=production
 
 CMD ["/app/entrypoint.sh"]
 
