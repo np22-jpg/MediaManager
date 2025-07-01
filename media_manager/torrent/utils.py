@@ -43,10 +43,15 @@ def extract_archives(files):
         log.debug(f"File: {file}, Size: {file.stat().st_size} bytes, Type: {file_type}")
 
         if file_type[0] in archive_types:
-            log.debug(
+            log.info(
                 f"File {file} is a compressed file, extracting it into directory {file.parent}"
             )
-            patoolib.extract_archive(str(file), outdir=str(file.parent))
+            try:
+                patoolib.extract_archive(str(file), outdir=str(file.parent))
+            except patoolib.util.PatoolError as e:
+                log.error(
+                    f"Failed to extract archive {file}. Error: {e}"
+                )
 
 
 def get_torrent_filepath(torrent: Torrent):

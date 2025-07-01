@@ -441,6 +441,7 @@ class MovieService:
         """
 
         video_files, subtitle_files, all_files = import_torrent(torrent=torrent)
+        success: bool = False # determines if the import was successful, if true, the Imported flag will be set to True after the import
 
         if len(video_files) != 0:
             # TODO: send notification
@@ -481,6 +482,7 @@ class MovieService:
                     movie_file_path / f"{movie_file_name}{video_files[0].suffix}"
                 )
                 import_file(target_file=target_video_file, source_file=video_files[0])
+                success = True
 
             # import subtitles
             for subtitle_file in subtitle_files:
@@ -497,6 +499,10 @@ class MovieService:
                     movie_file_path / f"{movie_file_name}.{language_code}.srt"
                 )
                 import_file(target_file=target_subtitle_file, source_file=subtitle_file)
+
+        if success:
+            torrent.imported = True
+            self.torrent_service.torrent_repository.save_torrent(torrent=torrent)
 
         log.info(f"Finished organizing files for torrent {torrent.title}")
 

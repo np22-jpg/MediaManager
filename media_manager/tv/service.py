@@ -491,6 +491,8 @@ class TvService:
 
         video_files, subtitle_files, all_files = import_torrent(torrent=torrent)
 
+        success: bool = True # determines if the import was successful, if true, the Imported flag will be set to True after the import
+
         log.info(
             f"Importing these {len(video_files)} files:\n" + pprint.pformat(video_files)
         )
@@ -532,7 +534,9 @@ class TvService:
                     log.debug(
                         f"Searching for pattern {subtitle_pattern} in subtitle file: {subtitle_file.name}"
                     )
-                    regex_result = re.search(subtitle_pattern, subtitle_file.name)
+                    regex_result = re.search(
+                        subtitle_pattern, subtitle_file.name, re.IGNORECASE
+                    )
                     if regex_result:
                         language_code = regex_result.group(1)
                         log.debug(
@@ -555,7 +559,7 @@ class TvService:
                     log.debug(
                         f"Searching for pattern {pattern} in video file: {file.name}"
                     )
-                    if re.search(pattern, file.name):
+                    if re.search(pattern, file.name, re.IGNORECASE):
                         log.debug(
                             f"Found matching pattern: {pattern} in file {file.name}"
                         )
@@ -564,9 +568,13 @@ class TvService:
                         break
                 else:
                     # TODO: notify admin that no video file was found for this episode
+                    success = False
                     log.warning(
                         f"S{season.number}E{episode.number} in Torrent {torrent.title}'s files not found."
                     )
+        if success:
+            torrent.imported = True
+            self.torrent_service.torrent_repository.save_torrent(torrent=torrent)
         log.info(f"Finished organizing files for torrent {torrent.title}")
 
     def update_show_metadata(
