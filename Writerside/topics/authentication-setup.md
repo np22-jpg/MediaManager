@@ -27,7 +27,7 @@ A list of email addresses for administrator accounts. This is a required field. 
 
 The URL the frontend will be accessed from. This is a required field. Example: `https://mediamanager.example/`.
 
-## `AUTH_EMAIL_PASSWORD_RESETS`
+### `AUTH_EMAIL_PASSWORD_RESETS`
 
 Toggle for enabling password resets via email. If users request a password reset in case they forgot their password,
 they will be sent an email with a link to reset it. Default is `FALSE`.
