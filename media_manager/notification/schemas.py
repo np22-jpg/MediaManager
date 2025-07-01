@@ -21,3 +21,10 @@ class Notification(BaseModel):
     read: bool = Field(False, description="Whether the notification has been read")
     message: str = Field(description="The content of the notification")
     timestamp: datetime = Field(default_factory=datetime.now, description="The timestamp of the notification")
+
+class MessageNotification(BaseModel):
+    """
+    Notification type for messages.
+    """
+    message: str
+    title: str

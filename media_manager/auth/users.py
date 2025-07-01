@@ -16,6 +16,7 @@ from httpx_oauth.clients.openid import OpenID
 from fastapi.responses import RedirectResponse, Response
 from starlette import status
 
+import media_manager.notification.utils
 from media_manager.auth.config import AuthConfig, OpenIdConfig, EmailConfig
 from media_manager.auth.db import User, get_user_db
 from media_manager.auth.schemas import UserUpdate
@@ -63,11 +64,11 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     ):
         link = f"{BasicConfig().FRONTEND_URL}login/reset-password?token={token}"
         log.info(f"User {user.id} has forgot their password. Reset Link: {link}")
+
         if not config.email_password_resets:
             log.info("Email password resets are disabled, not sending email.")
             return
 
-        email_conf = EmailConfig()
         subject = "MediaManager - Password Reset Request"
         html = f"""\
         <html>
@@ -83,18 +84,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
           </body>
         </html>
         """
-
-        message = MIMEMultipart()
-        message["From"] = email_conf.from_email
-        message["To"] = user.email
-        message["Subject"] = subject
-        message.attach(MIMEText(html, "html"))
-
-        with smtplib.SMTP(email_conf.smtp_host, email_conf.smtp_port) as server:
-            if email_conf.use_tls:
-                server.starttls()
-            server.login(email_conf.smtp_user, email_conf.smtp_password)
-            server.sendmail(email_conf.from_email, user.email, message.as_string())
+        media_manager.notification.utils.send_email(subject=subject, html=html, addressee=user.email)
         log.info(f"Sent password reset email to {user.email}")
 
     async def on_after_reset_password(
