@@ -63,6 +63,7 @@ from media_manager.movies.service import (  # noqa: E402
     import_all_movie_torrents,
     update_all_movies_metadata,
 )
+from media_manager.notification.router import router as notification_router  # noqa: E402
 import uvicorn  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 from media_manager.auth.users import openid_client  # noqa: E402
@@ -226,6 +227,7 @@ if openid_client is not None:
 app.include_router(tv_router.router, prefix="/tv", tags=["tv"])
 app.include_router(torrent_router.router, prefix="/torrent", tags=["torrent"])
 app.include_router(movies_router.router, prefix="/movies", tags=["movie"])
+app.include_router(notification_router, prefix="/notification", tags=["notification"])
 app.mount(
     "/static/image",
     StaticFiles(directory=basic_config.image_directory),

@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import { Clapperboard, Home, Info, LifeBuoy, Send, Settings, TvIcon } from 'lucide-svelte';
+	import { Bell, Clapperboard, Home, Info, LifeBuoy, Settings, TvIcon } from 'lucide-svelte';
 	import { PUBLIC_VERSION } from '$env/static/public';
 
 	const data = {
@@ -49,24 +49,23 @@
 						url: '/dashboard/movies/requests'
 					}
 				]
-			},
-			{
-				title: 'Settings',
-				url: '/dashboard/settings',
-				icon: Settings,
-				isActive: true
 			}
 		],
 		navSecondary: [
 			{
+				title: 'Notifications',
+				url: '/dashboard/notifications',
+				icon: Bell
+			},
+			{
+				title: 'Settings',
+				url: '/dashboard/settings',
+				icon: Settings
+			},
+			{
 				title: 'Support',
 				url: 'https://github.com/maxdorninger/MediaManager/issues',
 				icon: LifeBuoy
-			},
-			{
-				title: 'Feedback',
-				url: 'https://github.com/maxdorninger/MediaManager/issues',
-				icon: Send
 			},
 			{
 				title: 'About',

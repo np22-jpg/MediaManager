@@ -6,6 +6,13 @@ export interface User {
 	is_verified?: boolean;
 }
 
+export interface Notification {
+	id: string;
+	read: boolean;
+	message: string;
+	timestamp: string;
+}
+
 export interface BearerResponse {
 	access_token: string;
 	token_type: string;

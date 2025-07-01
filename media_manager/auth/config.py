@@ -17,16 +17,6 @@ class AuthConfig(BaseSettings):
         return self._jwt_signing_key
 
 
-class EmailConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="EMAIL_")
-    smtp_host: str
-    smtp_port: int
-    smtp_user: str
-    smtp_password: str
-    from_email: str
-    use_tls: bool = False
-
-
 class OpenIdConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="OPENID_")
     client_id: str

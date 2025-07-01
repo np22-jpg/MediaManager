@@ -49,9 +49,7 @@ def extract_archives(files):
             try:
                 patoolib.extract_archive(str(file), outdir=str(file.parent))
             except patoolib.util.PatoolError as e:
-                log.error(
-                    f"Failed to extract archive {file}. Error: {e}"
-                )
+                log.error(f"Failed to extract archive {file}. Error: {e}")
 
 
 def get_torrent_filepath(torrent: Torrent):
