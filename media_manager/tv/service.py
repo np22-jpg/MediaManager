@@ -9,6 +9,7 @@ from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
+from media_manager.notification.service import NotificationService
 from media_manager.torrent.schemas import Torrent, TorrentStatus, Quality
 from media_manager.torrent.service import TorrentService
 from media_manager.tv import log
@@ -51,10 +52,12 @@ class TvService:
         tv_repository: TvRepository,
         torrent_service: TorrentService,
         indexer_service: IndexerService,
+        notification_service: NotificationService = None,
     ):
         self.tv_repository = tv_repository
         self.torrent_service = torrent_service
         self.indexer_service = indexer_service
+        self.notification_service = notification_service
 
     def add_show(
         self, external_id: int, metadata_provider: AbstractMetadataProvider
@@ -567,7 +570,12 @@ class TvService:
                         import_file(target_file=target_video_file, source_file=file)
                         break
                 else:
-                    # TODO: notify admin that no video file was found for this episode
+                    # Send notification about missing episode file
+                    if self.notification_service:
+                        self.notification_service.send_notification_to_all_providers(
+                            title="Missing Episode File",
+                            message=f"No video file found for S{season.number:02d}E{episode.number:02d} in torrent '{torrent.title}' for show {show.name}. Manual intervention may be required."
+                        )
                     success = False
                     log.warning(
                         f"S{season.number}E{episode.number} in Torrent {torrent.title}'s files not found."
@@ -575,6 +583,15 @@ class TvService:
         if success:
             torrent.imported = True
             self.torrent_service.torrent_repository.save_torrent(torrent=torrent)
+
+            # Send successful season download notification
+            if self.notification_service:
+                season_info = ", ".join([f"Season {season_file.season_id}" for season_file in season_files])
+                self.notification_service.send_notification_to_all_providers(
+                    title="TV Season Downloaded",
+                    message=f"Successfully downloaded {show.name} ({show.year}) - {season_info}"
+                )
+
         log.info(f"Finished organizing files for torrent {torrent.title}")
 
     def update_show_metadata(

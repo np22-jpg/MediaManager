@@ -10,6 +10,7 @@ from media_manager.exceptions import NotFoundError
 from fastapi import HTTPException
 from media_manager.indexer.dependencies import indexer_service_dep
 from media_manager.torrent.dependencies import torrent_service_dep
+from media_manager.notification.dependencies import notification_service_dep
 
 
 def get_tv_repository(db_session: DbSessionDependency) -> TvRepository:
@@ -23,11 +24,13 @@ def get_tv_service(
     tv_repository: tv_repository_dep,
     torrent_service: torrent_service_dep,
     indexer_service: indexer_service_dep,
+    notification_service: notification_service_dep,
 ) -> TvService:
     return TvService(
         tv_repository=tv_repository,
         torrent_service=torrent_service,
         indexer_service=indexer_service,
+        notification_service=notification_service,
     )
 
 
