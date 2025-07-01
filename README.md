@@ -55,7 +55,7 @@ other services.
 - [x] support for movies
 - [x] expand README with more information and a quickstart guide
 - [x] improve reliability of scheduled tasks
-- [ ] add notification system
+- [x] add notification system
 - [ ] add in-depth documentation on the architecture of the codebase
 - [ ] make indexer module multithreaded
 - [ ] add support for deluge and transmission
