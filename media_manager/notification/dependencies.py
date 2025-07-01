@@ -29,4 +29,3 @@ def get_notification_service(
 notification_service_dep = Annotated[
     NotificationService, Depends(get_notification_service)
 ]
-

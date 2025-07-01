@@ -494,7 +494,7 @@ class TvService:
 
         video_files, subtitle_files, all_files = import_torrent(torrent=torrent)
 
-        success: bool = True # determines if the import was successful, if true, the Imported flag will be set to True after the import
+        success: bool = True  # determines if the import was successful, if true, the Imported flag will be set to True after the import
 
         log.info(
             f"Importing these {len(video_files)} files:\n" + pprint.pformat(video_files)
@@ -574,7 +574,7 @@ class TvService:
                     if self.notification_service:
                         self.notification_service.send_notification_to_all_providers(
                             title="Missing Episode File",
-                            message=f"No video file found for S{season.number:02d}E{episode.number:02d} in torrent '{torrent.title}' for show {show.name}. Manual intervention may be required."
+                            message=f"No video file found for S{season.number:02d}E{episode.number:02d} in torrent '{torrent.title}' for show {show.name}. Manual intervention may be required.",
                         )
                     success = False
                     log.warning(
@@ -586,10 +586,12 @@ class TvService:
 
             # Send successful season download notification
             if self.notification_service:
-                season_info = ", ".join([f"Season {season_file.season_id}" for season_file in season_files])
+                season_info = ", ".join(
+                    [f"Season {season_file.season_id}" for season_file in season_files]
+                )
                 self.notification_service.send_notification_to_all_providers(
                     title="TV Season Downloaded",
-                    message=f"Successfully downloaded {show.name} ({show.year}) - {season_info}"
+                    message=f"Successfully downloaded {show.name} ({show.year}) - {season_info}",
                 )
 
         log.info(f"Finished organizing files for torrent {torrent.title}")

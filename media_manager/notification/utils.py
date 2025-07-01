@@ -7,7 +7,8 @@ from media_manager.notification.config import EmailConfig
 
 log = logging.getLogger(__name__)
 
-def send_email(html: str, addressee: str, subject: str|list[str]) -> None:
+
+def send_email(html: str, addressee: str, subject: str | list[str]) -> None:
     email_conf = EmailConfig()
     message = MIMEMultipart()
     message["From"] = email_conf.from_email
@@ -19,8 +20,6 @@ def send_email(html: str, addressee: str, subject: str|list[str]) -> None:
         if email_conf.use_tls:
             server.starttls()
         server.login(email_conf.smtp_user, email_conf.smtp_password)
-        server.sendmail(email_conf.from_email,addressee, message.as_string())
+        server.sendmail(email_conf.from_email, addressee, message.as_string())
 
     log.info(f"Successfully sent email to {addressee} with subject: {subject}")
-
-

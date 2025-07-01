@@ -1,14 +1,17 @@
 import media_manager.notification.utils
 from media_manager.notification.schemas import MessageNotification
-from media_manager.notification.service_providers.abstractNotificationServiceProvider import \
-    AbstractNotificationServiceProvider
+from media_manager.notification.service_providers.abstractNotificationServiceProvider import (
+    AbstractNotificationServiceProvider,
+)
 from media_manager.notification.config import NotificationConfig
+
 
 class EmailNotificationServiceProvider(AbstractNotificationServiceProvider):
     def __init__(self):
         self.config = NotificationConfig()
+
     def send_notification(self, message: MessageNotification) -> bool:
-        subject = "MediaManager - "+message.title
+        subject = "MediaManager - " + message.title
         html = f"""\
                 <html>
                   <body>
@@ -20,5 +23,7 @@ class EmailNotificationServiceProvider(AbstractNotificationServiceProvider):
                   </body>
                 </html>
                 """
-        media_manager.notification.utils.send_email(subject=subject, html=html,addressee=self.config.email)
+        media_manager.notification.utils.send_email(
+            subject=subject, html=html, addressee=self.config.email
+        )
         return True

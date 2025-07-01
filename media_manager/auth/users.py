@@ -17,14 +17,11 @@ from fastapi.responses import RedirectResponse, Response
 from starlette import status
 
 import media_manager.notification.utils
-from media_manager.auth.config import AuthConfig, OpenIdConfig, EmailConfig
+from media_manager.auth.config import AuthConfig, OpenIdConfig
 from media_manager.auth.db import User, get_user_db
 from media_manager.auth.schemas import UserUpdate
 from media_manager.config import BasicConfig
 
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 log = logging.getLogger(__name__)
 
@@ -84,7 +81,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
           </body>
         </html>
         """
-        media_manager.notification.utils.send_email(subject=subject, html=html, addressee=user.email)
+        media_manager.notification.utils.send_email(
+            subject=subject, html=html, addressee=user.email
+        )
         log.info(f"Sent password reset email to {user.email}")
 
     async def on_after_reset_password(

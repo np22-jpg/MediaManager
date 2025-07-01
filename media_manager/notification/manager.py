@@ -1,14 +1,25 @@
 """
 Notification Manager - Orchestrates sending notifications through all configured service providers
 """
+
 import logging
-from typing import List, Dict, Any
+from typing import List
 from media_manager.notification.schemas import MessageNotification
-from media_manager.notification.service_providers.abstractNotificationServiceProvider import AbstractNotificationServiceProvider
-from media_manager.notification.service_providers.email import EmailNotificationServiceProvider
-from media_manager.notification.service_providers.gotify import GotifyNotificationServiceProvider
-from media_manager.notification.service_providers.ntfy import NtfyNotificationServiceProvider
-from media_manager.notification.service_providers.pushover import PushoverNotificationServiceProvider
+from media_manager.notification.service_providers.abstractNotificationServiceProvider import (
+    AbstractNotificationServiceProvider,
+)
+from media_manager.notification.service_providers.email import (
+    EmailNotificationServiceProvider,
+)
+from media_manager.notification.service_providers.gotify import (
+    GotifyNotificationServiceProvider,
+)
+from media_manager.notification.service_providers.ntfy import (
+    NtfyNotificationServiceProvider,
+)
+from media_manager.notification.service_providers.pushover import (
+    PushoverNotificationServiceProvider,
+)
 from media_manager.notification.config import NotificationConfig
 
 logger = logging.getLogger(__name__)
@@ -76,7 +87,6 @@ class NotificationManager:
 
             except Exception as e:
                 logger.error(f"Error sending notification via {provider_name}: {e}")
-
 
     def get_configured_providers(self) -> List[str]:
         return [provider.__class__.__name__ for provider in self.providers]
