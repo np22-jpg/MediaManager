@@ -9,6 +9,7 @@ from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
+from media_manager.notification.service import NotificationService
 from media_manager.torrent.schemas import Torrent, TorrentStatus
 from media_manager.torrent.service import TorrentService
 from media_manager.movies import log
@@ -44,10 +45,12 @@ class MovieService:
         movie_repository: MovieRepository,
         torrent_service: TorrentService,
         indexer_service: IndexerService,
+        notification_service: NotificationService = None,
     ):
         self.movie_repository = movie_repository
         self.torrent_service = torrent_service
         self.indexer_service = indexer_service
+        self.notification_service = notification_service
 
     def add_movie(
         self, external_id: int, metadata_provider: AbstractMetadataProvider
@@ -444,7 +447,12 @@ class MovieService:
         success: bool = False # determines if the import was successful, if true, the Imported flag will be set to True after the import
 
         if len(video_files) != 0:
-            # TODO: send notification
+            # Send notification about multiple video files found
+            if self.notification_service:
+                self.notification_service.send_notification_to_all_providers(
+                    title="Multiple Video Files Found",
+                    message=f"Found {len(video_files)} video files in movie torrent '{torrent.title}' for {movie.name} ({movie.year}). Only the first will be imported. Manual intervention recommended."
+                )
             log.error(
                 "Found multiple video files in movie torrent, only the first will be imported. Manual intervention is recommended.."
             )
@@ -503,6 +511,13 @@ class MovieService:
         if success:
             torrent.imported = True
             self.torrent_service.torrent_repository.save_torrent(torrent=torrent)
+
+            # Send successful import notification
+            if self.notification_service:
+                self.notification_service.send_notification_to_all_providers(
+                    title="Movie Downloaded",
+                    message=f"Successfully downloaded: {movie.name} ({movie.year}) from torrent {torrent.title}."
+                )
 
         log.info(f"Finished organizing files for torrent {torrent.title}")
 
