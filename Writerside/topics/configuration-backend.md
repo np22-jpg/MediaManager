@@ -61,7 +61,6 @@ Password for QBittorrent. Default is `admin`.
 
 ## Metadata Provider Settings
 
-
 <note>
    Note the lack of a trailing slash in some env vars like <code>TMDB_RELAY_URL</code>. This is important.
 </note>
@@ -144,6 +143,74 @@ Location of movie files. Default is `/data/movies`.
 ### `TORRENT_DIRECTORY`
 
 Location of torrent files and downloads. Default is `/data/torrents`.
+
+## Email Settings
+
+For sending emails, MediaManager uses the SMTP protocol. You can use any SMTP server, like Gmail or SMTP2GO.
+
+### `EMAIL_SMTP_HOST`
+
+Hostname of the SMTP server.
+
+### `EMAIL_SMTP_PORT`
+
+Port of the SMTP server.
+
+### `EMAIL_SMTP_USER`
+
+Username for the SMTP server.
+
+### `EMAIL_SMTP_PASSWORD`
+
+Password for the SMTP server.
+
+### `EMAIL_FROM_EMAIL`
+
+Email address from which emails will be sent.
+
+### `EMAIL_USE_TLS`
+
+Set to `True` to use TLS for the SMTP connection. Default is `False`.
+For secure connections, use TLS.
+
+## Notification Settings
+
+MediaManager can send Notifications via email, ntfy.sh, Pushover and Gotify. You can enable any of these.
+To enable a notification method, set the corresponding environment variables.
+
+### Email
+
+#### `NOTIFICATION_EMAIL`
+
+If set notifications will be sent via email to this email address.
+Example: `notifications@example.com`.
+
+### Gotify
+
+#### `NOTIFICATION_GOTIFY_API_KEY`
+
+API key for Gotify.
+
+#### `NOTIFICATION_GOTIFY_URL`
+
+Base URL of your Gotify instance. Example: `https://gotify.example.com`.
+Note the lack of a trailing slash.
+
+### Ntfy
+
+#### `NOTIFICATION_NTFY_URL`
+
+URL of your ntfy instance + the topic. Example `https://ntfy.sh/your-topic`.
+
+### Pushover
+
+#### `NOTIFICATION_PUSHOVER_API_KEY`
+
+API key for Pushover.
+
+#### `NOTIFICATION_PUSHOVER_USER`
+
+Username for Pushover.
 
 ## Build Arguments (Dockerfile)
 

@@ -120,38 +120,61 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
 
         return show
 
-    # TODO: fuck this mess
     def search_show(
         self, query: str | None = None
     ) -> list[MetaDataProviderSearchResult]:
-        if query is None:
-            results = self.__get_trending_tv()
-        else:
+        if query:
             results = self.__search_tv(query=query)
-        formatted_results = []
-        for result in results:
-            try:
-                if result["type"] == "series":
-                    try:
-                        year = result["year"]
-                    except KeyError:
-                        year = None
+            formatted_results = []
+            for result in results:
+                try:
+                    if result["type"] == "series":
+                        try:
+                            year = result["year"]
+                        except KeyError:
+                            year = None
 
-                    formatted_results.append(
-                        MetaDataProviderSearchResult(
-                            poster_path=result["image_url"],
-                            overview=result["overview"],
-                            name=result["name"],
-                            external_id=result["tvdb_id"],
-                            year=year,
-                            metadata_provider=self.name,
-                            added=False,
-                            vote_average=None,
+                        formatted_results.append(
+                            MetaDataProviderSearchResult(
+                                poster_path=result["image_url"],
+                                overview=result["overview"],
+                                name=result["name"],
+                                external_id=result["tvdb_id"],
+                                year=year,
+                                metadata_provider=self.name,
+                                added=False,
+                                vote_average=None,
+                            )
                         )
-                    )
-            except Exception as e:
-                log.warning(f"Error processing search result {result}: {e}")
-        return formatted_results
+                except Exception as e:
+                    log.warning(f"Error processing search result {result}: {e}")
+            return formatted_results
+        else:
+            results = self.__get_trending_tv()
+            formatted_results = []
+            for result in results:
+                try:
+                    if result["type"] == "series":
+                        try:
+                            year = result["year"]
+                        except KeyError:
+                            year = None
+
+                        formatted_results.append(
+                            MetaDataProviderSearchResult(
+                                poster_path=result["image"],
+                                overview=result["overview"],
+                                name=result["name"],
+                                external_id=result["id"],
+                                year=year,
+                                metadata_provider=self.name,
+                                added=False,
+                                vote_average=None,
+                            )
+                        )
+                except Exception as e:
+                    log.warning(f"Error processing search result {result}: {e}")
+            return formatted_results
 
     def search_movie(
         self, query: str | None = None
