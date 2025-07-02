@@ -27,6 +27,11 @@ MediaManager is built first and foremost for deployment with Docker, making it e
 It also provides an API to interact with the software programmatically, allowing for automation and integration with
 other services.
 
+<a href="https://buymeacoffee.com/maxdorninger" target="_blank">
+<img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+</a>
+
+
 ## Quick Start
 
 ```
@@ -56,14 +61,14 @@ other services.
 - [x] expand README with more information and a quickstart guide
 - [x] improve reliability of scheduled tasks
 - [x] add notification system
+- [x] add sequence diagrams to the documentation
 - [ ] add in-depth documentation on the architecture of the codebase
 - [ ] make indexer module multithreaded
 - [ ] add support for deluge and transmission
 - [ ] add delete button for movies/TV shows
 - [ ] rework prowlarr module (select which indexers to use, etc.)
-- [ ] add sequence diagrams to the documentation
 - [ ] _maybe_ rework the logo
-- [ ] _maybe_ add support for configuration via toml config file
+- [ ] _maybe_ add support for configuration via toml/yaml config file
 
 See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a full list of proposed features (and known issues).
 
@@ -71,7 +76,7 @@ See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a
 <!-- LICENSE -->
 ## License
 
-Distributed under the GPL 3.0. See `LICENSE.txt` for more information.
+Distributed under the AGPL 3.0. See `LICENSE.txt` for more information.
 
 
 <!-- ACKNOWLEDGMENTS -->
