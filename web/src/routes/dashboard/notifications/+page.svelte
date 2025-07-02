@@ -2,10 +2,9 @@
 	import { onMount } from 'svelte';
 	import { env } from '$env/dynamic/public';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import {Separator} from "$lib/components/ui/separator";
+	import { Separator } from '$lib/components/ui/separator';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
-	import { Check } from 'lucide-svelte';
 
 	const apiUrl = env.PUBLIC_API_URL;
 
@@ -103,26 +102,6 @@
 		}
 	}
 
-	async function deleteNotification(notificationId: string) {
-		try {
-			const response = await fetch(`${apiUrl}/notification/${notificationId}`, {
-				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include'
-			});
-
-			if (response.ok) {
-				// Remove from both lists
-				unreadNotifications = unreadNotifications.filter((n) => n.id !== notificationId);
-				readNotifications = readNotifications.filter((n) => n.id !== notificationId);
-			}
-		} catch (error) {
-			console.error('Failed to delete notification:', error);
-		}
-	}
-
 	async function markAllAsRead() {
 		if (unreadNotifications.length === 0) return;
 
@@ -207,11 +186,7 @@
 	<div class="mb-6 flex items-center justify-between">
 		<h1 class="text-3xl font-bold text-gray-900 dark:text-white">Notifications</h1>
 		{#if unreadNotifications.length > 0}
-			<Button
-				onclick={() => markAllAsRead()}
-				disabled={markingAllAsRead}
-				class="flex items-center"
-			>
+			<Button onclick={() => markAllAsRead()} disabled={markingAllAsRead} class="flex items-center">
 				{#if markingAllAsRead}
 					<div class="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
 				{/if}
@@ -230,7 +205,7 @@
 			<div class="mb-4 flex items-center gap-2">
 				<h2 class="text-xl font-semibold text-gray-900 dark:text-white">
 					Unread Notifications{#if unreadNotifications.length > 0}:
-					{unreadNotifications.length}
+						{unreadNotifications.length}
 					{/if}
 				</h2>
 			</div>
@@ -265,7 +240,6 @@
 										class="rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-100 dark:hover:bg-blue-800"
 										title="Mark as read"
 										variant="outline"
-
 									>
 										<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 											<path
