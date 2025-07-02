@@ -72,6 +72,14 @@ other services.
 
 See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a full list of proposed features (and known issues).
 
+## Screenshots
+
+![Screenshot 2025-07-02 174732](https://github.com/user-attachments/assets/49fc18aa-b471-4be8-983e-c0ab240dfb73)
+![Screenshot 2025-07-02 174342](https://github.com/user-attachments/assets/3a38953d-d0fa-4a7e-83d0-dd6e6427681c)
+![Screenshot 2025-07-02 174616](https://github.com/user-attachments/assets/c3af4be8-b873-448c-8a4d-0d5db863aec7)
+![Screenshot 2025-07-02 174416](https://github.com/user-attachments/assets/0d50f53b-64da-4243-8408-1d6fc85fe81b)
+![Screenshot 2025-06-28 222908](https://github.com/user-attachments/assets/193e1afd-dabb-42a2-ab28-59f2784371c7)
+
 
 <!-- LICENSE -->
 ## License
