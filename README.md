@@ -40,6 +40,24 @@ other services.
    docker compose up -d
 ```
 
+## Developer Quick Start
+
+```bash
+  pip install uv
+  uv venv
+  # Activate the virtual environment
+  uv pip install -e .
+```
+```bash
+docker compose up db -d
+```
+
+```bash
+uv run alembic upgrade head
+```
+
+
+
 ### [View the docs for installation instructions and more](https://maxdorninger.github.io/MediaManager/configuration-overview.html#configuration-overview)
 
 <!-- ROADMAP -->
