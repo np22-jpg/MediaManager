@@ -32,7 +32,7 @@ services:
       - AUTH_TOKEN_SECRET=
 
       # this should be you email address
-      - AUTH_ADMIN_EMAIL=["admin1@example.com","admin2@example.com"]cat
+      - AUTH_ADMIN_EMAIL=["admin1@example.com","admin2@example.com"]
 
       # if you forget your password you can request a link and get it via email, you must have the email settings configured for this to work obviously
       #- AUTH_EMAIL_PASSWORD_RESETS=TRUE
