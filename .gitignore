@@ -40,3 +40,4 @@ web/vite.config.ts.timestamp-*
 __pycache__
 
 # Postgres
+/postgres
