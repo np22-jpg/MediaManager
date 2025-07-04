@@ -9,6 +9,8 @@ tv/*
 log.txt
 res/*
 media_manager/indexer/indexers/prowlarr.http
+*.egg-info
+.env
 
 
 web/cache/
