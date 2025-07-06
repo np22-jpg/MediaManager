@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from typing import Optional
 
 from fastapi import Depends
 from fastapi_users.db import (
@@ -16,6 +17,9 @@ from media_manager.database import db_url
 
 class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
     access_token: Mapped[str] = mapped_column(String(length=4096), nullable=False)
+    refresh_token: Mapped[Optional[str]] = mapped_column(
+        String(length=4096), nullable=True
+    )
     pass
 
 
