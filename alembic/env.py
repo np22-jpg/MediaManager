@@ -118,6 +118,12 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+
+    def include_object(object, name, type_, reflected, compare_to):
+        if type_ == "table" and name == "apscheduler_jobs":
+            return False
+        return True
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
@@ -125,7 +131,11 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            include_object=include_object,
+        )
 
         with context.begin_transaction():
             context.run_migrations()
