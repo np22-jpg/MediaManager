@@ -40,41 +40,6 @@ other services.
    docker compose up -d
 ```
 
-## Developer Quick Start
-
-```bash
-  pip install uv
-  uv venv
-  # Activate the virtual environment
-  uv pip install -e .
-```
-```bash
-docker compose up db -d
-```
-
-```bash
-uv run alembic upgrade head
-```
-
-## Get the frontend up and running
-
-TODO: provide an env.example to copy
-
-```bash
-cd /web && npm install
-```
-
-## Now start the backend and frontend
-```bash
-fastapi dev /media_manager/main.py --reload --host
-```
-
-```bash
-cd /web && npm run dev
-```
-
-
-
 ### [View the docs for installation instructions and more](https://maxdorninger.github.io/MediaManager/configuration-overview.html#configuration-overview)
 
 <!-- ROADMAP -->
@@ -97,6 +62,9 @@ cd /web && npm run dev
 - [x] improve reliability of scheduled tasks
 - [x] add notification system
 - [x] add sequence diagrams to the documentation
+- [ ] provide example configuration files
+- [ ] make media sorting algorithm configurable
+- [ ] add usenet support
 - [ ] add in-depth documentation on the architecture of the codebase
 - [ ] make indexer module multithreaded
 - [ ] add support for deluge and transmission
@@ -114,6 +82,38 @@ See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a
 ![Screenshot 2025-07-02 174616](https://github.com/user-attachments/assets/c3af4be8-b873-448c-8a4d-0d5db863aec7)
 ![Screenshot 2025-07-02 174416](https://github.com/user-attachments/assets/0d50f53b-64da-4243-8408-1d6fc85fe81b)
 ![Screenshot 2025-06-28 222908](https://github.com/user-attachments/assets/193e1afd-dabb-42a2-ab28-59f2784371c7)
+
+
+## Developer Quick Start
+
+```bash
+  pip install uv
+  uv venv
+  # Activate the virtual environment
+  uv pip install -e .
+```
+```bash
+docker compose up db -d
+```
+
+```bash
+uv run alembic upgrade head
+```
+
+### Get the frontend up and running
+
+```bash
+cd /web && npm install
+```
+
+### Now start the backend and frontend
+```bash
+fastapi dev /media_manager/main.py --reload --host
+```
+
+```bash
+cd /web && npm run dev
+```
 
 
 <!-- LICENSE -->
