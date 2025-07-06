@@ -362,6 +362,7 @@ class MovieRepository:
                     quality=torrent.quality,
                     imported=torrent.imported,
                     file_path_suffix=file_path_suffix,
+                    usenet=torrent.usenet
                 )
                 formatted_results.append(movie_torrent)
             return formatted_results

@@ -9,6 +9,7 @@ class BasicConfig(BaseSettings):
     tv_directory: Path = "/data/tv"
     movie_directory: Path = "/data/movies"
     torrent_directory: Path = "/data/torrents"
+    usenet_directory: Path = "/data/usenet"
     FRONTEND_URL: AnyHttpUrl = "http://localhost:3000/"
     CORS_URLS: list[str] = []
     DEVELOPMENT: bool = False

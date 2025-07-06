@@ -83,6 +83,7 @@ class MovieTorrent(BaseModel):
     quality: Quality
     imported: bool
     file_path_suffix: str
+    usenet: bool
 
 
 class RichMovieTorrent(BaseModel):

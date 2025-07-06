@@ -30,6 +30,7 @@ from media_manager.torrent.models import Torrent  # noqa: E402
 from media_manager.tv.models import Show, Season, Episode, SeasonFile, SeasonRequest  # noqa: E402
 from media_manager.movies.models import Movie, MovieFile, MovieRequest  # noqa: E402
 from media_manager.notification.models import Notification  # noqa: E402
+from media_manager.usenet.models import UsenetDownload  # noqa: E402
 
 from media_manager.database import Base  # noqa: E402
 
@@ -51,6 +52,7 @@ target_metadata = Base.metadata
     MovieFile,
     MovieRequest,
     Notification,
+    UsenetDownload
 )
 
 
