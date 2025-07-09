@@ -476,8 +476,7 @@ def test_get_all_available_torrents_for_a_season_no_override(
 
     mock_tv_repository.get_show_by_id.assert_called_once_with(show_id=show_id)
     mock_indexer_service.search.assert_called_once_with(
-        query=f"{show_name} s{str(season_number).zfill(2)}",
-        is_tv=True
+        query=f"{show_name} s{str(season_number).zfill(2)}", is_tv=True
     )
     assert len(results) == 3
     assert torrent1 in results
@@ -525,7 +524,9 @@ def test_get_all_available_torrents_for_a_season_with_override(
         search_query_override=override_query,
     )
 
-    mock_indexer_service.search.assert_called_once_with(query=override_query,is_tv=True)
+    mock_indexer_service.search.assert_called_once_with(
+        query=override_query, is_tv=True
+    )
     assert results == [torrent1]
 
 

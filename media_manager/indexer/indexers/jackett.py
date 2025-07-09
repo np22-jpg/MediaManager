@@ -67,8 +67,8 @@ class Jackett(GenericIndexer):
                         seeders=seeders,
                         flags=[],
                         size=int(item.find("size").text),
-                        usenet=False, # always False, because Jackett doesn't support usenet
-                        age=0 # always 0 for torrents, as Jackett does not provide age information in a convenient format
+                        usenet=False,  # always False, because Jackett doesn't support usenet
+                        age=0,  # always 0 for torrents, as Jackett does not provide age information in a convenient format
                     )
                     result_list.append(result)
                     log.debug(f"Raw result: {result.model_dump()}")

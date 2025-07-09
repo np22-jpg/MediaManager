@@ -178,8 +178,7 @@ class MovieService:
             search_query = f"{movie.name}"
 
         torrents: list[IndexerQueryResult] = self.indexer_service.search(
-            query=search_query,
-            is_tv=False
+            query=search_query, is_tv=False
         )
 
         if search_query_override:

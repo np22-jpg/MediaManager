@@ -30,7 +30,7 @@ class Prowlarr(GenericIndexer):
         params = {
             "query": query,
             "apikey": self.api_key,
-            "categories": "5000" if is_tv else  "2000" # TV: 5000, Movies: 2000
+            "categories": "5000" if is_tv else "2000",  # TV: 5000, Movies: 2000
         }
 
         response = requests.get(url, params=params)
@@ -47,7 +47,7 @@ class Prowlarr(GenericIndexer):
                             flags=result["indexerFlags"],
                             size=result["size"],
                             usenet=True,
-                            age=0, # Torrent results do not need age information
+                            age=0,  # Torrent results do not need age information
                         )
                     )
                 else:
@@ -55,11 +55,11 @@ class Prowlarr(GenericIndexer):
                         IndexerQueryResult(
                             download_url=result["downloadUrl"],
                             title=result["sortTitle"],
-                            seeders=0, # Usenet results do not have seeders
+                            seeders=0,  # Usenet results do not have seeders
                             flags=result["indexerFlags"],
                             size=result["size"],
                             usenet=False,
-                            age=int(result["ageMinutes"])*60,
+                            age=int(result["ageMinutes"]) * 60,
                         )
                     )
                 log.debug("torrent result: " + result.__str__())

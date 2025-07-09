@@ -52,7 +52,7 @@ target_metadata = Base.metadata
     MovieFile,
     MovieRequest,
     Notification,
-    UsenetDownload
+    UsenetDownload,
 )
 
 
