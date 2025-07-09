@@ -23,21 +23,22 @@ class Prowlarr(GenericIndexer):
         self.url = config.url
         log.debug("Registering Prowlarr as Indexer")
 
-    def search(self, query: str) -> list[IndexerQueryResult]:
+    def search(self, query: str, is_tv: bool) -> list[IndexerQueryResult]:
         log.debug("Searching for " + query)
         url = self.url + "/api/v1/search"
-        headers = {"accept": "application/json", "X-Api-Key": self.api_key}
 
         params = {
             "query": query,
+            "apikey": self.api_key,
+            "categories": "5000" if is_tv else  "2000" # TV: 5000, Movies: 2000
         }
 
-        response = requests.get(url, headers=headers, params=params)
+        response = requests.get(url, params=params)
         if response.status_code == 200:
             result_list: list[IndexerQueryResult] = []
             for result in response.json():
-                if result["protocol"] == "torrent":
-                    log.debug("torrent result: " + result.__str__())
+                is_torrent = result["protocol"] == "torrent"
+                if is_torrent:
                     result_list.append(
                         IndexerQueryResult(
                             download_url=result["downloadUrl"],
@@ -45,8 +46,24 @@ class Prowlarr(GenericIndexer):
                             seeders=result["seeders"],
                             flags=result["indexerFlags"],
                             size=result["size"],
+                            usenet=True,
+                            age=0, # Torrent results do not need age information
                         )
                     )
+                else:
+                    result_list.append(
+                        IndexerQueryResult(
+                            download_url=result["downloadUrl"],
+                            title=result["sortTitle"],
+                            seeders=0, # Usenet results do not have seeders
+                            flags=result["indexerFlags"],
+                            size=result["size"],
+                            usenet=False,
+                            age=int(result["ageMinutes"])*60,
+                        )
+                    )
+                log.debug("torrent result: " + result.__str__())
+
             return result_list
         else:
             log.error(f"Prowlarr Error: {response.status_code}")

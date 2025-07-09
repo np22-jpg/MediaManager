@@ -189,7 +189,8 @@ class TvService:
             search_query = show.name + " s" + str(season_number).zfill(2)
 
         torrents: list[IndexerQueryResult] = self.indexer_service.search(
-            query=search_query
+            query=search_query,
+            is_tv=True
         )
 
         if search_query_override:
