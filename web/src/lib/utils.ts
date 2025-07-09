@@ -81,10 +81,10 @@ export function formatSecondsToOptimalUnit(seconds: number): string {
 	const units = [
 		{ name: 'y', seconds: 365.25 * 24 * 60 * 60 }, // year (accounting for leap years)
 		{ name: 'mo', seconds: 30.44 * 24 * 60 * 60 }, // month (average)
-		{ name: 'd', seconds: 24 * 60 * 60 },          // day
-		{ name: 'h', seconds: 60 * 60 },               // hour
-		{ name: 'm', seconds: 60 },                    // minute
-		{ name: 's', seconds: 1 }                      // second
+		{ name: 'd', seconds: 24 * 60 * 60 }, // day
+		{ name: 'h', seconds: 60 * 60 }, // hour
+		{ name: 'm', seconds: 60 }, // minute
+		{ name: 's', seconds: 1 } // second
 	];
 
 	for (const unit of units) {

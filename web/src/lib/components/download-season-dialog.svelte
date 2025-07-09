@@ -6,7 +6,11 @@
 	import { toast } from 'svelte-sonner';
 
 	import type { PublicIndexerQueryResult } from '$lib/types.js';
-	import { convertTorrentSeasonRangeToIntegerRange, getFullyQualifiedMediaName, formatSecondsToOptimalUnit } from '$lib/utils';
+	import {
+		convertTorrentSeasonRangeToIntegerRange,
+		formatSecondsToOptimalUnit,
+		getFullyQualifiedMediaName
+	} from '$lib/utils';
 	import { LoaderCircle } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
@@ -283,8 +287,10 @@
 									<Table.Cell class="max-w-[300px] font-medium">{torrent.title}</Table.Cell>
 									<Table.Cell>{(torrent.size / 1024 / 1024 / 1024).toFixed(2)}GB</Table.Cell>
 									<Table.Cell>{torrent.usenet}</Table.Cell>
-									<Table.Cell>{torrent.usenet ? "N/A" : torrent.seeders}</Table.Cell>
-									<Table.Cell>{torrent.usenet ? formatSecondsToOptimalUnit(torrent.age) : "N/A"}</Table.Cell>
+									<Table.Cell>{torrent.usenet ? 'N/A' : torrent.seeders}</Table.Cell>
+									<Table.Cell
+										>{torrent.usenet ? formatSecondsToOptimalUnit(torrent.age) : 'N/A'}</Table.Cell
+									>
 									<Table.Cell>
 										{#each torrent.flags as flag}
 											<Badge variant="outline">{flag}</Badge>

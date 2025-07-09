@@ -39,7 +39,9 @@ class DownloadManager:
         if os.getenv("QBITTORRENT_ENABLED", "false").lower() == "true":
             try:
                 self._torrent_client = QbittorrentDownloadClient()
-                log.info("qBittorrent client initialized and set as active torrent client")
+                log.info(
+                    "qBittorrent client initialized and set as active torrent client"
+                )
             except Exception as e:
                 log.error(f"Failed to initialize qBittorrent client: {e}")
 

@@ -24,7 +24,9 @@ class IndexerRepository:
         log.debug("Saving indexer query result: %s", result)
 
         result_data = result.model_dump()
-        result_data["download_url"] = str(result.download_url) # this is the needful, because sqlalchemy is too dumb to handle the HttpUrl type
+        result_data["download_url"] = str(
+            result.download_url
+        )  # this is the needful, because sqlalchemy is too dumb to handle the HttpUrl type
 
         self.db.add(IndexerQueryResult(**result_data))
         self.db.commit()
