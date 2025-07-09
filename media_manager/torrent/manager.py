@@ -1,4 +1,5 @@
 import logging
+import os
 from enum import Enum
 
 from media_manager.indexer.schemas import IndexerQueryResult
@@ -35,18 +36,20 @@ class DownloadManager:
         """Initialize and register the default download clients"""
 
         # Initialize qBittorrent client for torrents
-        try:
-            self._torrent_client = QbittorrentDownloadClient()
-            log.info("qBittorrent client initialized and set as active torrent client")
-        except Exception as e:
-            log.error(f"Failed to initialize qBittorrent client: {e}")
+        if os.getenv("QBITTORRENT_ENABLED", "false").lower() == "true":
+            try:
+                self._torrent_client = QbittorrentDownloadClient()
+                log.info("qBittorrent client initialized and set as active torrent client")
+            except Exception as e:
+                log.error(f"Failed to initialize qBittorrent client: {e}")
 
         # Initialize SABnzbd client for usenet
-        try:
-            self._usenet_client = SabnzbdDownloadClient()
-            log.info("SABnzbd client initialized and set as active usenet client")
-        except Exception as e:
-            log.error(f"Failed to initialize SABnzbd client: {e}")
+        if os.getenv("SABNZBD_ENABLED", "false").lower() == "true":
+            try:
+                self._usenet_client = SabnzbdDownloadClient()
+                log.info("SABnzbd client initialized and set as active usenet client")
+            except Exception as e:
+                log.error(f"Failed to initialize SABnzbd client: {e}")
 
         active_clients = []
         if self._torrent_client:
