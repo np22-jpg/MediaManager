@@ -8,15 +8,17 @@ from media_manager.indexer.service import IndexerService
 
 
 class DummyIndexer:
-    def search(self, query):
+    def search(self, query, is_tv=True):
         return [
             IndexerQueryResult(
                 id=IndexerQueryResultId(uuid.uuid4()),
                 title=f"{query} S01 1080p",
-                download_url="http://example.com/1",
+                download_url="https://example.com/torrent1",
                 seeders=10,
                 flags=["test"],
                 size=123456,
+                usenet=False,
+                age=1,
             )
         ]
 
@@ -37,7 +39,7 @@ def indexer_service(monkeypatch, mock_indexer_repository):
 
 def test_search_returns_results(indexer_service, mock_indexer_repository):
     query = "TestShow"
-    results = indexer_service.search(query)
+    results = indexer_service.search(query, is_tv=True)
     assert len(results) == 1
     assert results[0].title == f"{query} S01 1080p"
     mock_indexer_repository.save_result.assert_called_once()
@@ -48,10 +50,12 @@ def test_get_result_returns_result(mock_indexer_repository):
     expected_result = IndexerQueryResult(
         id=result_id,
         title="Test S01 1080p",
-        download_url="http://example.com/1",
+        download_url="https://example.com/torrent2",
         seeders=10,
         flags=["test"],
         size=123456,
+        usenet=False,
+        age=1,
     )
     mock_indexer_repository.get_result.return_value = expected_result
     service = IndexerService(indexer_repository=mock_indexer_repository)
