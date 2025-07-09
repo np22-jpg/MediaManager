@@ -642,6 +642,7 @@ dependencies = [
     { name = "python-json-logger" },
     { name = "qbittorrent-api" },
     { name = "requests" },
+    { name = "sabnzbd-api" },
     { name = "sqlalchemy" },
     { name = "starlette" },
     { name = "tmdbsimple" },
@@ -673,6 +674,7 @@ requires-dist = [
     { name = "python-json-logger", specifier = ">=3.3.0" },
     { name = "qbittorrent-api", specifier = ">=2025.5.0" },
     { name = "requests", specifier = ">=2.32.3" },
+    { name = "sabnzbd-api", specifier = ">=0.1.2" },
     { name = "sqlalchemy", specifier = ">=2.0.41" },
     { name = "starlette", specifier = ">=0.46.2" },
     { name = "tmdbsimple", specifier = ">=2.9.1" },
@@ -1090,6 +1092,19 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/ab/e04bf58a8d375aeedb5268edcc835c6a660ebf79d4384d8e0889439448b0/rpds_py-0.25.1-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:58f77c60956501a4a627749a6dcb78dac522f249dd96b5c9f1c6af29bfacfb66", size = 558891, upload-time = "2025-05-21T12:44:37.358Z" },
     { url = "https://files.pythonhosted.org/packages/90/82/cb8c6028a6ef6cd2b7991e2e4ced01c854b6236ecf51e81b64b569c43d73/rpds_py-0.25.1-cp313-cp313t-win32.whl", hash = "sha256:2cb9e5b5e26fc02c8a4345048cd9998c2aca7c2712bd1b36da0c72ee969a3523", size = 218718, upload-time = "2025-05-21T12:44:38.969Z" },
     { url = "https://files.pythonhosted.org/packages/b6/97/5a4b59697111c89477d20ba8a44df9ca16b41e737fa569d5ae8bff99e650/rpds_py-0.25.1-cp313-cp313t-win_amd64.whl", hash = "sha256:401ca1c4a20cc0510d3435d89c069fe0a9ae2ee6495135ac46bdd49ec0495763", size = 232218, upload-time = "2025-05-21T12:44:40.512Z" },
+]
+
+[[package]]
+name = "sabnzbd-api"
+version = "0.1.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a5/ab/a0cf6a4bc977afd60a7f9846c1805cf709db73feef7705ee0c4397924f48/sabnzbd-api-0.1.2.tar.gz", hash = "sha256:1bb0defcb1aa19333f717a63464fbdc8b8a748a00ca4289be5c7496f045d339f", size = 7529, upload-time = "2025-02-20T19:36:03.397Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/14/06/b9a7135a8fe164fe928265647694c0963a6e6a5439228c915ae866d13586/sabnzbd_api-0.1.2-py3-none-any.whl", hash = "sha256:65ab9aecda300e574c5074b0ae4b971f61346d89d9e3f80393dc72c712ac3797", size = 8300, upload-time = "2025-02-20T19:35:58.948Z" },
 ]
 
 [[package]]

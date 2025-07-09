@@ -8,8 +8,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from media_manager.config import BasicConfig
 from media_manager.indexer.schemas import IndexerQueryResult
-from media_manager.torrent.download_clients.abstractDownloadClient import AbstractDownloadClient
-from media_manager.torrent.schemas import TorrentId, TorrentStatus, Torrent
+from media_manager.torrent.download_clients.abstractDownloadClient import (
+    AbstractDownloadClient,
+)
+from media_manager.torrent.schemas import TorrentStatus, Torrent
 
 log = logging.getLogger(__name__)
 
@@ -66,7 +68,9 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
         """
         log.info(f"Attempting to download torrent: {indexer_result.title}")
 
-        torrent_filepath = BasicConfig().torrent_directory / f"{indexer_result.title}.torrent"
+        torrent_filepath = (
+            BasicConfig().torrent_directory / f"{indexer_result.title}.torrent"
+        )
 
         if torrent_filepath.exists():
             log.warning(f"Torrent already exists: {torrent_filepath}")
@@ -74,7 +78,9 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
             with open(torrent_filepath, "rb") as file:
                 content = file.read()
                 decoded_content = bencoder.decode(content)
-                torrent_hash = hashlib.sha1(bencoder.encode(decoded_content[b"info"])).hexdigest()
+                torrent_hash = hashlib.sha1(
+                    bencoder.encode(decoded_content[b"info"])
+                ).hexdigest()
         else:
             # Download the torrent file
             with open(torrent_filepath, "wb") as file:
@@ -97,7 +103,9 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
                 try:
                     self.api_client.auth_log_in()
                     answer = self.api_client.torrents_add(
-                        category="MediaManager", torrent_files=content, save_path=indexer_result.title
+                        category="MediaManager",
+                        torrent_files=content,
+                        save_path=indexer_result.title,
                     )
                 finally:
                     self.api_client.auth_log_out()
@@ -134,7 +142,9 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
         log.info(f"Removing torrent: {torrent.title}")
         try:
             self.api_client.auth_log_in()
-            self.api_client.torrents_delete(torrent_hashes=torrent.hash, delete_files=delete_data)
+            self.api_client.torrents_delete(
+                torrent_hashes=torrent.hash, delete_files=delete_data
+            )
         finally:
             self.api_client.auth_log_out()
 

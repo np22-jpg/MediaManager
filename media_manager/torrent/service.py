@@ -1,10 +1,9 @@
 import logging
 
-from media_manager.config import BasicConfig
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.download_clients.qbittorrent import QbittorrentDownloadClient
 from media_manager.torrent.repository import TorrentRepository
-from media_manager.torrent.schemas import Torrent, TorrentStatus, TorrentId
+from media_manager.torrent.schemas import Torrent, TorrentId
 from media_manager.tv.schemas import SeasonFile, Show
 from media_manager.movies.schemas import Movie
 
@@ -12,7 +11,11 @@ log = logging.getLogger(__name__)
 
 
 class TorrentService:
-    def __init__(self, torrent_repository: TorrentRepository, download_client: QbittorrentDownloadClient = None):
+    def __init__(
+        self,
+        torrent_repository: TorrentRepository,
+        download_client: QbittorrentDownloadClient = None,
+    ):
         self.torrent_repository = torrent_repository
         self.download_client = download_client or QbittorrentDownloadClient()
 

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from media_manager.indexer.schemas import IndexerQueryResult
-from media_manager.torrent.schemas import TorrentId, TorrentStatus, Torrent
+from media_manager.torrent.schemas import TorrentStatus, Torrent
 
 
 class AbstractDownloadClient(ABC):
@@ -37,5 +37,23 @@ class AbstractDownloadClient(ABC):
 
         :param torrent: The torrent to get the status of.
         :return: The status of the torrent.
+        """
+        pass
+
+    @abstractmethod
+    def pause_torrent(self, torrent: Torrent) -> None:
+        """
+        Pause a torrent download.
+
+        :param torrent: The torrent to pause.
+        """
+        pass
+
+    @abstractmethod
+    def resume_torrent(self, torrent: Torrent) -> None:
+        """
+        Resume a torrent download.
+
+        :param torrent: The torrent to resume.
         """
         pass
