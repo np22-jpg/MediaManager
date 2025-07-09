@@ -1,7 +1,7 @@
 import logging
 
 from media_manager.indexer.schemas import IndexerQueryResult
-from media_manager.torrent.download_clients.qbittorrent import QbittorrentDownloadClient
+from media_manager.torrent.manager import DownloadManager
 from media_manager.torrent.repository import TorrentRepository
 from media_manager.torrent.schemas import Torrent, TorrentId
 from media_manager.tv.schemas import SeasonFile, Show
@@ -14,10 +14,10 @@ class TorrentService:
     def __init__(
         self,
         torrent_repository: TorrentRepository,
-        download_client: QbittorrentDownloadClient = None,
+        download_manager: DownloadManager = None,
     ):
         self.torrent_repository = torrent_repository
-        self.download_client = download_client or QbittorrentDownloadClient()
+        self.download_manager = download_manager or DownloadManager()
 
     def get_season_files_of_torrent(self, torrent: Torrent) -> list[SeasonFile]:
         """
@@ -48,19 +48,15 @@ class TorrentService:
     def download(self, indexer_result: IndexerQueryResult) -> Torrent:
         log.info(f"Attempting to download torrent: {indexer_result.title}")
 
-        # Use the download client to handle the download and get the complete torrent object
-        torrent = self.download_client.download_torrent(indexer_result)
+        torrent = self.download_manager.download(indexer_result)
 
-        # Save to repository and return
         return self.torrent_repository.save_torrent(torrent=torrent)
 
     def get_torrent_status(self, torrent: Torrent) -> Torrent:
         log.info(f"Fetching status for torrent: {torrent.title}")
 
-        # Get status from download client
-        torrent.status = self.download_client.get_torrent_status(torrent)
+        torrent.status = self.download_manager.get_torrent_status(torrent)
 
-        # Save updated status to repository
         self.torrent_repository.save_torrent(torrent=torrent)
         return torrent
 
@@ -72,7 +68,7 @@ class TorrentService:
         :param torrent: the torrent to cancel
         """
         log.info(f"Cancelling download for torrent: {torrent.title}")
-        self.download_client.remove_torrent(torrent, delete_data=delete_files)
+        self.download_manager.remove_torrent(torrent, delete_data=delete_files)
         return self.get_torrent_status(torrent=torrent)
 
     def pause_download(self, torrent: Torrent) -> Torrent:
@@ -82,7 +78,7 @@ class TorrentService:
         :param torrent: the torrent to pause
         """
         log.info(f"Pausing download for torrent: {torrent.title}")
-        self.download_client.pause_torrent(torrent)
+        self.download_manager.pause_torrent(torrent)
         return self.get_torrent_status(torrent=torrent)
 
     def resume_download(self, torrent: Torrent) -> Torrent:
@@ -92,7 +88,7 @@ class TorrentService:
         :param torrent: the torrent to resume
         """
         log.info(f"Resuming download for torrent: {torrent.title}")
-        self.download_client.resume_torrent(torrent)
+        self.download_manager.resume_torrent(torrent)
         return self.get_torrent_status(torrent=torrent)
 
     def get_all_torrents(self) -> list[Torrent]:
