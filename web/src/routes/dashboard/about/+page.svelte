@@ -36,7 +36,7 @@
 <div class="flex w-full flex-col items-center justify-center px-4 py-12">
 	<img alt="Media Manager Logo" class="mb-4 h-24 w-24" src={logo} />
 	<h1 class="mb-2 text-4xl font-bold">About Media Manager</h1>
-	<p class="mb-6 max-w-2xl text-center text-lg">
+	<p class="mb-6 mt-10 max-w-2xl text-center text-lg">
 		<strong>Media Manager</strong> is an all-in-one solution for organizing and building your media library.
 		Built for simplicity and modernity, it helps you keep track of your favorite shows and movies and
 		explore trending content—all in one place.
@@ -44,6 +44,39 @@
 	<p class="mb-2 text-sm text-muted-foreground">
 		Version: v{PUBLIC_VERSION}
 	</p>
+	<h2
+		class="mt-10 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0"
+	>
+		Made with ❤️ by Maximilian Dorninger
+	</h2>
+	<p class="flex flex-wrap items-center justify-center gap-4">
+		<iframe
+			src="https://github.com/sponsors/maxdorninger/card"
+			title="Sponsor maxdorninger"
+			height="225"
+			width="600"
+			style="border: 0;"
+		></iframe>
+	</p>
+
+	<h2 class="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
+		Checkout the awesome sponsors of MediaManager ❤️
+	</h2>
+	<div class="flex flex-wrap items-center justify-center gap-4">
+		<a href="https://fosstodon.org/@aljazmerzen"
+			><img src="https://github.com/aljazerzen.png" width="80px" alt="Aljaž Mur Eržen" /></a
+		>&nbsp;&nbsp;
+		<a href="https://github.com/ldrrp"
+			><img src="https://github.com/ldrrp.png" width="80px" alt="Luis Rodriguez" /></a
+		>&nbsp;&nbsp;
+	</div>
+
+	<h2
+		class="mt-24 scroll-m-20 pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0"
+	>
+		Metadata sources of MediaManager
+	</h2>
+
 	<div class="my-6 mb-6 flex items-center gap-2 text-sm text-muted-foreground sm:w-1/2 lg:w-1/3">
 		<a class="flex items-center gap-2" href="https://www.themoviedb.org/" target="_blank">
 			<img

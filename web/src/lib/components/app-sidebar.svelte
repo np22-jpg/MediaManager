@@ -1,5 +1,14 @@
 <script lang="ts" module>
-	import { Bell, Clapperboard, Home, Info, LifeBuoy, Settings, TvIcon } from 'lucide-svelte';
+	import {
+		Bell,
+		CircleDollarSign,
+		Clapperboard,
+		Home,
+		Info,
+		LifeBuoy,
+		Settings,
+		TvIcon
+	} from 'lucide-svelte';
 	import { PUBLIC_VERSION } from '$env/static/public';
 
 	const data = {
@@ -66,6 +75,11 @@
 				title: 'Support',
 				url: 'https://github.com/maxdorninger/MediaManager/issues',
 				icon: LifeBuoy
+			},
+			{
+				title: 'Donate',
+				url: 'https://github.com/sponsors/maxdorninger',
+				icon: CircleDollarSign
 			},
 			{
 				title: 'About',
