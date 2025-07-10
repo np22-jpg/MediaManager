@@ -30,7 +30,6 @@ print("SERVAS CONFIG PATH: ", config_path)
 log.info("Using config file path: %s", config_path)
 
 
-
 class BasicConfig(BaseSettings):
     image_directory: Path = Path(__file__).parent.parent / "data" / "images"
     tv_directory: Path = Path(__file__).parent.parent / "data" / "tv"
@@ -42,6 +41,7 @@ class BasicConfig(BaseSettings):
     development: bool = False
     api_base_path: str = "/api/v1"
 
+
 class AllEncompassingConfig(BaseSettings):
     model_config = SettingsConfigDict(
         toml_file=config_path,
@@ -51,13 +51,13 @@ class AllEncompassingConfig(BaseSettings):
     This class is used to load all configurations from the environment variables.
     It combines the BasicConfig with any additional configurations needed.
     """
-    misc: BasicConfig = BasicConfig()
-    torrents: TorrentConfig = TorrentConfig()
-    notifications: NotificationConfig = NotificationConfig()
-    metadata: MetadataProviderConfig = MetadataProviderConfig()
-    indexers: IndexerConfig = IndexerConfig()
-    database: DbConfig = DbConfig()
-    auth: AuthConfig = AuthConfig()
+    misc: BasicConfig
+    torrents: TorrentConfig
+    notifications: NotificationConfig
+    metadata: MetadataProviderConfig
+    indexers: IndexerConfig
+    database: DbConfig
+    auth: AuthConfig
 
     @classmethod
     def settings_customise_sources(
@@ -69,4 +69,3 @@ class AllEncompassingConfig(BaseSettings):
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> Tuple[PydanticBaseSettingsSource, ...]:
         return (TomlConfigSettingsSource(settings_cls),)
-

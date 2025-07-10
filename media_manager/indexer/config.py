@@ -15,5 +15,5 @@ class JackettConfig(BaseSettings):
 
 
 class IndexerConfig(BaseSettings):
-    prowlarr: ProwlarrConfig = ProwlarrConfig()
-    jackett: JackettConfig = JackettConfig()
+    prowlarr: ProwlarrConfig
+    jackett: JackettConfig

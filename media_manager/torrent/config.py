@@ -19,5 +19,5 @@ class SabnzbdConfig(BaseSettings):
 
 
 class TorrentConfig(BaseSettings):
-    qbittorrent: QbittorrentConfig = QbittorrentConfig()
-    sabnzbd: SabnzbdConfig = SabnzbdConfig()
+    qbittorrent: QbittorrentConfig
+    sabnzbd: SabnzbdConfig
