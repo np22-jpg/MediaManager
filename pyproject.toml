@@ -31,6 +31,7 @@ dependencies = [
     "pytest>=8.4.0",
     "pillow>=11.2.1",
     "pillow-avif-plugin>=1.5.2",
+    "sabnzbd-api>=0.1.2",
 ]
 
 [tool.setuptools.packages.find]

@@ -11,10 +11,11 @@ class IndexerService:
     def get_result(self, result_id: IndexerQueryResultId) -> IndexerQueryResult:
         return self.repository.get_result(result_id=result_id)
 
-    def search(self, query: str) -> list[IndexerQueryResult]:
+    def search(self, query: str, is_tv: bool) -> list[IndexerQueryResult]:
         """
         Search for results using the indexers based on a query.
 
+        :param is_tv: Whether the search is for TV shows or movies.
         :param query: The search query.
         :param db: The database session.
         :return: A list of search results.
@@ -25,7 +26,7 @@ class IndexerService:
 
         for indexer in indexers:
             try:
-                indexer_results = indexer.search(query)
+                indexer_results = indexer.search(query, is_tv=is_tv)
                 results.extend(indexer_results)
                 log.debug(
                     f"Indexer {indexer.__class__.__name__} returned {len(indexer_results)} results for query: {query}"

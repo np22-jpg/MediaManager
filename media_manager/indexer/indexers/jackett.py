@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
 
 import requests
+from pydantic import HttpUrl
 
 from media_manager.indexer.indexers.generic import GenericIndexer
 from media_manager.indexer.config import JackettConfig
@@ -25,7 +26,7 @@ class Jackett(GenericIndexer):
         log.debug("Registering Jacket as Indexer")
 
     # NOTE: this could be done in parallel, but if there aren't more than a dozen indexers, it shouldn't matter
-    def search(self, query: str) -> list[IndexerQueryResult]:
+    def search(self, query: str, is_tv: bool) -> list[IndexerQueryResult]:
         log.debug("Searching for " + query)
 
         responses = []
@@ -33,7 +34,7 @@ class Jackett(GenericIndexer):
             log.debug(f"Searching in indexer: {indexer}")
             url = (
                 self.url
-                + f"/api/v2.0/indexers/{indexer}/results/torznab/api?apikey={self.api_key}&t=search&q={query}"
+                + f"/api/v2.0/indexers/{indexer}/results/torznab/api?apikey={self.api_key}&t={'tvsearch' if is_tv else 'movie'}&q={query}"
             )
             response = requests.get(url)
             responses.append(response)
@@ -62,10 +63,12 @@ class Jackett(GenericIndexer):
 
                     result = IndexerQueryResult(
                         title=item.find("title").text,
-                        download_url=item.find("link").text,
+                        download_url=HttpUrl(item.find("enclosure").attrib["url"]),
                         seeders=seeders,
                         flags=[],
                         size=int(item.find("size").text),
+                        usenet=False,  # always False, because Jackett doesn't support usenet
+                        age=0,  # always 0 for torrents, as Jackett does not provide age information in a convenient format
                     )
                     result_list.append(result)
                     log.debug(f"Raw result: {result.model_dump()}")

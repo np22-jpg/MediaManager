@@ -9,6 +9,8 @@ class BasicConfig(BaseSettings):
     tv_directory: Path = Path(__file__).parent.parent / "data" / "tv"
     movie_directory: Path = Path(__file__).parent.parent / "data" / "movies"
     torrent_directory: Path = Path(__file__).parent.parent / "data" / "torrents"
+    usenet_directory: Path = Path(__file__).parent.parent / "data" / "usenet"
+
     FRONTEND_URL: AnyHttpUrl = "http://localhost:3000/"
     CORS_URLS: list[str] = []
     DEVELOPMENT: bool = False

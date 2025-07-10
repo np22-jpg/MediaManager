@@ -3,7 +3,7 @@ import typing
 from uuid import UUID, uuid4
 
 import pydantic
-from pydantic import BaseModel, computed_field, ConfigDict
+from pydantic import BaseModel, computed_field, ConfigDict, HttpUrl
 
 from media_manager.torrent.models import Quality
 
@@ -15,10 +15,13 @@ class IndexerQueryResult(BaseModel):
 
     id: IndexerQueryResultId = pydantic.Field(default_factory=uuid4)
     title: str
-    download_url: str
+    download_url: HttpUrl
     seeders: int
     flags: list[str]
     size: int
+
+    usenet: bool
+    age: int
 
     @computed_field(return_type=Quality)
     @property
@@ -73,3 +76,6 @@ class PublicIndexerQueryResult(BaseModel):
     flags: list[str]
     season: list[int]
     size: int
+
+    usenet: bool
+    age: int

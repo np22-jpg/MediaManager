@@ -414,42 +414,52 @@ def test_get_all_available_torrents_for_a_season_no_override(
     torrent1 = IndexerQueryResult(
         id=IndexerQueryResultId(uuid.uuid4()),
         title="Test Show 1080p S01",
-        download_url="url1",
+        download_url="https://example.com/torrent1",
         seeders=10,
         flags=[],
         size=100,
+        usenet=False,
+        age=1,
     )
     torrent2 = IndexerQueryResult(
         id=IndexerQueryResultId(uuid.uuid4()),
         title="Test Show 720p S01",
-        download_url="url2",
+        download_url="https://example.com/torrent2",
         seeders=5,
         flags=[],
         size=100,
+        usenet=False,
+        age=1,
     )
     torrent3 = IndexerQueryResult(
         id=IndexerQueryResultId(uuid.uuid4()),
         title="Test Show 720p S01",
-        download_url="url3",
+        download_url="https://example.com/torrent3",
         seeders=20,
         flags=[],
         size=100,
+        usenet=False,
+        age=1,
     )
     torrent4 = IndexerQueryResult(
         id=IndexerQueryResultId(uuid.uuid4()),
         title="Test Show S01E02",
-        download_url="url4",
+        download_url="https://example.com/torrent4",
         seeders=5,
         flags=[],
         size=100,
+        usenet=False,
+        age=1,
     )  # Episode
     torrent5 = IndexerQueryResult(
         id=IndexerQueryResultId(uuid.uuid4()),
         title="Test Show S02",
-        download_url="url5",
+        download_url="https://example.com/torrent5",
         seeders=10,
         flags=[],
         size=100,
+        usenet=False,
+        age=1,
     )  # Different season
 
     mock_indexer_service.search.return_value = [
@@ -466,7 +476,7 @@ def test_get_all_available_torrents_for_a_season_no_override(
 
     mock_tv_repository.get_show_by_id.assert_called_once_with(show_id=show_id)
     mock_indexer_service.search.assert_called_once_with(
-        query=f"{show_name} s{str(season_number).zfill(2)}"
+        query=f"{show_name} s{str(season_number).zfill(2)}", is_tv=True
     )
     assert len(results) == 3
     assert torrent1 in results
@@ -499,11 +509,12 @@ def test_get_all_available_torrents_for_a_season_with_override(
     torrent1 = IndexerQueryResult(
         id=IndexerQueryResultId(uuid.uuid4()),
         title="Custom Query S01E01",
-        download_url="url1",
+        download_url="https://example.com/torrent1",
         seeders=10,
         flags=[],
         size=100,
-        # Remove 'season' argument if not supported by IndexerQueryResult
+        usenet=False,
+        age=1,
     )
     mock_indexer_service.search.return_value = [torrent1]
 
@@ -513,7 +524,9 @@ def test_get_all_available_torrents_for_a_season_with_override(
         search_query_override=override_query,
     )
 
-    mock_indexer_service.search.assert_called_once_with(query=override_query)
+    mock_indexer_service.search.assert_called_once_with(
+        query=override_query, is_tv=True
+    )
     assert results == [torrent1]
 
 

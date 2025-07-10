@@ -117,6 +117,7 @@ class RichSeasonTorrent(BaseModel):
     status: TorrentStatus
     quality: Quality
     imported: bool
+    usenet: bool
 
     file_path_suffix: str
     seasons: list[SeasonNumber]

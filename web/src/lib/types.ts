@@ -73,6 +73,8 @@ export interface PublicIndexerQueryResult {
 	flags: string[]; // items: { type: string }, type: array
 	season: number[]; // items: { type: integer }, type: array
 	size: number;
+	usenet: boolean;
+	age: number;
 }
 
 export interface Season {
@@ -152,6 +154,7 @@ export interface Torrent {
 	imported: boolean;
 	hash: string;
 	id?: string; // type: string, format: uuid
+	usenet: boolean;
 }
 
 export interface UserCreate {
@@ -186,6 +189,7 @@ export interface RichSeasonTorrent {
 	status: TorrentStatus;
 	quality: Quality;
 	imported: boolean;
+	usenet: boolean;
 
 	file_path_suffix: string;
 	seasons: number[];

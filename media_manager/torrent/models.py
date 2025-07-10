@@ -14,6 +14,7 @@ class Torrent(Base):
     quality: Mapped[Quality]
     imported: Mapped[bool]
     hash: Mapped[str]
+    usenet: Mapped[bool]
 
     season_files = relationship("SeasonFile", back_populates="torrent")
     movie_files = relationship("MovieFile", back_populates="torrent")

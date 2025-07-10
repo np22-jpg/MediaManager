@@ -19,3 +19,5 @@ class IndexerQueryResult(Base):
     quality: Mapped[Quality]
     season = mapped_column(ARRAY(Integer))
     size = mapped_column(BigInteger)
+    usenet: Mapped[bool]
+    age: Mapped[int]

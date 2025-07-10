@@ -39,3 +39,4 @@ class Torrent(BaseModel):
     quality: Quality
     imported: bool
     hash: str
+    usenet: bool = False
