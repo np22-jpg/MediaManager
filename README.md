@@ -73,9 +73,9 @@ other services.
 - [x] improve reliability of scheduled tasks
 - [x] add notification system
 - [x] add sequence diagrams to the documentation
+- [x] add usenet support
 - [ ] provide example configuration files
 - [ ] make media sorting algorithm configurable
-- [ ] add usenet support
 - [ ] add in-depth documentation on the architecture of the codebase
 - [ ] make indexer module multithreaded
 - [ ] add support for deluge and transmission
