@@ -27,7 +27,15 @@ MediaManager is built first and foremost for deployment with Docker, making it e
 It also provides an API to interact with the software programmatically, allowing for automation and integration with
 other services.
 
-<iframe src="https://github.com/sponsors/maxdorninger/card" title="Sponsor maxdorninger" height="225" width="600" style="border: 0;"></iframe>
+## Support MediaManager
+
+<a href="https://github.com/sponsors/maxdorninger/button" target="_blank">
+  <img src="https://img.shields.io/badge/Sponsor-Maximilian Dorninger-orange" alt="Sponsor @maxdorninger" />
+</a>
+
+<a href="https://buymeacoffee.com/maxdorninger" target="_blank">
+  <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
+</a>
 
 ## Quick Start
 
