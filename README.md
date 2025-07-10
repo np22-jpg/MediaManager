@@ -29,7 +29,7 @@ other services.
 
 ## Support MediaManager
 
-<a href="https://github.com/sponsors/maxdorninger/button" target="_blank">
+<a href="https://github.com/sponsors/maxdorninger" target="_blank">
   <img src="https://img.shields.io/badge/Sponsor-Maximilian Dorninger-orange" alt="Sponsor @maxdorninger" />
 </a>
 
