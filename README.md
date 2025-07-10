@@ -27,6 +27,16 @@ MediaManager is built first and foremost for deployment with Docker, making it e
 It also provides an API to interact with the software programmatically, allowing for automation and integration with
 other services.
 
+## Quick Start
+
+```
+   wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yaml   
+   # Edit docker-compose.yaml to set the environment variables!
+   docker compose up -d
+```
+
+### [View the docs for installation instructions and more](https://maxdorninger.github.io/MediaManager/configuration-overview.html#configuration-overview)
+
 ## Support MediaManager
 
 <a href="https://github.com/sponsors/maxdorninger" target="_blank">
@@ -37,15 +47,6 @@ other services.
   <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
 </a>
 
-## Quick Start
-
-```
-   wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yaml   
-   # Edit docker-compose.yaml to set the environment variables!
-   docker compose up -d
-```
-
-### [View the docs for installation instructions and more](https://maxdorninger.github.io/MediaManager/configuration-overview.html#configuration-overview)
 
 ## Check out the awesome sponsors of MediaManager ❤️
 <a href="https://fosstodon.org/@aljazmerzen"><img src="https://github.com/aljazerzen.png" width="80px" alt="Aljaž Mur Eržen" /></a>&nbsp;&nbsp;
