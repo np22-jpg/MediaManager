@@ -4,6 +4,7 @@ import logging
 from pydantic_settings import BaseSettings
 
 import media_manager.metadataProvider.utils
+from media_manager.config import AllEncompassingConfig
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
 )
@@ -23,7 +24,7 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
     name = "tvdb"
 
     def __init__(self):
-        config = TvdbConfig()
+        config = AllEncompassingConfig().metadata.tvdb
         self.url = config.TVDB_RELAY_URL
 
     def __get_show(self, id: int) -> dict:

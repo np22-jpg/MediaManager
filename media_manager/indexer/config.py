@@ -13,6 +13,7 @@ class JackettConfig(BaseSettings):
     url: str = "http://localhost:9696"
     indexers: list[str] = ["all"]
 
+
 class IndexerConfig(BaseSettings):
     prowlarr: ProwlarrConfig = ProwlarrConfig()
     jackett: JackettConfig = JackettConfig()

@@ -7,7 +7,7 @@ from pydantic_settings import (
 )
 
 from media_manager.auth.config import AuthConfig
-from media_manager.database import DbConfig
+from media_manager.database.config import DbConfig
 from media_manager.indexer.config import IndexerConfig
 from media_manager.metadataProvider.config import MetadataProviderConfig
 from media_manager.notification.config import NotificationConfig
@@ -24,6 +24,8 @@ class BasicConfig(BaseSettings):
     FRONTEND_URL: AnyHttpUrl = "http://localhost:3000/"
     CORS_URLS: list[str] = []
     DEVELOPMENT: bool = False
+    api_base_path: str = "/api/v1"
+
 
 class AllEncompassingConfig(BaseSettings):
     model_config = SettingsConfigDict(toml_file="config.toml")
@@ -38,5 +40,3 @@ class AllEncompassingConfig(BaseSettings):
     indexers: IndexerConfig = IndexerConfig()
     database: DbConfig = DbConfig()
     auth: AuthConfig = AuthConfig()
-
-

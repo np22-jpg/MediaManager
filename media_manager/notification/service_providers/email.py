@@ -3,12 +3,12 @@ from media_manager.notification.schemas import MessageNotification
 from media_manager.notification.service_providers.abstractNotificationServiceProvider import (
     AbstractNotificationServiceProvider,
 )
-from media_manager.notification.config import NotificationConfig
+from media_manager.config import AllEncompassingConfig
 
 
 class EmailNotificationServiceProvider(AbstractNotificationServiceProvider):
     def __init__(self):
-        self.config = NotificationConfig()
+        self.config = AllEncompassingConfig().notifications
 
     def send_notification(self, message: MessageNotification) -> bool:
         subject = "MediaManager - " + message.title

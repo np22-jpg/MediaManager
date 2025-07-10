@@ -99,13 +99,12 @@ from apscheduler.triggers.cron import CronTrigger  # noqa: E402
 
 init_db()
 log.info("Database initialized")
-
-basic_config = AllEncompassingConfig().misc
-if basic_config.DEVELOPMENT:
-    basic_config.torrent_directory.mkdir(parents=True, exist_ok=True)
-    basic_config.tv_directory.mkdir(parents=True, exist_ok=True)
-    basic_config.movie_directory.mkdir(parents=True, exist_ok=True)
-    basic_config.image_directory.mkdir(parents=True, exist_ok=True)
+config = AllEncompassingConfig()
+if config.misc.DEVELOPMENT:
+    config.misc.torrent_directory.mkdir(parents=True, exist_ok=True)
+    config.misc.tv_directory.mkdir(parents=True, exist_ok=True)
+    config.misc.movie_directory.mkdir(parents=True, exist_ok=True)
+    config.misc.image_directory.mkdir(parents=True, exist_ok=True)
     log.warning("Development Mode activated!")
 else:
     log.info("Development Mode not activated!")
@@ -146,11 +145,11 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown()
 
 
-base_path = os.getenv("API_BASE_PATH") or "/api/v1"
+base_path = config.misc.api_base_path
 log.info("Base Path for API: %s", base_path)
 app = FastAPI(root_path=base_path, lifespan=lifespan)
 
-origins = basic_config.CORS_URLS
+origins = config.misc.CORS_URLS
 log.info("CORS URLs activated for following origins:")
 for origin in origins:
     log.info(f" - {origin}")
@@ -231,7 +230,7 @@ app.include_router(movies_router.router, prefix="/movies", tags=["movie"])
 app.include_router(notification_router, prefix="/notification", tags=["notification"])
 app.mount(
     "/static/image",
-    StaticFiles(directory=basic_config.image_directory),
+    StaticFiles(directory=config.misc.image_directory),
     name="static-images",
 )
 
@@ -248,26 +247,26 @@ log.info("Hello World!")
 # Startup filesystem checks
 # ----------------------------
 try:
-    test_dir = basic_config.tv_directory / Path(".media_manager_test_dir")
+    test_dir = config.misc.tv_directory / Path(".media_manager_test_dir")
     test_dir.mkdir(parents=True, exist_ok=True)
     test_dir.rmdir()
     log.info(f"Successfully created test dir in TV directory at: {test_dir}")
 
-    test_dir = basic_config.movie_directory / Path(".media_manager_test_dir")
+    test_dir = config.misc.movie_directory / Path(".media_manager_test_dir")
     test_dir.mkdir(parents=True, exist_ok=True)
     test_dir.rmdir()
     log.info(f"Successfully created test dir in Movie directory at: {test_dir}")
 
-    test_dir = basic_config.image_directory / Path(".media_manager_test_dir")
+    test_dir = config.misc.image_directory / Path(".media_manager_test_dir")
     test_dir.touch()
     test_dir.unlink()
     log.info(f"Successfully created test file in Image directory at: {test_dir}")
 
     # check if hardlink creation works
-    test_dir = basic_config.tv_directory / Path(".media_manager_test_dir")
+    test_dir = config.misc.tv_directory / Path(".media_manager_test_dir")
     test_dir.mkdir(parents=True, exist_ok=True)
 
-    torrent_dir = basic_config.torrent_directory / Path(".media_manager_test_dir")
+    torrent_dir = config.misc.torrent_directory / Path(".media_manager_test_dir")
     torrent_dir.mkdir(parents=True, exist_ok=True)
 
     test_torrent_file = torrent_dir / Path(".media_manager.test.torrent")

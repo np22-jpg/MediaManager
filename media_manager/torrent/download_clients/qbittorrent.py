@@ -22,6 +22,7 @@ class QbittorrentConfig(BaseSettings):
     port: int = 8080
     username: str = "admin"
     password: str = "admin"
+    enabled: bool = False
 
 
 class QbittorrentDownloadClient(AbstractDownloadClient):
@@ -48,7 +49,7 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
     UNKNOWN_STATE = ("unknown",)
 
     def __init__(self):
-        self.config = QbittorrentConfig()
+        self.config = AllEncompassingConfig().torrents.qbittorrent
         self.api_client = qbittorrentapi.Client(**self.config.model_dump())
         try:
             self.api_client.auth_log_in()
@@ -69,7 +70,8 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
         log.info(f"Attempting to download torrent: {indexer_result.title}")
 
         torrent_filepath = (
-            AllEncompassingConfig().misc.torrent_directory / f"{indexer_result.title}.torrent"
+            AllEncompassingConfig().misc.torrent_directory
+            / f"{indexer_result.title}.torrent"
         )
 
         if torrent_filepath.exists():

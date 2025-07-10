@@ -20,7 +20,7 @@ from media_manager.notification.service_providers.ntfy import (
 from media_manager.notification.service_providers.pushover import (
     PushoverNotificationServiceProvider,
 )
-from media_manager.notification.config import NotificationConfig
+from media_manager.config import AllEncompassingConfig
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class NotificationManager:
     """
 
     def __init__(self):
-        self.config = NotificationConfig()
+        self.config = AllEncompassingConfig().notifications
         self.providers: List[AbstractNotificationServiceProvider] = []
         self._initialize_providers()
 

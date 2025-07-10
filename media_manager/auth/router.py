@@ -2,18 +2,15 @@ from fastapi import APIRouter, Depends
 from fastapi import status
 from sqlalchemy import select
 
-from media_manager.auth.config import OpenIdConfig
+from media_manager.config import AllEncompassingConfig
 from media_manager.auth.db import User
 from media_manager.auth.schemas import UserRead
 from media_manager.auth.users import current_superuser
 from media_manager.database import DbSessionDependency
-from media_manager.auth.users import openid_client
 
 users_router = APIRouter()
 auth_metadata_router = APIRouter()
-openid_enabled = openid_client is not None
-if openid_enabled:
-    oauth_config = OpenIdConfig()
+oauth_config = AllEncompassingConfig().auth.openid_connect
 
 
 @users_router.get(
@@ -29,7 +26,7 @@ def get_all_users(db: DbSessionDependency) -> list[UserRead]:
 
 @auth_metadata_router.get("/auth/metadata", status_code=status.HTTP_200_OK)
 def get_auth_metadata() -> dict:
-    if openid_enabled:
+    if oauth_config.enabled:
         return {
             "oauth_name": oauth_config.name,
         }

@@ -4,6 +4,7 @@ import requests
 from pydantic_settings import BaseSettings
 
 import media_manager.metadataProvider.utils
+from media_manager.config import AllEncompassingConfig
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
 )
@@ -26,7 +27,7 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
     name = "tmdb"
 
     def __init__(self):
-        config = TmdbConfig()
+        config = AllEncompassingConfig().metadata.tmdb
         self.url = config.TMDB_RELAY_URL
 
     def __get_show_metadata(self, id: int) -> dict:

@@ -1,6 +1,7 @@
 import logging
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from media_manager.config import AllEncompassingConfig
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.download_clients.abstractDownloadClient import (
     AbstractDownloadClient,
@@ -16,6 +17,7 @@ class SabnzbdConfig(BaseSettings):
     host: str = "localhost"
     port: int = 8080
     api_key: str = ""
+    enabled: bool = False
 
 
 class SabnzbdDownloadClient(AbstractDownloadClient):
@@ -32,7 +34,7 @@ class SabnzbdDownloadClient(AbstractDownloadClient):
     UNKNOWN_STATE = ("Unknown",)
 
     def __init__(self):
-        self.config = SabnzbdConfig()
+        self.config = AllEncompassingConfig().torrents.sabnzbd
         self.client = sabnzbd_api.SabnzbdClient(
             host=self.config.host,
             port=str(self.config.port),
@@ -59,9 +61,7 @@ class SabnzbdDownloadClient(AbstractDownloadClient):
 
         try:
             # Add NZB to SABnzbd queue
-            response = self.client.add_uri(
-                url=str(indexer_result.download_url),
-            )
+            response = self.client.add_uri(url=str(indexer_result.download_url))
             if not response["status"]:
                 error_msg = response
                 log.error(f"Failed to add NZB to SABnzbd: {error_msg}")
