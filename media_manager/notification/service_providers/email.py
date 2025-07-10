@@ -7,6 +7,7 @@ from media_manager.notification.service_providers.abstractNotificationServicePro
 )
 from media_manager.config import AllEncompassingConfig
 
+
 class EmailNotificationsConfig(BaseSettings):
     enabled: bool = False
     emails: list[str] = []  # the email addresses to send notifications to

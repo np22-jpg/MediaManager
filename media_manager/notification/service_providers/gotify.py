@@ -7,12 +7,14 @@ from media_manager.notification.service_providers.abstractNotificationServicePro
     AbstractNotificationServiceProvider,
 )
 
+
 class GotifyConfig(BaseSettings):
     enabled: bool = False
     api_key: str | None = None
     url: str | None = (
         None  # e.g. https://gotify.example.com (note lack of trailing slash)
     )
+
 
 class GotifyNotificationServiceProvider(AbstractNotificationServiceProvider):
     """

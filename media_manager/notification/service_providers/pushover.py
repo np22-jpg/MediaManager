@@ -7,10 +7,12 @@ from media_manager.notification.service_providers.abstractNotificationServicePro
     AbstractNotificationServiceProvider,
 )
 
+
 class PushoverConfig(BaseSettings):
     enabled: bool = False
     api_key: str | None = None
     user: str | None = None
+
 
 class PushoverNotificationServiceProvider(AbstractNotificationServiceProvider):
     def __init__(self):

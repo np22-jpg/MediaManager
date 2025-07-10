@@ -28,7 +28,9 @@ class BasicConfig(BaseSettings):
 
 
 class AllEncompassingConfig(BaseSettings):
-    model_config = SettingsConfigDict(toml_file=os.getenv("CONFIG_FILE", "./config.toml"))
+    model_config = SettingsConfigDict(
+        toml_file=os.getenv("CONFIG_FILE", "./config.toml")
+    )
     """
     This class is used to load all configurations from the environment variables.
     It combines the BasicConfig with any additional configurations needed.

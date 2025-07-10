@@ -21,6 +21,3 @@ class NotificationConfig(BaseSettings):
     gotify: GotifyConfig = GotifyConfig()
     ntfy: NtfyConfig = NtfyConfig()
     pushover: PushoverConfig = PushoverConfig()
-
-
-
