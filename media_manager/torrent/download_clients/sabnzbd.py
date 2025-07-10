@@ -38,6 +38,7 @@ class SabnzbdDownloadClient(AbstractDownloadClient):
             port=str(self.config.port),
             api_key=self.config.api_key,
         )
+        self.client._base_url = f"{self.config.host.rstrip('/')}:{self.config.port}/api" # the library expects a /sabnzbd prefix for whatever reason
         try:
             # Test connection
             version = self.client.version()
@@ -61,8 +62,8 @@ class SabnzbdDownloadClient(AbstractDownloadClient):
             response = self.client.add_uri(
                 url=str(indexer_result.download_url),
             )
-            if not response["status"] == "True":
-                error_msg = response.get("error", "Unknown error")
+            if not response["status"] == True:
+                error_msg = response
                 log.error(f"Failed to add NZB to SABnzbd: {error_msg}")
                 raise RuntimeError(f"Failed to add NZB to SABnzbd: {error_msg}")
 
@@ -142,7 +143,8 @@ class SabnzbdDownloadClient(AbstractDownloadClient):
         """
         log.info(f"Fetching status for download: {torrent.title}")
         response = self.client.get_downloads(nzo_ids=torrent.hash)
-        status = response["queue"][0]["status"]
+        log.debug("SABnzbd response: %s", response)
+        status = response["queue"]["status"]
         log.info(f"Download status for NZB {torrent.title}: {status}")
         return self._map_status(status)
 
