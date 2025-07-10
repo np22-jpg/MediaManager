@@ -4,7 +4,6 @@ import logging
 import bencoder
 import qbittorrentapi
 import requests
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from media_manager.config import AllEncompassingConfig
 from media_manager.indexer.schemas import IndexerQueryResult
@@ -14,15 +13,6 @@ from media_manager.torrent.download_clients.abstractDownloadClient import (
 from media_manager.torrent.schemas import TorrentStatus, Torrent
 
 log = logging.getLogger(__name__)
-
-
-class QbittorrentConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="QBITTORRENT_")
-    host: str = "localhost"
-    port: int = 8080
-    username: str = "admin"
-    password: str = "admin"
-    enabled: bool = False
 
 
 class QbittorrentDownloadClient(AbstractDownloadClient):

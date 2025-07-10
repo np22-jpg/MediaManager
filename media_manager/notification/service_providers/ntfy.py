@@ -1,18 +1,10 @@
 import requests
-from pydantic_settings import BaseSettings
 
 from media_manager.config import AllEncompassingConfig
 from media_manager.notification.schemas import MessageNotification
 from media_manager.notification.service_providers.abstractNotificationServiceProvider import (
     AbstractNotificationServiceProvider,
 )
-
-
-class NtfyConfig(BaseSettings):
-    enabled: bool = False
-    url: str | None = (
-        None  # e.g. https://ntfy.sh/your-topic (note lack of trailing slash)
-    )
 
 
 class NtfyNotificationServiceProvider(AbstractNotificationServiceProvider):

@@ -37,7 +37,7 @@ class NotificationManager:
 
     def _initialize_providers(self) -> None:
         # Email provider
-        if self.config.email:
+        if self.config.email_notifications.enabled:
             try:
                 self.providers.append(EmailNotificationServiceProvider())
                 logger.info("Email notification provider initialized")
@@ -45,7 +45,7 @@ class NotificationManager:
                 logger.error(f"Failed to initialize Email provider: {e}")
 
         # Gotify provider
-        if self.config.gotify_api_key and self.config.gotify_url:
+        if self.config.gotify.enabled:
             try:
                 self.providers.append(GotifyNotificationServiceProvider())
                 logger.info("Gotify notification provider initialized")
@@ -53,7 +53,7 @@ class NotificationManager:
                 logger.error(f"Failed to initialize Gotify provider: {e}")
 
         # Ntfy provider
-        if self.config.ntfy_url:
+        if self.config.ntfy.enabled:
             try:
                 self.providers.append(NtfyNotificationServiceProvider())
                 logger.info("Ntfy notification provider initialized")
@@ -61,7 +61,7 @@ class NotificationManager:
                 logger.error(f"Failed to initialize Ntfy provider: {e}")
 
         # Pushover provider
-        if self.config.pushover_api_key and self.config.pushover_user:
+        if self.config.pushover.enabled:
             try:
                 self.providers.append(PushoverNotificationServiceProvider())
                 logger.info("Pushover notification provider initialized")

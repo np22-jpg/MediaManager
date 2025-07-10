@@ -100,7 +100,7 @@ from apscheduler.triggers.cron import CronTrigger  # noqa: E402
 init_db()
 log.info("Database initialized")
 config = AllEncompassingConfig()
-if config.misc.DEVELOPMENT:
+if config.misc.development:
     config.misc.torrent_directory.mkdir(parents=True, exist_ok=True)
     config.misc.tv_directory.mkdir(parents=True, exist_ok=True)
     config.misc.movie_directory.mkdir(parents=True, exist_ok=True)
@@ -149,7 +149,7 @@ base_path = config.misc.api_base_path
 log.info("Base Path for API: %s", base_path)
 app = FastAPI(root_path=base_path, lifespan=lifespan)
 
-origins = config.misc.CORS_URLS
+origins = config.misc.cors_urls
 log.info("CORS URLs activated for following origins:")
 for origin in origins:
     log.info(f" - {origin}")

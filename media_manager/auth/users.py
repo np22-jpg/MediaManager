@@ -53,7 +53,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
     ):
-        link = f"{AllEncompassingConfig().misc.FRONTEND_URL}login/reset-password?token={token}"
+        link = f"{AllEncompassingConfig().misc.frontend_url}login/reset-password?token={token}"
         log.info(f"User {user.id} has forgot their password. Reset Link: {link}")
 
         if not config.email_password_resets:
@@ -109,7 +109,7 @@ def get_jwt_strategy() -> JWTStrategy[models.UP, models.ID]:
 class RedirectingCookieTransport(CookieTransport):
     async def get_login_response(self, token: str) -> Response:
         response = RedirectResponse(
-            str(AllEncompassingConfig().misc.FRONTEND_URL) + "dashboard",
+            str(AllEncompassingConfig().misc.frontend_url) + "dashboard",
             status_code=status.HTTP_302_FOUND,
         )
         return self._set_login_cookie(response, token)

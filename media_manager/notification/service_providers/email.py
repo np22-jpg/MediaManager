@@ -1,16 +1,9 @@
-from pydantic_settings import BaseSettings
-
 import media_manager.notification.utils
 from media_manager.notification.schemas import MessageNotification
 from media_manager.notification.service_providers.abstractNotificationServiceProvider import (
     AbstractNotificationServiceProvider,
 )
 from media_manager.config import AllEncompassingConfig
-
-
-class EmailNotificationsConfig(BaseSettings):
-    enabled: bool = False
-    emails: list[str] = []  # the email addresses to send notifications to
 
 
 class EmailNotificationServiceProvider(AbstractNotificationServiceProvider):

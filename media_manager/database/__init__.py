@@ -14,15 +14,15 @@ config = AllEncompassingConfig().database
 db_url = (
     "postgresql+psycopg"
     + "://"
-    + config.USER
+    + config.user
     + ":"
-    + config.PASSWORD
+    + config.password
     + "@"
-    + config.HOST
+    + config.host
     + ":"
-    + str(config.PORT)
+    + str(config.port)
     + "/"
-    + config.DBNAME
+    + config.dbname
 )
 
 engine = create_engine(db_url, echo=False)

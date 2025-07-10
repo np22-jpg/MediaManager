@@ -1,12 +1,26 @@
-from media_manager.indexer import log, indexers
+import logging
+
+from media_manager.config import AllEncompassingConfig
+from media_manager.indexer.indexers.generic import GenericIndexer
+from media_manager.indexer.indexers.jackett import Jackett
+from media_manager.indexer.indexers.prowlarr import Prowlarr
 from media_manager.indexer.schemas import IndexerQueryResultId, IndexerQueryResult
 from media_manager.indexer.repository import IndexerRepository
 from media_manager.notification.manager import notification_manager
 
+log = logging.getLogger(__name__)
+
 
 class IndexerService:
     def __init__(self, indexer_repository: IndexerRepository):
+        config = AllEncompassingConfig()
         self.repository = indexer_repository
+        self.indexers: list[GenericIndexer] = []
+
+        if config.indexers.prowlarr.enabled:
+            self.indexers.append(Prowlarr())
+        if config.indexers.jackett.enabled:
+            self.indexers.append(Jackett())
 
     def get_result(self, result_id: IndexerQueryResultId) -> IndexerQueryResult:
         return self.repository.get_result(result_id=result_id)
@@ -24,7 +38,7 @@ class IndexerService:
         results = []
         failed_indexers = []
 
-        for indexer in indexers:
+        for indexer in self.indexers:
             try:
                 indexer_results = indexer.search(query, is_tv=is_tv)
                 results.extend(indexer_results)

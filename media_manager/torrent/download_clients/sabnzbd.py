@@ -1,5 +1,4 @@
 import logging
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from media_manager.config import AllEncompassingConfig
 from media_manager.indexer.schemas import IndexerQueryResult
@@ -10,14 +9,6 @@ from media_manager.torrent.schemas import Torrent, TorrentStatus
 import sabnzbd_api
 
 log = logging.getLogger(__name__)
-
-
-class SabnzbdConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="SABNZBD_")
-    host: str = "localhost"
-    port: int = 8080
-    api_key: str = ""
-    enabled: bool = False
 
 
 class SabnzbdDownloadClient(AbstractDownloadClient):

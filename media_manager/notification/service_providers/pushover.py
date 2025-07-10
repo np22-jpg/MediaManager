@@ -1,17 +1,10 @@
 import requests
-from pydantic_settings import BaseSettings
 
 from media_manager.config import AllEncompassingConfig
 from media_manager.notification.schemas import MessageNotification
 from media_manager.notification.service_providers.abstractNotificationServiceProvider import (
     AbstractNotificationServiceProvider,
 )
-
-
-class PushoverConfig(BaseSettings):
-    enabled: bool = False
-    api_key: str | None = None
-    user: str | None = None
 
 
 class PushoverNotificationServiceProvider(AbstractNotificationServiceProvider):
