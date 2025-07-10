@@ -2,11 +2,11 @@ from pydantic_settings import BaseSettings
 
 
 class EmailConfig(BaseSettings):
-    smtp_host: str
-    smtp_port: int
-    smtp_user: str
-    smtp_password: str
-    from_email: str
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    from_email: str = ""
     use_tls: bool = False
 
 

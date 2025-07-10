@@ -2,14 +2,14 @@ from pydantic_settings import BaseSettings
 
 
 class ProwlarrConfig(BaseSettings):
-    enabled: bool | None = False
-    api_key: str | None = None
+    enabled: bool = False
+    api_key: str = ""
     url: str = "http://localhost:9696"
 
 
 class JackettConfig(BaseSettings):
-    enabled: bool | None = False
-    api_key: str | None = None
+    enabled: bool = False
+    api_key: str = ""
     url: str = "http://localhost:9696"
     indexers: list[str] = ["all"]
 
