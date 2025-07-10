@@ -3,6 +3,7 @@ import re
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from media_manager.config import AllEncompassingConfig
 from media_manager.exceptions import InvalidConfigError
 from media_manager.indexer.repository import IndexerRepository
 from media_manager.database import SessionLocal
@@ -35,7 +36,6 @@ from media_manager.tv.repository import TvRepository
 from media_manager.exceptions import NotFoundError
 import pprint
 from pathlib import Path
-from media_manager.config import BasicConfig
 from media_manager.torrent.repository import TorrentRepository
 from media_manager.torrent.utils import import_file, import_torrent
 from media_manager.indexer.service import IndexerService
@@ -502,7 +502,7 @@ class TvService:
         )
 
         show_file_path = (
-            BasicConfig().tv_directory
+            AllEncompassingConfig().misc.tv_directory
             / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
         )
         season_files = self.torrent_service.get_season_files_of_torrent(torrent=torrent)

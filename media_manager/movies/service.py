@@ -3,6 +3,7 @@ import re
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from media_manager.config import AllEncompassingConfig
 from media_manager.exceptions import InvalidConfigError
 from media_manager.indexer.repository import IndexerRepository
 from media_manager.database import SessionLocal
@@ -28,7 +29,6 @@ from media_manager.torrent.schemas import QualityStrings
 from media_manager.movies.repository import MovieRepository
 from media_manager.exceptions import NotFoundError
 import pprint
-from media_manager.config import BasicConfig
 from media_manager.torrent.repository import TorrentRepository
 from media_manager.torrent.utils import import_file, import_torrent
 from media_manager.indexer.service import IndexerService
@@ -464,7 +464,7 @@ class MovieService:
         )
 
         movie_file_path = (
-            BasicConfig().movie_directory
+            AllEncompassingConfig().misc.movie_directory
             / f"{movie.name} ({movie.year})  [{movie.metadata_provider}id-{movie.external_id}]"
         )
         movie_files: list[MovieFile] = self.torrent_service.get_movie_files_of_torrent(

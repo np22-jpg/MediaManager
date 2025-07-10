@@ -6,7 +6,7 @@ import qbittorrentapi
 import requests
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from media_manager.config import BasicConfig
+from media_manager.config import AllEncompassingConfig
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.download_clients.abstractDownloadClient import (
     AbstractDownloadClient,
@@ -69,7 +69,7 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
         log.info(f"Attempting to download torrent: {indexer_result.title}")
 
         torrent_filepath = (
-            BasicConfig().torrent_directory / f"{indexer_result.title}.torrent"
+            AllEncompassingConfig().misc.torrent_directory / f"{indexer_result.title}.torrent"
         )
 
         if torrent_filepath.exists():

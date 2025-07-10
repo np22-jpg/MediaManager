@@ -1,7 +1,17 @@
 from pathlib import Path
 
 from pydantic import AnyHttpUrl
-from pydantic_settings import BaseSettings
+from pydantic_settings import (
+    BaseSettings,
+    SettingsConfigDict,
+)
+
+from media_manager.auth.config import AuthConfig
+from media_manager.database import DbConfig
+from media_manager.indexer.config import IndexerConfig
+from media_manager.metadataProvider.config import MetadataProviderConfig
+from media_manager.notification.config import NotificationConfig
+from media_manager.torrent.config import TorrentConfig
 
 
 class BasicConfig(BaseSettings):
@@ -14,3 +24,19 @@ class BasicConfig(BaseSettings):
     FRONTEND_URL: AnyHttpUrl = "http://localhost:3000/"
     CORS_URLS: list[str] = []
     DEVELOPMENT: bool = False
+
+class AllEncompassingConfig(BaseSettings):
+    model_config = SettingsConfigDict(toml_file="config.toml")
+    """
+    This class is used to load all configurations from the environment variables.
+    It combines the BasicConfig with any additional configurations needed.
+    """
+    misc: BasicConfig = BasicConfig()
+    torrents: TorrentConfig = TorrentConfig()
+    notifications: NotificationConfig = NotificationConfig()
+    metadata: MetadataProviderConfig = MetadataProviderConfig()
+    indexers: IndexerConfig = IndexerConfig()
+    database: DbConfig = DbConfig()
+    auth: AuthConfig = AuthConfig()
+
+

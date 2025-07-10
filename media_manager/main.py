@@ -50,7 +50,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 from media_manager.database import init_db  # noqa: E402
-from media_manager.config import BasicConfig  # noqa: E402
+from media_manager.config import AllEncompassingConfig  # noqa: E402
 import media_manager.torrent.router as torrent_router  # noqa: E402
 import media_manager.movies.router as movies_router  # noqa: E402
 import media_manager.tv.router as tv_router  # noqa: E402
@@ -100,7 +100,7 @@ from apscheduler.triggers.cron import CronTrigger  # noqa: E402
 init_db()
 log.info("Database initialized")
 
-basic_config = BasicConfig()
+basic_config = AllEncompassingConfig().misc
 if basic_config.DEVELOPMENT:
     basic_config.torrent_directory.mkdir(parents=True, exist_ok=True)
     basic_config.tv_directory.mkdir(parents=True, exist_ok=True)

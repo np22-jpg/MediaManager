@@ -1,8 +1,7 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 
 class EmailConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="EMAIL_")
     smtp_host: str
     smtp_port: int
     smtp_user: str
@@ -12,8 +11,7 @@ class EmailConfig(BaseSettings):
 
 
 class NotificationConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="NOTIFICATION_")
-
+    smtp_config: EmailConfig = EmailConfig()
     email: str | None = None  # the email address to send notifications to
 
     ntfy_url: str | None = (
