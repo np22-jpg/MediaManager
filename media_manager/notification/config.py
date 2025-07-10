@@ -1,5 +1,10 @@
 from pydantic_settings import BaseSettings
 
+from media_manager.notification.service_providers.email import EmailNotificationsConfig
+from media_manager.notification.service_providers.gotify import GotifyConfig
+from media_manager.notification.service_providers.ntfy import NtfyConfig
+from media_manager.notification.service_providers.pushover import PushoverConfig
+
 
 class EmailConfig(BaseSettings):
     smtp_host: str = ""
@@ -12,16 +17,10 @@ class EmailConfig(BaseSettings):
 
 class NotificationConfig(BaseSettings):
     smtp_config: EmailConfig = EmailConfig()
-    email: str | None = None  # the email address to send notifications to
+    email_notifications: EmailNotificationsConfig = EmailNotificationsConfig()
+    gotify: GotifyConfig = GotifyConfig()
+    ntfy: NtfyConfig = NtfyConfig()
+    pushover: PushoverConfig = PushoverConfig()
 
-    ntfy_url: str | None = (
-        None  # e.g. https://ntfy.sh/your-topic (note lack of trailing slash)
-    )
 
-    pushover_api_key: str | None = None
-    pushover_user: str | None = None
 
-    gotify_api_key: str | None = None
-    gotify_url: str | None = (
-        None  # e.g. https://gotify.example.com (note lack of trailing slash)
-    )
