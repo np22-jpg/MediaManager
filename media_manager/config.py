@@ -1,4 +1,3 @@
-import logging
 import os
 from pathlib import Path
 from typing import Type, Tuple
@@ -18,16 +17,12 @@ from media_manager.metadataProvider.config import MetadataProviderConfig
 from media_manager.notification.config import NotificationConfig
 from media_manager.torrent.config import TorrentConfig
 
-log = logging.getLogger(__name__)
 config_path = os.getenv("CONFIG_FILE")
 
 if config_path is None:
-    log.info("No CONFIG_FILE environment variable set, using default config file path.")
     config_path = Path(__file__).parent.parent / "data" / "config.toml"
 else:
     config_path = Path(config_path)
-print("SERVAS CONFIG PATH: ", config_path)
-log.info("Using config file path: %s", config_path)
 
 
 class BasicConfig(BaseSettings):
@@ -44,8 +39,7 @@ class BasicConfig(BaseSettings):
 
 class AllEncompassingConfig(BaseSettings):
     model_config = SettingsConfigDict(
-        toml_file=config_path,
-        case_sensitive=False,
+        toml_file=config_path, case_sensitive=False, env_nested_delimiter="_"
     )
     """
     This class is used to load all configurations from the environment variables.
@@ -68,4 +62,10 @@ class AllEncompassingConfig(BaseSettings):
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> Tuple[PydanticBaseSettingsSource, ...]:
-        return (TomlConfigSettingsSource(settings_cls),)
+        return (
+            init_settings,
+            env_settings,
+            dotenv_settings,
+            TomlConfigSettingsSource(settings_cls),
+            file_secret_settings,
+        )
