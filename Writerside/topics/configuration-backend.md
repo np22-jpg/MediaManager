@@ -41,27 +41,3 @@ development = false
 <note>
     The <code>frontend_url</code> and <code>cors_urls</code> are the most important settings to configure correctly. Make sure they match your actual deployment URLs.
 </note>
-
-## Database Settings
-
-Database configuration is covered in detail on the [Database Configuration](database-configuration.md) page.
-
-## Authentication Settings
-
-Authentication configuration is covered in detail on the [Authentication](authentication-setup.md) page.
-
-## Download Client Settings
-
-Download client configuration for qBittorrent and SABnzbd is covered in detail on the [Download Client Configuration](download-client-configuration.md) page.
-
-## Indexer Settings
-
-Indexer configuration for Prowlarr and Jackett is covered in detail on the [Indexer Settings](Indexer-Settings.md) page.
-
-## Notification Settings
-
-Notification configuration for email, Gotify, Ntfy, and Pushover is covered in detail on the [Notification Settings](Notifications.md) page.
-
-## Metadata Provider Settings
-
-Metadata provider configuration for TMDB and TVDB is covered in detail on the [Metadata Provider Configuration](metadata-provider-configuration.md) page.
