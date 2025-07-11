@@ -17,6 +17,7 @@
         <toc-element topic="download-client-configuration.md"/>
         <toc-element topic="Indexer-Settings.md"/>
         <toc-element topic="Notifications.md"/>
+        <toc-element topic="Reverse-Proxy.md"/>
         <toc-element topic="metadata-provider-configuration.md"/>
     </toc-element>
     <toc-element topic="troubleshooting.md"/>
