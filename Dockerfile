@@ -3,7 +3,7 @@ ARG VERSION
 LABEL version=${VERSION}
 LABEL description="Docker image for the backend of MediaManager"
 ENV MISC__IMAGE_DIRECTORY=/data/images \
-    MISC__TV_SHOW_DIRECTORY=/data/tv \
+    MISC__TV_DIRECTORY=/data/tv \
     MISC__MOVIE_DIRECTORY=/data/movies \
     MISC__TORRENT_DIRECTORY=/data/torrents \
     PUBLIC_VERSION=${VERSION} \
@@ -24,6 +24,6 @@ COPY media_manager ./media_manager
 COPY alembic ./alembic
 COPY alembic.ini .
 
-HEALTHCHECK CMD curl -f http://localhost:8000${API_BASE_PATH}/ || exit 1
+HEALTHCHECK CMD curl -f http://localhost:8000${MISC__API_BASE_PATH}/ || exit 1
 EXPOSE 8000
 CMD ["/app/mediamanager-backend-startup.sh"]
