@@ -11,7 +11,7 @@
     <br />
     <a href="https://maxdorninger.github.io/MediaManager/introduction.html"><strong>Explore the docs »</strong></a>
     <br />
-    <a href="https://github.com/maxdorninger/MediaManager/issues/new?labels=bug&template=bug-report.md">Report Bug</a>
+    <a href="https://github.com/maxdorninger/MediaManager/issues/new?labels=bug&template=bug_report.md">Report Bug</a>
     &middot;
     <a href="https://github.com/maxdorninger/MediaManager/issues/new?template=feature_request.md">Request Feature</a>
   </p>
