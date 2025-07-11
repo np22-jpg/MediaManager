@@ -1,19 +1,15 @@
 import requests
 import logging
 
-from pydantic_settings import BaseSettings
 
 import media_manager.metadataProvider.utils
+from media_manager.config import AllEncompassingConfig
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
 )
 from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 from media_manager.tv.schemas import Episode, Season, Show, SeasonNumber
 from media_manager.movies.schemas import Movie
-
-
-class TvdbConfig(BaseSettings):
-    TVDB_RELAY_URL: str = "https://metadata-relay.maxid.me/tvdb"
 
 
 log = logging.getLogger(__name__)
@@ -23,8 +19,8 @@ class TvdbMetadataProvider(AbstractMetadataProvider):
     name = "tvdb"
 
     def __init__(self):
-        config = TvdbConfig()
-        self.url = config.TVDB_RELAY_URL
+        config = AllEncompassingConfig().metadata.tvdb
+        self.url = config.tvdb_relay_url
 
     def __get_show(self, id: int) -> dict:
         return requests.get(f"{self.url}/tv/shows/{id}").json()

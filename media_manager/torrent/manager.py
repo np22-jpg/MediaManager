@@ -1,7 +1,7 @@
 import logging
-import os
 from enum import Enum
 
+from media_manager.config import AllEncompassingConfig
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.download_clients.abstractDownloadClient import (
     AbstractDownloadClient,
@@ -30,13 +30,14 @@ class DownloadManager:
     def __init__(self):
         self._torrent_client: AbstractDownloadClient | None = None
         self._usenet_client: AbstractDownloadClient | None = None
+        self.config = AllEncompassingConfig().torrents
         self._initialize_clients()
 
     def _initialize_clients(self) -> None:
         """Initialize and register the default download clients"""
 
         # Initialize qBittorrent client for torrents
-        if os.getenv("QBITTORRENT_ENABLED", "false").lower() == "true":
+        if self.config.qbittorrent.enabled:
             try:
                 self._torrent_client = QbittorrentDownloadClient()
                 log.info(
@@ -46,7 +47,7 @@ class DownloadManager:
                 log.error(f"Failed to initialize qBittorrent client: {e}")
 
         # Initialize SABnzbd client for usenet
-        if os.getenv("SABNZBD_ENABLED", "false").lower() == "true":
+        if self.config.sabnzbd.enabled:
             try:
                 self._usenet_client = SabnzbdDownloadClient()
                 log.info("SABnzbd client initialized and set as active usenet client")

@@ -1,5 +1,4 @@
 import logging
-import os
 import uuid
 from typing import Optional
 
@@ -17,23 +16,18 @@ from fastapi.responses import RedirectResponse, Response
 from starlette import status
 
 import media_manager.notification.utils
-from media_manager.auth.config import AuthConfig, OpenIdConfig
 from media_manager.auth.db import User, get_user_db
 from media_manager.auth.schemas import UserUpdate
-from media_manager.config import BasicConfig
-
+from media_manager.config import AllEncompassingConfig
 
 log = logging.getLogger(__name__)
 
-config = AuthConfig()
+config = AllEncompassingConfig().auth
 SECRET = config.token_secret
 LIFETIME = config.session_lifetime
 
-if (
-    os.getenv("OPENID_ENABLED") is not None
-    and os.getenv("OPENID_ENABLED").upper() == "TRUE"
-):
-    openid_config = OpenIdConfig()
+if config.openid_connect.enabled:
+    openid_config = AllEncompassingConfig().auth.openid_connect
     openid_client = OpenID(
         base_scopes=["openid", "email", "profile"],
         client_id=openid_config.client_id,
@@ -52,14 +46,14 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         log.info(f"User {user.id} has registered.")
-        if user.email in config.admin_email:
+        if user.email in config.admin_emails:
             updated_user = UserUpdate(is_superuser=True, is_verified=True)
             await self.update(user=user, user_update=updated_user)
 
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
     ):
-        link = f"{BasicConfig().FRONTEND_URL}login/reset-password?token={token}"
+        link = f"{AllEncompassingConfig().misc.frontend_url}login/reset-password?token={token}"
         log.info(f"User {user.id} has forgot their password. Reset Link: {link}")
 
         if not config.email_password_resets:
@@ -115,7 +109,7 @@ def get_jwt_strategy() -> JWTStrategy[models.UP, models.ID]:
 class RedirectingCookieTransport(CookieTransport):
     async def get_login_response(self, token: str) -> Response:
         response = RedirectResponse(
-            str(BasicConfig().FRONTEND_URL) + "dashboard",
+            str(AllEncompassingConfig().misc.frontend_url) + "dashboard",
             status_code=status.HTTP_302_FOUND,
         )
         return self._set_login_cookie(response, token)

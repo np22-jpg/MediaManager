@@ -4,7 +4,7 @@ from pathlib import Path
 import shutil
 import patoolib
 
-from media_manager.config import BasicConfig
+from media_manager.config import AllEncompassingConfig
 from media_manager.torrent.schemas import Torrent
 
 log = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ def extract_archives(files):
 
 
 def get_torrent_filepath(torrent: Torrent):
-    return BasicConfig().torrent_directory / torrent.title
+    return AllEncompassingConfig().misc.torrent_directory / torrent.title
 
 
 def import_file(target_file: Path, source_file: Path):

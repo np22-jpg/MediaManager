@@ -26,4 +26,8 @@
         <description>Created after removal of "user-guide" from MediaManager</description>
         <accepts>user-guide.html</accepts>
     </rule>
+    <rule id="7cb7d801">
+        <description>Created after removal of "MetadataRelay" from MediaManager</description>
+        <accepts>MetadataRelay.html</accepts>
+    </rule>
 </rules>

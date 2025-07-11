@@ -6,23 +6,23 @@ from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
-from media_manager.database.config import DbConfig
+from media_manager.config import AllEncompassingConfig
 
 log = logging.getLogger(__name__)
-config = DbConfig()
+config = AllEncompassingConfig().database
 
 db_url = (
     "postgresql+psycopg"
     + "://"
-    + config.USER
+    + config.user
     + ":"
-    + config.PASSWORD
+    + config.password
     + "@"
-    + config.HOST
+    + config.host
     + ":"
-    + str(config.PORT)
+    + str(config.port)
     + "/"
-    + config.DBNAME
+    + config.dbname
 )
 
 engine = create_engine(db_url, echo=False)

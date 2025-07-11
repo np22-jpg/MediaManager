@@ -1,9 +1,9 @@
 import logging
 
 import requests
-from pydantic_settings import BaseSettings
 
 import media_manager.metadataProvider.utils
+from media_manager.config import AllEncompassingConfig
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
 )
@@ -11,10 +11,6 @@ from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 from media_manager.tv.schemas import Episode, Season, Show, SeasonNumber, EpisodeNumber
 from media_manager.movies.schemas import Movie
 from media_manager.notification.manager import notification_manager
-
-
-class TmdbConfig(BaseSettings):
-    TMDB_RELAY_URL: str = "https://metadata-relay.maxid.me/tmdb"
 
 
 ENDED_STATUS = {"Ended", "Canceled"}
@@ -26,8 +22,8 @@ class TmdbMetadataProvider(AbstractMetadataProvider):
     name = "tmdb"
 
     def __init__(self):
-        config = TmdbConfig()
-        self.url = config.TMDB_RELAY_URL
+        config = AllEncompassingConfig().metadata.tmdb
+        self.url = config.tmdb_relay_url
 
     def __get_show_metadata(self, id: int) -> dict:
         try:
