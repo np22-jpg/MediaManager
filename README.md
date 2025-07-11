@@ -31,7 +31,8 @@ other services.
 
 ```
    wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yaml   
-   # Edit docker-compose.yaml to set the environment variables!
+   wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/config.toml
+   # you probably need to edit the config.toml file, for more help see the documentation
    docker compose up -d
 ```
 

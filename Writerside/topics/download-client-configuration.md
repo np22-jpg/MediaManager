@@ -1,0 +1,109 @@
+# Download Clients
+
+Download client settings are configured in the `[torrents]` section of your `config.toml` file. MediaManager supports both qBittorrent and SABnzbd as download clients.
+
+## qBittorrent Settings (`[torrents.qbittorrent]`)
+
+qBittorrent is a popular BitTorrent client that MediaManager can integrate with for downloading torrents.
+
+- `enabled`
+
+Set to `true` to enable qBittorrent integration. Default is `false`.
+
+- `host`
+
+Hostname or IP of the qBittorrent server. Include the protocol (http/https).
+
+- `port`
+
+Port of the qBittorrent Web UI/API. Default is `8080`.
+
+- `username`
+
+Username for qBittorrent Web UI authentication. Default is `admin`.
+
+- `password`
+
+Password for qBittorrent Web UI authentication. Default is `admin`.
+
+## SABnzbd Settings (`[torrents.sabnzbd]`)
+
+SABnzbd is a Usenet newsreader that MediaManager can integrate with for downloading NZB files.
+
+- `enabled`
+
+Set to `true` to enable SABnzbd integration. Default is `false`.
+
+- `host`
+
+Hostname or IP of the SABnzbd server.
+
+- `port`
+
+Port of the SABnzbd API. Default is `8080`.
+
+- `api_key`
+
+API key for SABnzbd. You can find this in SABnzbd's configuration under "General" → "API Key".
+
+## Example Configuration
+
+Here's a complete example of the download clients section in your `config.toml`:
+
+```toml
+[torrents]
+    # qBittorrent configuration
+    [torrents.qbittorrent]
+    enabled = true
+    host = "http://qbittorrent"
+    port = 8080
+    username = "admin"
+    password = "your_secure_password"
+
+    # SABnzbd configuration
+    [torrents.sabnzbd]
+    enabled = false
+    host = "sabnzbd"
+    port = 8080
+    api_key = "your_sabnzbd_api_key"
+```
+
+## Docker Compose Integration
+
+When using Docker Compose, make sure your download clients are accessible from the MediaManager backend:
+
+```yaml
+services:
+  # MediaManager backend
+  backend:
+    image: ghcr.io/maxdorninger/mediamanager/backend:latest
+    # ... other configuration ...
+
+  # qBittorrent service
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - WEBUI_PORT=8080
+    volumes:
+      - ./data/torrents:/downloads
+    # ... other configuration ...
+
+  # SABnzbd service (optional)
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./data/usenet:/downloads
+    # ... other configuration ...
+```
+
+<note>
+    You can enable both qBittorrent and SABnzbd simultaneously if you want to support both BitTorrent and Usenet downloads.
+</note>
+
+<tip>
+    Make sure the download directories in your download clients are accessible to MediaManager for proper file management and organization.
+</tip>

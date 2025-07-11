@@ -1,220 +1,67 @@
 # Backend
+These settings configure the core backend application through the `config.toml` file. All backend configuration is now centralized in this TOML file instead of environment variables.
 
-These variables configure the core backend application, database connections, authentication, and integrations.
+## General Settings (`[misc]`)
+
+- `frontend_url`
+
+The URL the frontend will be accessed from. This is a required field and must include the trailing slash.
+
+- `cors_urls`
+
+A list of origins you are going to access the API from. Note the lack of trailing slashes.
+
+- `api_base_path`
+
+The URL base path of the backend API. Default is `/api/v1`. Note the lack of a trailing slash.
+
+- `development`
+
+Set to `true` to enable development mode. Default is `false`.
+
+## Example Configuration
+
+Here's a complete example of the general settings section in your `config.toml`:
+
+```toml
+[misc]
+# REQUIRED: Change this to match your actual frontend URL
+frontend_url = "http://localhost:3000/"
+
+# REQUIRED: List all origins that will access the API
+cors_urls = ["http://localhost:3000", "http://localhost:8000"]
+
+# Optional: API base path (rarely needs to be changed)
+api_base_path = "/api/v1"
+
+# Optional: Development mode (set to true for debugging)
+development = false
+```
 
 <note>
-    <include from="notes.topic" element-id="list-format"/>
+    The <code>frontend_url</code> and <code>cors_urls</code> are the most important settings to configure correctly. Make sure they match your actual deployment URLs.
 </note>
-
-## General Settings
-
-### `API_BASE_PATH`
-
-The url base of the backend. Default is `/api/v1`.
-
-### `CORS_URLS`
-
-Enter a list of origins you are going to access the api from. Example: `["https://mm.example"]`.
 
 ## Database Settings
 
-### `DB_HOST`
+Database configuration is covered in detail on the [Database Configuration](database-configuration.md) page.
 
-Hostname or IP of the PostgreSQL server. Default is `localhost`.
+## Authentication Settings
 
-### `DB_PORT`
-
-Port number of the PostgreSQL server. Default is `5432`.
-
-### `DB_USER`
-
-Username for PostgreSQL connection. Default is `MediaManager`.
-
-### `DB_PASSWORD`
-
-Password for the PostgreSQL user. Default is `MediaManager`.
-
-### `DB_DBNAME`
-
-Name of the PostgreSQL database. Default is `MediaManager`.
+Authentication configuration is covered in detail on the [Authentication](authentication-setup.md) page.
 
 ## Download Client Settings
 
-Currently, only qBittorrent is supported as a download client. But support for other clients isn't unlikely in the
-future.
+Download client configuration for qBittorrent and SABnzbd is covered in detail on the [Download Client Configuration](download-client-configuration.md) page.
 
-### `QBITTORRENT_HOST`
+## Indexer Settings
 
-Host of the QBittorrent API. Default is `localhost`. Example: `qbit.example.com`.
-
-### `QBITTORRENT_PORT`
-
-Port of the QBittorrent API. Default is `8080`. Example: `443`.
-
-### `QBITTORRENT_USER`
-
-Username for QBittorrent. Default is `admin`.
-
-### `QBITTORRENT_PASSWORD`
-
-Password for QBittorrent. Default is `admin`.
-
-## Metadata Provider Settings
-
-<note>
-   Note the lack of a trailing slash in some env vars like <code>TMDB_RELAY_URL</code>. This is important.
-</note>
-
-
-
-These settings configure the integrations with external metadata providers like The Movie Database (TMDB) and The TVDB.
-
-### TMDB (The Movie Database)
-
-TMDB is the primary metadata provider for MediaManager. It provides detailed information about movies and TV shows.
-
-
-<tip>
-    Other software like Jellyfin use TMDB as well, so there won't be any metadata discrepancies.
-</tip>
-
-#### `TMDB_RELAY_URL`
-
-If you want use your own TMDB relay service, set this to the URL of your own MetadataRelay. Otherwise, don't set it to
-use the default relay.
-
-Default: `https://metadata-relay.maxid.me/tmdb`.
-
-### TVDB (The TVDB)
-
-<warning>
-    The TVDB might provide false metadata, also it doesn't support some features of MediaManager like to show overviews, therfore TMDB is the preferred metadata provider.
-</warning>
-
-#### `TVDB_RELAY_URL`
-
-If you want use your own TVDB relay service, set this to the URL of your own MetadataRelay. Otherwise, don't set it to
-use the default relay.
-
-Default: `https://metadata-relay.maxid.me/tvdb`.
-
-### MetadataRelay
-
-<note>
-  To use MediaManager <strong>you don't need to set up your own MetadataRelay</strong>, as the default relay which is hosted by me, the dev of MediaManager, should be sufficient for most purposes.
-</note>
-
-The MetadataRelay is a service that provides metadata for MediaManager. It acts as a proxy for TMDB and TVDB, allowing
-you to use your own API keys, but not strictly needing your own because only me, the developer, needs to create accounts
-for API keys.
-You might want to use it if you want to avoid rate limits, to protect your privacy, or other reasons.
-If you know Sonarr's Skyhook, this is similar to that.
-
-#### Where to get API keys
-
-Get an API key from [The Movie Database](https://www.themoviedb.org/settings/api). You can create
-an account and generate a free API key in your account settings.
-
-Get an API key from [The TVDB](https://thetvdb.com/auth/register). You can create an account and
-generate a free API key in your account settings.
-
-<tip>
-    If you want to use your own MetadataRelay, you can set the  <code>TMDB_RELAY_URL</code> and/or  <code>TVDB_RELAY_URL</code> to your own relay service.
-</tip>
-
-## Directory Settings
-
-<note>
-    Normally you don't need to change these, as the default mountpoints are usually sufficient. In your <code>docker-compose.yaml</code>, you can just mount <code>/any/directory</code> to <code>/data/torrents</code>.
-</note>
-
-### `IMAGE_DIRECTORY`
-
-Media images (posters, backdrops) will be stored here. Default is `/data/images`.
-
-### `TV_DIRECTORY`
-
-Location of TV show files. Default is `/data/tv`.
-
-### `MOVIE_DIRECTORY`
-
-Location of movie files. Default is `/data/movies`.
-
-### `TORRENT_DIRECTORY`
-
-Location of torrent files and downloads. Default is `/data/torrents`.
-
-## Email Settings
-
-For sending emails, MediaManager uses the SMTP protocol. You can use any SMTP server, like Gmail or SMTP2GO.
-
-### `EMAIL_SMTP_HOST`
-
-Hostname of the SMTP server.
-
-### `EMAIL_SMTP_PORT`
-
-Port of the SMTP server.
-
-### `EMAIL_SMTP_USER`
-
-Username for the SMTP server.
-
-### `EMAIL_SMTP_PASSWORD`
-
-Password for the SMTP server.
-
-### `EMAIL_FROM_EMAIL`
-
-Email address from which emails will be sent.
-
-### `EMAIL_USE_TLS`
-
-Set to `True` to use TLS for the SMTP connection. Default is `False`.
-For secure connections, use TLS.
+Indexer configuration for Prowlarr and Jackett is covered in detail on the [Indexer Settings](Indexer-Settings.md) page.
 
 ## Notification Settings
 
-MediaManager can send Notifications via email, ntfy.sh, Pushover and Gotify. You can enable any of these.
-To enable a notification method, set the corresponding environment variables.
+Notification configuration for email, Gotify, Ntfy, and Pushover is covered in detail on the [Notification Settings](Notifications.md) page.
 
-### Email
+## Metadata Provider Settings
 
-#### `NOTIFICATION_EMAIL`
-
-If set notifications will be sent via email to this email address.
-Example: `notifications@example.com`.
-
-### Gotify
-
-#### `NOTIFICATION_GOTIFY_API_KEY`
-
-API key for Gotify.
-
-#### `NOTIFICATION_GOTIFY_URL`
-
-Base URL of your Gotify instance. Example: `https://gotify.example.com`.
-Note the lack of a trailing slash.
-
-### Ntfy
-
-#### `NOTIFICATION_NTFY_URL`
-
-URL of your ntfy instance + the topic. Example `https://ntfy.sh/your-topic`.
-
-### Pushover
-
-#### `NOTIFICATION_PUSHOVER_API_KEY`
-
-API key for Pushover.
-
-#### `NOTIFICATION_PUSHOVER_USER`
-
-Username for Pushover.
-
-## Build Arguments (Dockerfile)
-
-### `VERSION`
-
-Labels the Docker image with a version. Passed during build (e.g., by GitHub Actions). Frontend uses this as
-`PUBLIC_VERSION`. Example (in build command): `docker build --build-arg VERSION=1.2.3 .`
+Metadata provider configuration for TMDB and TVDB is covered in detail on the [Metadata Provider Configuration](metadata-provider-configuration.md) page.

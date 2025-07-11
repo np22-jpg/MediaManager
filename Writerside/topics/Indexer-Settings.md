@@ -1,37 +1,53 @@
-# Indexer Settings
+# Indexers
 
-## Prowlarr
+Indexer settings are configured in the `[indexers]` section of your `config.toml` file. MediaManager supports both Prowlarr and Jackett as indexer providers.
 
-### `PROWLARR_ENABLED`
+## Prowlarr (`[indexers.prowlarr]`)
 
-Set to `True` to enable Prowlarr. Default is `False`. Example: `true`.
+- `enabled`
 
-### `PROWLARR_API_KEY`
+Set to `true` to enable Prowlarr. Default is `false`.
 
-This is your Prowlarr API key. Example: `prowlarr_api_key`.
+- `url`
 
-### `PROWLARR_URL`
+Base URL of your Prowlarr instance.
 
-Base URL of your Prowlarr instance. Default is `http://localhost:9696`. Example: `http://prowlarr:9696`.
+- `api_key`
 
-## Jackett
+API key for Prowlarr. You can find this in Prowlarr's settings under General.
 
-### `JACKETT_ENABLED`
+## Jackett (`[indexers.jackett]`)
 
-Set to `True` to enable Jackett. Default is `False`. Example: `true`.
+- `enabled`
 
-### `JACKETT_API_KEY`
+Set to `true` to enable Jackett. Default is `false`.
 
-This is your Prowlarr API key. Example: `jackett_api_key`.
+- `url`
 
-### `JACKETT_URL`
+Base URL of your Jackett instance.
 
-Base URL of your Prowlarr instance. Default is `http://localhost:9117`. Example: `http://prowlarr:9117`.
+- `api_key`
 
-### `JACKETT_INDEXERS`
+API key for Jackett. You can find this in Jackett's dashboard.
 
-List of all indexers for Jackett to search through. Default is `all`. Example: `["1337x","0magnet"]`.
+- `indexers`
 
-<note>
-    <include from="notes.topic" element-id="list-format"/>
-</note>
+List of indexer names to use with Jackett. You can specify which indexers Jackett should search through.
+
+## Example Configuration
+
+Here's a complete example of the indexers section in your `config.toml`:
+
+```toml
+[indexers]
+    [indexers.prowlarr]
+    enabled = true
+    url = "http://prowlarr:9696"
+    api_key = "your_prowlarr_api_key"
+
+    [indexers.jackett]
+    enabled = false
+    url = "http://jackett:9117"
+    api_key = "your_jackett_api_key"
+    indexers = ["1337x", "rarbg"]
+```
