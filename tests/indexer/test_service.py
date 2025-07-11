@@ -1,19 +1,24 @@
 import uuid
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 import pytest
+from pydantic import HttpUrl
 
 from media_manager.indexer.schemas import IndexerQueryResult, IndexerQueryResultId
 from media_manager.indexer.repository import IndexerRepository
 from media_manager.indexer.service import IndexerService
+from media_manager.indexer.indexers.generic import GenericIndexer
 
 
-class DummyIndexer:
+class DummyIndexer(GenericIndexer):
+    def __init__(self):
+        super().__init__(name="DummyIndexer")
+
     def search(self, query, is_tv=True):
         return [
             IndexerQueryResult(
                 id=IndexerQueryResultId(uuid.uuid4()),
                 title=f"{query} S01 1080p",
-                download_url="https://example.com/torrent1",
+                download_url=HttpUrl("https://example.com/torrent1"),
                 seeders=10,
                 flags=["test"],
                 size=123456,
@@ -31,10 +36,17 @@ def mock_indexer_repository():
 
 
 @pytest.fixture
-def indexer_service(monkeypatch, mock_indexer_repository):
-    # Patch the global indexers list
-    monkeypatch.setattr("media_manager.indexer.service.indexers", [DummyIndexer()])
-    return IndexerService(indexer_repository=mock_indexer_repository)
+def indexer_service(mock_indexer_repository):
+    # Mock the config to disable real indexers
+    with patch("media_manager.indexer.service.AllEncompassingConfig") as mock_config:
+        # Configure the mock to disable all real indexers
+        mock_config.return_value.indexers.prowlarr.enabled = False
+        mock_config.return_value.indexers.jackett.enabled = False
+
+        service = IndexerService(indexer_repository=mock_indexer_repository)
+        # Manually set the dummy indexer
+        service.indexers = [DummyIndexer()]
+        return service
 
 
 def test_search_returns_results(indexer_service, mock_indexer_repository):
@@ -50,7 +62,7 @@ def test_get_result_returns_result(mock_indexer_repository):
     expected_result = IndexerQueryResult(
         id=result_id,
         title="Test S01 1080p",
-        download_url="https://example.com/torrent2",
+        download_url=HttpUrl("https://example.com/torrent2"),
         seeders=10,
         flags=["test"],
         size=123456,

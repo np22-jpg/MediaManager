@@ -20,7 +20,7 @@ from media_manager.torrent.config import TorrentConfig
 config_path = os.getenv("CONFIG_FILE")
 
 if config_path is None:
-    config_path = Path(__file__).parent.parent / "data" / "config.toml"
+    config_path = Path(__file__).parent.parent / "config.toml"
 else:
     config_path = Path(config_path)
 
