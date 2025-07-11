@@ -39,7 +39,7 @@ class BasicConfig(BaseSettings):
 
 class AllEncompassingConfig(BaseSettings):
     model_config = SettingsConfigDict(
-        toml_file=config_path, case_sensitive=False, env_nested_delimiter="_"
+        toml_file=config_path, case_sensitive=False, env_nested_delimiter="__"
     )
     """
     This class is used to load all configurations from the environment variables.
