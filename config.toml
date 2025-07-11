@@ -12,7 +12,7 @@ api_base_path = "/api/v1"
 development = false
 
 [database]
-host = "localhost"
+host = "db"
 port = 5432
 user = "MediaManager"
 password = "MediaManager"
@@ -22,7 +22,7 @@ dbname = "MediaManager"
 email_password_resets = false # if true, you also need to set up SMTP (notifications.smtp_config)
 
 token_secret = "" # generate a random string with "openssl rand -hex 32", e.g. here https://www.cryptool.org/en/cto/openssl/
-session_lifetime = 86400  # this is how long you will be logged in after loggin in, in seconds; 24 hours in seconds
+session_lifetime = 86400  # this is how long you will be logged in after loggin in, in seconds
 admin_emails = ["admin@example.com", "admin2@example.com"]
 
     # OpenID Connect settings
