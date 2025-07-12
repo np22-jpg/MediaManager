@@ -11,7 +11,7 @@ Your `config.toml` file should be mounted to `/app/config.toml` inside the conta
 
 ```yaml
 volumes:
-  - ./config.toml:/data/config.toml
+  - ./config.toml:/app/config.toml
 ```
 
 Though you can change the location of the configuration file by setting the `CONFIG_FILE` env variable to another path,
