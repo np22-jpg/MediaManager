@@ -40,7 +40,12 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
 
     def __init__(self):
         self.config = AllEncompassingConfig().torrents.qbittorrent
-        self.api_client = qbittorrentapi.Client(**self.config.model_dump())
+        self.api_client = qbittorrentapi.Client(
+            host=self.config.host,
+            port=self.config.port,
+            password=self.config.password,
+            username=self.config.username,
+        )
         try:
             self.api_client.auth_log_in()
             log.info("Successfully logged into qbittorrent")
