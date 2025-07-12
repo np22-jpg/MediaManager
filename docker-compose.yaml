@@ -4,7 +4,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - CONFIG_FILE=/data/config.toml
+      - CONFIG_FILE=/app/config.toml
     volumes:
       - ./data/:/data/
       - ./config.toml:/app/config.toml
