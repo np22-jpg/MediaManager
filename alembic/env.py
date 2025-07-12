@@ -73,7 +73,6 @@ db_url = (
     + "/"
     + db_config.dbname
 )
-print("Using database URL:", db_url)
 
 config.set_main_option("sqlalchemy.url", db_url)
 
