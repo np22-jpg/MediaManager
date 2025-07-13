@@ -52,7 +52,9 @@ class SabnzbdDownloadClient(AbstractDownloadClient):
 
         try:
             # Add NZB to SABnzbd queue
-            response = self.client.add_uri(url=str(indexer_result.download_url))
+            response = self.client.add_uri(
+                url=str(indexer_result.download_url), nzbname=indexer_result.title
+            )
             if not response["status"]:
                 error_msg = response
                 log.error(f"Failed to add NZB to SABnzbd: {error_msg}")
