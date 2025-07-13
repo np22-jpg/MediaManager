@@ -102,10 +102,10 @@
 	</Table.Body>
 </Table.Root>
 <Dialog.Root bind:open={dialogOpen}>
-	<Dialog.Content class="w-full max-w-[600px] rounded-lg bg-white p-6 shadow-lg">
+	<Dialog.Content class="w-full max-w-[600px] rounded-lg p-6 shadow-lg">
 		<Dialog.Header>
 			<Dialog.Title class="mb-1 text-xl font-semibold">Edit user</Dialog.Title>
-			<Dialog.Description class="mb-4 text-sm text-gray-500">
+			<Dialog.Description class="mb-4 text-sm">
 				Edit {selectedUser?.email}
 			</Dialog.Description>
 		</Dialog.Header>
