@@ -51,10 +51,10 @@
 			Edit my details
 		</Button>
 	</Dialog.Trigger>
-	<Dialog.Content class="w-full max-w-[600px] rounded-lg bg-white p-6 shadow-lg">
+	<Dialog.Content class="w-full max-w-[600px] rounded-lg p-6 shadow-lg">
 		<Dialog.Header>
 			<Dialog.Title class="mb-1 text-xl font-semibold">Edit User Details</Dialog.Title>
-			<Dialog.Description class="mb-4 text-sm text-gray-500">
+			<Dialog.Description class="mb-4 text-sm">
 				Change your email or password. Leave fields empty to not change them.
 			</Dialog.Description>
 		</Dialog.Header>
