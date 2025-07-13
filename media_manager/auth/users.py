@@ -119,7 +119,9 @@ bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 cookie_transport = CookieTransport(
     cookie_max_age=LIFETIME, cookie_samesite="lax", cookie_secure=False
 )
-openid_cookie_transport = RedirectingCookieTransport(cookie_max_age=LIFETIME)
+openid_cookie_transport = RedirectingCookieTransport(
+    cookie_max_age=LIFETIME, cookie_samesite="lax", cookie_secure=False
+)
 
 bearer_auth_backend = AuthenticationBackend(
     name="jwt",
