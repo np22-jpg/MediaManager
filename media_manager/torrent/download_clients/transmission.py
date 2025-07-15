@@ -1,8 +1,5 @@
 import hashlib
 import logging
-import os
-import tempfile
-from typing import Optional
 
 import bencoder
 import requests
@@ -23,13 +20,13 @@ class TransmissionDownloadClient(AbstractDownloadClient):
 
     # Transmission status mappings
     STATUS_MAPPING = {
-        'stopped': TorrentStatus.unknown,
-        'check pending': TorrentStatus.downloading,
-        'checking': TorrentStatus.downloading,
-        'download pending': TorrentStatus.downloading,
-        'downloading': TorrentStatus.downloading,
-        'seed pending': TorrentStatus.finished,
-        'seeding': TorrentStatus.finished,
+        "stopped": TorrentStatus.unknown,
+        "check pending": TorrentStatus.downloading,
+        "checking": TorrentStatus.downloading,
+        "download pending": TorrentStatus.downloading,
+        "downloading": TorrentStatus.downloading,
+        "seed pending": TorrentStatus.finished,
+        "seeding": TorrentStatus.finished,
     }
 
     def __init__(self):
@@ -50,8 +47,6 @@ class TransmissionDownloadClient(AbstractDownloadClient):
         except Exception as e:
             log.error(f"Failed to connect to Transmission: {e}")
             raise
-
-
 
     def download_torrent(self, indexer_result: IndexerQueryResult) -> Torrent:
         """
@@ -78,14 +73,18 @@ class TransmissionDownloadClient(AbstractDownloadClient):
         except Exception as e:
             log.error(f"Failed to decode torrent file: {e}")
             raise
-        download_dir = AllEncompassingConfig().misc.torrent_directory / indexer_result.title
+        download_dir = (
+            AllEncompassingConfig().misc.torrent_directory / indexer_result.title
+        )
         try:
             self._client.add_torrent(
                 torrent=str(indexer_result.download_url),
                 download_dir=str(download_dir),
             )
 
-            log.info(f"Successfully added torrent to Transmission: {indexer_result.title}")
+            log.info(
+                f"Successfully added torrent to Transmission: {indexer_result.title}"
+            )
 
         except Exception as e:
             log.error(f"Failed to add torrent to Transmission: {e}")
@@ -97,7 +96,7 @@ class TransmissionDownloadClient(AbstractDownloadClient):
             quality=indexer_result.quality,
             imported=False,
             hash=torrent_hash,
-            usenet=False
+            usenet=False,
         )
 
         torrent.status = self.get_torrent_status(torrent)
@@ -114,10 +113,7 @@ class TransmissionDownloadClient(AbstractDownloadClient):
         log.info(f"Removing torrent: {torrent.title}")
 
         try:
-            self._client.remove_torrent(
-                torrent.hash,
-                delete_data=delete_data
-            )
+            self._client.remove_torrent(torrent.hash, delete_data=delete_data)
             log.info(f"Successfully removed torrent: {torrent.title}")
         except Exception as e:
             log.error(f"Failed to remove torrent: {e}")
@@ -139,11 +135,15 @@ class TransmissionDownloadClient(AbstractDownloadClient):
                 log.warning(f"Torrent not found in Transmission: {torrent.hash}")
                 return TorrentStatus.unknown
 
-            status = self.STATUS_MAPPING.get(transmission_torrent.status, TorrentStatus.unknown)
+            status = self.STATUS_MAPPING.get(
+                transmission_torrent.status, TorrentStatus.unknown
+            )
 
             if transmission_torrent.error != 0:
                 status = TorrentStatus.error
-                log.warning(f"Torrent {torrent.title} has error status: {transmission_torrent.error_string}")
+                log.warning(
+                    f"Torrent {torrent.title} has error status: {transmission_torrent.error_string}"
+                )
 
             log.debug(f"Torrent {torrent.title} status: {status}")
             return status
@@ -183,5 +183,3 @@ class TransmissionDownloadClient(AbstractDownloadClient):
         except Exception as e:
             log.error(f"Failed to resume torrent: {e}")
             raise
-
-

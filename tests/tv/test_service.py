@@ -474,7 +474,6 @@ def test_get_all_available_torrents_for_a_season_no_override(
         season_number=season_number, show_id=show_id
     )
 
-
     assert len(results) == 3
     assert torrent1 in results
     assert torrent2 in results

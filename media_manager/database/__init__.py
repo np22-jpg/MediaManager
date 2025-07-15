@@ -25,7 +25,14 @@ db_url = (
     + config.dbname
 )
 
-engine = create_engine(db_url, echo=False,pool_size=10, max_overflow=10, pool_timeout=30, pool_recycle=1800)
+engine = create_engine(
+    db_url,
+    echo=False,
+    pool_size=10,
+    max_overflow=10,
+    pool_timeout=30,
+    pool_recycle=1800,
+)
 log.debug("initializing sqlalchemy declarative base")
 Base = declarative_base()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
