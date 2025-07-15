@@ -12,7 +12,7 @@ api_base_path = "/api/v1"
 development = false
 
 [database]
-host = "db"
+host = "localhost"
 port = 5432
 user = "MediaManager"
 password = "MediaManager"
