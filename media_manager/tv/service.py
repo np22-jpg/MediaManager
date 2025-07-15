@@ -202,7 +202,7 @@ class TvService:
         for torrent in torrents:
             if season_number in torrent.season:
                 result.append(torrent)
-        result.sort()
+        result.sort(reverse=True)
         return result
 
     def get_all_shows(self) -> list[Show]:
