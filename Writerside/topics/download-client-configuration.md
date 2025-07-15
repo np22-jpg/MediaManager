@@ -26,6 +26,38 @@ Username for qBittorrent Web UI authentication. Default is `admin`.
 
 Password for qBittorrent Web UI authentication. Default is `admin`.
 
+## Transmission Settings (`[torrents.transmission]`)
+
+Transmission is a BitTorrent client that MediaManager can integrate with for downloading torrents.
+
+- `enabled`
+
+Set to `true` to enable Transmission integration. Default is `false`.
+
+- `username`
+
+Username for Transmission RPC authentication.
+
+- `password`
+
+Password for Transmission RPC authentication.
+
+- `https_enabled`
+
+Set to `true` if your Transmission RPC endpoint uses HTTPS. Default is `true`.
+
+- `host`
+
+Hostname or IP of the Transmission server (without protocol).
+
+- `port`
+
+Port of the Transmission RPC endpoint. Default is `9091`.
+
+- `path`
+
+RPC request path target. Usually `/transmission/rpc`.
+
 ## SABnzbd Settings (`[torrents.sabnzbd]`)
 
 SABnzbd is a Usenet newsreader that MediaManager can integrate with for downloading NZB files.
@@ -60,6 +92,16 @@ Here's a complete example of the download clients section in your `config.toml`:
     username = "admin"
     password = "your_secure_password"
 
+    # Transmission configuration
+    [torrents.transmission]
+    enabled = false
+    username = "admin"
+    password = "your_secure_password"
+    https_enabled = true
+    host = "transmission"
+    port = 9091
+    path = "/transmission/rpc"
+
     # SABnzbd configuration
     [torrents.sabnzbd]
     enabled = false
@@ -90,6 +132,20 @@ services:
       - ./data/torrents:/downloads
     # ... other configuration ...
 
+  # Transmission service (optional)
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    ports:
+      - "9091:9091"
+    environment:
+      - TRANSMISSION_RPC_AUTHENTICATION_REQUIRED=true
+      - TRANSMISSION_RPC_USERNAME=admin
+      - TRANSMISSION_RPC_PASSWORD=your_secure_password
+      - TRANSMISSION_RPC_PORT=9091
+    volumes:
+      - ./data/torrents:/downloads
+    # ... other configuration ...
+
   # SABnzbd service (optional)
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:latest
@@ -101,7 +157,7 @@ services:
 ```
 
 <note>
-    You can enable both qBittorrent and SABnzbd simultaneously if you want to support both BitTorrent and Usenet downloads.
+    You can enable qBittorrent, Transmission, and SABnzbd simultaneously if you want to support both BitTorrent and Usenet downloads.
 </note>
 
 <tip>
