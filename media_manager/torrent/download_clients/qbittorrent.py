@@ -16,6 +16,8 @@ log = logging.getLogger(__name__)
 
 
 class QbittorrentDownloadClient(AbstractDownloadClient):
+    name = "qbittorrent"
+
     DOWNLOADING_STATE = (
         "allocating",
         "downloading",

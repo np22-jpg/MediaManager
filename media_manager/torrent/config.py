@@ -10,6 +10,17 @@ class QbittorrentConfig(BaseSettings):
     enabled: bool = False
 
 
+class TransmissionConfig(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="TRANSMISSION_")
+    path: str = "/transmission/rpc"
+    https_enabled: bool = True
+    host: str = "localhost"
+    port: int = 9091
+    username: str = ""
+    password: str = ""
+    enabled: bool = False
+
+
 class SabnzbdConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="SABNZBD_")
     host: str = "localhost"
@@ -20,4 +31,5 @@ class SabnzbdConfig(BaseSettings):
 
 class TorrentConfig(BaseSettings):
     qbittorrent: QbittorrentConfig
+    transmission: TransmissionConfig
     sabnzbd: SabnzbdConfig
