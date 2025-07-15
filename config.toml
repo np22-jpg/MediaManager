@@ -74,6 +74,16 @@ admin_emails = ["admin@example.com", "admin2@example.com"]
     username = "admin"
     password = "admin"
 
+    # Transmission settings
+    [torrents.transmission]
+    enabled = false
+    username = "admin"
+    password = "admin"
+    https_enabled = true
+    host = "localhost"
+    port = 9091
+    path = "/transmission/rpc" # RPC request path target, usually "/transmission/rpc"
+
     # SABnzbd settings
     [torrents.sabnzbd]
     enabled = false

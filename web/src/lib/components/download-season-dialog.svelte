@@ -33,7 +33,7 @@
 		url.searchParams.append('public_indexer_result_id', result_id);
 		url.searchParams.append('show_id', show.id);
 		if (filePathSuffix !== '') {
-			url.searchParams.append('file_path_suffix', filePathSuffix);
+			url.searchParams.append('override_file_path_suffix', filePathSuffix);
 		}
 		try {
 			const response = await fetch(url, {

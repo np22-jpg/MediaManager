@@ -10,6 +10,11 @@ class AbstractDownloadClient(ABC):
     Defines the interface that all download clients must implement.
     """
 
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
     @abstractmethod
     def download_torrent(self, torrent: IndexerQueryResult) -> Torrent:
         """

@@ -25,7 +25,7 @@ The configuration is organized into the following sections:
 - `[database]` - Database settings
 - `[auth]` - Authentication settings
 - `[notifications]` - Notification settings (Email, Gotify, Ntfy, Pushover)
-- `[torrents]` - Download client settings (qBittorrent, SABnzbd)
+- `[torrents]` - Download client settings (qBittorrent, Transmission, SABnzbd)
 - `[indexers]` - Indexer settings (Prowlarr and Jackett )
 - `[metadata]` - TMDB and TVDB settings
 

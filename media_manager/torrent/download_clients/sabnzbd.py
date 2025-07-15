@@ -12,6 +12,8 @@ log = logging.getLogger(__name__)
 
 
 class SabnzbdDownloadClient(AbstractDownloadClient):
+    name = "sabnzbd"
+
     DOWNLOADING_STATE = (
         "Downloading",
         "Queued",

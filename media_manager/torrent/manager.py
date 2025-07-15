@@ -7,6 +7,9 @@ from media_manager.torrent.download_clients.abstractDownloadClient import (
     AbstractDownloadClient,
 )
 from media_manager.torrent.download_clients.qbittorrent import QbittorrentDownloadClient
+from media_manager.torrent.download_clients.transmission import (
+    TransmissionDownloadClient,
+)
 from media_manager.torrent.download_clients.sabnzbd import SabnzbdDownloadClient
 from media_manager.torrent.schemas import Torrent, TorrentStatus
 
@@ -36,7 +39,7 @@ class DownloadManager:
     def _initialize_clients(self) -> None:
         """Initialize and register the default download clients"""
 
-        # Initialize qBittorrent client for torrents
+        # Initialize torrent clients (prioritize qBittorrent, fallback to Transmission)
         if self.config.qbittorrent.enabled:
             try:
                 self._torrent_client = QbittorrentDownloadClient()
@@ -45,6 +48,16 @@ class DownloadManager:
                 )
             except Exception as e:
                 log.error(f"Failed to initialize qBittorrent client: {e}")
+
+        # If qBittorrent is not available or failed, try Transmission
+        if self._torrent_client is None and self.config.transmission.enabled:
+            try:
+                self._torrent_client = TransmissionDownloadClient()
+                log.info(
+                    "Transmission client initialized and set as active torrent client"
+                )
+            except Exception as e:
+                log.error(f"Failed to initialize Transmission client: {e}")
 
         # Initialize SABnzbd client for usenet
         if self.config.sabnzbd.enabled:
@@ -56,9 +69,9 @@ class DownloadManager:
 
         active_clients = []
         if self._torrent_client:
-            active_clients.append("torrent")
+            active_clients.append(f"torrent ({self._torrent_client.name})")
         if self._usenet_client:
-            active_clients.append("usenet")
+            active_clients.append(f"usenet ({self._usenet_client.name})")
 
         log.info(
             f"Download manager initialized with active download clients: {', '.join(active_clients) if active_clients else 'none'}"
