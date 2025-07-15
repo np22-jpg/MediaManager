@@ -300,12 +300,16 @@ class TvService:
         if season_file.torrent_id is None:
             return True
         else:
-            torrent_file = self.torrent_service.get_torrent_by_id(
-                torrent_id=season_file.torrent_id
-            )
-            if torrent_file.imported:
-                print("Servas")
-                return True
+            try:
+                torrent_file = self.torrent_service.get_torrent_by_id(
+                    torrent_id=season_file.torrent_id
+                )
+
+                if torrent_file.imported:
+                    print("Servas")
+                    return True
+            except RuntimeError as e:
+                log.error(f"Error retrieving torrent, error: {e}")
         return False
 
     def get_show_by_external_id(
