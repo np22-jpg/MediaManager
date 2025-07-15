@@ -28,6 +28,12 @@ Password for qBittorrent Web UI authentication. Default is `admin`.
 
 ## Transmission Settings (`[torrents.transmission]`)
 
+<note>
+
+The downloads path in Transmission and MediaManager __must__ be the same, i.e. the path `/data/torrents` must link to the same volume for both containers.
+
+</note>
+
 Transmission is a BitTorrent client that MediaManager can integrate with for downloading torrents.
 
 - `enabled`
