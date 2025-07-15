@@ -20,6 +20,7 @@ class Show(Base):
     year: Mapped[int | None]
     ended: Mapped[bool] = mapped_column(default=False)
     continuous_download: Mapped[bool] = mapped_column(default=False)
+    library: Mapped[str] = mapped_column(default="")
 
     seasons: Mapped[list["Season"]] = relationship(
         back_populates="show", cascade="all, delete"

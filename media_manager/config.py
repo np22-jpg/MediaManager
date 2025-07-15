@@ -25,6 +25,11 @@ else:
     config_path = Path(config_path)
 
 
+class LibraryItem(BaseSettings):
+    name: str
+    path: str
+
+
 class BasicConfig(BaseSettings):
     image_directory: Path = Path(__file__).parent.parent / "data" / "images"
     tv_directory: Path = Path(__file__).parent.parent / "data" / "tv"
@@ -35,6 +40,9 @@ class BasicConfig(BaseSettings):
     cors_urls: list[str] = []
     development: bool = False
     api_base_path: str = "/api/v1"
+
+    tv_libraries: list[LibraryItem] = []
+    movie_libraries: list[LibraryItem] = []
 
 
 class AllEncompassingConfig(BaseSettings):
