@@ -143,7 +143,7 @@ services:
 ```
 
 <note>
-    You can enable qBittorrent, Transmission, and SABnzbd simultaneously if you want to support both BitTorrent and Usenet downloads.
+    You should enable only one BitTorrent and only one Usenet Download Client at any time.
 </note>
 
 <tip>
