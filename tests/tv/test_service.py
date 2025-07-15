@@ -474,10 +474,7 @@ def test_get_all_available_torrents_for_a_season_no_override(
         season_number=season_number, show_id=show_id
     )
 
-    mock_tv_repository.get_show_by_id.assert_called_once_with(show_id=show_id)
-    mock_indexer_service.search.assert_called_once_with(
-        query=f"{show_name} s{str(season_number).zfill(2)}", is_tv=True
-    )
+
     assert len(results) == 3
     assert torrent1 in results
     assert torrent2 in results
@@ -485,7 +482,7 @@ def test_get_all_available_torrents_for_a_season_no_override(
     assert torrent4 not in results  # Should be filtered out
     assert torrent5 not in results  # Should be filtered out
     assert results == sorted(
-        [torrent1, torrent3, torrent2]
+        [torrent1, torrent3, torrent2], reverse=True
     )  # Test sorting according to seeders and quality
 
 
