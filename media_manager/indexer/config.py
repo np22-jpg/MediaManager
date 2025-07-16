@@ -26,7 +26,7 @@ class IndexerFlagScoringRule(ScoringRule):
 
 class ScoringRuleSet(BaseSettings):
     name: str
-    tags: list[str] = []
+    libraries: list[str] = []
     rule_names: list[str] = []
 
 class IndexerConfig(BaseSettings):
@@ -34,3 +34,4 @@ class IndexerConfig(BaseSettings):
     jackett: JackettConfig
     title_scoring_rules: list[TitleScoringRule] = []
     indexer_flag_scoring_rules: list[IndexerFlagScoringRule] = []
+    scoring_rule_sets: list[ScoringRuleSet] = []
