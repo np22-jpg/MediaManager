@@ -114,6 +114,8 @@ export interface Show {
 	id: string; // type: string, format: uuid
 	continuous_download: boolean;
 	ended: boolean;
+	library: string;
+
 }
 
 export interface PublicShow {
@@ -126,6 +128,8 @@ export interface PublicShow {
 	id: string; // type: string, format: uuid
 	continuous_download: boolean;
 	ended: boolean;
+	library: string;
+
 }
 
 export interface Movie {
@@ -135,6 +139,7 @@ export interface Movie {
 	external_id: number; // type: integer
 	metadata_provider: string;
 	id: string; // type: string, format: uuid
+	library: string;
 }
 
 export interface PublicMovie {
@@ -145,6 +150,8 @@ export interface PublicMovie {
 	metadata_provider: string;
 	id: string; // type: string, format: uuid
 	downloaded: boolean;
+	library: string;
+
 }
 
 export interface Torrent {
@@ -204,7 +211,7 @@ export interface RichShowTorrent {
 }
 
 export interface RichMovieTorrent {
-	show_id: string;
+	movie_id: string;
 	name: string;
 	year: number | null;
 	metadata_provider: string;
@@ -231,4 +238,9 @@ export interface SeasonRequest extends SeasonRequestBase {
 	authorized: boolean;
 	authorized_by?: User;
 	show: Show;
+}
+
+export interface LibraryItem{
+	name: string;
+	path: string
 }
