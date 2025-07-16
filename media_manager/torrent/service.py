@@ -92,10 +92,13 @@ class TorrentService:
         return self.get_torrent_status(torrent=torrent)
 
     def get_all_torrents(self) -> list[Torrent]:
-        return [
-            self.get_torrent_status(x)
-            for x in self.torrent_repository.get_all_torrents()
-        ]
+        torrents = []
+        for x in self.torrent_repository.get_all_torrents():
+            try:
+                torrents.append(self.get_torrent_status(x))
+            except RuntimeError as e:
+                log.error(f"Error fetching status for torrent {x.title}: {e}")
+        return torrents
 
     def get_torrent_by_id(self, torrent_id: TorrentId) -> Torrent:
         return self.get_torrent_status(

@@ -806,23 +806,20 @@ def import_all_show_torrents() -> None:
         log.info("Importing all torrents")
         torrents = torrent_service.get_all_torrents()
         log.info("Found %d torrents to import", len(torrents))
-        imported_torrents = []
         for t in torrents:
-            if not t.imported and t.status == TorrentStatus.finished:
-                show = torrent_service.get_show_of_torrent(torrent=t)
-                if show is None:
-                    log.warning(
-                        f"torrent {t.title} is not a tv torrent, skipping import."
-                    )
-                    continue
-                try:
-                    imported_torrents.append(
-                        tv_service.import_torrent_files(torrent=t, show=show)
-                    )
-                except RuntimeError as e:
-                    log.error(
-                        f"Error importing torrent {t.title} for show {show.name}: {e}"
-                    )
+            try:
+                if not t.imported and t.status == TorrentStatus.finished:
+                    show = torrent_service.get_show_of_torrent(torrent=t)
+                    if show is None:
+                        log.warning(
+                            f"torrent {t.title} is not a tv torrent, skipping import."
+                        )
+                        continue
+                    tv_service.import_torrent_files(torrent=t, show=show)
+            except RuntimeError as e:
+                log.error(
+                    f"Error importing torrent {t.title} for show {show.name}: {e}"
+                )
         log.info("Finished importing all torrents")
         db.commit()
 
