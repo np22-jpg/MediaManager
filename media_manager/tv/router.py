@@ -105,7 +105,7 @@ def get_shows_with_torrents(tv_service: tv_service_dep):
 
 @router.get(
     "/shows/libraries",
-    dependencies=[Depends(current_superuser)],
+    dependencies=[Depends(current_active_user)],
     response_model=list[LibraryItem],
 )
 def get_available_libraries():
@@ -179,10 +179,10 @@ def set_library(
     library: Literal[*[x.name for x in AllEncompassingConfig().misc.tv_libraries]],
 ) -> None:
     """
-    Toggles whether future seasons of a show will be downloaded.
+    Sets the library of a Show.
     """
     tv_service.set_show_library(show_id=show.id, library=library)
-    return tv_service.get_public_show_by_id(show_id=show.id)
+    return
 
 
 # --------------------------------

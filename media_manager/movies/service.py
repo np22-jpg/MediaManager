@@ -318,6 +318,9 @@ class MovieService:
         """
         return self.movie_repository.get_movie_requests()
 
+    def set_movie_library(self, movie_id: MovieId, library: str) -> None:
+        self.movie_repository.set_movie_library(movie_id=movie_id, library=library)
+
     def get_torrents_for_movie(self, movie: Movie) -> RichMovieTorrent:
         """
         Get torrents for a given movie.

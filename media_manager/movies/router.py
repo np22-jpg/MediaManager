@@ -1,10 +1,11 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
 from media_manager.auth.schemas import UserRead
 from media_manager.auth.users import current_active_user, current_superuser
+from media_manager.config import LibraryItem, AllEncompassingConfig
 from media_manager.indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 from media_manager.torrent.schemas import Torrent
@@ -76,6 +77,15 @@ def add_a_movie(
 )
 def get_all_movies(movie_service: movie_service_dep):
     return movie_service.get_all_movies()
+
+
+@router.get(
+    "/libraries",
+    dependencies=[Depends(current_active_user)],
+    response_model=list[LibraryItem],
+)
+def get_available_libraries():
+    return AllEncompassingConfig().misc.movie_libraries
 
 
 @router.get(
@@ -258,3 +268,21 @@ def download_torrent_for_movie(
 )
 def get_movie_files_by_movie_id(movie_service: movie_service_dep, movie_id: MovieId):
     return movie_service.get_public_movie_files_by_movie_id(movie_id=movie_id)
+
+
+@router.post(
+    "/{movie_id}/library",
+    dependencies=[Depends(current_superuser)],
+    response_model=None,
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def set_library(
+    movie_id: MovieId,
+    movie_service: movie_service_dep,
+    library: Literal[*[x.name for x in AllEncompassingConfig().misc.movie_libraries]],
+) -> None:
+    """
+    Sets the library of a movie.
+    """
+    movie_service.set_movie_library(movie_id=movie_id, library=library)
+    return
