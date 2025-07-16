@@ -23,6 +23,8 @@ class IndexerQueryResult(BaseModel):
     usenet: bool
     age: int
 
+    score: int = 0
+
     @computed_field(return_type=Quality)
     @property
     def quality(self) -> Quality:
@@ -79,3 +81,6 @@ class PublicIndexerQueryResult(BaseModel):
 
     usenet: bool
     age: int
+
+    score: int
+
