@@ -21,3 +21,4 @@ class IndexerQueryResult(Base):
     size = mapped_column(BigInteger)
     usenet: Mapped[bool]
     age: Mapped[int]
+    score: Mapped[int] = mapped_column(default=0)
