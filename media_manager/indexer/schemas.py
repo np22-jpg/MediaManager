@@ -62,12 +62,30 @@ class IndexerQueryResult(BaseModel):
     def __gt__(self, other) -> bool:
         if self.quality.value != other.quality.value:
             return self.quality.value < other.quality.value
-        return self.seeders > other.seeders
+        if self.score != other.score:
+            return self.score > other.score
+        if self.usenet != other.usenet:
+            return self.usenet
+        if self.usenet and other.usenet:
+            return self.age > other.age
+        if not self.usenet and not other.usenet:
+            return self.seeders > other.seeders
+
+        return self.size < other.size
 
     def __lt__(self, other) -> bool:
         if self.quality.value != other.quality.value:
             return self.quality.value > other.quality.value
-        return self.seeders < other.seeders
+        if self.score != other.score:
+            return self.score < other.score
+        if self.usenet != other.usenet:
+            return not self.usenet
+        if self.usenet and other.usenet:
+            return self.age < other.age
+        if not self.usenet and not other.usenet:
+            return self.seeders < other.seeders
+
+        return self.size > other.size
 
 
 class PublicIndexerQueryResult(BaseModel):
