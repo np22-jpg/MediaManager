@@ -26,18 +26,18 @@ class IndexerQueryResult(BaseModel):
     @computed_field(return_type=Quality)
     @property
     def quality(self) -> Quality:
-        high_quality_pattern = r"\b(4k|4K)\b"
-        medium_quality_pattern = r"\b(1080p|1080P)\b"
-        low_quality_pattern = r"\b(720p|720P)\b"
-        very_low_quality_pattern = r"\b(480p|480P|360p|360P)\b"
+        high_quality_pattern = r"\b(4k)\b"
+        medium_quality_pattern = r"\b(1080p)\b"
+        low_quality_pattern = r"\b(720p)\b"
+        very_low_quality_pattern = r"\b(480p|360p)\b"
 
-        if re.search(high_quality_pattern, self.title):
+        if re.search(high_quality_pattern, self.title, re.IGNORECASE):
             return Quality.uhd
-        elif re.search(medium_quality_pattern, self.title):
+        elif re.search(medium_quality_pattern, self.title, re.IGNORECASE):
             return Quality.fullhd
-        elif re.search(low_quality_pattern, self.title):
+        elif re.search(low_quality_pattern, self.title, re.IGNORECASE):
             return Quality.hd
-        elif re.search(very_low_quality_pattern, self.title):
+        elif re.search(very_low_quality_pattern, self.title, re.IGNORECASE):
             return Quality.sd
 
         return Quality.unknown
