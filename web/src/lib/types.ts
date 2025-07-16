@@ -115,7 +115,6 @@ export interface Show {
 	continuous_download: boolean;
 	ended: boolean;
 	library: string;
-
 }
 
 export interface PublicShow {
@@ -129,7 +128,6 @@ export interface PublicShow {
 	continuous_download: boolean;
 	ended: boolean;
 	library: string;
-
 }
 
 export interface Movie {
@@ -151,7 +149,6 @@ export interface PublicMovie {
 	id: string; // type: string, format: uuid
 	downloaded: boolean;
 	library: string;
-
 }
 
 export interface Torrent {
@@ -240,7 +237,7 @@ export interface SeasonRequest extends SeasonRequestBase {
 	show: Show;
 }
 
-export interface LibraryItem{
+export interface LibraryItem {
 	name: string;
-	path: string
+	path: string;
 }
