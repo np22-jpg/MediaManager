@@ -472,7 +472,7 @@ class MovieService:
             misc_config.movie_directory
             / f"{movie.name} ({movie.year})  [{movie.metadata_provider}id-{movie.external_id}]"
         )
-        if movie.library != "":
+        if movie.library != "Default":
             for library in misc_config.movie_libraries:
                 if library.name == movie.library:
                     log.debug(f"Using library {library.name} for movie {movie.name}")

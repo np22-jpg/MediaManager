@@ -511,7 +511,7 @@ class TvService:
             misc_config.tv_directory
             / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
         )
-        if show.library != "":
+        if show.library != "Default":
             for library in misc_config.tv_libraries:
                 if library.name == show.library:
                     log.info(

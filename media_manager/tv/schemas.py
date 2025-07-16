@@ -54,7 +54,7 @@ class Show(BaseModel):
     metadata_provider: str
 
     continuous_download: bool = False
-    library: str = ""
+    library: str = "Default"
 
     seasons: list[Season]
 
