@@ -105,6 +105,9 @@ class TvService:
         self.tv_repository.delete_season_request(season_request_id=season_request.id)
         return self.tv_repository.add_season_request(season_request=season_request)
 
+    def set_show_library(self, show_id: ShowId, library: str) -> None:
+        self.tv_repository.set_show_library(show_id=show_id, library=library)
+
     def delete_season_request(self, season_request_id: SeasonRequestId) -> None:
         """
         Delete a season request by its ID.
