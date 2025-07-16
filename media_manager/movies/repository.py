@@ -212,6 +212,29 @@ class MovieRepository:
             log.error(f"Database error while adding movie request: {e}")
             raise
 
+    def set_movie_library(self, movie_id: MovieId, library: str) -> None:
+        """
+        Sets the library for a movie.
+
+        :param movie_id: The ID of the movie to update.
+        :param library: The library path to set for the movie.
+        :raises NotFoundError: If the movie with the given ID is not found.
+        :raises SQLAlchemyError: If a database error occurs.
+        """
+        log.debug(f"Setting library for movie_id {movie_id} to {library}")
+        try:
+            movie = self.db.get(Movie, movie_id)
+            if not movie:
+                log.warning(f"movie with id {movie_id} not found.")
+                raise NotFoundError(f"movie with id {movie_id} not found.")
+            movie.library = library
+            self.db.commit()
+            log.info(f"Successfully set library for movie_id {movie_id} to {library}")
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            log.error(f"Database error setting library for movie {movie_id}: {e}")
+            raise
+
     def delete_movie_request(self, movie_request_id: MovieRequestId) -> None:
         """
         Removes a MovieRequest by its ID.

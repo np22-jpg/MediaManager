@@ -7,7 +7,7 @@
 	import { ImageOff } from 'lucide-svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { getContext } from 'svelte';
-	import type { PublicShow, RichShowTorrent, Show, User } from '$lib/types.js';
+	import type { PublicShow, RichShowTorrent, User } from '$lib/types.js';
 	import { getFullyQualifiedMediaName } from '$lib/utils';
 	import DownloadSeasonDialog from '$lib/components/download-season-dialog.svelte';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
@@ -18,9 +18,9 @@
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import { toast } from 'svelte-sonner';
 	import { Label } from '$lib/components/ui/label';
-
+	import LibraryCombobox from '$lib/components/library-combobox.svelte';
 	const apiUrl = env.PUBLIC_API_URL;
-	let show: () => Show = getContext('show');
+	let show: () => PublicShow = getContext('show');
 	let user: () => User = getContext('user');
 	let torrents: RichShowTorrent = page.data.torrentsData;
 
@@ -120,9 +120,15 @@
 						<hr />
 					</div>
 				{/if}
+				<div class="mx-1 my-2 block">
+					<LibraryCombobox media={show()} mediaType="tv" />
+					<Label for="library-combobox">Select Library for this show</Label>
+					<hr />
+				</div>
 				<DownloadSeasonDialog show={show()} />
+				<div class="my-2"></div>
 			{/if}
-			<RequestSeasonDialog show={show() as PublicShow} />
+			<RequestSeasonDialog show={show()} />
 		</div>
 	</div>
 	<div class="flex-1 rounded-xl bg-muted/50 p-4">
@@ -146,7 +152,7 @@
 							>
 								<Table.Cell class="min-w-[10px] font-medium">{season.number}</Table.Cell>
 								<Table.Cell class="min-w-[10px] font-medium">
-									<CheckmarkX state={false} />
+									<CheckmarkX state={season.downloaded} />
 								</Table.Cell>
 								<Table.Cell class="min-w-[50px]">{season.name}</Table.Cell>
 								<Table.Cell class="max-w-[300px] truncate">{season.overview}</Table.Cell>

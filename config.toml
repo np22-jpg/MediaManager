@@ -11,8 +11,17 @@ cors_urls = ["http://localhost:3000", "http://localhost:8000"] # note the lack o
 api_base_path = "/api/v1"
 development = false
 
+# Custom Media Libraries
+[[misc.tv_libraries]]
+name = "Live Action"
+path = "/data/tv/live-action"
+
+[[misc.movie_libraries]]
+name = "Documentary"
+path = "/data/movies/documentary"
+
 [database]
-host = "db"
+host = "localhost"
 port = 5432
 user = "MediaManager"
 password = "MediaManager"

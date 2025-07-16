@@ -425,6 +425,29 @@ class TvRepository:
             )
             raise
 
+    def set_show_library(self, show_id: ShowId, library: str) -> None:
+        """
+        Sets the library for a show.
+
+        :param show_id: The ID of the show to update.
+        :param library: The library path to set for the show.
+        :raises NotFoundError: If the show with the given ID is not found.
+        :raises SQLAlchemyError: If a database error occurs.
+        """
+        log.debug(f"Setting library for show_id {show_id} to {library}")
+        try:
+            show = self.db.get(Show, show_id)
+            if not show:
+                log.warning(f"Show with id {show_id} not found.")
+                raise NotFoundError(f"Show with id {show_id} not found.")
+            show.library = library
+            self.db.commit()
+            log.info(f"Successfully set library for show_id {show_id} to {library}")
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            log.error(f"Database error setting library for show {show_id}: {e}")
+            raise
+
     def get_season_files_by_season_id(
         self, season_id: SeasonId
     ) -> list[SeasonFileSchema]:

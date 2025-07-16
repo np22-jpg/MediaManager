@@ -22,6 +22,7 @@ class Movie(BaseModel):
 
     external_id: int
     metadata_provider: str
+    library: str = "Default"
 
 
 class MovieFile(BaseModel):

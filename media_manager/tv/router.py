@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from media_manager.auth.db import User
 from media_manager.auth.schemas import UserRead
 from media_manager.auth.users import current_active_user, current_superuser
+from media_manager.config import AllEncompassingConfig, LibraryItem
 from media_manager.indexer.schemas import PublicIndexerQueryResult, IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 from media_manager.torrent.schemas import Torrent
@@ -103,6 +104,15 @@ def get_shows_with_torrents(tv_service: tv_service_dep):
 
 
 @router.get(
+    "/shows/libraries",
+    dependencies=[Depends(current_active_user)],
+    response_model=list[LibraryItem],
+)
+def get_available_libraries():
+    return AllEncompassingConfig().misc.tv_libraries
+
+
+@router.get(
     "/shows/{show_id}",
     dependencies=[Depends(current_active_user)],
     response_model=PublicShow,
@@ -150,6 +160,29 @@ def set_continuous_download(
 )
 def get_a_shows_torrents(show: show_dep, tv_service: tv_service_dep):
     return tv_service.get_torrents_for_show(show=show)
+
+
+# --------------------------------
+# SET/GET LIBRARY OF A SHOW
+# --------------------------------
+
+
+@router.post(
+    "/shows/{show_id}/library",
+    dependencies=[Depends(current_superuser)],
+    response_model=None,
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def set_library(
+    show: show_dep,
+    tv_service: tv_service_dep,
+    library: Literal[*[x.name for x in AllEncompassingConfig().misc.tv_libraries], "Default"],
+) -> None:
+    """
+    Sets the library of a Show.
+    """
+    tv_service.set_show_library(show_id=show.id, library=library)
+    return
 
 
 # --------------------------------

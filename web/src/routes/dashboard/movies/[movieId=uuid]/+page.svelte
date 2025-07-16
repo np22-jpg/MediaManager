@@ -11,6 +11,8 @@
 	import MediaPicture from '$lib/components/media-picture.svelte';
 	import DownloadMovieDialog from '$lib/components/download-movie-dialog.svelte';
 	import RequestMovieDialog from '$lib/components/request-movie-dialog.svelte';
+	import LibraryCombobox from '$lib/components/library-combobox.svelte';
+	import { Label } from '$lib/components/ui/label';
 
 	let movie: PublicMovie = page.data.movie;
 	let user: () => User = getContext('user');
@@ -75,6 +77,11 @@
 		</div>
 		<div class="w-full flex-auto rounded-xl bg-muted/50 p-4 md:w-1/3">
 			{#if user().is_superuser}
+				<div class="mx-1 my-2 block">
+					<LibraryCombobox media={movie} mediaType="movie" />
+					<Label for="library-combobox">Select Library for this movie</Label>
+					<hr />
+				</div>
 				<DownloadMovieDialog {movie} />
 				<div class="my-4"></div>
 			{/if}
