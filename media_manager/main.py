@@ -131,6 +131,7 @@ daily_trigger = CronTrigger(hour=0, minute=0, jitter=60 * 60 * 24 * 2)
 weekly_trigger = CronTrigger(
     day_of_week="mon", hour=0, minute=0, jitter=60 * 60 * 24 * 2
 )
+
 scheduler.add_job(import_all_movie_torrents, every_15_minutes_trigger)
 scheduler.add_job(import_all_show_torrents, every_15_minutes_trigger)
 scheduler.add_job(auto_download_all_approved_season_requests, daily_trigger)

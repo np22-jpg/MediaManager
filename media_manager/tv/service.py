@@ -1,12 +1,11 @@
 import re
 
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
 
 from media_manager.config import AllEncompassingConfig
+from media_manager.database import get_session
 from media_manager.exceptions import InvalidConfigError
 from media_manager.indexer.repository import IndexerRepository
-from media_manager.database import SessionLocal
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
@@ -507,11 +506,27 @@ class TvService:
         log.info(
             f"Importing these {len(video_files)} files:\n" + pprint.pformat(video_files)
         )
-
+        misc_config = AllEncompassingConfig().misc
         show_file_path = (
-            AllEncompassingConfig().misc.tv_directory
+            misc_config.tv_directory
             / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
         )
+        if show.library != "":
+            for library in misc_config.tv_libraries:
+                if library.name == show.library:
+                    log.info(
+                        f"Using library {library.name} for show {show.name} ({show.year})"
+                    )
+                    show_file_path = (
+                        Path(library.path)
+                        / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
+                    )
+                    break
+            else:
+                log.warning(
+                    f"Library {show.library} not defined in config, using default TV directory."
+                )
+
         season_files = self.torrent_service.get_season_files_of_torrent(torrent=torrent)
         log.info(
             f"Found {len(season_files)} season files associated with torrent {torrent.title}"
@@ -743,132 +758,138 @@ def auto_download_all_approved_season_requests() -> None:
     Auto download all approved season requests.
     This is a standalone function as it creates its own DB session.
     """
-    db: Session = SessionLocal()
-    tv_repository = TvRepository(db=db)
-    torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
-    indexer_service = IndexerService(indexer_repository=IndexerRepository(db=db))
-    tv_service = TvService(
-        tv_repository=tv_repository,
-        torrent_service=torrent_service,
-        indexer_service=indexer_service,
-    )
+    with next(get_session()) as db:
+        tv_repository = TvRepository(db=db)
+        torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
+        indexer_service = IndexerService(indexer_repository=IndexerRepository(db=db))
+        tv_service = TvService(
+            tv_repository=tv_repository,
+            torrent_service=torrent_service,
+            indexer_service=indexer_service,
+        )
 
-    log.info("Auto downloading all approved season requests")
-    season_requests = tv_repository.get_season_requests()
-    log.info(f"Found {len(season_requests)} season requests to process")
-    log.debug(f"Season requests:  {[x.model_dump() for x in season_requests]}")
-    count = 0
+        log.info("Auto downloading all approved season requests")
+        season_requests = tv_repository.get_season_requests()
+        log.info(f"Found {len(season_requests)} season requests to process")
+        log.debug(f"Season requests:  {[x.model_dump() for x in season_requests]}")
+        count = 0
 
-    for season_request in season_requests:
-        if season_request.authorized:
-            log.info(f"Processing season request {season_request.id} for download")
-            show = tv_repository.get_show_by_season_id(
-                season_id=season_request.season_id
-            )
-            if tv_service.download_approved_season_request(
-                season_request=season_request, show=show
-            ):
-                count += 1
-            else:
-                log.warning(
-                    f"Failed to download season request {season_request.id} for show {show.name}"
+        for season_request in season_requests:
+            if season_request.authorized:
+                log.info(f"Processing season request {season_request.id} for download")
+                show = tv_repository.get_show_by_season_id(
+                    season_id=season_request.season_id
                 )
+                if tv_service.download_approved_season_request(
+                    season_request=season_request, show=show
+                ):
+                    count += 1
+                else:
+                    log.warning(
+                        f"Failed to download season request {season_request.id} for show {show.name}"
+                    )
 
-    log.info(f"Auto downloaded {count} approved season requests")
-    db.commit()
-    db.close()
+        log.info(f"Auto downloaded {count} approved season requests")
+        db.commit()
 
 
 def import_all_show_torrents() -> None:
-    db: Session = SessionLocal()
-    tv_repository = TvRepository(db=db)
-    torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
-    indexer_service = IndexerService(indexer_repository=IndexerRepository(db=db))
-    tv_service = TvService(
-        tv_repository=tv_repository,
-        torrent_service=torrent_service,
-        indexer_service=indexer_service,
-    )
-    log.info("Importing all torrents")
-    torrents = torrent_service.get_all_torrents()
-    log.info("Found %d torrents to import", len(torrents))
-    imported_torrents = []
-    for t in torrents:
-        if not t.imported and t.status == TorrentStatus.finished:
-            show = torrent_service.get_show_of_torrent(torrent=t)
-            if show is None:
-                log.warning(f"torrent {t.title} is not a tv torrent, skipping import.")
-                continue
-            imported_torrents.append(
-                tv_service.import_torrent_files(torrent=t, show=show)
-            )
-    log.info("Finished importing all torrents")
-    db.commit()
-    db.close()
+    with next(get_session()) as db:
+        tv_repository = TvRepository(db=db)
+        torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
+        indexer_service = IndexerService(indexer_repository=IndexerRepository(db=db))
+        tv_service = TvService(
+            tv_repository=tv_repository,
+            torrent_service=torrent_service,
+            indexer_service=indexer_service,
+        )
+        log.info("Importing all torrents")
+        torrents = torrent_service.get_all_torrents()
+        log.info("Found %d torrents to import", len(torrents))
+        imported_torrents = []
+        for t in torrents:
+            if not t.imported and t.status == TorrentStatus.finished:
+                show = torrent_service.get_show_of_torrent(torrent=t)
+                if show is None:
+                    log.warning(
+                        f"torrent {t.title} is not a tv torrent, skipping import."
+                    )
+                    continue
+                try:
+                    imported_torrents.append(
+                        tv_service.import_torrent_files(torrent=t, show=show)
+                    )
+                except RuntimeError as e:
+                    log.error(
+                        f"Error importing torrent {t.title} for show {show.name}: {e}"
+                    )
+        log.info("Finished importing all torrents")
+        db.commit()
 
 
 def update_all_non_ended_shows_metadata() -> None:
     """
     Updates the metadata of all non-ended shows.
     """
-    db: Session = SessionLocal()
-    tv_repository = TvRepository(db=db)
-    tv_service = TvService(
-        tv_repository=tv_repository,
-        torrent_service=TorrentService(torrent_repository=TorrentRepository(db=db)),
-        indexer_service=IndexerService(indexer_repository=IndexerRepository(db=db)),
-    )
-
-    log.info("Updating metadata for all non-ended shows")
-
-    shows = [show for show in tv_repository.get_shows() if not show.ended]
-
-    log.info(f"Found {len(shows)} non-ended shows to update")
-
-    for show in shows:
-        try:
-            if show.metadata_provider == "tmdb":
-                metadata_provider = TmdbMetadataProvider()
-            elif show.metadata_provider == "tvdb":
-                metadata_provider = TvdbMetadataProvider()
-            else:
-                log.error(
-                    f"Unsupported metadata provider {show.metadata_provider} for show {show.name}, skipping update."
-                )
-                continue
-        except InvalidConfigError as e:
-            log.error(
-                f"Error initializing metadata provider {show.metadata_provider} for show {show.name}: {str(e)}"
-            )
-            continue
-        updated_show = tv_service.update_show_metadata(
-            db_show=show, metadata_provider=metadata_provider
+    with next(get_session()) as db:
+        tv_repository = TvRepository(db=db)
+        tv_service = TvService(
+            tv_repository=tv_repository,
+            torrent_service=TorrentService(torrent_repository=TorrentRepository(db=db)),
+            indexer_service=IndexerService(indexer_repository=IndexerRepository(db=db)),
         )
 
-        # Automatically add season requests for new seasons
-        existing_seasons = [x.id for x in show.seasons]
-        new_seasons = [x for x in updated_show.seasons if x.id not in existing_seasons]
+        log.info("Updating metadata for all non-ended shows")
 
-        if show.continuous_download:
-            for new_season in new_seasons:
-                log.info(
-                    f"Automatically adding season requeest for new season {new_season.number} of show {updated_show.name}"
-                )
-                tv_service.add_season_request(
-                    SeasonRequest(
-                        min_quality=Quality.sd,
-                        wanted_quality=Quality.uhd,
-                        season_id=new_season.id,
-                        authorized=True,
+        shows = [show for show in tv_repository.get_shows() if not show.ended]
+
+        log.info(f"Found {len(shows)} non-ended shows to update")
+
+        for show in shows:
+            try:
+                if show.metadata_provider == "tmdb":
+                    metadata_provider = TmdbMetadataProvider()
+                elif show.metadata_provider == "tvdb":
+                    metadata_provider = TvdbMetadataProvider()
+                else:
+                    log.error(
+                        f"Unsupported metadata provider {show.metadata_provider} for show {show.name}, skipping update."
                     )
+                    continue
+            except InvalidConfigError as e:
+                log.error(
+                    f"Error initializing metadata provider {show.metadata_provider} for show {show.name}: {str(e)}"
                 )
-
-        if updated_show:
-            log.info(f"Successfully updated metadata for show: {updated_show.name}")
-            log.debug(
-                f"Added new seasons: {len(new_seasons)} to show: {updated_show.name}"
+                continue
+            updated_show = tv_service.update_show_metadata(
+                db_show=show, metadata_provider=metadata_provider
             )
-        else:
-            log.warning(f"Failed to update metadata for show: {show.name}")
-    db.commit()
-    db.close()
+
+            # Automatically add season requests for new seasons
+            existing_seasons = [x.id for x in show.seasons]
+            new_seasons = [
+                x for x in updated_show.seasons if x.id not in existing_seasons
+            ]
+
+            if show.continuous_download:
+                for new_season in new_seasons:
+                    log.info(
+                        f"Automatically adding season requeest for new season {new_season.number} of show {updated_show.name}"
+                    )
+                    tv_service.add_season_request(
+                        SeasonRequest(
+                            min_quality=Quality.sd,
+                            wanted_quality=Quality.uhd,
+                            season_id=new_season.id,
+                            authorized=True,
+                        )
+                    )
+
+            if updated_show:
+                log.info(f"Successfully updated metadata for show: {updated_show.name}")
+                log.debug(
+                    f"Added new seasons: {len(new_seasons)} to show: {updated_show.name}"
+                )
+            else:
+                log.warning(f"Failed to update metadata for show: {show.name}")
+        db.commit()

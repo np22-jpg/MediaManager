@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -6,7 +7,7 @@ from sqlalchemy.orm import Session
 from media_manager.config import AllEncompassingConfig
 from media_manager.exceptions import InvalidConfigError
 from media_manager.indexer.repository import IndexerRepository
-from media_manager.database import SessionLocal
+from media_manager.database import SessionLocal, get_session
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
 from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
@@ -465,11 +466,26 @@ class MovieService:
             + "\n"
             + pprint.pformat(subtitle_files)
         )
+        misc_config = AllEncompassingConfig().misc
 
         movie_file_path = (
-            AllEncompassingConfig().misc.movie_directory
+            misc_config.movie_directory
             / f"{movie.name} ({movie.year})  [{movie.metadata_provider}id-{movie.external_id}]"
         )
+        if movie.library != "":
+            for library in misc_config.movie_libraries:
+                if library.name == movie.library:
+                    log.debug(f"Using library {library.name} for movie {movie.name}")
+                    movie_file_path = (
+                        Path(library.path)
+                        / f"{movie.name} ({movie.year})  [{movie.metadata_provider}id-{movie.external_id}]"
+                    )
+                    break
+            else:
+                log.warning(
+                    f"Movie library {movie.library} not found in config, using default movie directory."
+                )
+
         movie_files: list[MovieFile] = self.torrent_service.get_movie_files_of_torrent(
             torrent=torrent
         )
@@ -598,76 +614,81 @@ def auto_download_all_approved_movie_requests() -> None:
 
 
 def import_all_movie_torrents() -> None:
-    db: Session = SessionLocal()
-    movie_repository = MovieRepository(db=db)
-    torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
-    indexer_service = IndexerService(indexer_repository=IndexerRepository(db=db))
-    movie_service = MovieService(
-        movie_repository=movie_repository,
-        torrent_service=torrent_service,
-        indexer_service=indexer_service,
-    )
-    log.info("Importing all torrents")
-    torrents = torrent_service.get_all_torrents()
-    log.info("Found %d torrents to import", len(torrents))
-    imported_torrents = []
-    for t in torrents:
-        if not t.imported and t.status == TorrentStatus.finished:
-            movie = torrent_service.get_movie_of_torrent(torrent=t)
-            if movie is None:
-                log.warning(
-                    f"torrent {t.title} is not a movie torrent, skipping import."
-                )
-                continue
-            imported_torrents.append(
-                movie_service.import_torrent_files(torrent=t, movie=movie)
-            )
-    log.info("Finished importing all torrents")
-    db.commit()
-    db.close()
+    with next(get_session()) as db:
+        movie_repository = MovieRepository(db=db)
+        torrent_service = TorrentService(torrent_repository=TorrentRepository(db=db))
+        indexer_service = IndexerService(indexer_repository=IndexerRepository(db=db))
+        movie_service = MovieService(
+            movie_repository=movie_repository,
+            torrent_service=torrent_service,
+            indexer_service=indexer_service,
+        )
+        log.info("Importing all torrents")
+        torrents = torrent_service.get_all_torrents()
+        log.info("Found %d torrents to import", len(torrents))
+        imported_torrents = []
+        for t in torrents:
+            if not t.imported and t.status == TorrentStatus.finished:
+                movie = torrent_service.get_movie_of_torrent(torrent=t)
+                if movie is None:
+                    log.warning(
+                        f"torrent {t.title} is not a movie torrent, skipping import."
+                    )
+                    continue
+                try:
+                    imported_torrents.append(
+                        movie_service.import_torrent_files(torrent=t, movie=movie)
+                    )
+                except RuntimeError as e:
+                    log.error(
+                        f"Error importing torrent {t.title} for movie {movie.name}: {e}"
+                    )
+        log.info("Finished importing all torrents")
+        db.commit()
 
 
 def update_all_movies_metadata() -> None:
     """
     Updates the metadata of all movies.
     """
-    db: Session = SessionLocal()
-    movie_repository = MovieRepository(db=db)
-    movie_service = MovieService(
-        movie_repository=movie_repository,
-        torrent_service=TorrentService(torrent_repository=TorrentRepository(db=db)),
-        indexer_service=IndexerService(indexer_repository=IndexerRepository(db=db)),
-    )
-
-    log.info("Updating metadata for all movies")
-
-    movies = movie_repository.get_movies()
-
-    log.info(f"Found {len(movies)} movies to update")
-
-    for movie in movies:
-        try:
-            if movie.metadata_provider == "tmdb":
-                metadata_provider = TmdbMetadataProvider()
-            elif movie.metadata_provider == "tvdb":
-                metadata_provider = TvdbMetadataProvider()
-            else:
-                log.error(
-                    f"Unsupported metadata provider {movie.metadata_provider} for movie {movie.name}, skipping update."
-                )
-                continue
-        except InvalidConfigError as e:
-            log.error(
-                f"Error initializing metadata provider {movie.metadata_provider} for movie {movie.name}: {str(e)}"
-            )
-            continue
-        updated_movie = movie_service.update_movie_metadata(
-            db_movie=movie, metadata_provider=metadata_provider
+    with next(get_session()) as db:
+        movie_repository = MovieRepository(db=db)
+        movie_service = MovieService(
+            movie_repository=movie_repository,
+            torrent_service=TorrentService(torrent_repository=TorrentRepository(db=db)),
+            indexer_service=IndexerService(indexer_repository=IndexerRepository(db=db)),
         )
 
-        if updated_movie:
-            log.info(f"Successfully updated metadata for movie: {updated_movie.name}")
-        else:
-            log.warning(f"Failed to update metadata for movie: {movie.name}")
-    db.commit()
-    db.close()
+        log.info("Updating metadata for all movies")
+
+        movies = movie_repository.get_movies()
+
+        log.info(f"Found {len(movies)} movies to update")
+
+        for movie in movies:
+            try:
+                if movie.metadata_provider == "tmdb":
+                    metadata_provider = TmdbMetadataProvider()
+                elif movie.metadata_provider == "tvdb":
+                    metadata_provider = TvdbMetadataProvider()
+                else:
+                    log.error(
+                        f"Unsupported metadata provider {movie.metadata_provider} for movie {movie.name}, skipping update."
+                    )
+                    continue
+            except InvalidConfigError as e:
+                log.error(
+                    f"Error initializing metadata provider {movie.metadata_provider} for movie {movie.name}: {str(e)}"
+                )
+                continue
+            updated_movie = movie_service.update_movie_metadata(
+                db_movie=movie, metadata_provider=metadata_provider
+            )
+
+            if updated_movie:
+                log.info(
+                    f"Successfully updated metadata for movie: {updated_movie.name}"
+                )
+            else:
+                log.warning(f"Failed to update metadata for movie: {movie.name}")
+        db.commit()
