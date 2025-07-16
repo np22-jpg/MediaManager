@@ -10,6 +10,7 @@ from media_manager.indexer.repository import IndexerRepository
 from media_manager.database import SessionLocal, get_session
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.indexer.schemas import IndexerQueryResultId
+from media_manager.indexer.utils import evaluate_indexer_query_results
 from media_manager.metadataProvider.schemas import MetaDataProviderSearchResult
 from media_manager.notification.service import NotificationService
 from media_manager.torrent.schemas import Torrent, TorrentStatus
@@ -195,8 +196,8 @@ class MovieService:
                 and str(movie.year) in torrent.title
             ):
                 result.append(torrent)
-        result.sort()
-        return result
+
+        return evaluate_indexer_query_results(is_tv=False, query_results=result, media=movie)
 
     def get_all_movies(self) -> list[Movie]:
         """
