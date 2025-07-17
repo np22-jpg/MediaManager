@@ -23,21 +23,23 @@ class IndexerQueryResult(BaseModel):
     usenet: bool
     age: int
 
+    score: int = 0
+
     @computed_field(return_type=Quality)
     @property
     def quality(self) -> Quality:
-        high_quality_pattern = r"\b(4k|4K)\b"
-        medium_quality_pattern = r"\b(1080p|1080P)\b"
-        low_quality_pattern = r"\b(720p|720P)\b"
-        very_low_quality_pattern = r"\b(480p|480P|360p|360P)\b"
+        high_quality_pattern = r"\b(4k)\b"
+        medium_quality_pattern = r"\b(1080p)\b"
+        low_quality_pattern = r"\b(720p)\b"
+        very_low_quality_pattern = r"\b(480p|360p)\b"
 
-        if re.search(high_quality_pattern, self.title):
+        if re.search(high_quality_pattern, self.title, re.IGNORECASE):
             return Quality.uhd
-        elif re.search(medium_quality_pattern, self.title):
+        elif re.search(medium_quality_pattern, self.title, re.IGNORECASE):
             return Quality.fullhd
-        elif re.search(low_quality_pattern, self.title):
+        elif re.search(low_quality_pattern, self.title, re.IGNORECASE):
             return Quality.hd
-        elif re.search(very_low_quality_pattern, self.title):
+        elif re.search(very_low_quality_pattern, self.title, re.IGNORECASE):
             return Quality.sd
 
         return Quality.unknown
@@ -60,12 +62,30 @@ class IndexerQueryResult(BaseModel):
     def __gt__(self, other) -> bool:
         if self.quality.value != other.quality.value:
             return self.quality.value < other.quality.value
-        return self.seeders > other.seeders
+        if self.score != other.score:
+            return self.score > other.score
+        if self.usenet != other.usenet:
+            return self.usenet
+        if self.usenet and other.usenet:
+            return self.age > other.age
+        if not self.usenet and not other.usenet:
+            return self.seeders > other.seeders
+
+        return self.size < other.size
 
     def __lt__(self, other) -> bool:
         if self.quality.value != other.quality.value:
             return self.quality.value > other.quality.value
-        return self.seeders < other.seeders
+        if self.score != other.score:
+            return self.score < other.score
+        if self.usenet != other.usenet:
+            return not self.usenet
+        if self.usenet and other.usenet:
+            return self.age < other.age
+        if not self.usenet and not other.usenet:
+            return self.seeders < other.seeders
+
+        return self.size > other.size
 
 
 class PublicIndexerQueryResult(BaseModel):
@@ -79,3 +99,5 @@ class PublicIndexerQueryResult(BaseModel):
 
     usenet: bool
     age: int
+
+    score: int

@@ -23,11 +23,15 @@ def upgrade() -> None:
     """Upgrade schema."""
     op.add_column(
         "movie",
-        sa.Column("library", sa.String(), nullable=False, server_default=sa.text("'Default'")),
+        sa.Column(
+            "library", sa.String(), nullable=False, server_default=sa.text("'Default'")
+        ),
     )
     op.add_column(
         "show",
-        sa.Column("library", sa.String(), nullable=False, server_default=sa.text("'Default'")),
+        sa.Column(
+            "library", sa.String(), nullable=False, server_default=sa.text("'Default'")
+        ),
     )
 
 

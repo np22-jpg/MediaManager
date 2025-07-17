@@ -27,6 +27,9 @@ class Jackett(GenericIndexer):
 
     # NOTE: this could be done in parallel, but if there aren't more than a dozen indexers, it shouldn't matter
     def search(self, query: str, is_tv: bool) -> list[IndexerQueryResult]:
+        download_volume_factor = 1.0  # Default value
+        upload_volume_factor = 1  # Default value
+        seeders = 0  # Default value
         log.debug("Searching for " + query)
 
         responses = []
@@ -54,18 +57,27 @@ class Jackett(GenericIndexer):
                     for attribute in attributes:
                         if attribute.attrib["name"] == "seeders":
                             seeders = int(attribute.attrib["value"])
-                            break
-                    else:
-                        log.warning(
-                            f"Seeders not found in torrent: {item.find('title').text}, skipping this torrent"
-                        )
-                        continue
+                        if attribute.attrib["name"] == "downloadvolumefactor":
+                            download_volume_factor = float(attribute.attrib["value"])
+                        if attribute.attrib["name"] == "uploadvolumefactor":
+                            upload_volume_factor = int(attribute.attrib["value"])
+                    flags = []
+                    if download_volume_factor == 0:
+                        flags.append("freeleech")
+                    if download_volume_factor == 0.5:
+                        flags.append("halfleech")
+                    if download_volume_factor == 0.75:
+                        flags.append("freeleech75")
+                    if download_volume_factor == 0.25:
+                        flags.append("freeleech25")
+                    if upload_volume_factor == 2:
+                        flags.append("doubleupload")
 
                     result = IndexerQueryResult(
                         title=item.find("title").text,
                         download_url=HttpUrl(item.find("enclosure").attrib["url"]),
                         seeders=seeders,
-                        flags=[],
+                        flags=flags,
                         size=int(item.find("size").text),
                         usenet=False,  # always False, because Jackett doesn't support usenet
                         age=0,  # always 0 for torrents, as Jackett does not provide age information in a convenient format
