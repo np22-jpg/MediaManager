@@ -30,4 +30,8 @@
         <description>Created after removal of "MetadataRelay" from MediaManager</description>
         <accepts>MetadataRelay.html</accepts>
     </rule>
+    <rule id="52a1fe89">
+        <description>Created after removal of "Frontend" from MediaManager</description>
+        <accepts>configuration-frontend.html</accepts>
+    </rule>
 </rules>

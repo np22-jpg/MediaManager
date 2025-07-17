@@ -8,7 +8,6 @@ This section is for those who want to contribute to Media Manager or understand 
 - `web/`: Frontend SvelteKit application
 - `Writerside/`: Documentation
 - `metadata_relay/`: Metadata relay service
--
 
 ### Backend Development
 
@@ -20,6 +19,14 @@ This section is for those who want to contribute to Media Manager or understand 
 
 - Uses `npm` for package management
 - SvelteKit with TypeScript
+
+### Further Configuration
+
+#### Env Variables
+
+- `BASE_PATH`: this sets the base path for the app
+- `PUBLIC_VERSION`: this sets the version variable
+- `FRONTEND_FILES_DIR`: directory for frontend files, e.g. in Docker container it is `/app/web/build`
 
 ### Contributing
 
