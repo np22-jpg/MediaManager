@@ -75,15 +75,15 @@ other services.
 - [x] add notification system
 - [x] add sequence diagrams to the documentation
 - [x] add usenet support
-- [ ] provide example configuration files
-- [ ] make media sorting algorithm configurable
+- [x] provide example configuration files
+- [x] make media sorting algorithm configurable
+- [x] add support for transmission
+- [x] add support for configuration via toml/yaml config file
 - [ ] add in-depth documentation on the architecture of the codebase
 - [ ] make indexer module multithreaded
-- [ ] add support for deluge and transmission
 - [ ] add delete button for movies/TV shows
 - [ ] rework prowlarr module (select which indexers to use, etc.)
 - [ ] _maybe_ rework the logo
-- [ ] _maybe_ add support for configuration via toml/yaml config file
 
 See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a full list of proposed features (and known issues).
 
