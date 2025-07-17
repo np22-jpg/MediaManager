@@ -27,7 +27,9 @@ class Jackett(GenericIndexer):
 
     # NOTE: this could be done in parallel, but if there aren't more than a dozen indexers, it shouldn't matter
     def search(self, query: str, is_tv: bool) -> list[IndexerQueryResult]:
-        global download_volume_factor, upload_volume_factor, seeders
+        download_volume_factor = 1.0  # Default value
+        upload_volume_factor = 1  # Default value
+        seeders = 0  # Default value
         log.debug("Searching for " + query)
 
         responses = []
