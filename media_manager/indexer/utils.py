@@ -99,10 +99,11 @@ def evaluate_indexer_query_results(
                     log.debug(
                         f"Indexer query result {result.title} did not pass scoring ruleset {ruleset.name} with score {result.score}, removing from results."
                     )
-                    query_results.remove(result)
                 else:
                     log.debug(
                         f"Indexer query result {result.title} passed scoring ruleset {ruleset.name} with score {result.score}."
                     )
+
+    query_results = [result for result in query_results if result.score >= 0]
     query_results.sort(reverse=True)
     return query_results
