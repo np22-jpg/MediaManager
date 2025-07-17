@@ -8,6 +8,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { toast } from 'svelte-sonner';
 	import LoadingBar from '$lib/components/loading-bar.svelte';
+	import { base } from '$app/paths';
 
 	const apiUrl = env.PUBLIC_API_URL;
 
@@ -44,7 +45,7 @@
 				console.log('Received User Data: ', response);
 				errorMessage = 'Login successful! Redirecting...';
 				toast.success(errorMessage);
-				goto('/dashboard');
+				goto(base + '/dashboard');
 			} else {
 				let errorText = await response.text();
 				try {
@@ -184,7 +185,7 @@
 					<div class="grid gap-2">
 						<div class="flex items-center">
 							<Label for="password">Password</Label>
-							<a class="ml-auto inline-block text-sm underline" href="/login/forgot-password">
+							<a class="ml-auto inline-block text-sm underline" href="{base}/login/forgot-password">
 								Forgot your password?
 							</a>
 						</div>

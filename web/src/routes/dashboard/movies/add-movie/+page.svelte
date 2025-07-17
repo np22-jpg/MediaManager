@@ -13,6 +13,7 @@
 	import AddMediaCard from '$lib/components/add-media-card.svelte';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
 
 	const apiUrl = env.PUBLIC_API_URL;
 	let searchTerm: string = $state('');
@@ -73,15 +74,15 @@
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
-					<Breadcrumb.Link href="/dashboard">MediaManager</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">MediaManager</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard">Home</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">Home</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard/movies">Movies</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard/movies">Movies</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>

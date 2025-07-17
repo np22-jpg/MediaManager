@@ -23,6 +23,7 @@
 	let show: () => PublicShow = getContext('show');
 	let user: () => User = getContext('user');
 	let torrents: RichShowTorrent = page.data.torrentsData;
+	import { base } from '$app/paths';
 
 	async function toggle_continuous_download() {
 		let url = new URL(apiUrl + '/tv/shows/' + show().id + '/continuousDownload');
@@ -64,15 +65,15 @@
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
-					<Breadcrumb.Link href="/dashboard">MediaManager</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">MediaManager</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard">Home</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">Home</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard/tv">Shows</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard/tv">Shows</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
@@ -148,7 +149,7 @@
 						{#each show().seasons as season (season.id)}
 							<Table.Row
 								link={true}
-								onclick={() => goto('/dashboard/tv/' + show().id + '/' + season.id)}
+								onclick={() => goto(base+'/dashboard/tv/' + show().id + '/' + season.id)}
 							>
 								<Table.Cell class="min-w-[10px] font-medium">{season.number}</Table.Cell>
 								<Table.Cell class="min-w-[10px] font-medium">

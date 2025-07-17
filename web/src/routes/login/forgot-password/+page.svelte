@@ -13,6 +13,7 @@
 	} from '$lib/components/ui/card';
 	import { toast } from 'svelte-sonner';
 	import { env } from '$env/dynamic/public';
+	import { base } from '$app/paths';
 
 	const apiUrl = env.PUBLIC_API_URL;
 	let email = $state('');
@@ -69,7 +70,7 @@
 <div class="grid min-h-svh lg:grid-cols-2">
 	<div class="flex flex-col gap-4 p-6 md:p-10">
 		<div class="flex justify-center gap-2 md:justify-start">
-			<a class="flex items-center gap-2 font-medium" href="/login">
+			<a class="flex items-center gap-2 font-medium" href="{base}/login">
 				<div class="flex size-16 items-center justify-center rounded-md text-primary-foreground">
 					<img alt="MediaManager Logo" class="size-12" src={logo} />
 				</div>
@@ -136,7 +137,7 @@
 							</form>
 						{/if}
 						<div class="mt-4 text-center text-sm">
-							<a href="/login" class="font-semibold text-primary hover:underline">
+							<a href="{base}/login" class="font-semibold text-primary hover:underline">
 								Back to Login
 							</a>
 						</div>

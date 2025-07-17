@@ -5,6 +5,7 @@
 	import { base } from '$app/paths';
 	import logo from '$lib/images/logo.svg';
 	import { PUBLIC_VERSION } from '$env/static/public';
+
 </script>
 
 <svelte:head>

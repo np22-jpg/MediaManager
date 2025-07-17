@@ -9,53 +9,55 @@
 		Settings,
 		TvIcon
 	} from 'lucide-svelte';
+	import { base } from '$app/paths';
+
 	import { PUBLIC_VERSION } from '$env/static/public';
 
 	const data = {
 		navMain: [
 			{
 				title: 'Dashboard',
-				url: '/dashboard',
+				url: base+'/dashboard',
 				icon: Home,
 				isActive: true
 			},
 			{
 				title: 'TV',
-				url: '/dashboard/tv',
+				url: base+'/dashboard/tv',
 				icon: TvIcon,
 				isActive: true,
 				items: [
 					{
 						title: 'Add a show',
-						url: '/dashboard/tv/add-show'
+						url: base+'/dashboard/tv/add-show'
 					},
 					{
 						title: 'Torrents',
-						url: '/dashboard/tv/torrents'
+						url: base+'/dashboard/tv/torrents'
 					},
 					{
 						title: 'Requests',
-						url: '/dashboard/tv/requests'
+						url: base+'/dashboard/tv/requests'
 					}
 				]
 			},
 			{
 				title: 'Movies',
-				url: '/dashboard/movies',
+				url: base+'/dashboard/movies',
 				icon: Clapperboard,
 				isActive: true,
 				items: [
 					{
 						title: 'Add a movie',
-						url: '/dashboard/movies/add-movie'
+						url: base+'/dashboard/movies/add-movie'
 					},
 					{
 						title: 'Torrents',
-						url: '/dashboard/movies/torrents'
+						url: base+'/dashboard/movies/torrents'
 					},
 					{
 						title: 'Requests',
-						url: '/dashboard/movies/requests'
+						url: base+'/dashboard/movies/requests'
 					}
 				]
 			}
@@ -63,12 +65,12 @@
 		navSecondary: [
 			{
 				title: 'Notifications',
-				url: '/dashboard/notifications',
+				url: base+'/dashboard/notifications',
 				icon: Bell
 			},
 			{
 				title: 'Settings',
-				url: '/dashboard/settings',
+				url: base+'/dashboard/settings',
 				icon: Settings
 			},
 			{
@@ -83,7 +85,7 @@
 			},
 			{
 				title: 'About',
-				url: '/dashboard/about',
+				url: base+'/dashboard/about',
 				icon: Info
 			}
 		]
@@ -97,7 +99,6 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { ComponentProps } from 'svelte';
 	import logo from '$lib/images/logo.svg';
-	import { base } from '$app/paths';
 
 	let { ref = $bindable(null), ...restProps }: ComponentProps<typeof Sidebar.Root> = $props();
 </script>
