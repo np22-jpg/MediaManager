@@ -154,16 +154,7 @@ BASE_PATH = os.getenv("BASE_PATH", "")
 FRONTEND_FILES_DIR = os.getenv("FRONTEND_FILES_DIR")
 
 
-class SPA404Middleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next) -> Response:
-        response = await call_next(request)
-        if response.status_code == 404 and "/web/" in request.url.path:
-            return FileResponse(f"{FRONTEND_FILES_DIR}/404.html", status_code=404)
-        return response
-
-
 app = FastAPI(lifespan=lifespan, root_path=BASE_PATH)
-app.add_middleware(SPA404Middleware)
 
 origins = config.misc.cors_urls
 log.info("CORS URLs activated for following origins:")
@@ -277,6 +268,11 @@ app.mount("/web", StaticFiles(directory=FRONTEND_FILES_DIR, html=True), name="fr
 app.add_exception_handler(NotFoundError, not_found_error_exception_handler)
 app.add_exception_handler(MediaAlreadyExists, media_already_exists_exception_handler)
 app.add_exception_handler(InvalidConfigError, invalid_config_error_exception_handler)
+@app.exception_handler(404)
+async def not_found_handler(request, exc):
+    if any(base_path in ["/web","/dashboard","/login"] for base_path in request.url.path):
+        return FileResponse(f"{FRONTEND_FILES_DIR}/404.html")
+    return Response(content="Not Found", status_code=404)
 
 # ----------------------------
 # Hello World
