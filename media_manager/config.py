@@ -36,7 +36,7 @@ class BasicConfig(BaseSettings):
     movie_directory: Path = Path(__file__).parent.parent / "data" / "movies"
     torrent_directory: Path = Path(__file__).parent.parent / "data" / "torrents"
 
-    frontend_url: AnyHttpUrl = "http://localhost:3000/"
+    frontend_url: AnyHttpUrl = "http://localhost:3000/web/"
     cors_urls: list[str] = []
     development: bool = False
     api_base_path: str = "/api/v1"

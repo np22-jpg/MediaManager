@@ -24,6 +24,6 @@ COPY media_manager ./media_manager
 COPY alembic ./alembic
 COPY alembic.ini .
 
-HEALTHCHECK CMD curl -f http://localhost:8000${MISC__API_BASE_PATH}/ || exit 1
+HEALTHCHECK CMD curl -f http://localhost:8000${MISC__API_BASE_PATH}/health || exit 1
 EXPOSE 8000
 CMD ["/app/mediamanager-backend-startup.sh"]
