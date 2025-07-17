@@ -4,7 +4,7 @@ ARG VERSION
 ARG BASE_PATH=""
 
 COPY web/package*.json ./
-RUN npm ci --production && npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 COPY web/ ./
 RUN env PUBLIC_VERSION=${VERSION} PUBLIC_API_URL=${BASE_PATH}/api/v1 BASE_PATH=${BASE_PATH}/web npm run build
