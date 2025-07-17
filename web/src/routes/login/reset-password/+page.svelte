@@ -27,7 +27,7 @@
 	onMount(() => {
 		if (!resetToken) {
 			toast.error('Invalid or missing reset token.');
-			goto(base+'/login');
+			goto(base + '/login');
 		}
 	});
 
@@ -56,7 +56,7 @@
 
 			if (response.ok) {
 				toast.success('Password reset successfully! You can now log in with your new password.');
-				goto(base+'/login');
+				goto(base + '/login');
 			} else {
 				const errorText = await response.text();
 				toast.error(`Failed to reset password: ${errorText}`);

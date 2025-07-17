@@ -65,7 +65,7 @@
 				{@render loadingbar()}
 			{:then tvShows}
 				{#each tvShows as show}
-					<a href={base+'/dashboard/tv/' + show.id}>
+					<a href={base + '/dashboard/tv/' + show.id}>
 						<Card.Root class="col-span-full max-w-[90vw] ">
 							<Card.Header>
 								<Card.Title class="h-6 truncate">{getFullyQualifiedMediaName(show)}</Card.Title>

@@ -17,47 +17,47 @@
 		navMain: [
 			{
 				title: 'Dashboard',
-				url: base+'/dashboard',
+				url: base + '/dashboard',
 				icon: Home,
 				isActive: true
 			},
 			{
 				title: 'TV',
-				url: base+'/dashboard/tv',
+				url: base + '/dashboard/tv',
 				icon: TvIcon,
 				isActive: true,
 				items: [
 					{
 						title: 'Add a show',
-						url: base+'/dashboard/tv/add-show'
+						url: base + '/dashboard/tv/add-show'
 					},
 					{
 						title: 'Torrents',
-						url: base+'/dashboard/tv/torrents'
+						url: base + '/dashboard/tv/torrents'
 					},
 					{
 						title: 'Requests',
-						url: base+'/dashboard/tv/requests'
+						url: base + '/dashboard/tv/requests'
 					}
 				]
 			},
 			{
 				title: 'Movies',
-				url: base+'/dashboard/movies',
+				url: base + '/dashboard/movies',
 				icon: Clapperboard,
 				isActive: true,
 				items: [
 					{
 						title: 'Add a movie',
-						url: base+'/dashboard/movies/add-movie'
+						url: base + '/dashboard/movies/add-movie'
 					},
 					{
 						title: 'Torrents',
-						url: base+'/dashboard/movies/torrents'
+						url: base + '/dashboard/movies/torrents'
 					},
 					{
 						title: 'Requests',
-						url: base+'/dashboard/movies/requests'
+						url: base + '/dashboard/movies/requests'
 					}
 				]
 			}
@@ -65,12 +65,12 @@
 		navSecondary: [
 			{
 				title: 'Notifications',
-				url: base+'/dashboard/notifications',
+				url: base + '/dashboard/notifications',
 				icon: Bell
 			},
 			{
 				title: 'Settings',
-				url: base+'/dashboard/settings',
+				url: base + '/dashboard/settings',
 				icon: Settings
 			},
 			{
@@ -85,7 +85,7 @@
 			},
 			{
 				title: 'About',
-				url: base+'/dashboard/about',
+				url: base + '/dashboard/about',
 				icon: Info
 			}
 		]

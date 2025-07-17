@@ -82,7 +82,7 @@
 			{@render loadingbar()}
 		{:else}
 			{#each movies as movie}
-				<a href={base+'/dashboard/movies/' + movie.id}>
+				<a href={base + '/dashboard/movies/' + movie.id}>
 					<Card.Root class="col-span-full max-w-[90vw] ">
 						<Card.Header>
 							<Card.Title class="h-6 truncate">{getFullyQualifiedMediaName(movie)}</Card.Title>

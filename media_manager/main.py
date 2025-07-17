@@ -146,6 +146,7 @@ async def lifespan(app: FastAPI):
     yield
     scheduler.shutdown()
 
+
 BASE_PATH = os.getenv("BASE_PATH", "")
 FRONTEND_FILES_DIR = os.getenv("FRONTEND_FILES_DIR")
 app = FastAPI(lifespan=lifespan, root_path=BASE_PATH)
@@ -246,9 +247,12 @@ app.add_exception_handler(NotFoundError, not_found_error_exception_handler)
 app.add_exception_handler(MediaAlreadyExists, media_already_exists_exception_handler)
 app.add_exception_handler(InvalidConfigError, invalid_config_error_exception_handler)
 
+
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
     return FileResponse(f"{FRONTEND_FILES_DIR}/404.html")
+
+
 # ----------------------------
 # Hello World
 # ----------------------------
