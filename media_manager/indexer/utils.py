@@ -11,12 +11,13 @@ log = logging.getLogger(__name__)
 
 def evaluate_indexer_query_result(
     query_result: IndexerQueryResult, ruleset: ScoringRuleSet
-) -> IndexerQueryResult | None:
+) -> (IndexerQueryResult, bool):
     title_rules = AllEncompassingConfig().indexers.title_scoring_rules
     indexer_flag_rules = AllEncompassingConfig().indexers.indexer_flag_scoring_rules
     for rule_name in ruleset.rule_names:
         for rule in title_rules:
             if rule.name == rule_name:
+                log.debug(f"Applying rule {rule.name} to {query_result.title}")
                 if (
                     any(
                         keyword.lower() in query_result.title.lower()
@@ -24,18 +25,52 @@ def evaluate_indexer_query_result(
                     )
                     and not rule.negate
                 ):
+                    log.debug(
+                        f"Rule {rule.name} with keywords {rule.keywords} matched for {query_result.title}"
+                    )
                     query_result.score += rule.score_modifier
+                elif (
+                    not any(
+                        keyword.lower() in query_result.title.lower()
+                        for keyword in rule.keywords
+                    )
+                    and rule.negate
+                ):
+                    log.debug(
+                        f"Negated rule {rule.name} with keywords {rule.keywords} matched for {query_result.title}"
+                    )
+                    query_result.score += rule.score_modifier
+                else:
+                    log.debug(
+                        f"Rule {rule.name} with keywords {rule.keywords} did not match for {query_result.title}"
+                    )
         for rule in indexer_flag_rules:
             if rule.name == rule_name:
+                log.debug(f"Applying rule {rule.name} to {query_result.title}")
                 if (
                     any(flag in query_result.flags for flag in rule.flags)
                     and not rule.negate
                 ):
+                    log.debug(
+                        f"Rule {rule.name} with flags {rule.flags} matched for {query_result.title} with flags {query_result.flags}"
+                    )
                     query_result.score += rule.score_modifier
+                elif (
+                    not any(flag in query_result.flags for flag in rule.flags)
+                    and rule.negate
+                ):
+                    log.debug(
+                        f"Negated rule {rule.name} with flags {rule.flags} matched for {query_result.title} with flags {query_result.flags}"
+                    )
+                    query_result.score += rule.score_modifier
+                else:
+                    log.debug(
+                        f"Rule {rule.name} with flags {rule.flags} did not match for {query_result.title} with flags {query_result.flags}"
+                    )
     if query_result.score <= 0:
-        return None
+        return query_result, False
 
-    return query_result
+    return query_result, True
 
 
 def evaluate_indexer_query_results(
@@ -57,10 +92,10 @@ def evaluate_indexer_query_results(
                 log.debug(
                     f"Applying scoring ruleset {ruleset.name} for IndexerQueryResult {result.title} for {media.name} ({media.year})"
                 )
-                result = evaluate_indexer_query_result(
+                result, passed = evaluate_indexer_query_result(
                     query_result=result, ruleset=ruleset
                 )
-                if not result:
+                if not passed:
                     log.debug(
                         f"Indexer query result {result.title} did not pass scoring ruleset {ruleset.name} with score {result.score}, removing from results."
                     )
