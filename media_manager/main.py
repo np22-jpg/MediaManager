@@ -3,12 +3,7 @@ import os
 import sys
 from logging.config import dictConfig
 from pathlib import Path
-
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from pythonjsonlogger.json import JsonFormatter
-from starlette.responses import FileResponse
-
-import media_manager.database
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -89,13 +84,14 @@ from media_manager.exceptions import (  # noqa: E402
     invalid_config_error_exception_handler,
 )
 
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore  # noqa: E402
+from starlette.responses import FileResponse  # noqa: E402
 
+import media_manager.database  # noqa: E402
 import shutil  # noqa: E402
 from fastapi import FastAPI, APIRouter  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import Response  # noqa: E402
 from datetime import datetime  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
 from apscheduler.schedulers.background import BackgroundScheduler  # noqa: E402
@@ -175,13 +171,13 @@ api_app = APIRouter(prefix="/api/v1")
 # Hello World Router
 # ----------------------------
 
+
 @api_app.get("/health")
 async def hello_world() -> dict:
     """
     A simple endpoint to check if the API is running.
     """
     return {"message": "Hello World!", "version": os.getenv("PUBLIC_VERSION")}
-
 
 
 # ----------------------------
@@ -268,11 +264,16 @@ app.mount("/web", StaticFiles(directory=FRONTEND_FILES_DIR, html=True), name="fr
 app.add_exception_handler(NotFoundError, not_found_error_exception_handler)
 app.add_exception_handler(MediaAlreadyExists, media_already_exists_exception_handler)
 app.add_exception_handler(InvalidConfigError, invalid_config_error_exception_handler)
+
+
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
-    if any(base_path in ["/web","/dashboard","/login"] for base_path in request.url.path):
+    if any(
+        base_path in ["/web", "/dashboard", "/login"] for base_path in request.url.path
+    ):
         return FileResponse(f"{FRONTEND_FILES_DIR}/404.html")
     return Response(content="Not Found", status_code=404)
+
 
 # ----------------------------
 # Hello World
