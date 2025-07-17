@@ -1,5 +1,5 @@
 services:
-  backend:
+  mediamanager:
     image: ghcr.io/maxdorninger/mediamanager/mediamanager:latest
     ports:
       - "8000:8000"
