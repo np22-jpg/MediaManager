@@ -93,6 +93,9 @@ from media_manager.exceptions import (  # noqa: E402
 import shutil  # noqa: E402
 from fastapi import FastAPI, APIRouter  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 from datetime import datetime  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
 from apscheduler.schedulers.background import BackgroundScheduler  # noqa: E402
@@ -149,7 +152,18 @@ async def lifespan(app: FastAPI):
 
 BASE_PATH = os.getenv("BASE_PATH", "")
 FRONTEND_FILES_DIR = os.getenv("FRONTEND_FILES_DIR")
+
+
+class SPA404Middleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next) -> Response:
+        response = await call_next(request)
+        if response.status_code == 404 and "/web/" in request.url.path:
+            return FileResponse(f"{FRONTEND_FILES_DIR}/404.html", status_code=404)
+        return response
+
+
 app = FastAPI(lifespan=lifespan, root_path=BASE_PATH)
+app.add_middleware(SPA404Middleware)
 
 origins = config.misc.cors_urls
 log.info("CORS URLs activated for following origins:")
@@ -165,6 +179,19 @@ app.add_middleware(
 )
 
 api_app = APIRouter(prefix="/api/v1")
+
+# ----------------------------
+# Hello World Router
+# ----------------------------
+
+@api_app.get("/health")
+async def hello_world() -> dict:
+    """
+    A simple endpoint to check if the API is running.
+    """
+    return {"message": "Hello World!", "version": os.getenv("PUBLIC_VERSION")}
+
+
 
 # ----------------------------
 # Standard Auth Routers
@@ -233,11 +260,15 @@ api_app.include_router(movies_router.router, prefix="/movies", tags=["movie"])
 api_app.include_router(
     notification_router, prefix="/notification", tags=["notification"]
 )
-api_app.mount(
-    "/static/image",
+
+app.mount(
+    "/api/v1/static/image",
     StaticFiles(directory=config.misc.image_directory),
     name="static-images",
 )
+
+app.include_router(api_app)
+app.mount("/web", StaticFiles(directory=FRONTEND_FILES_DIR, html=True), name="frontend")
 
 # ----------------------------
 # Custom Exception Handlers
@@ -247,37 +278,11 @@ app.add_exception_handler(NotFoundError, not_found_error_exception_handler)
 app.add_exception_handler(MediaAlreadyExists, media_already_exists_exception_handler)
 app.add_exception_handler(InvalidConfigError, invalid_config_error_exception_handler)
 
-
-@app.exception_handler(404)
-async def not_found_handler(request, exc):
-    return FileResponse(f"{FRONTEND_FILES_DIR}/404.html")
-
-
 # ----------------------------
 # Hello World
 # ----------------------------
 
-
-@api_app.get("/health")
-async def hello_world() -> dict:
-    """
-    A simple endpoint to check if the API is running.
-    """
-    return {"message": "Hello World!", "version": os.getenv("PUBLIC_VERSION")}
-
-
 log.info("Hello World!")
-
-# ----------------------------
-# Include Api Router
-# ----------------------------
-
-app.include_router(api_app)
-
-# ----------------------------
-# Frontend Static Files
-# ----------------------------
-app.mount("/web", StaticFiles(directory=FRONTEND_FILES_DIR, html=True), name="frontend")
 
 # ----------------------------
 # Startup filesystem checks
