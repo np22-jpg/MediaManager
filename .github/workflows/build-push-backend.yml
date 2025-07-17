@@ -88,6 +88,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set repository name to lowercase
+        id: repo_name
+        run: echo "name=$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -105,7 +109,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/mediamanager
+          images: ghcr.io/${{ github.repository_owner }}/${{ steps.repo_name.outputs.name }}/mediamanager
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') && github.event_name != 'pull_request' }}
             type=ref,event=tag
@@ -137,6 +141,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             VERSION=${{ steps.version.outputs.version }}
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/mediamanager:buildcache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/mediamanager:buildcache,mode=max
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ steps.repo_name.outputs.name }}/mediamanager:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ steps.repo_name.outputs.name }}/mediamanager:buildcache,mode=max
 
