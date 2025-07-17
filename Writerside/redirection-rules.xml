@@ -34,4 +34,8 @@
         <description>Created after removal of "Frontend" from MediaManager</description>
         <accepts>configuration-frontend.html</accepts>
     </rule>
+    <rule id="6242074">
+        <description>Created after removal of "Reverse Proxy" from MediaManager</description>
+        <accepts>Reverse-Proxy.html</accepts>
+    </rule>
 </rules>

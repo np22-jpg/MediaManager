@@ -17,7 +17,6 @@
         <toc-element topic="Indexer-Settings.md"/>
         <toc-element topic="Scoring-Rulesets.md"/>
         <toc-element topic="Notifications.md"/>
-        <toc-element topic="Reverse-Proxy.md"/>
         <toc-element topic="Custom-Libraries.md"/>
         <toc-element topic="Base-Path.md"/>
         <toc-element topic="metadata-provider-configuration.md"/>
