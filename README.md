@@ -29,11 +29,11 @@ other services.
 
 ## Quick Start
 
-```
-   wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yaml   
-   wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/config.toml
-   # you probably need to edit the config.toml file, for more help see the documentation
-   docker compose up -d
+```sh
+wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yaml   
+wget -O config.toml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/config.toml
+# you probably need to edit the config.toml file, for more help see the documentation
+docker compose up -d
 ```
 
 ### [View the docs for installation instructions and more](https://maxdorninger.github.io/MediaManager/configuration-overview.html#configuration-overview)
