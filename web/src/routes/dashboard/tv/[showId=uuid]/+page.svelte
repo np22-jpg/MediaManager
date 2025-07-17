@@ -26,15 +26,14 @@
 	import { base } from '$app/paths';
 
 	async function toggle_continuous_download() {
-		let url = new URL(apiUrl + '/tv/shows/' + show().id + '/continuousDownload');
-		url.searchParams.append('continuous_download', String(!show().continuous_download));
+		const urlString = `${apiUrl}/tv/shows/${show().id}/continuousDownload?continuous_download=${!show().continuous_download}`;
 		console.log(
 			'Toggling continuous download for show',
 			show().name,
 			'to',
 			!show().continuous_download
 		);
-		const response = await fetch(url, {
+		const response = await fetch(urlString, {
 			method: 'POST',
 			credentials: 'include'
 		});

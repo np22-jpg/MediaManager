@@ -16,10 +16,12 @@
 
 	async function addMedia() {
 		loading = true;
-		let url = isShow ? new URL(apiUrl + '/tv/shows') : new URL(apiUrl + '/movies');
-		url.searchParams.append(isShow ? 'show_id' : 'movie_id', String(result.external_id));
-		url.searchParams.append('metadata_provider', result.metadata_provider);
-		const response = await fetch(url, {
+		const endpoint = isShow ? '/tv/shows' : '/movies';
+		const urlParams = new URLSearchParams();
+		urlParams.append(isShow ? 'show_id' : 'movie_id', String(result.external_id));
+		urlParams.append('metadata_provider', result.metadata_provider);
+		const urlString = `${apiUrl}${endpoint}?${urlParams.toString()}`;
+		const response = await fetch(urlString, {
 			method: 'POST',
 			credentials: 'include'
 		});

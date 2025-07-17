@@ -25,16 +25,19 @@
 	});
 
 	async function search(query: string) {
-		let url = new URL(apiUrl + '/movies/recommended');
+		let urlString = apiUrl + '/movies/recommended';
+		const urlParams = new URLSearchParams();
+
 		if (query.length > 0) {
-			url = new URL(apiUrl + '/movies/search');
-			url.searchParams.append('query', query);
+			urlString = apiUrl + '/movies/search';
+			urlParams.append('query', query);
 			toast.info(`Searching for "${query}" using ${metadataProvider.toUpperCase()}...`);
 		}
-		url.searchParams.append('metadata_provider', metadataProvider);
+		urlParams.append('metadata_provider', metadataProvider);
+		urlString += `?${urlParams.toString()}`;
 
 		try {
-			const response = await fetch(url, {
+			const response = await fetch(urlString, {
 				method: 'GET',
 				credentials: 'include'
 			});
