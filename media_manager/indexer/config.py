@@ -13,21 +13,26 @@ class JackettConfig(BaseSettings):
     url: str = "http://localhost:9696"
     indexers: list[str] = ["all"]
 
+
 class ScoringRule(BaseSettings):
     name: str
     score_modifier: int = 0
     negate: bool = False
 
+
 class TitleScoringRule(ScoringRule):
     keywords: list[str]
 
+
 class IndexerFlagScoringRule(ScoringRule):
     flags: list[str]
+
 
 class ScoringRuleSet(BaseSettings):
     name: str
     libraries: list[str] = []
     rule_names: list[str] = []
+
 
 class IndexerConfig(BaseSettings):
     prowlarr: ProwlarrConfig

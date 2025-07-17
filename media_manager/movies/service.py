@@ -197,7 +197,9 @@ class MovieService:
             ):
                 result.append(torrent)
 
-        return evaluate_indexer_query_results(is_tv=False, query_results=result, media=movie)
+        return evaluate_indexer_query_results(
+            is_tv=False, query_results=result, media=movie
+        )
 
     def get_all_movies(self) -> list[Movie]:
         """

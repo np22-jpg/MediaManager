@@ -101,4 +101,3 @@ class PublicIndexerQueryResult(BaseModel):
     age: int
 
     score: int
-

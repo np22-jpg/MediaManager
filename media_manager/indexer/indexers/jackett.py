@@ -56,7 +56,7 @@ class Jackett(GenericIndexer):
                         if attribute.attrib["name"] == "seeders":
                             seeders = int(attribute.attrib["value"])
                         if attribute.attrib["name"] == "downloadvolumefactor":
-                           download_volume_factor = float(attribute.attrib["value"])
+                            download_volume_factor = float(attribute.attrib["value"])
                         if attribute.attrib["name"] == "uploadvolumefactor":
                             upload_volume_factor = int(attribute.attrib["value"])
                     flags = []
