@@ -146,9 +146,9 @@ async def lifespan(app: FastAPI):
     yield
     scheduler.shutdown()
 
-
-app = FastAPI(lifespan=lifespan, root_path="")
-FRONTEND_FILES_DIR = "/app/web/build"
+BASE_PATH = os.getenv("BASE_PATH", "")
+FRONTEND_FILES_DIR = os.getenv("FRONTEND_FILES_DIR")
+app = FastAPI(lifespan=lifespan, root_path=BASE_PATH)
 
 origins = config.misc.cors_urls
 log.info("CORS URLs activated for following origins:")

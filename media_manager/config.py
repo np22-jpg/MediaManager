@@ -39,7 +39,6 @@ class BasicConfig(BaseSettings):
     frontend_url: AnyHttpUrl = "http://localhost:3000/web/"
     cors_urls: list[str] = []
     development: bool = False
-    api_base_path: str = "/api/v1"
 
     tv_libraries: list[LibraryItem] = []
     movie_libraries: list[LibraryItem] = []
