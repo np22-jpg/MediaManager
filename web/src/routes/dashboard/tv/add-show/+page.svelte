@@ -18,22 +18,26 @@
 	let searchTerm: string = $state('');
 	let metadataProvider: string = $state('tmdb');
 	let results: MetaDataProviderSearchResult[] | null = $state(null);
+	import { base } from '$app/paths';
 
 	onMount(() => {
 		search('');
 	});
 
 	async function search(query: string) {
-		let url = new URL(apiUrl + '/tv/recommended');
+		let urlString = apiUrl + '/tv/recommended';
+		const urlParams = new URLSearchParams();
+
 		if (query.length > 0) {
-			url = new URL(apiUrl + '/tv/search');
-			url.searchParams.append('query', query);
+			urlString = apiUrl + '/tv/search';
+			urlParams.append('query', query);
 			toast.info(`Searching for "${query}" using ${metadataProvider.toUpperCase()}...`);
 		}
-		url.searchParams.append('metadata_provider', metadataProvider);
+		urlParams.append('metadata_provider', metadataProvider);
+		urlString += `?${urlParams.toString()}`;
 
 		try {
-			const response = await fetch(url, {
+			const response = await fetch(urlString, {
 				method: 'GET',
 				credentials: 'include'
 			});
@@ -73,15 +77,15 @@
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
-					<Breadcrumb.Link href="/dashboard">MediaManager</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">MediaManager</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard">Home</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">Home</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard/tv">Shows</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard/tv">Shows</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>

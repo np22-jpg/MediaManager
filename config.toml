@@ -8,7 +8,6 @@ frontend_url = "http://localhost:3000/" # note the trailing slash
 cors_urls = ["http://localhost:3000", "http://localhost:8000"] # note the lack of a trailing slash
 
 # you probaly don't need to change this
-api_base_path = "/api/v1"
 development = false
 
 # Custom Media Libraries

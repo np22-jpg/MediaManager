@@ -3,6 +3,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Logo from '$lib/components/logo-side-by-side.svelte';
 	import { handleLogout } from '$lib/utils.ts';
+	import { base } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -30,7 +31,7 @@
 			Your account has been successfully created, but activation by an administrator is required.
 		</p>
 		<div class="mt-8">
-			<Button href="/dashboard">Go to Dashboard</Button>
+			<Button href="{base}/dashboard">Go to Dashboard</Button>
 		</div>
 		<p class="mt-10 text-sm text-muted-foreground">
 			The above button will only work once your account is verified.

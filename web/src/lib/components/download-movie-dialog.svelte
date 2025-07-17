@@ -24,13 +24,14 @@
 	let filePathSuffix: string = $state('');
 
 	async function downloadTorrent(result_id: string) {
-		let url = new URL(apiUrl + `/movies/${movie.id}/torrents`);
-		url.searchParams.append('public_indexer_result_id', result_id);
+		const urlParams = new URLSearchParams();
+		urlParams.append('public_indexer_result_id', result_id);
 		if (filePathSuffix !== '') {
-			url.searchParams.append('override_file_path_suffix', filePathSuffix);
+			urlParams.append('override_file_path_suffix', filePathSuffix);
 		}
+		const urlString = `${apiUrl}/movies/${movie.id}/torrents?${urlParams.toString()}`;
 		try {
-			const response = await fetch(url, {
+			const response = await fetch(urlString, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -64,13 +65,14 @@
 		torrentsError = null;
 		torrents = [];
 
-		let url = new URL(apiUrl + `/movies/${movie.id}/torrents`);
+		const urlParams = new URLSearchParams();
 		if (override) {
-			url.searchParams.append('search_query_override', queryOverride);
+			urlParams.append('search_query_override', queryOverride);
 		}
+		const urlString = `${apiUrl}/movies/${movie.id}/torrents?${urlParams.toString()}`;
 
 		try {
-			const response = await fetch(url, {
+			const response = await fetch(urlString, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json'

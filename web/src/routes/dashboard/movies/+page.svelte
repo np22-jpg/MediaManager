@@ -10,6 +10,7 @@
 	import { env } from '$env/dynamic/public';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import type { PublicMovie } from '$lib/types';
+	import { base } from '$app/paths';
 
 	const apiUrl = env.PUBLIC_API_URL;
 	let movies: PublicMovie[] = [];
@@ -45,11 +46,11 @@
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
-					<Breadcrumb.Link href="/dashboard">MediaManager</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">MediaManager</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard">Home</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">Home</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
@@ -81,7 +82,7 @@
 			{@render loadingbar()}
 		{:else}
 			{#each movies as movie}
-				<a href={'/dashboard/movies/' + movie.id}>
+				<a href={base + '/dashboard/movies/' + movie.id}>
 					<Card.Root class="col-span-full max-w-[90vw] ">
 						<Card.Header>
 							<Card.Title class="h-6 truncate">{getFullyQualifiedMediaName(movie)}</Card.Title>

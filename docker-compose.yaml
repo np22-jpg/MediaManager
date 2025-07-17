@@ -1,6 +1,6 @@
 services:
-  backend:
-    image: ghcr.io/maxdorninger/mediamanager/backend:latest
+  mediamanager:
+    image: ghcr.io/maxdorninger/mediamanager/mediamanager:latest
     ports:
       - "8000:8000"
     environment:
@@ -8,12 +8,6 @@ services:
     volumes:
       - ./data/:/data/
       - ./config.toml:/app/config.toml
-  frontend:
-    image: ghcr.io/maxdorninger/mediamanager/frontend:latest
-    ports:
-      - "3000:3000"
-    environment:
-      - PUBLIC_API_URL=http://localhost:8000/api/v1
   db:
     image: postgres:latest
     restart: unless-stopped

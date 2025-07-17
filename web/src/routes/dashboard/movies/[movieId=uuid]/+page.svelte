@@ -13,6 +13,7 @@
 	import RequestMovieDialog from '$lib/components/request-movie-dialog.svelte';
 	import LibraryCombobox from '$lib/components/library-combobox.svelte';
 	import { Label } from '$lib/components/ui/label';
+	import { base } from '$app/paths';
 
 	let movie: PublicMovie = page.data.movie;
 	let user: () => User = getContext('user');
@@ -36,15 +37,15 @@
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
-					<Breadcrumb.Link href="/dashboard">MediaManager</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">MediaManager</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard">Home</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">Home</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard/movies">Movies</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard/movies">Movies</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>

@@ -3,11 +3,7 @@ import os
 import sys
 from logging.config import dictConfig
 from pathlib import Path
-
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from pythonjsonlogger.json import JsonFormatter
-
-import media_manager.database
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -88,10 +84,14 @@ from media_manager.exceptions import (  # noqa: E402
     invalid_config_error_exception_handler,
 )
 
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore  # noqa: E402
+from starlette.responses import FileResponse  # noqa: E402
 
+import media_manager.database  # noqa: E402
 import shutil  # noqa: E402
-from fastapi import FastAPI  # noqa: E402
+from fastapi import FastAPI, APIRouter  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from starlette.responses import Response  # noqa: E402
 from datetime import datetime  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
 from apscheduler.schedulers.background import BackgroundScheduler  # noqa: E402
@@ -146,9 +146,11 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown()
 
 
-base_path = config.misc.api_base_path
-log.info("Base Path for API: %s", base_path)
-app = FastAPI(root_path=base_path, lifespan=lifespan)
+BASE_PATH = os.getenv("BASE_PATH", "")
+FRONTEND_FILES_DIR = os.getenv("FRONTEND_FILES_DIR")
+
+
+app = FastAPI(lifespan=lifespan, root_path=BASE_PATH)
 
 origins = config.misc.cors_urls
 log.info("CORS URLs activated for following origins:")
@@ -163,32 +165,46 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+api_app = APIRouter(prefix="/api/v1")
+
+# ----------------------------
+# Hello World Router
+# ----------------------------
+
+
+@api_app.get("/health")
+async def hello_world() -> dict:
+    """
+    A simple endpoint to check if the API is running.
+    """
+    return {"message": "Hello World!", "version": os.getenv("PUBLIC_VERSION")}
+
 
 # ----------------------------
 # Standard Auth Routers
 # ----------------------------
 
-app.include_router(
+api_app.include_router(
     fastapi_users.get_auth_router(bearer_auth_backend),
     prefix="/auth/jwt",
     tags=["auth"],
 )
-app.include_router(
+api_app.include_router(
     fastapi_users.get_auth_router(cookie_auth_backend),
     prefix="/auth/cookie",
     tags=["auth"],
 )
-app.include_router(
+api_app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
     prefix="/auth",
     tags=["auth"],
 )
-app.include_router(
+api_app.include_router(
     fastapi_users.get_reset_password_router(),
     prefix="/auth",
     tags=["auth"],
 )
-app.include_router(
+api_app.include_router(
     fastapi_users.get_verify_router(UserRead),
     prefix="/auth",
     tags=["auth"],
@@ -198,8 +214,8 @@ app.include_router(
 # User Management Routers
 # ----------------------------
 
-app.include_router(custom_users_router, tags=["users"])
-app.include_router(
+api_app.include_router(custom_users_router, tags=["users"])
+api_app.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate),
     prefix="/users",
     tags=["users"],
@@ -209,10 +225,10 @@ app.include_router(
 # OpenID Connect Routers
 # ----------------------------
 
-app.include_router(auth_metadata_router, tags=["openid"])
+api_app.include_router(auth_metadata_router, tags=["openid"])
 
 if openid_client is not None:
-    app.include_router(
+    api_app.include_router(
         get_oauth_router(
             oauth_client=openid_client,
             backend=openid_cookie_auth_backend,
@@ -225,15 +241,21 @@ if openid_client is not None:
         tags=["openid"],
     )
 
-app.include_router(tv_router.router, prefix="/tv", tags=["tv"])
-app.include_router(torrent_router.router, prefix="/torrent", tags=["torrent"])
-app.include_router(movies_router.router, prefix="/movies", tags=["movie"])
-app.include_router(notification_router, prefix="/notification", tags=["notification"])
+api_app.include_router(tv_router.router, prefix="/tv", tags=["tv"])
+api_app.include_router(torrent_router.router, prefix="/torrent", tags=["torrent"])
+api_app.include_router(movies_router.router, prefix="/movies", tags=["movie"])
+api_app.include_router(
+    notification_router, prefix="/notification", tags=["notification"]
+)
+
 app.mount(
-    "/static/image",
+    "/api/v1/static/image",
     StaticFiles(directory=config.misc.image_directory),
     name="static-images",
 )
+
+app.include_router(api_app)
+app.mount("/web", StaticFiles(directory=FRONTEND_FILES_DIR, html=True), name="frontend")
 
 # ----------------------------
 # Custom Exception Handlers
@@ -242,6 +264,21 @@ app.mount(
 app.add_exception_handler(NotFoundError, not_found_error_exception_handler)
 app.add_exception_handler(MediaAlreadyExists, media_already_exists_exception_handler)
 app.add_exception_handler(InvalidConfigError, invalid_config_error_exception_handler)
+
+
+@app.exception_handler(404)
+async def not_found_handler(request, exc):
+    if any(
+        base_path in ["/web", "/dashboard", "/login"] for base_path in request.url.path
+    ):
+        return FileResponse(f"{FRONTEND_FILES_DIR}/404.html")
+    return Response(content="Not Found", status_code=404)
+
+
+# ----------------------------
+# Hello World
+# ----------------------------
+
 log.info("Hello World!")
 
 # ----------------------------
@@ -294,14 +331,6 @@ except Exception as e:
     log.error(f"Error creating test directory: {e}")
     raise
 
-
-@app.get("/")
-async def hello_world() -> dict:
-    """
-    A simple endpoint to check if the API is running.
-    """
-    return {"message": "Hello World!", "version": os.getenv("PUBLIC_VERSION")}
-
-
 if __name__ == "__main__":
+    # TODO: add feature to run app with different root_path
     uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)

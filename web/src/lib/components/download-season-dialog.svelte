@@ -29,14 +29,15 @@
 	let filePathSuffix: string = $state('');
 
 	async function downloadTorrent(result_id: string) {
-		let url = new URL(apiUrl + '/tv/torrents');
-		url.searchParams.append('public_indexer_result_id', result_id);
-		url.searchParams.append('show_id', show.id);
+		const urlParams = new URLSearchParams();
+		urlParams.append('public_indexer_result_id', result_id);
+		urlParams.append('show_id', show.id);
 		if (filePathSuffix !== '') {
-			url.searchParams.append('override_file_path_suffix', filePathSuffix);
+			urlParams.append('override_file_path_suffix', filePathSuffix);
 		}
+		const urlString = `${apiUrl}/tv/torrents?${urlParams.toString()}`;
 		try {
-			const response = await fetch(url, {
+			const response = await fetch(urlString, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -73,20 +74,18 @@
 		torrentsError = null;
 		torrents = [];
 
-		let url = new URL(apiUrl + '/tv/torrents');
-		url.searchParams.append('show_id', show.id);
+		const urlParams = new URLSearchParams();
+		urlParams.append('show_id', show.id);
 		if (override) {
-			url.searchParams.append('search_query_override', queryOverride);
+			urlParams.append('search_query_override', queryOverride);
 		} else {
-			url.searchParams.append('season_number', season_number.toString());
+			urlParams.append('season_number', season_number.toString());
 		}
+		const urlString = `${apiUrl}/tv/torrents?${urlParams.toString()}`;
 
 		try {
-			const response = await fetch(url, {
+			const response = await fetch(urlString, {
 				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				},
 				credentials: 'include'
 			});
 

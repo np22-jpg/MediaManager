@@ -9,6 +9,7 @@
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
 	import { getFullyQualifiedMediaName, getTorrentQualityString } from '$lib/utils';
 	import MediaPicture from '$lib/components/media-picture.svelte';
+	import { base } from '$app/paths';
 
 	let seasonFiles: PublicSeasonFile[] = $state(page.data.files);
 	let season: Season = $state(page.data.season);
@@ -34,19 +35,19 @@
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
-					<Breadcrumb.Link href="/dashboard">MediaManager</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">MediaManager</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard">Home</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">Home</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard/tv">Shows</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard/tv">Shows</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard/tv/{show().id}">
+					<Breadcrumb.Link href="{base}/dashboard/tv/{show().id}">
 						{show().name}
 						{show().year == null ? '' : '(' + show().year + ')'}
 					</Breadcrumb.Link>

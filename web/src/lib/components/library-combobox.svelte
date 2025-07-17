@@ -58,10 +58,11 @@
 
 		const endpoint =
 			mediaType === 'tv' ? `/tv/shows/${media.id}/library` : `/movies/${media.id}/library`;
-		let url = new URL(apiUrl + endpoint);
-		url.searchParams.append('library', selectedLabel);
+		const urlParams = new URLSearchParams();
+		urlParams.append('library', selectedLabel);
+		const urlString = `${apiUrl}${endpoint}?${urlParams.toString()}`;
 		try {
-			const response = await fetch(url, {
+			const response = await fetch(urlString, {
 				method: 'POST',
 				credentials: 'include'
 			});

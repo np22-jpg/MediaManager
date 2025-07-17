@@ -7,6 +7,7 @@
 	import { getFullyQualifiedMediaName } from '$lib/utils';
 	import MediaPicture from '$lib/components/media-picture.svelte';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import { base } from '$app/paths';
 
 	let tvShowsPromise = page.data.tvShows;
 </script>
@@ -23,11 +24,11 @@
 		<Breadcrumb.Root>
 			<Breadcrumb.List>
 				<Breadcrumb.Item class="hidden md:block">
-					<Breadcrumb.Link href="/dashboard">MediaManager</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">MediaManager</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="/dashboard">Home</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard">Home</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
@@ -64,7 +65,7 @@
 				{@render loadingbar()}
 			{:then tvShows}
 				{#each tvShows as show}
-					<a href={'/dashboard/tv/' + show.id}>
+					<a href={base + '/dashboard/tv/' + show.id}>
 						<Card.Root class="col-span-full max-w-[90vw] ">
 							<Card.Header>
 								<Card.Title class="h-6 truncate">{getFullyQualifiedMediaName(show)}</Card.Title>
