@@ -29,86 +29,91 @@ services:
       - ./res/data/:/data/images/
       - ./res/:/data/
       - ./media_manager:/app/media_manager
-  prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
-    container_name: prowlarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    volumes:
-      - ./res/prowlarr:/config
-    restart: unless-stopped
-    ports:
-      - "9696:9696"
-  qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
-    container_name: qbittorrent
-    environment:
-      - TZ=Etc/UTC
-      - WEBUI_PORT=8080
-      - TORRENTING_PORT=6881
-    ports:
-      - 8080:8080
-      - 6881:6881
-      - 6881:6881/udp
-    restart: unless-stopped
-    volumes:
-      - ./res/torrent:/download
-      - ./res/qbittorrent:/config
-  transmission:
-    image: lscr.io/linuxserver/transmission:latest
-    container_name: transmission
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-      - USER=admin
-      - PASS=admin
-    volumes:
-      - ./res/transmission:/config
-      - ./res/torrents:/data/torrents
-    ports:
-      - 9091:9091
-    restart: unless-stopped
-  pocket-id:
-    image: ghcr.io/pocket-id/pocket-id
-    restart: unless-stopped
-    env_file: .env
-    ports:
-      - 1411:1411
-    volumes:
-      - ./res/pocket-id:/app/data
-    healthcheck:
-      test: "curl -f http://localhost:1411/healthz"
-      interval: 1m30s
-      timeout: 5s
-      retries: 2
-      start_period: 10s
-  sabnzbd:
-    image: lscr.io/linuxserver/sabnzbd:latest
-    container_name: sabnzbd
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    volumes:
-      - ./sabnzbd:/config
-      - ./torrent:/downloads
-    ports:
-      - 8081:8080
-    restart: unless-stopped
-  jackett:
-    image: lscr.io/linuxserver/jackett:latest
-    container_name: jackett
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-      - AUTO_UPDATE=true
-    volumes:
-      - ./res/jackett/data:/config
-      - ./res/jackett/torrents:/downloads
-    ports:
-      - 9117:9117
-    restart: unless-stopped
+
+# ----------------------------
+# Additional services can be uncommented and configured as needed
+# ----------------------------
+
+#  prowlarr:
+#    image: lscr.io/linuxserver/prowlarr:latest
+#    container_name: prowlarr
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Etc/UTC
+#    volumes:
+#      - ./res/prowlarr:/config
+#    restart: unless-stopped
+#    ports:
+#      - "9696:9696"
+#  qbittorrent:
+#    image: lscr.io/linuxserver/qbittorrent:latest
+#    container_name: qbittorrent
+#    environment:
+#      - TZ=Etc/UTC
+#      - WEBUI_PORT=8080
+#      - TORRENTING_PORT=6881
+#    ports:
+#      - 8080:8080
+#      - 6881:6881
+#      - 6881:6881/udp
+#    restart: unless-stopped
+#    volumes:
+#      - ./res/torrent:/download
+#      - ./res/qbittorrent:/config
+#  transmission:
+#    image: lscr.io/linuxserver/transmission:latest
+#    container_name: transmission
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Etc/UTC
+#      - USER=admin
+#      - PASS=admin
+#    volumes:
+#      - ./res/transmission:/config
+#      - ./res/torrents:/data/torrents
+#    ports:
+#      - 9091:9091
+#    restart: unless-stopped
+#  pocket-id:
+#    image: ghcr.io/pocket-id/pocket-id
+#    restart: unless-stopped
+#    env_file: .env
+#    ports:
+#      - 1411:1411
+#    volumes:
+#      - ./res/pocket-id:/app/data
+#    healthcheck:
+#      test: "curl -f http://localhost:1411/healthz"
+#      interval: 1m30s
+#      timeout: 5s
+#      retries: 2
+#      start_period: 10s
+#  sabnzbd:
+#    image: lscr.io/linuxserver/sabnzbd:latest
+#    container_name: sabnzbd
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Etc/UTC
+#    volumes:
+#      - ./sabnzbd:/config
+#      - ./torrent:/downloads
+#    ports:
+#      - 8081:8080
+#    restart: unless-stopped
+#  jackett:
+#    image: lscr.io/linuxserver/jackett:latest
+#    container_name: jackett
+#    environment:
+#      - PUID=1000
+#      - PGID=1000
+#      - TZ=Etc/UTC
+#      - AUTO_UPDATE=true
+#    volumes:
+#      - ./res/jackett/data:/config
+#      - ./res/jackett/torrents:/downloads
+#    ports:
+#      - 9117:9117
+#    restart: unless-stopped
