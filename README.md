@@ -47,13 +47,14 @@ docker compose up -d
   <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" >
 </a>
 
-
 ## Check out the awesome sponsors of MediaManager ❤️
+
 <a href="https://fosstodon.org/@aljazmerzen"><img src="https://github.com/aljazerzen.png" width="80px" alt="Aljaž Mur Eržen" /></a>&nbsp;&nbsp;
 <a href="https://github.com/ldrrp"><img src="https://github.com/ldrrp.png" width="80px" alt="Luis Rodriguez" /></a>&nbsp;&nbsp;
 
 
 <!-- ROADMAP -->
+
 ## Roadmap
 
 - [x] support for more torrent indexers
@@ -94,7 +95,6 @@ See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a
 ![Screenshot 2025-07-02 174416](https://github.com/user-attachments/assets/0d50f53b-64da-4243-8408-1d6fc85fe81b)
 ![Screenshot 2025-06-28 222908](https://github.com/user-attachments/assets/193e1afd-dabb-42a2-ab28-59f2784371c7)
 
-
 ## Developer Quick Start
 
 ```bash
@@ -103,8 +103,9 @@ See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a
   # Activate the virtual environment
   uv pip install -e .
 ```
+
 ```bash
-docker compose up db -d
+docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up db -d
 ```
 
 ```bash
@@ -114,26 +115,28 @@ uv run alembic upgrade head
 ### Get the frontend up and running
 
 ```bash
-cd /web && npm install
+cd ./web && npm install
 ```
 
 ### Now start the backend and frontend
+
 ```bash
-fastapi dev /media_manager/main.py --reload --host
+fastapi dev ./media_manager/main.py --reload --host
 ```
 
 ```bash
-cd /web && npm run dev
+cd ./web && npm run dev
 ```
-
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the AGPL 3.0. See `LICENSE.txt` for more information.
 
 
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
 * [Thanks to Pawel Czerwinski for the image on the login screen](https://unsplash.com/@pawel_czerwinski)
