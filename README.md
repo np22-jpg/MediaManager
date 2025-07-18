@@ -31,6 +31,8 @@ other services.
 
 ```sh
 wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yaml   
+mkdir config
+wget -O ./config/config.toml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/config.example.toml   
 # you probably need to edit the config.toml file in the ./config directory, for more help see the documentation
 docker compose up -d
 ```
@@ -97,36 +99,7 @@ See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a
 
 ## Developer Quick Start
 
-```bash
-  pip install uv
-  uv venv
-  # Activate the virtual environment
-  uv pip install -e .
-```
-
-```bash
-docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up db -d
-```
-
-```bash
-uv run alembic upgrade head
-```
-
-### Get the frontend up and running
-
-```bash
-cd ./web && npm install
-```
-
-### Now start the backend and frontend
-
-```bash
-fastapi dev ./media_manager/main.py --reload --host
-```
-
-```bash
-cd ./web && npm run dev
-```
+For the developer guide see the [Developer Guide](https://maxdorninger.github.io/MediaManager/developer-guide.html).
 
 <!-- LICENSE -->
 
