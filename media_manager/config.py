@@ -20,7 +20,9 @@ from media_manager.torrent.config import TorrentConfig
 config_path = os.getenv("CONFIG_FILE")
 
 if config_path is None:
-    config_path = Path(__file__).parent.parent / "config.toml"
+    # Default to config folder approach
+    config_dir = os.getenv("CONFIG_DIR", "/app/config")
+    config_path = Path(config_dir) / "config.toml"
 else:
     config_path = Path(config_path)
 
@@ -31,7 +33,7 @@ class LibraryItem(BaseSettings):
 
 
 class BasicConfig(BaseSettings):
-    image_directory: Path = Path(__file__).parent.parent / "data" / "images"
+    image_directory: Path = Path(__file__).parent.parent / "images"
     tv_directory: Path = Path(__file__).parent.parent / "data" / "tv"
     movie_directory: Path = Path(__file__).parent.parent / "data" / "movies"
     torrent_directory: Path = Path(__file__).parent.parent / "data" / "torrents"

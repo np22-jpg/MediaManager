@@ -14,13 +14,15 @@ cors_urls = ["http://localhost:3000", "http://localhost:8000"] # note the lack o
 development = false
 
 # Custom Media Libraries
+# These paths should match your volume mounts in docker-compose.yaml
+# Example: if you mount "./movies:/media/movies" then use path = "/media/movies/subdirectory"
 [[misc.tv_libraries]]
 name = "Live Action"
-path = "/data/tv/live-action"
+path = "/data/tv/live-action"  # Change this to match your actual TV shows location
 
 [[misc.movie_libraries]]
 name = "Documentary"
-path = "/data/movies/documentary"
+path = "/data/movies/documentary"  # Change this to match your actual movies location
 
 [database]
 host = "localhost"

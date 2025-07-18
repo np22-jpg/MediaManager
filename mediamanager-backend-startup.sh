@@ -12,6 +12,36 @@ echo "
                                                    /____/
 "
 echo "Buy me a coffee at https://buymeacoffee.com/maxdorninger"
+
+# Initialize config if it doesn't exist
+CONFIG_DIR=${CONFIG_DIR:-/app/config}
+CONFIG_FILE="$CONFIG_DIR/config.toml"
+EXAMPLE_CONFIG="/app/config.example.toml"
+
+echo "Checking configuration setup..."
+
+# Create config directory if it doesn't exist
+if [ ! -d "$CONFIG_DIR" ]; then
+    echo "Creating config directory: $CONFIG_DIR"
+    mkdir -p "$CONFIG_DIR"
+fi
+
+# Copy example config if config.toml doesn't exist
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Config file not found. Copying example config to: $CONFIG_FILE"
+    if [ -f "$EXAMPLE_CONFIG" ]; then
+        cp "$EXAMPLE_CONFIG" "$CONFIG_FILE"
+        echo "Example config copied successfully!"
+        echo "Please edit $CONFIG_FILE to configure MediaManager for your environment."
+        echo "Important: Make sure to change the token_secret value!"
+    else
+        echo "ERROR: Example config file not found at $EXAMPLE_CONFIG"
+        exit 1
+    fi
+else
+    echo "Config file found at: $CONFIG_FILE"
+fi
+
 echo "Running DB migrations..."
 
 uv run alembic upgrade head

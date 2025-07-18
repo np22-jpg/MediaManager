@@ -100,11 +100,16 @@ from apscheduler.triggers.cron import CronTrigger  # noqa: E402
 init_db()
 log.info("Database initialized")
 config = AllEncompassingConfig()
+
+# Create application-specific directories that the app manages
+log.info("Creating application directories...")
+config.misc.image_directory.mkdir(parents=True, exist_ok=True)
+log.info("Application directories created successfully")
+
+# Note: Media directories (tv, movies, torrents) are user-configured and mounted as volumes
+# The application doesn't create these as they should be managed by the user
+
 if config.misc.development:
-    config.misc.torrent_directory.mkdir(parents=True, exist_ok=True)
-    config.misc.tv_directory.mkdir(parents=True, exist_ok=True)
-    config.misc.movie_directory.mkdir(parents=True, exist_ok=True)
-    config.misc.image_directory.mkdir(parents=True, exist_ok=True)
     log.warning("Development Mode activated!")
 else:
     log.info("Development Mode not activated!")
