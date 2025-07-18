@@ -190,6 +190,7 @@ async def create_default_admin_user():
                         log.info("✅ DEFAULT ADMIN USER CREATED!")
                         log.info(f"   📧 Email: {admin_email}")
                         log.info(f"   🔑 Password: {default_password}")
+                        log.info(f"   👤 User ID: {user.id}")
                         log.info("   ⚠️  IMPORTANT: Please change this password after first login!")
                         log.info("=" * 60)
                         
