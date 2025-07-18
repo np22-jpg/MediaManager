@@ -53,7 +53,7 @@ Additionally, to develop the frontend I use a locally installed Node.js server. 
 the backend runs in a container and the frontend runs on Windows. To make this work, you need to make sure the
 `cors_urls` and `frontend_url` are set correctly in the backend's config file.
 
-Unfortunately, a side effect of this setup is that you have to rebuild the Docker image everytime when you change the
+Unfortunately, a side effect of this setup is that you have to rebuild the Docker image every time when you change the
 python dependencies in any way or at least restart the container if you change the code. For a fast-paced development it
 may be more convenient to run the backend locally too, because then it supports hot reloading.
 
