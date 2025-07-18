@@ -14,15 +14,11 @@ services:
     volumes:
       - ./postgres:/var/lib/postgresql/data
     healthcheck:
-       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-       interval: 10s
-       timeout: 5s
-       retries: 5
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       POSTGRES_USER: MediaManager
       POSTGRES_DB: MediaManager
       POSTGRES_PASSWORD: MediaManager
-    ports:
-      - "5432:5432"
-
-
