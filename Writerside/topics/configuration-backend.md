@@ -27,7 +27,6 @@ Here's a complete example of the general settings section in your `config.toml`:
 # REQUIRED: Change this to match your actual frontend URL
 frontend_url = "http://localhost:8000/web/"
 
-# REQUIRED: List all origins that will access the API
 cors_urls = ["http://localhost:8000"]
 
 # Optional: Development mode (set to true for debugging)
@@ -35,5 +34,5 @@ development = false
 ```
 
 <note>
-    The <code>frontend_url</code> and <code>cors_urls</code> are the most important settings to configure correctly. Make sure they match your actual deployment URLs.
+    The <code>frontend_url</code> is the most important settings to configure correctly. Make sure it matches your actual deployment URLs.
 </note>
