@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import uuid
 from typing import Optional
@@ -14,10 +15,11 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from httpx_oauth.clients.openid import OpenID
 from fastapi.responses import RedirectResponse, Response
 from starlette import status
+from sqlalchemy import select, func
 
 import media_manager.notification.utils
-from media_manager.auth.db import User, get_user_db
-from media_manager.auth.schemas import UserUpdate
+from media_manager.auth.db import User, get_user_db, get_async_session
+from media_manager.auth.schemas import UserUpdate, UserCreate
 from media_manager.config import AllEncompassingConfig
 
 log = logging.getLogger(__name__)
@@ -94,6 +96,68 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
 
     async def on_after_verify(self, user: User, request: Optional[Request] = None):
         log.info(f"User {user.id} has been verified")
+
+
+async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
+    yield UserManager(user_db)
+
+
+get_async_session_context = contextlib.asynccontextmanager(get_async_session)
+get_user_db_context = contextlib.asynccontextmanager(get_user_db)
+get_user_manager_context = contextlib.asynccontextmanager(get_user_manager)
+
+
+async def create_default_admin_user():
+    """Create a default admin user if no users exist in the database"""
+    try:
+        async with get_async_session_context() as session:
+            async with get_user_db_context(session) as user_db:
+                async with get_user_manager_context(user_db) as user_manager:
+                    # Check if any users exist
+                    stmt = select(func.count(User.id))
+                    result = await session.execute(stmt)
+                    user_count = result.scalar()
+                    config = AllEncompassingConfig()
+                    if user_count == 0:
+                        log.info(
+                            "No users found in database. Creating default admin user..."
+                        )
+
+                        # Use the first admin email from config, or default
+                        admin_email = (
+                            config.auth.admin_emails[0]
+                            if config.auth.admin_emails
+                            else "admin@mediamanager.local"
+                        )
+                        default_password = "admin"  # Simple default password
+
+                        user_create = UserCreate(
+                            email=admin_email,
+                            password=default_password,
+                            is_superuser=True,
+                            is_verified=True,
+                        )
+
+                        user = await user_manager.create(user_create)
+                        log.info("=" * 60)
+                        log.info("DEFAULT ADMIN USER CREATED!")
+                        log.info(f"    Email: {admin_email}")
+                        log.info(f"    Password: {default_password}")
+                        log.info(f"    User ID: {user.id}")
+                        log.info(
+                            "IMPORTANT: Please change this password after first login!"
+                        )
+                        log.info("=" * 60)
+
+                    else:
+                        log.info(
+                            f"Found {user_count} existing users. Skipping default user creation."
+                        )
+    except Exception as e:
+        log.error(f"Failed to create default admin user: {e}")
+        log.info(
+            "You can create an admin user manually by registering with an email from the admin_emails list in your config."
+        )
 
 
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):

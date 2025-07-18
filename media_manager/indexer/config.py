@@ -35,8 +35,8 @@ class ScoringRuleSet(BaseSettings):
 
 
 class IndexerConfig(BaseSettings):
-    prowlarr: ProwlarrConfig
-    jackett: JackettConfig
+    prowlarr: ProwlarrConfig = ProwlarrConfig()
+    jackett: JackettConfig = JackettConfig()
     title_scoring_rules: list[TitleScoringRule] = []
     indexer_flag_scoring_rules: list[IndexerFlagScoringRule] = []
     scoring_rule_sets: list[ScoringRuleSet] = []

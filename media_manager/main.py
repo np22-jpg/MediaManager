@@ -74,6 +74,7 @@ from media_manager.auth.users import (  # noqa: E402
     fastapi_users,
     cookie_auth_backend,
     openid_cookie_auth_backend,
+    create_default_admin_user,
 )
 from media_manager.exceptions import (  # noqa: E402
     NotFoundError,
@@ -85,7 +86,7 @@ from media_manager.exceptions import (  # noqa: E402
 )
 
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore  # noqa: E402
-from starlette.responses import FileResponse  # noqa: E402
+from starlette.responses import FileResponse, RedirectResponse  # noqa: E402
 
 import media_manager.database  # noqa: E402
 import shutil  # noqa: E402
@@ -100,11 +101,8 @@ from apscheduler.triggers.cron import CronTrigger  # noqa: E402
 init_db()
 log.info("Database initialized")
 config = AllEncompassingConfig()
+
 if config.misc.development:
-    config.misc.torrent_directory.mkdir(parents=True, exist_ok=True)
-    config.misc.tv_directory.mkdir(parents=True, exist_ok=True)
-    config.misc.movie_directory.mkdir(parents=True, exist_ok=True)
-    config.misc.image_directory.mkdir(parents=True, exist_ok=True)
     log.warning("Development Mode activated!")
 else:
     log.info("Development Mode not activated!")
@@ -142,7 +140,10 @@ scheduler.start()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Startup: Create default admin user if needed
+    await create_default_admin_user()
     yield
+    # Shutdown
     scheduler.shutdown()
 
 
@@ -258,6 +259,26 @@ app.include_router(api_app)
 app.mount("/web", StaticFiles(directory=FRONTEND_FILES_DIR, html=True), name="frontend")
 
 # ----------------------------
+# Redirects to frontend
+# ----------------------------
+
+
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/web/")
+
+
+@app.get("/dashboard")
+async def dashboard():
+    return RedirectResponse(url="/web/")
+
+
+@app.get("/login")
+async def login():
+    return RedirectResponse(url="/web/")
+
+
+# ----------------------------
 # Custom Exception Handlers
 # ----------------------------
 
@@ -285,6 +306,13 @@ log.info("Hello World!")
 # Startup filesystem checks
 # ----------------------------
 try:
+    log.info("Creating directories if they don't exist...")
+    config.misc.tv_directory.mkdir(parents=True, exist_ok=True)
+    config.misc.movie_directory.mkdir(parents=True, exist_ok=True)
+    config.misc.torrent_directory.mkdir(parents=True, exist_ok=True)
+    config.misc.image_directory.mkdir(parents=True, exist_ok=True)
+
+    log.info("Conducting filesystem tests...")
     test_dir = config.misc.tv_directory / Path(".media_manager_test_dir")
     test_dir.mkdir(parents=True, exist_ok=True)
     test_dir.rmdir()
