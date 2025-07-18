@@ -54,13 +54,13 @@ class AllEncompassingConfig(BaseSettings):
     This class is used to load all configurations from the environment variables.
     It combines the BasicConfig with any additional configurations needed.
     """
-    misc: BasicConfig
-    torrents: TorrentConfig
-    notifications: NotificationConfig
-    metadata: MetadataProviderConfig
-    indexers: IndexerConfig
-    database: DbConfig
-    auth: AuthConfig
+    misc: BasicConfig = BasicConfig()
+    torrents: TorrentConfig = TorrentConfig()
+    notifications: NotificationConfig = NotificationConfig()
+    metadata: MetadataProviderConfig = MetadataProviderConfig()
+    indexers: IndexerConfig = IndexerConfig()
+    database: DbConfig = DbConfig()
+    auth: AuthConfig = AuthConfig()
 
     @classmethod
     def settings_customise_sources(

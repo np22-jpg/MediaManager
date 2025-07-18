@@ -10,5 +10,5 @@ class TvdbConfig(BaseSettings):
 
 
 class MetadataProviderConfig(BaseSettings):
-    tvdb: TvdbConfig
-    tmdb: TmdbConfig
+    tvdb: TvdbConfig = TvdbConfig()
+    tmdb: TmdbConfig = TmdbConfig()
