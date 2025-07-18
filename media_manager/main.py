@@ -102,14 +102,6 @@ init_db()
 log.info("Database initialized")
 config = AllEncompassingConfig()
 
-# Create application-specific directories that the app manages
-log.info("Creating application directories...")
-config.misc.image_directory.mkdir(parents=True, exist_ok=True)
-log.info("Application directories created successfully")
-
-# Note: Media directories (tv, movies, torrents) are user-configured and mounted as volumes
-# The application doesn't create these as they should be managed by the user
-
 if config.misc.development:
     log.warning("Development Mode activated!")
 else:
@@ -314,6 +306,13 @@ log.info("Hello World!")
 # Startup filesystem checks
 # ----------------------------
 try:
+    log.info("Creating directories if they don't exist...")
+    config.misc.tv_directory.mkdir(parents=True, exist_ok=True)
+    config.misc.movie_directory.mkdir(parents=True, exist_ok=True)
+    config.misc.torrent_directory.mkdir(parents=True, exist_ok=True)
+    config.misc.image_directory.mkdir(parents=True, exist_ok=True)
+
+    log.info("Conducting filesystem tests...")
     test_dir = config.misc.tv_directory / Path(".media_manager_test_dir")
     test_dir.mkdir(parents=True, exist_ok=True)
     test_dir.rmdir()
