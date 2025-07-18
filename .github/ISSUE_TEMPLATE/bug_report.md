@@ -35,6 +35,23 @@ vX.X
 **Additional context**
 Add any other context about the problem here.
 
+
+**docker-compose.yaml**
+
+```yaml
+
+YOUR DOCKER-COMPOSE HERE
+
+```
+
+**config.toml**
+
+```toml
+
+YOUR CONFIG HERE
+
+```
+
 [ ] I understand, that without logs and/or screenshots and a detailed description of the problem, it is very hard to fix bugs.
 [ ] I have checked the [documentation](https://maxdorninger.github.io/MediaManager/introduction.html) for help.
 [ ] I have searched the [issues](https://github.com/maxdorninger/MediaManager/issues) for similar issues and found none.
