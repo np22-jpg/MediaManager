@@ -7,15 +7,15 @@ Frontend settings are configured through environment variables in your `docker-c
 
 ## Configuration File Location
 
-Your `config.toml` file should be mounted to `/app/config.toml` inside the container:
+Your `config.toml` file should be in the directory that's mounted to `/app/config/config.toml` inside the container:
 
 ```yaml
 volumes:
-  - ./config.toml:/app/config.toml
+  - ./config:/app/config
 ```
 
-Though you can change the location of the configuration file by setting the `CONFIG_FILE` env variable to another path,
-e.g. `/etc/mm/config.toml`.
+Though you can change the location of the configuration file's directory by setting the `CONFIG_DIR` env variable to another path,
+e.g. `/etc/mediamanager/`.
 
 ## Configuration Sections
 
