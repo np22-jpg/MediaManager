@@ -10,6 +10,8 @@ services:
       - ./data/:/data/  # Example: change ./data/ to your actual media root
       # Config folder for application configuration
       - ./config/:/app/config/
+      # Image folder
+      - ./images/:/data/images/
   db:
     image: postgres:latest
     restart: unless-stopped
