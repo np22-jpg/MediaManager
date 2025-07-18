@@ -315,12 +315,14 @@ app.mount(
 app.include_router(api_app)
 app.mount("/web", StaticFiles(directory=FRONTEND_FILES_DIR, html=True), name="frontend")
 
-# Add root route to redirect to web UI
+# ----------------------------
+# Redirects to frontend
+# ----------------------------
+
 @app.get("/")
 async def root():
     return RedirectResponse(url="/web/")
 
-# Add common routes that users might try
 @app.get("/dashboard")
 async def dashboard():
     return RedirectResponse(url="/web/")
