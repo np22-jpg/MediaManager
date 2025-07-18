@@ -57,17 +57,43 @@ Unfortunately, a side effect of this setup is that you have to rebuild the Docke
 python dependencies in any way or at least restart the container if you change the code. For a fast-paced development it
 may be more convenient to run the backend locally too, because then it supports hot reloading.
 
+### Setting up the basic development environment with Docker
+
+- Copy the `config.dev.toml` file to `config.toml` in the `./res` directory and edit it to your needs.
+- Use the following command to start the development environment with Docker:
+    ```bash
+    docker compose up -d -f docker-compose.dev.yaml
+    ```
+
 ### Setting up the backend development environment
 
 1. Clone the repository
 2. cd into repo root
 3. [Install `uv`.](https://docs.astral.sh/uv/getting-started/installation/)
 4. run `uv --version` to verify that `uv` is installed correctly
-5. Install python if you haven't already: `uv python install 3.13`
-6. Create a virtual environment with uv: `uv venv --python 3.13`
-7. Install dependencies: `uv sync`
-8. run db migrations with `uv run alembic upgrade head`
-9. run the backend with `uv run ./media_manager/main.py --reload --port 8000`
+5. Install python if you haven't already:
+    ```bash
+    uv python install 3.13
+    ```
+6. Create a virtual environment with uv
+    ```bash
+    uv venv --python 3.13
+    ```
+
+7. Install dependencies:
+    ```bash
+    uv sync
+    ```
+
+8. run db migrations with
+    ```bash
+      uv run alembic upgrade head
+   ```
+
+9. run the backend with
+    ```bash
+    uv run ./media_manager/main.py --reload --port 8000
+    ```
 
 - format code with `uvx ruff format`
 - lint code with `uvx ruff check`
