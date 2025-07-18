@@ -62,7 +62,7 @@ may be more convenient to run the backend locally too, because then it supports 
 - Copy the `config.dev.toml` file to `config.toml` in the `./res` directory and edit it to your needs.
 - Use the following command to start the development environment with Docker:
     ```bash
-    docker compose up -d -f docker-compose.dev.yaml
+    docker compose -f docker-compose.dev.yaml up -d
     ```
 
 ### Setting up the backend development environment
