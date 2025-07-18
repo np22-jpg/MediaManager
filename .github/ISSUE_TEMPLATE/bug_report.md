@@ -1,8 +1,8 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
-labels: ''
+title: '[BUG] '
+labels: 'bug'
 assignees: ''
 
 ---
@@ -23,9 +23,18 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
+**Server Logs**
+If applicable, add logs to help explain your problem.
+
+**Browser Logs**
+If applicable, add logs to help explain your problem.
+
 **Version**
-Frontend vX.X
-Frontend vX.X
+vX.X
 
 **Additional context**
 Add any other context about the problem here.
+
+[ ] I understand, that without logs and/or screenshots and a detailed description of the problem, it is very hard to fix bugs.
+[ ] I have checked the [documentation](https://maxdorninger.github.io/MediaManager/introduction.html) and the [FAQ](https://maxdorninger.github.io/MediaManager/faq.html) for help.
+[ ] I have searched the [issues](https://github.com/maxdorninger/MediaManager/issues) for similar issues and found none.
