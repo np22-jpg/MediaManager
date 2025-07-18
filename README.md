@@ -55,7 +55,10 @@ docker compose up -d
 <a href="https://github.com/ldrrp"><img src="https://github.com/ldrrp.png" width="80px" alt="Luis Rodriguez" /></a>&nbsp;&nbsp;
 
 
-<!-- ROADMAP -->
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=maxdorninger/MediaManager&type=Date)](https://www.star-history.com/#maxdorninger/MediaManager&Date)
+
 
 ## Roadmap
 
