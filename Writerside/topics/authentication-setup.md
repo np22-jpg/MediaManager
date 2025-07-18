@@ -1,6 +1,7 @@
 # Authentication
 
-MediaManager supports multiple authentication methods. Email/password authentication is the default, but you can also enable OpenID Connect (OAuth 2.0) for integration with external identity providers.
+MediaManager supports multiple authentication methods. Email/password authentication is the default, but you can also
+enable OpenID Connect (OAuth 2.0) for integration with external identity providers.
 
 All authentication settings are configured in the `[auth]` section of your `config.toml` file.
 
@@ -20,15 +21,19 @@ A list of email addresses for administrator accounts. This is a required field.
 
 - `email_password_resets`
 
-Toggle for enabling password resets via email. If users request a password reset because they forgot their password, they will be sent an email with a link to reset it. Default is `false`.
+Toggle for enabling password resets via email. If users request a password reset because they forgot their password,
+they will be sent an email with a link to reset it. Default is `false`.
 
 <note>
     To use email password resets, you must also configure SMTP settings in the <code>[notifications.smtp_config]</code> section.
 </note>
 
+<include from="notes.topic" element-id="auth-admin-emails"></include>
+
 ## OpenID Connect Settings (`[auth.openid_connect]`)
 
-OpenID Connect allows you to integrate with external identity providers like Google, Microsoft Azure AD, Keycloak, or any other OIDC-compliant provider.
+OpenID Connect allows you to integrate with external identity providers like Google, Microsoft Azure AD, Keycloak, or
+any other OIDC-compliant provider.
 
 - `enabled`
 
@@ -61,10 +66,10 @@ session_lifetime = 604800  # 1 week
 admin_emails = ["admin@example.com", "manager@example.com"]
 email_password_resets = true
 
-    [auth.openid_connect]
-    enabled = true
-    client_id = "mediamanager-client"
-    client_secret = "your-secret-key-here"
-    configuration_endpoint = "https://auth.example.com/.well-known/openid-configuration"
-    name = "Authentik"
+[auth.openid_connect]
+enabled = true
+client_id = "mediamanager-client"
+client_secret = "your-secret-key-here"
+configuration_endpoint = "https://auth.example.com/.well-known/openid-configuration"
+name = "Authentik"
 ```
