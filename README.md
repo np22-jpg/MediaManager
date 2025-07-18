@@ -31,6 +31,8 @@ other services.
 
 ```sh
 wget -O docker-compose.yaml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/docker-compose.yaml   
+mkdir config
+wget -O ./config/config.toml https://raw.githubusercontent.com/maxdorninger/MediaManager/refs/heads/master/config.toml   
 # you probably need to edit the config.toml file in the ./config directory, for more help see the documentation
 docker compose up -d
 ```
