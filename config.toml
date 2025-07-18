@@ -20,7 +20,7 @@ name = "Documentary"
 path = "/data/movies/documentary"
 
 [database]
-host = "localhost"
+host = "db"
 port = 5432
 user = "MediaManager"
 password = "MediaManager"
