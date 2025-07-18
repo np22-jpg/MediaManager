@@ -33,7 +33,7 @@ class LibraryItem(BaseSettings):
 
 
 class BasicConfig(BaseSettings):
-    image_directory: Path = Path(__file__).parent.parent / "images"
+    image_directory: Path = Path(__file__).parent.parent / "data" / "images"
     tv_directory: Path = Path(__file__).parent.parent / "data" / "tv"
     movie_directory: Path = Path(__file__).parent.parent / "data" / "movies"
     torrent_directory: Path = Path(__file__).parent.parent / "data" / "torrents"
