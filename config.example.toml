@@ -36,6 +36,9 @@ email_password_resets = false # if true, you also need to set up SMTP (notificat
 
 token_secret = "CHANGE_ME_GENERATE_RANDOM_STRING" # generate a random string with "openssl rand -hex 32", e.g. here https://www.cryptool.org/en/cto/openssl/
 session_lifetime = 86400  # this is how long you will be logged in after loggin in, in seconds
+
+# Admin users: Users who register with these email addresses will automatically become administrators
+# If no users exist in the database, a default admin user will be created with the first email in this list
 admin_emails = ["admin@example.com", "admin2@example.com"]
 
     # OpenID Connect settings

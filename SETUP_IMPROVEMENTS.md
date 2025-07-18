@@ -43,9 +43,27 @@ volumes:
 3. If `config.toml` doesn't exist in the config directory, the example config is copied
 4. Application-managed directories (like images) are created automatically
 5. Database migrations run
-6. Application starts successfully
+6. **Default admin user is created if no users exist** (see Login Information below)
+7. Application starts successfully
 
 Note: Media directories are NOT created by the application - they should be mounted from your host system.
+
+## Login Information
+
+### Default Admin User
+- If no users exist in the database, a default admin user is automatically created
+- **Email**: First email from `admin_emails` in config.toml (default: `admin@example.com`)
+- **Password**: `admin`
+- **⚠️ IMPORTANT**: Change this password immediately after first login!
+
+### Creating Additional Admin Users
+- Register a new user with an email address listed in the `admin_emails` array in your config.toml
+- Users with admin emails automatically become administrators upon registration
+
+### Manual User Registration
+- Access the web UI at `http://localhost:8000/`
+- Look for registration/signup options in the interface
+- Or use the API directly at `/api/v1/auth/register`
 
 ## User Experience Improvements
 

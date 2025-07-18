@@ -47,4 +47,11 @@ echo "Running DB migrations..."
 uv run alembic upgrade head
 
 echo "Starting MediaManager backend service..."
+echo ""
+echo "🔐 LOGIN INFORMATION:"
+echo "   If this is a fresh installation, a default admin user will be created automatically."
+echo "   Check the application logs for the login credentials."
+echo "   You can also register a new user and it will become admin if the email"
+echo "   matches one of the admin_emails in your config.toml"
+echo ""
 uv run fastapi run /app/media_manager/main.py --port 8000
