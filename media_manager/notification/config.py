@@ -37,8 +37,8 @@ class PushoverConfig(BaseSettings):
 
 
 class NotificationConfig(BaseSettings):
-    smtp_config: EmailConfig
-    email_notifications: EmailNotificationsConfig
-    gotify: GotifyConfig
-    ntfy: NtfyConfig
-    pushover: PushoverConfig
+    smtp_config: EmailConfig = EmailConfig()
+    email_notifications: EmailNotificationsConfig = EmailNotificationsConfig()
+    gotify: GotifyConfig = GotifyConfig()
+    ntfy: NtfyConfig = NtfyConfig()
+    pushover: PushoverConfig = PushoverConfig()

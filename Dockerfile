@@ -16,12 +16,9 @@ LABEL author="github.com/maxdorninger"
 LABEL version=${VERSION}
 LABEL description="Docker image for MediaManager"
 
-ENV MISC__IMAGE_DIRECTORY=/data/images \
-    MISC__TV_DIRECTORY=/data/tv \
-    MISC__MOVIE_DIRECTORY=/data/movies \
-    MISC__TORRENT_DIRECTORY=/data/torrents \
+ENV MISC__IMAGE_DIRECTORY=/app/images \
     PUBLIC_VERSION=${VERSION} \
-    CONFIG_FILE="/app/config.toml"\
+    CONFIG_DIR="/app/config"\
     BASE_PATH=${BASE_PATH}\
     FRONTEND_FILES_DIR="/app/web/build"
 
@@ -37,6 +34,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --locked
 
 COPY --chmod=755 mediamanager-backend-startup.sh .
+COPY config.example.toml .
 COPY media_manager ./media_manager
 COPY alembic ./alembic
 COPY alembic.ini .

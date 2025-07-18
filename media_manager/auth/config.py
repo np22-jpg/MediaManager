@@ -18,7 +18,7 @@ class AuthConfig(BaseSettings):
     session_lifetime: int = 60 * 60 * 24
     admin_emails: list[str] = []
     email_password_resets: bool = False
-    openid_connect: OpenIdConfig
+    openid_connect: OpenIdConfig = OpenIdConfig()
 
     @property
     def jwt_signing_key(self):

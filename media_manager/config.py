@@ -20,7 +20,9 @@ from media_manager.torrent.config import TorrentConfig
 config_path = os.getenv("CONFIG_FILE")
 
 if config_path is None:
-    config_path = Path(__file__).parent.parent / "config.toml"
+    # Default to config folder approach
+    config_dir = os.getenv("CONFIG_DIR", "/app/config")
+    config_path = Path(config_dir) / "config.toml"
 else:
     config_path = Path(config_path)
 
@@ -31,7 +33,7 @@ class LibraryItem(BaseSettings):
 
 
 class BasicConfig(BaseSettings):
-    image_directory: Path = Path(__file__).parent.parent / "data" / "images"
+    image_directory: Path = Path(__file__).parent.parent / "images"
     tv_directory: Path = Path(__file__).parent.parent / "data" / "tv"
     movie_directory: Path = Path(__file__).parent.parent / "data" / "movies"
     torrent_directory: Path = Path(__file__).parent.parent / "data" / "torrents"
@@ -52,13 +54,13 @@ class AllEncompassingConfig(BaseSettings):
     This class is used to load all configurations from the environment variables.
     It combines the BasicConfig with any additional configurations needed.
     """
-    misc: BasicConfig
-    torrents: TorrentConfig
-    notifications: NotificationConfig
-    metadata: MetadataProviderConfig
-    indexers: IndexerConfig
-    database: DbConfig
-    auth: AuthConfig
+    misc: BasicConfig = BasicConfig()
+    torrents: TorrentConfig = TorrentConfig()
+    notifications: NotificationConfig = NotificationConfig()
+    metadata: MetadataProviderConfig = MetadataProviderConfig()
+    indexers: IndexerConfig = IndexerConfig()
+    database: DbConfig = DbConfig()
+    auth: AuthConfig = AuthConfig()
 
     @classmethod
     def settings_customise_sources(
