@@ -74,6 +74,7 @@ from media_manager.auth.users import (  # noqa: E402
     fastapi_users,
     cookie_auth_backend,
     openid_cookie_auth_backend,
+    create_default_admin_user,
 )
 from media_manager.exceptions import (  # noqa: E402
     NotFoundError,
@@ -152,56 +153,6 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
     scheduler.shutdown()
-
-
-async def create_default_admin_user():
-    """Create a default admin user if no users exist in the database"""
-    try:
-        from media_manager.auth.db import get_user_db
-        from media_manager.auth.users import get_user_manager
-        from media_manager.auth.schemas import UserCreate
-        from media_manager.database import get_session
-        from sqlalchemy import select, func
-        from media_manager.auth.db import User
-        
-        async for session in get_session():
-            async for user_db in get_user_db(session):
-                async for user_manager in get_user_manager(user_db):
-                    # Check if any users exist
-                    result = await session.execute(select(func.count(User.id)))
-                    user_count = result.scalar()
-                    
-                    if user_count == 0:
-                        log.info("No users found in database. Creating default admin user...")
-                        
-                        # Use the first admin email from config, or default
-                        admin_email = config.auth.admin_emails[0] if config.auth.admin_emails else "admin@mediamanager.local"
-                        default_password = "admin"  # Simple default password
-                        
-                        user_create = UserCreate(
-                            email=admin_email,
-                            password=default_password,
-                            is_superuser=True,
-                            is_verified=True
-                        )
-                        
-                        user = await user_manager.create(user_create)
-                        log.info("=" * 60)
-                        log.info("✅ DEFAULT ADMIN USER CREATED!")
-                        log.info(f"   📧 Email: {admin_email}")
-                        log.info(f"   🔑 Password: {default_password}")
-                        log.info(f"   👤 User ID: {user.id}")
-                        log.info("   ⚠️  IMPORTANT: Please change this password after first login!")
-                        log.info("=" * 60)
-                        
-                    else:
-                        log.info(f"Found {user_count} existing users. Skipping default user creation.")
-                    break
-                break
-            break
-    except Exception as e:
-        log.error(f"Failed to create default admin user: {e}")
-        log.info("You can create an admin user manually by registering with an email from the admin_emails list in your config.")
 
 
 BASE_PATH = os.getenv("BASE_PATH", "")
@@ -319,17 +270,21 @@ app.mount("/web", StaticFiles(directory=FRONTEND_FILES_DIR, html=True), name="fr
 # Redirects to frontend
 # ----------------------------
 
+
 @app.get("/")
 async def root():
     return RedirectResponse(url="/web/")
+
 
 @app.get("/dashboard")
 async def dashboard():
     return RedirectResponse(url="/web/")
 
+
 @app.get("/login")
 async def login():
     return RedirectResponse(url="/web/")
+
 
 # ----------------------------
 # Custom Exception Handlers
