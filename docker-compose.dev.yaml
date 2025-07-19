@@ -23,11 +23,12 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - CONFIG_DIR=/data/config.toml
+      - CONFIG_DIR=/app/config
     volumes:
       #- ./web/build:/app/web/build # this is only needed to test built frontend when developing frontend
-      - ./res/data/:/data/images/
+      - ./res/images/:/data/images/
       - ./res/:/data/
+      - ./res/config/:/app/config/
       - ./media_manager:/app/media_manager
 
 # ----------------------------
@@ -59,7 +60,7 @@ services:
 #      - 6881:6881/udp
 #    restart: unless-stopped
 #    volumes:
-#      - ./res/torrent:/download
+#      - ./res/torrents:/download
 #      - ./res/qbittorrent:/config
 #  transmission:
 #    image: lscr.io/linuxserver/transmission:latest
@@ -98,8 +99,8 @@ services:
 #      - PGID=1000
 #      - TZ=Etc/UTC
 #    volumes:
-#      - ./sabnzbd:/config
-#      - ./torrent:/downloads
+#      - ./res/sabnzbd:/config
+#      - ./res/torrents:/downloads
 #    ports:
 #      - 8081:8080
 #    restart: unless-stopped
