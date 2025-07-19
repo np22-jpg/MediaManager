@@ -58,6 +58,7 @@ from media_manager.tv.service import (  # noqa: E402
 from media_manager.movies.service import (  # noqa: E402
     import_all_movie_torrents,
     update_all_movies_metadata,
+    auto_download_all_approved_movie_requests,
 )
 from media_manager.notification.router import router as notification_router  # noqa: E402
 import uvicorn  # noqa: E402
@@ -133,6 +134,7 @@ weekly_trigger = CronTrigger(
 scheduler.add_job(import_all_movie_torrents, every_15_minutes_trigger)
 scheduler.add_job(import_all_show_torrents, every_15_minutes_trigger)
 scheduler.add_job(auto_download_all_approved_season_requests, daily_trigger)
+scheduler.add_job(auto_download_all_approved_movie_requests, daily_trigger)
 scheduler.add_job(update_all_movies_metadata, weekly_trigger)
 scheduler.add_job(update_all_non_ended_shows_metadata, weekly_trigger)
 scheduler.start()
