@@ -16,8 +16,7 @@ LABEL author="github.com/maxdorninger"
 LABEL version=${VERSION}
 LABEL description="Docker image for MediaManager"
 
-ENV MISC__IMAGE_DIRECTORY=/data/images \
-    PUBLIC_VERSION=${VERSION} \
+ENV PUBLIC_VERSION=${VERSION} \
     CONFIG_DIR="/app/config"\
     BASE_PATH=${BASE_PATH}\
     FRONTEND_FILES_DIR="/app/web/build"
