@@ -9,12 +9,14 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
+	import { invalidateAll } from '$app/navigation';
 
 	const apiUrl = env.PUBLIC_API_URL;
 	let { users }: { users: User[] } = $props();
 	let sortedUsers = $derived(users.sort((a, b) => a.email.localeCompare(b.email)));
 	let selectedUser: User | null = $state(null);
 	let newPassword: string = $state('');
+	let newEmail: string = $state('');
 	let dialogOpen = $state(false);
 
 	async function saveUser() {
@@ -31,20 +33,18 @@
 					is_verified: selectedUser.is_verified,
 					is_active: selectedUser.is_active,
 					is_superuser: selectedUser.is_superuser,
-					...(newPassword !== '' && { password: newPassword })
+					...(newPassword !== '' && { password: newPassword }),
+					...(newEmail !== '' && { email: newEmail })
 				})
 			});
 
 			if (response.ok) {
 				toast.success(`User ${selectedUser.email} updated successfully.`);
 				dialogOpen = false;
-
-				const idx = sortedUsers.findIndex((u) => u.id === selectedUser!.id);
-				if (idx !== -1) {
-					sortedUsers[idx] = selectedUser!;
-				}
-
 				selectedUser = null;
+				newPassword = '';
+				newEmail = '';
+				await invalidateAll();
 			} else {
 				const errorText = await response.text();
 				console.error(`Failed to update user ${response.statusText}`, errorText);
@@ -53,14 +53,13 @@
 		} catch (error) {
 			console.error('Error updating user:', error);
 			toast.error(
-				'Error updating user: ' + (error instanceof Error ? error.message : String(error))
+					'Error updating user: ' + (error instanceof Error ? error.message : String(error))
 			);
 		} finally {
 			newPassword = '';
 		}
 	}
 </script>
-
 <Table.Root>
 	<Table.Caption>A list of all users.</Table.Caption>
 	<Table.Header>
@@ -171,6 +170,17 @@
 						<Label class="text-sm" for="superuser-false">False</Label>
 					</div>
 				</RadioGroup.Root>
+			</div>
+			<!-- Email -->
+			<div>
+				<Label class="mb-1 block text-sm font-medium" for="superuser">Password</Label>
+				<Input
+						bind:value={newEmail}
+						class="w-full"
+						id="email"
+						placeholder={selectedUser?.email}
+						type="text"
+				/>
 			</div>
 			<!-- Password -->
 			<div>
