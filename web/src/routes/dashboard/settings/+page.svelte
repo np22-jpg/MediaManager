@@ -11,7 +11,7 @@
 	import type { User } from '$lib/types';
 
 	let currentUser: () => User = getContext('user');
-	let users = $state(page.data.users);
+	let users = $derived(page.data.users);
 </script>
 
 <svelte:head>
