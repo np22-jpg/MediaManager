@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getFullyQualifiedMediaName, getTorrentQualityString } from '$lib/utils.js';
-	import type { SeasonRequest, User } from '$lib/types.js';
+	import type { MovieRequest, SeasonRequest, User } from '$lib/types.js';
 	import CheckmarkX from '$lib/components/checkmark-x.svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
 	import { getContext } from 'svelte';
@@ -13,13 +13,11 @@
 	const apiUrl = env.PUBLIC_API_URL;
 	let {
 		requests,
-		filter = () => {
-			return true;
-		},
+		filter = () => true,
 		isShow = true
 	}: {
-		requests: SeasonRequest[];
-		filter?: (request: SeasonRequest) => boolean;
+		requests: (SeasonRequest | MovieRequest)[];
+		filter?: (request: SeasonRequest | MovieRequest) => boolean;
 		isShow: boolean;
 	} = $props();
 	const user: () => User = getContext('user');
@@ -114,14 +112,14 @@
 				<Table.Row>
 					<Table.Cell>
 						{#if isShow}
-							{getFullyQualifiedMediaName(request.show)}
+							{getFullyQualifiedMediaName((request as SeasonRequest).show)}
 						{:else}
-							{getFullyQualifiedMediaName(request.show)}
+							{getFullyQualifiedMediaName((request as MovieRequest).movie)}
 						{/if}
 					</Table.Cell>
 					{#if isShow}
 						<Table.Cell>
-							{request.season.number}
+							{(request as SeasonRequest).season.number}
 						</Table.Cell>
 					{/if}
 					<Table.Cell>
@@ -154,7 +152,7 @@
 									class=""
 									size="sm"
 									variant="outline"
-									onclick={() => goto(base + '/dashboard/tv/' + request.show.id)}
+									onclick={() => goto(base + '/dashboard/tv/' + (request as SeasonRequest).show.id)}
 								>
 									Download manually
 								</Button>
@@ -163,7 +161,8 @@
 									class=""
 									size="sm"
 									variant="outline"
-									onclick={() => goto(base + '/dashboard/tv/' + request.show.id)}
+									onclick={() =>
+										goto(base + '/dashboard/movies/' + (request as MovieRequest).movie.id)}
 								>
 									Download manually
 								</Button>

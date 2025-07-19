@@ -11,8 +11,10 @@
 	import type { User } from '$lib/types';
 
 	let currentUser: () => User = getContext('user');
-	let users: User[] = $derived(page.data.users.filter((user: User) => user.id !== currentUser().id));
-	$inspect(users)
+	let users: User[] = $derived(
+		page.data.users.filter((user: User) => user.id !== currentUser().id)
+	);
+	$inspect(users);
 	console.log('Current user:', currentUser());
 </script>
 

@@ -53,13 +53,14 @@
 		} catch (error) {
 			console.error('Error updating user:', error);
 			toast.error(
-					'Error updating user: ' + (error instanceof Error ? error.message : String(error))
+				'Error updating user: ' + (error instanceof Error ? error.message : String(error))
 			);
 		} finally {
 			newPassword = '';
 		}
 	}
 </script>
+
 <Table.Root>
 	<Table.Caption>A list of all users.</Table.Caption>
 	<Table.Header>
@@ -175,11 +176,11 @@
 			<div>
 				<Label class="mb-1 block text-sm font-medium" for="superuser">Password</Label>
 				<Input
-						bind:value={newEmail}
-						class="w-full"
-						id="email"
-						placeholder={selectedUser?.email}
-						type="text"
+					bind:value={newEmail}
+					class="w-full"
+					id="email"
+					placeholder={selectedUser?.email}
+					type="text"
 				/>
 			</div>
 			<!-- Password -->
