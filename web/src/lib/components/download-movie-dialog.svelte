@@ -229,7 +229,7 @@
 				<p class="text-red-500">Error: {torrentsError}</p>
 			{:else if torrents.length > 0}
 				<h3 class="mb-2 text-lg font-semibold">Found Torrents:</h3>
-				<div class="max-h-[200px] overflow-y-auto rounded-md border p-2">
+				<div class="overflow-y-auto rounded-md border p-2">
 					<Table.Root>
 						<Table.Header>
 							<Table.Row>
