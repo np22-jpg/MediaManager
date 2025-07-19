@@ -43,7 +43,7 @@
 				})
 			});
 
-			if (response.status === 204) {
+			if (response.ok) {
 				dialogOpen = false;
 				minQuality = undefined;
 				wantedQuality = undefined;
