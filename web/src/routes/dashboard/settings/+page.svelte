@@ -14,7 +14,6 @@
 	let users: User[] = $derived(
 		page.data.users.filter((user: User) => user.id !== currentUser().id)
 	);
-	$inspect(users);
 	console.log('Current user:', currentUser());
 </script>
 
