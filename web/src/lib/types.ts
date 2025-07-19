@@ -215,26 +215,35 @@ export interface RichMovieTorrent {
 	torrents: Torrent[];
 }
 
-interface SeasonRequestBase {
+interface RequestBase {
 	min_quality: Quality;
 	wanted_quality: Quality;
 }
 
-export interface CreateSeasonRequest extends SeasonRequestBase {
+export interface CreateSeasonRequest extends RequestBase {
 	season_id: string;
 }
 
-export interface UpdateSeasonRequest extends SeasonRequestBase {
+export interface UpdateRequest extends RequestBase {
 	id: string;
 }
 
-export interface SeasonRequest extends SeasonRequestBase {
+export interface SeasonRequest extends RequestBase {
 	id: string;
 	season: Season;
 	requested_by?: User;
 	authorized: boolean;
 	authorized_by?: User;
 	show: Show;
+}
+
+export interface MovieRequest extends RequestBase {
+	id: string;
+	movie: Movie;
+	movie_id: string;
+	requested_by?: User;
+	authorized: boolean;
+	authorized_by?: User;
 }
 
 export interface LibraryItem {

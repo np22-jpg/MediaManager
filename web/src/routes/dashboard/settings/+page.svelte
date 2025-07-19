@@ -11,7 +11,10 @@
 	import type { User } from '$lib/types';
 
 	let currentUser: () => User = getContext('user');
-	let users = $state(page.data.users);
+	let users: User[] = $derived(
+		page.data.users.filter((user: User) => user.id !== currentUser().id)
+	);
+	console.log('Current user:', currentUser());
 </script>
 
 <svelte:head>
@@ -54,7 +57,7 @@
 		<Card.Root id="users">
 			<Card.Header>
 				<Card.Title>Users</Card.Title>
-				<Card.Description>Edit or delete users</Card.Description>
+				<Card.Description>Edit, delete or change the permissions of other users</Card.Description>
 			</Card.Header>
 			<Card.Content>
 				<UserTable {users} />

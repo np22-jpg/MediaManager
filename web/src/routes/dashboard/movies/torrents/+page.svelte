@@ -48,7 +48,7 @@
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>
-					<Breadcrumb.Link href="{base}/dashboard/tv">Shows</Breadcrumb.Link>
+					<Breadcrumb.Link href="{base}/dashboard/movies">Movies</Breadcrumb.Link>
 				</Breadcrumb.Item>
 				<Breadcrumb.Separator class="hidden md:block" />
 				<Breadcrumb.Item>

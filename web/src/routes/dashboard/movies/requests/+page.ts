@@ -1,8 +1,8 @@
 import { env } from '$env/dynamic/public';
-import type { LayoutLoad } from './$types';
+import type { PageLoad } from './$types';
 
 const apiUrl = env.PUBLIC_API_URL;
-export const load: LayoutLoad = async ({ fetch }) => {
+export const load: PageLoad = async ({ fetch }) => {
 	try {
 		const requests = await fetch(`${apiUrl}/movies/requests`, {
 			method: 'GET',
