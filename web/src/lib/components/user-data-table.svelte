@@ -174,7 +174,7 @@
 			</div>
 			<!-- Email -->
 			<div>
-				<Label class="mb-1 block text-sm font-medium" for="superuser">Password</Label>
+				<Label class="mb-1 block text-sm font-medium" for="email">Email</Label>
 				<Input
 					bind:value={newEmail}
 					class="w-full"
