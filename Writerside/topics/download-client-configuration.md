@@ -74,7 +74,7 @@ Set to `true` to enable SABnzbd integration. Default is `false`.
 
 - `host`
 
-Hostname or IP of the SABnzbd server.
+Hostname or IP of the SABnzbd server, it needs to include `http(s)://`.
 
 - `port`
 
@@ -111,7 +111,7 @@ Here's a complete example of the download clients section in your `config.toml`:
     # SABnzbd configuration
     [torrents.sabnzbd]
     enabled = false
-    host = "sabnzbd"
+    host = "http://sabnzbd"
     port = 8080
     api_key = "your_sabnzbd_api_key"
 ```

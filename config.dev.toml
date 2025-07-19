@@ -108,7 +108,7 @@ path = "/transmission/rpc" # RPC request path target, usually "/transmission/rpc
 # SABnzbd settings
 [torrents.sabnzbd]
 enabled = false
-host = "localhost"
+host = "http://localhost"
 port = 8080
 api_key = ""
 
