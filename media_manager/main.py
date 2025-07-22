@@ -136,12 +136,42 @@ weekly_trigger = CronTrigger(
     day_of_week="mon", hour=0, minute=0, jitter=60 * 60 * 24 * 2
 )
 
-scheduler.add_job(import_all_movie_torrents, every_15_minutes_trigger)
-scheduler.add_job(import_all_show_torrents, every_15_minutes_trigger)
-scheduler.add_job(auto_download_all_approved_season_requests, daily_trigger)
-scheduler.add_job(auto_download_all_approved_movie_requests, daily_trigger)
-scheduler.add_job(update_all_movies_metadata, weekly_trigger)
-scheduler.add_job(update_all_non_ended_shows_metadata, weekly_trigger)
+scheduler.add_job(
+    import_all_movie_torrents,
+    every_15_minutes_trigger,
+    id="import_all_movie_torrents",
+    replace_existing=True,
+)
+scheduler.add_job(
+    import_all_show_torrents,
+    every_15_minutes_trigger,
+    id="import_all_show_torrents",
+    replace_existing=True,
+)
+scheduler.add_job(
+    auto_download_all_approved_season_requests,
+    daily_trigger,
+    id="auto_download_all_approved_season_requests",
+    replace_existing=True,
+)
+scheduler.add_job(
+    auto_download_all_approved_movie_requests,
+    daily_trigger,
+    id="auto_download_all_approved_movie_requests",
+    replace_existing=True,
+)
+scheduler.add_job(
+    update_all_movies_metadata,
+    weekly_trigger,
+    id="update_all_movies_metadata",
+    replace_existing=True,
+)
+scheduler.add_job(
+    update_all_non_ended_shows_metadata,
+    weekly_trigger,
+    id="update_all_non_ended_shows_metadata",
+    replace_existing=True,
+)
 scheduler.start()
 
 
