@@ -364,7 +364,6 @@ except Exception as e:
     raise
 
 if __name__ == "__main__":
-    # TODO: add feature to run app with different root_path
     uvicorn.run(
         app,
         host="127.0.0.1",
