@@ -3,7 +3,10 @@ import os
 import sys
 from logging.config import dictConfig
 from pathlib import Path
+
+from psycopg.errors import UniqueViolation
 from pythonjsonlogger.json import JsonFormatter
+from sqlalchemy.exc import IntegrityError
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -84,6 +87,7 @@ from media_manager.exceptions import (  # noqa: E402
     media_already_exists_exception_handler,
     InvalidConfigError,
     invalid_config_error_exception_handler,
+    sqlalchemy_integrity_error_handler,
 )
 
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore  # noqa: E402
@@ -93,6 +97,7 @@ import media_manager.database  # noqa: E402
 import shutil  # noqa: E402
 from fastapi import FastAPI, APIRouter  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware  # noqa: E402
 from starlette.responses import Response  # noqa: E402
 from datetime import datetime  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
@@ -131,12 +136,42 @@ weekly_trigger = CronTrigger(
     day_of_week="mon", hour=0, minute=0, jitter=60 * 60 * 24 * 2
 )
 
-scheduler.add_job(import_all_movie_torrents, every_15_minutes_trigger)
-scheduler.add_job(import_all_show_torrents, every_15_minutes_trigger)
-scheduler.add_job(auto_download_all_approved_season_requests, daily_trigger)
-scheduler.add_job(auto_download_all_approved_movie_requests, daily_trigger)
-scheduler.add_job(update_all_movies_metadata, weekly_trigger)
-scheduler.add_job(update_all_non_ended_shows_metadata, weekly_trigger)
+scheduler.add_job(
+    import_all_movie_torrents,
+    every_15_minutes_trigger,
+    id="import_all_movie_torrents",
+    replace_existing=True,
+)
+scheduler.add_job(
+    import_all_show_torrents,
+    every_15_minutes_trigger,
+    id="import_all_show_torrents",
+    replace_existing=True,
+)
+scheduler.add_job(
+    auto_download_all_approved_season_requests,
+    daily_trigger,
+    id="auto_download_all_approved_season_requests",
+    replace_existing=True,
+)
+scheduler.add_job(
+    auto_download_all_approved_movie_requests,
+    daily_trigger,
+    id="auto_download_all_approved_movie_requests",
+    replace_existing=True,
+)
+scheduler.add_job(
+    update_all_movies_metadata,
+    weekly_trigger,
+    id="update_all_movies_metadata",
+    replace_existing=True,
+)
+scheduler.add_job(
+    update_all_non_ended_shows_metadata,
+    weekly_trigger,
+    id="update_all_non_ended_shows_metadata",
+    replace_existing=True,
+)
 scheduler.start()
 
 
@@ -154,6 +189,7 @@ FRONTEND_FILES_DIR = os.getenv("FRONTEND_FILES_DIR")
 
 
 app = FastAPI(lifespan=lifespan, root_path=BASE_PATH)
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 origins = config.misc.cors_urls
 log.info("CORS URLs activated for following origins:")
@@ -287,6 +323,8 @@ async def login():
 app.add_exception_handler(NotFoundError, not_found_error_exception_handler)
 app.add_exception_handler(MediaAlreadyExists, media_already_exists_exception_handler)
 app.add_exception_handler(InvalidConfigError, invalid_config_error_exception_handler)
+app.add_exception_handler(IntegrityError, sqlalchemy_integrity_error_handler)
+app.add_exception_handler(UniqueViolation, sqlalchemy_integrity_error_handler)
 
 
 @app.exception_handler(404)
@@ -362,5 +400,11 @@ except Exception as e:
     raise
 
 if __name__ == "__main__":
-    # TODO: add feature to run app with different root_path
-    uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)
+    uvicorn.run(
+        app,
+        host="127.0.0.1",
+        port=5049,
+        log_config=LOGGING_CONFIG,
+        proxy_headers=True,
+        forwarded_allow_ips="*",
+    )

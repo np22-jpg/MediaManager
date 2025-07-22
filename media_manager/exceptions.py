@@ -59,3 +59,14 @@ async def invalid_config_error_exception_handler(
         status_code=500,
         content={"detail": exc.message},
     )
+
+
+async def sqlalchemy_integrity_error_handler(
+    request: Request, exc: Exception
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=409,
+        content={
+            "detail": "The entity to create already exists or is in a conflict with others."
+        },
+    )

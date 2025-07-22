@@ -25,14 +25,19 @@ ENV PUBLIC_VERSION=${VERSION} \
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y ca-certificates gcc mime-support curl gzip unzip tar 7zip bzip2 unar && \
+    apt-get install -y ca-certificates gcc bc locales postgresql mime-support curl gzip unzip tar 7zip bzip2 unar && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+RUN locale-gen
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 COPY pyproject.toml uv.lock ./
 RUN uv sync --locked
 
-COPY --chmod=755 mediamanager-backend-startup.sh .
+COPY --chmod=755 mediamanager-startup.sh .
 COPY config.example.toml .
 COPY media_manager ./media_manager
 COPY alembic ./alembic
@@ -42,4 +47,4 @@ COPY --from=frontend-build /frontend/build /app/web/build
 
 HEALTHCHECK CMD curl -f http://localhost:8000${BASE_PATH}/api/v1/health || exit 1
 EXPOSE 8000
-CMD ["/app/mediamanager-backend-startup.sh"]
+CMD ["/app/mediamanager-startup.sh"]
