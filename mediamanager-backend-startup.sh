@@ -54,4 +54,4 @@ echo "   Check the application logs for the login credentials."
 echo "   You can also register a new user and it will become admin if the email"
 echo "   matches one of the admin_emails in your config.toml"
 echo ""
-uv run fastapi run /app/media_manager/main.py --port 8000
+uv run fastapi run /app/media_manager/main.py --port 8000 --proxy-headers

@@ -93,6 +93,7 @@ import media_manager.database  # noqa: E402
 import shutil  # noqa: E402
 from fastapi import FastAPI, APIRouter  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware  # noqa: E402
 from starlette.responses import Response  # noqa: E402
 from datetime import datetime  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
@@ -154,6 +155,7 @@ FRONTEND_FILES_DIR = os.getenv("FRONTEND_FILES_DIR")
 
 
 app = FastAPI(lifespan=lifespan, root_path=BASE_PATH)
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 origins = config.misc.cors_urls
 log.info("CORS URLs activated for following origins:")
@@ -363,4 +365,11 @@ except Exception as e:
 
 if __name__ == "__main__":
     # TODO: add feature to run app with different root_path
-    uvicorn.run(app, host="127.0.0.1", port=5049, log_config=LOGGING_CONFIG)
+    uvicorn.run(
+        app,
+        host="127.0.0.1",
+        port=5049,
+        log_config=LOGGING_CONFIG,
+        proxy_headers=True,
+        forwarded_allow_ips="*",
+    )
