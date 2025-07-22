@@ -4,6 +4,7 @@ import logging
 import bencoder
 import qbittorrentapi
 import requests
+from qbittorrentapi import Conflict409Error
 
 from media_manager.config import AllEncompassingConfig
 from media_manager.indexer.schemas import IndexerQueryResult
@@ -56,6 +57,25 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
             raise
         finally:
             self.api_client.auth_log_out()
+
+        try:
+            log.info("Trying to create MediaManager category in qBittorrent")
+            self.api_client.torrents_create_category(
+                name=self.config.category_name,
+                save_path=self.config.category_save_path
+                if self.config.category_save_path != ""
+                else None,
+            )
+        except Conflict409Error:
+            log.info(
+                "MediaManager category already exists in qBittorrent, modifying existing category to reflect current config."
+            )
+            self.api_client.torrents_edit_category(
+                name=self.config.category_name,
+                save_path=self.config.category_save_path
+                if self.config.category_save_path != ""
+                else None,
+            )
 
     def download_torrent(self, indexer_result: IndexerQueryResult) -> Torrent:
         """

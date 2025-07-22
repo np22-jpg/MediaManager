@@ -9,6 +9,9 @@ class QbittorrentConfig(BaseSettings):
     password: str = "admin"
     enabled: bool = False
 
+    category_name: str = "MediaManager"
+    category_save_path: str = ""  # e.g."/data/torrents/mediamanager", it has to be the same directory as the torrent_directory, but from QBittorrent's container
+
 
 class TransmissionConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="TRANSMISSION_")
