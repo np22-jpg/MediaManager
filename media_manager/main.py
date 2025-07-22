@@ -3,7 +3,10 @@ import os
 import sys
 from logging.config import dictConfig
 from pathlib import Path
+
+from psycopg.errors import UniqueViolation
 from pythonjsonlogger.json import JsonFormatter
+from sqlalchemy.exc import IntegrityError
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -84,6 +87,7 @@ from media_manager.exceptions import (  # noqa: E402
     media_already_exists_exception_handler,
     InvalidConfigError,
     invalid_config_error_exception_handler,
+    sqlalchemy_integrity_error_handler,
 )
 
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore  # noqa: E402
@@ -289,6 +293,8 @@ async def login():
 app.add_exception_handler(NotFoundError, not_found_error_exception_handler)
 app.add_exception_handler(MediaAlreadyExists, media_already_exists_exception_handler)
 app.add_exception_handler(InvalidConfigError, invalid_config_error_exception_handler)
+app.add_exception_handler(IntegrityError, sqlalchemy_integrity_error_handler)
+app.add_exception_handler(UniqueViolation, sqlalchemy_integrity_error_handler)
 
 
 @app.exception_handler(404)
