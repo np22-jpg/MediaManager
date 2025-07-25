@@ -29,6 +29,10 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
         "checkingDL",
         "forcedDL",
         "moving",
+        "stoppedDL",
+        "forcedMetaDL",
+        "metaDL",
+        "moving",
     )
     FINISHED_STATE = (
         "uploading",
@@ -37,6 +41,7 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
         "stalledUP",
         "checkingUP",
         "forcedUP",
+        "stoppedUP",
     )
     ERROR_STATE = ("missingFiles", "error", "checkingResumeData")
     UNKNOWN_STATE = ("unknown",)
