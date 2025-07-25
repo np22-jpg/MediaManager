@@ -55,8 +55,6 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
         except Exception as e:
             log.error(f"Failed to log into qbittorrent: {e}")
             raise
-        finally:
-            self.api_client.auth_log_out()
 
         try:
             log.info("Trying to create MediaManager category in qBittorrent")
@@ -70,12 +68,22 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
             log.info(
                 "MediaManager category already exists in qBittorrent, modifying existing category to reflect current config."
             )
-            self.api_client.torrents_edit_category(
-                name=self.config.category_name,
-                save_path=self.config.category_save_path
-                if self.config.category_save_path != ""
-                else None,
-            )
+            try:
+                self.api_client.torrents_edit_category(
+                    name=self.config.category_name,
+                    save_path=self.config.category_save_path
+                    if self.config.category_save_path != ""
+                    else None,
+                )
+            except Exception as e:
+                if str(e) == "":
+                    log.info(
+                        "MediaManager category in qBittorrent is already up to date"
+                    )
+                else:
+                    log.error(
+                        f"Error on updating MediaManager category in qBittorrent, error: {e}"
+                    )
 
     def download_torrent(self, indexer_result: IndexerQueryResult) -> Torrent:
         """
