@@ -33,7 +33,7 @@ class SabnzbdDownloadClient(AbstractDownloadClient):
             port=str(self.config.port),
             api_key=self.config.api_key,
         )
-        self.client._base_url = f"{self.config.host.rstrip('/')}:{self.config.port}/api"  # the library expects a /sabnzbd prefix for whatever reason
+        self.client._base_url = f"{self.config.host.rstrip('/')}:{self.config.port}{self.config.base_path}"  # the library expects a /sabnzbd prefix for whatever reason
         try:
             # Test connection
             version = self.client.version()
