@@ -43,7 +43,7 @@ class Prowlarr(GenericIndexer):
                     result_list.append(
                         IndexerQueryResult(
                             download_url=result["downloadUrl"]
-                            if result["downloadUrl"] is not None
+                            if "downloadUrl" in result
                             else result["magnetUrl"],
                             title=result["sortTitle"],
                             seeders=result["seeders"],
