@@ -61,6 +61,8 @@ def import_file(target_file: Path, source_file: Path):
         target_file.unlink()
     try:
         target_file.hardlink_to(source_file)
+    except FileExistsError:
+        log.error(f"File already exists at {target_file}. ")
     except OSError as e:
         log.error(
             f"Failed to create hardlink from {source_file} to {target_file}: {e}. "

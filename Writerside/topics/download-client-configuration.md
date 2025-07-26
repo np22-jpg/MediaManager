@@ -84,6 +84,10 @@ Port of the SABnzbd API. Default is `8080`.
 
 API key for SABnzbd. You can find this in SABnzbd's configuration under "General" → "API Key".
 
+- `base_path`
+
+API base path for SABnzbd. It usually ends with `/api`, the default is `/api`.
+
 ## Example Configuration
 
 Here's a complete example of the download clients section in your `config.toml`:

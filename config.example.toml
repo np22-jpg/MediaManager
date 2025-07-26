@@ -111,6 +111,7 @@ enabled = false
 host = "http://localhost"
 port = 8080
 api_key = ""
+base_path = "/api"
 
 [indexers]
 # Prowlarr settings

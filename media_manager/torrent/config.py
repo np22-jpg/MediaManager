@@ -30,6 +30,7 @@ class SabnzbdConfig(BaseSettings):
     port: int = 8080
     api_key: str = ""
     enabled: bool = False
+    base_path: str = "/api"
 
 
 class TorrentConfig(BaseSettings):
