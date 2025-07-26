@@ -32,7 +32,6 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
         "stoppedDL",
         "forcedMetaDL",
         "metaDL",
-        "moving",
     )
     FINISHED_STATE = (
         "uploading",
