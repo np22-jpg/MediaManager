@@ -42,7 +42,9 @@ class Prowlarr(GenericIndexer):
                 if is_torrent:
                     result_list.append(
                         IndexerQueryResult(
-                            download_url=result["downloadUrl"],
+                            download_url=result["downloadUrl"]
+                            if "downloadUrl" in result
+                            else result["magnetUrl"],
                             title=result["sortTitle"],
                             seeders=result["seeders"],
                             flags=result["indexerFlags"],

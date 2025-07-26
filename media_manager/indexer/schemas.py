@@ -3,7 +3,7 @@ import typing
 from uuid import UUID, uuid4
 
 import pydantic
-from pydantic import BaseModel, computed_field, ConfigDict, HttpUrl
+from pydantic import BaseModel, computed_field, ConfigDict
 
 from media_manager.torrent.models import Quality
 
@@ -15,7 +15,9 @@ class IndexerQueryResult(BaseModel):
 
     id: IndexerQueryResultId = pydantic.Field(default_factory=uuid4)
     title: str
-    download_url: HttpUrl
+    download_url: (
+        str  # this can be a magnet link or a download URL to the .torrent file
+    )
     seeders: int
     flags: list[str]
     size: int
