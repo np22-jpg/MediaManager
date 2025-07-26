@@ -3,7 +3,6 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
 
 import requests
-from pydantic import HttpUrl
 
 from media_manager.indexer.indexers.generic import GenericIndexer
 from media_manager.indexer.schemas import IndexerQueryResult
@@ -75,7 +74,7 @@ class Jackett(GenericIndexer):
 
                     result = IndexerQueryResult(
                         title=item.find("title").text,
-                        download_url=HttpUrl(item.find("enclosure").attrib["url"]),
+                        download_url=str(item.find("enclosure").attrib["url"]),
                         seeders=seeders,
                         flags=flags,
                         size=int(item.find("size").text),
