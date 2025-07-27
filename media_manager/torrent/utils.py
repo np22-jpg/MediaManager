@@ -1,10 +1,15 @@
+import hashlib
 import logging
 import mimetypes
 from pathlib import Path
 import shutil
-import patoolib
 
+import bencoder
+import patoolib
+import requests
+import libtorrent
 from media_manager.config import AllEncompassingConfig
+from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.schemas import Torrent
 
 log = logging.getLogger(__name__)
@@ -102,3 +107,48 @@ def import_torrent(torrent: Torrent) -> (list[Path], list[Path], list[Path]):
         f"Found {len(all_files)} files ({len(video_files)} video files, {len(subtitle_files)} subtitle files) for further processing."
     )
     return video_files, subtitle_files, all_files
+
+
+def get_torrent_hash(torrent: IndexerQueryResult) -> str:
+    """
+    Helper method to get the torrent hash from the torrent object.
+
+    :param torrent: The torrent object.
+    :return: The hash of the torrent.
+    """
+    torrent_filepath = (
+        AllEncompassingConfig().misc.torrent_directory / f"{torrent.title}.torrent"
+    )
+    if torrent_filepath.exists():
+        log.warning(f"Torrent file already exists at: {torrent_filepath}")
+
+    if torrent.download_url.startswith("magnet:"):
+        log.info(f"Parsing torrent with magnet URL: {torrent.title}")
+        log.debug(f"Magnet URL: {torrent.download_url}")
+        torrent_hash = str(libtorrent.parse_magnet_uri(torrent.download_url).info_hash)
+    else:
+        # downloading the torrent file
+        log.info(f"Downloading .torrent file of torrent: {torrent.title}")
+        try:
+            response = requests.get(str(torrent.download_url), timeout=30)
+            response.raise_for_status()
+            torrent_content = response.content
+        except Exception as e:
+            log.error(f"Failed to download torrent file: {e}")
+            raise
+
+        # saving the torrent file
+        with open(torrent_filepath, "wb") as file:
+            file.write(torrent_content)
+
+        # parsing info hash
+        log.debug(f"parsing torrent file: {torrent.download_url}")
+        try:
+            decoded_content = bencoder.decode(torrent_content)
+            torrent_hash = hashlib.sha1(
+                bencoder.encode(decoded_content[b"info"])
+            ).hexdigest()
+        except Exception as e:
+            log.error(f"Failed to decode torrent file: {e}")
+            raise
+    return torrent_hash
