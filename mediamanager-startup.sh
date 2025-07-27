@@ -1,5 +1,5 @@
-#!/bin/bash
-# This script is used to start the MediaManager backend service.
+#!/usr/bin/env bash
+# This script is used to start the MediaManager service.
 
 
 # text created with https://patorjk.com/software/taag/ font: Slanted
