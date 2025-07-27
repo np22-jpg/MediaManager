@@ -94,9 +94,9 @@ class QbittorrentDownloadClient(AbstractDownloadClient):
         :param indexer_result: The indexer query result of the torrent file to download.
         :return: The torrent object with calculated hash and initial status.
         """
-        global answer
         log.info(f"Attempting to download torrent: {indexer_result.title}")
         torrent_hash = get_torrent_hash(torrent=indexer_result)
+        answer = None
 
         log.info(
             f"Downloading torrent {indexer_result.title} with download_url: {indexer_result.download_url}"
