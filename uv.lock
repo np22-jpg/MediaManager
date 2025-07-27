@@ -547,6 +547,22 @@ wheels = [
 ]
 
 [[package]]
+name = "libtorrent"
+version = "2.0.11"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/92/74/b689c070c1649c69b6f70c27cd9f3418fb3cba7532b6b5f857c1689edcdc/libtorrent-2.0.11-cp313-cp313-macosx_13_0_x86_64.whl", hash = "sha256:f4489732bbc44114c7fb1893b71c578052d1aca352852002938b23ac8a6fb5c3", size = 5555119, upload-time = "2025-01-29T11:34:57.644Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/b8/24e072c2270fc0193332987f1c3082a1cc8276bc462167b3e45fa0bb9a07/libtorrent-2.0.11-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:758662c88a186c6018e4062d1b1b5e58ed55e17189ad4a7389c87b8b2b5efeb4", size = 5654645, upload-time = "2025-01-29T11:35:00.79Z" },
+    { url = "https://files.pythonhosted.org/packages/07/62/5e3bbebfcf19c963f3f960b8a28ad2bf8cad1e56d8dce3ff9387084ef705/libtorrent-2.0.11-cp313-cp313-macosx_15_0_arm64.whl", hash = "sha256:55aa67cdc8cbf777e41998d5432a3ab01f198c955ec6d2fb14c500b309db3f37", size = 5653493, upload-time = "2025-01-29T11:35:03.139Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/85/e067ca5544e79525b80a7a986cb58e28977f274c4f341d1294c0ea35d7c7/libtorrent-2.0.11-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:474e792c52319cc918a007aa61cb34fb7f9236fa6c9603953e8c0fb3e6d922c7", size = 8251482, upload-time = "2025-01-29T11:35:05.522Z" },
+    { url = "https://files.pythonhosted.org/packages/a4/4c/86d834a8bbdd34276e4d87400d105ddab1dd4b8938f2c1229accc03a5b0d/libtorrent-2.0.11-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e234f665c987262d4102f6d2e099d76b12dfa20bcc77b77891184b075ab84ea8", size = 8514771, upload-time = "2025-01-29T11:35:09.604Z" },
+    { url = "https://files.pythonhosted.org/packages/f6/7e/e369802ae56bad9de629d9ad7c719dc4328aecf9aac8f61d33755d20b269/libtorrent-2.0.11-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:8be0e27f40594bfee42e60e7785261834fdaf938267dceee8a08eae08a12a3c2", size = 12076824, upload-time = "2025-01-29T11:35:12.773Z" },
+    { url = "https://files.pythonhosted.org/packages/51/c6/b78e0f1515e65ca1a22383124cd867a1c9eee40053e7971064dd937c4802/libtorrent-2.0.11-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:51daa58d0958ac99d88a1749d6848c6023ea899da98e503b12a1a311189d79fd", size = 12065489, upload-time = "2025-01-29T11:35:16.533Z" },
+    { url = "https://files.pythonhosted.org/packages/db/4a/cac02c0d907ec37f22131207f69e78a97045d8e8cab6c6b0a29647dbf732/libtorrent-2.0.11-cp313-cp313-win32.whl", hash = "sha256:63fcb829d2b9fed566771426c7b1473a4acb7ccb4957ef07793b28de8468cd3e", size = 1772278, upload-time = "2025-01-29T11:35:19.333Z" },
+    { url = "https://files.pythonhosted.org/packages/3d/7b/49ebb7df766398d49d59335481dafd7f4a3e8669a1aee5a6d22f9338b09c/libtorrent-2.0.11-cp313-cp313-win_amd64.whl", hash = "sha256:f72f0075b84aa18d25ee3ab3c39ba5193777d34d016c9a38294c92ffc60f6225", size = 1973890, upload-time = "2025-01-29T11:35:22.157Z" },
+]
+
+[[package]]
 name = "makefun"
 version = "1.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -632,6 +648,7 @@ dependencies = [
     { name = "httpx" },
     { name = "httpx-oauth" },
     { name = "jsonschema" },
+    { name = "libtorrent" },
     { name = "patool" },
     { name = "pillow" },
     { name = "pillow-avif-plugin" },
@@ -665,6 +682,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "httpx-oauth", specifier = ">=0.16.1" },
     { name = "jsonschema", specifier = ">=4.24.0" },
+    { name = "libtorrent", specifier = ">=2.0.11" },
     { name = "patool", specifier = ">=4.0.1" },
     { name = "pillow", specifier = ">=11.2.1" },
     { name = "pillow-avif-plugin", specifier = ">=1.5.2" },
