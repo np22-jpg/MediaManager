@@ -32,9 +32,9 @@
         <secondary>
             <title>Support MediaManager &amp; Maximilian Dorninger</title>
             <card href="https://github.com/sponsors/maxdorninger"
-                  summary="Sponsor me on Github Sponsors :)" badge="thumb-up"/>
+                  summary="Sponsor me on Github Sponsors :)"/>
             <card href="https://buymeacoffee.com/maxdorninger"
-                  summary="Buy me a coffee :)" badge="thumb-up"/>
+                  summary="Buy me a coffee :)"/>
         </secondary>
         <misc >
             <cards narrow="true">
