@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/xhtml-entities.dtd">
+<topic xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/topic.v2.xsd"
+       title="Introduction" id="Introduction">
+    <section-starting-page>
+        <title>MediaManager</title>
+        <description>
+            MediaManager is modern software to manage your TV and movie library. It is designed to be a replacement for Sonarr,
+            Radarr, Overseer, Unpackerr and Jellyseer.
+            It supports TVDB and TMDB for metadata, supports OIDC and OAuth 2.0 for authentication and supports Prowlarr and
+            Jackett.
+        </description>
+        <spotlight>
+            <card href="configuration-overview.md" badge="start"
+                  summary="Installation Guide"/>
+            <card href="Configuration.md" badge="settings"
+                  summary="Configuration Overview"/>
+        </spotlight>
+        <primary>
+            <title>Other Topics</title>
+            <card href="developer-guide.md" badge="development"
+                  summary="Developer Guide"/>
+            <card href="troubleshooting.md" badge="support"
+                  summary="Troubleshooting Guide"/>
+            <card href="Advanced-Features.md"
+                  summary="Advanced Features"/>
+            <card href="Screenshots.md"
+                  summary="Screenshots"/>
+        </primary>
+        <secondary>
+            <title>Support MediaManager &amp; Maximilian Dorninger</title>
+            <card href="https://github.com/sponsors/maxdorninger"
+                  summary="Sponsor me on Github Sponsors :)" badge="thumb-up"/>
+            <card href="https://buymeacoffee.com/maxdorninger"
+                  summary="Buy me a coffee :)" badge="thumb-up"/>
+        </secondary>
+        <misc >
+            <cards narrow="true">
+                <title>MediaManager Sponsors</title>
+                <card href="https://github.com/ldrrp"
+                      summary="@ldrrp" image="https://github.com/ldrrp.png" />
+                <card href="https://fosstodon.org/@aljazmerzen"
+                      summary="@aljamerzen" image="https://cdn.fosstodon.org/accounts/avatars/107/626/197/378/907/137/original/e93602705171fd0a.jpg"/>
+            </cards>
+            <links >
+                <group>
+                    <title>MediaManager Repository</title>
+                    <a href="https://github.com/maxdorninger/MediaManager"
+                          summary="MediaManager Repository"/>
+                </group>
+            </links>
+        </misc>
+    </section-starting-page>
+</topic>
