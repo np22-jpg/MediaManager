@@ -18,6 +18,7 @@
             <algolia-id>5SXJTW5J6S</algolia-id>
             <algolia-api-key>ed89153df615ded46c214c9390539f3b</algolia-api-key>
             <algolia-show-logo>true</algolia-show-logo>
+            <algolia-index>MediaManagerDocs</algolia-index>
         </variables>
     </build-profile>
 
