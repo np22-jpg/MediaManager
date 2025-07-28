@@ -10,11 +10,14 @@
             <custom-favicons>favicon.ico</custom-favicons>
             <header-logo>logo.svg</header-logo>
 
-            <download-title>Buy me a coffee ☕</download-title>
-            <download-page>https://buymeacoffee.com/maxdorninger</download-page>
+            <download-title>Get MediaManager</download-title>
+            <download-page>https://maxdorninger.github.io/MediaManager/configuration-overview.html</download-page>
             <showDownloadButton>true</showDownloadButton>
             <product-web-url>https://github.com/maxdorninger/MediaManager</product-web-url>
 
+            <algolia-id>5SXJTW5J6S</algolia-id>
+            <algolia-api-key>ed89153df615ded46c214c9390539f3b</algolia-api-key>
+            <algolia-show-logo>true</algolia-show-logo>
         </variables>
     </build-profile>
 

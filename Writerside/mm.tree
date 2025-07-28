@@ -3,10 +3,9 @@
         SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
 
 <instance-profile id="mm"
-                  name="MediaManager"
-                  start-page="introduction.md">
+                  name="MediaManager" start-page="Introduction.topic">
 
-    <toc-element topic="introduction.md"/>
+    <toc-element topic="Introduction.topic"/>
     <toc-element topic="configuration-overview.md"/>
     <toc-element topic="User-Guide.md"/>
     <toc-element topic="Configuration.md">
@@ -28,4 +27,5 @@
     <toc-element topic="troubleshooting.md"/>
     <toc-element topic="developer-guide.md"/>
     <toc-element topic="api-reference.md"/>
+    <toc-element topic="Screenshots.md"/>
 </instance-profile>
