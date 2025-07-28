@@ -44,7 +44,7 @@
                 <card href="https://fosstodon.org/@aljazmerzen"
                       summary="@aljamerzen" image="https://cdn.fosstodon.org/accounts/avatars/107/626/197/378/907/137/original/e93602705171fd0a.jpg"/>
             </cards>
-            <links >
+            <links>
                 <group>
                     <title>MediaManager Repository</title>
                     <a href="https://github.com/maxdorninger/MediaManager"
