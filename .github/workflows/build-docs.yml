@@ -17,7 +17,7 @@ env:
   INSTANCE: 'Writerside/mm'
   DOCKER_VERSION: '2025.04.8412'
   ALGOLIA_APP_NAME: '5SXJTW5J6S'
-  ALGOLIA_INDEX_NAME: 'MediaManager Docs'
+  ALGOLIA_INDEX_NAME: 'MediaManagerDocs'
   CONFIG_JSON_PRODUCT: 'MM'
 
 jobs:
