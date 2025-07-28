@@ -36,7 +36,7 @@
             <card href="https://buymeacoffee.com/maxdorninger"
                   summary="Buy me a coffee :)"/>
         </secondary>
-        <misc >
+        <misc>
             <cards narrow="true">
                 <title>MediaManager Sponsors</title>
                 <card href="https://github.com/ldrrp"
