@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # This script is used to start the MediaManager service.
 
 
@@ -140,7 +141,7 @@ uv run alembic upgrade head
 
 echo "Starting MediaManager backend service..."
 echo ""
-echo "🔐 LOGIN INFORMATION:"
+echo "   LOGIN INFORMATION:"
 echo "   If this is a fresh installation, a default admin user will be created automatically."
 echo "   Check the application logs for the login credentials."
 echo "   You can also register a new user and it will become admin if the email"
