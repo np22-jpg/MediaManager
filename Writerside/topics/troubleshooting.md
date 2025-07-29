@@ -17,7 +17,7 @@
    <step>Make sure you are logging in, not signing up.</step>
    <step>Try logging in with the following credentials: 
         <list>
-          <li>Email: admin@mediamanager.local</li>
+          <li>Email: admin@mediamanager.local or admin@example.com</li>
           <li>Password: admin</li>
         </list>
    </step>
