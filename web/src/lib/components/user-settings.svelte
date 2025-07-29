@@ -21,7 +21,7 @@
 				credentials: 'include',
 				body: JSON.stringify({
 					...(newPassword !== '' && { password: newPassword }),
-					...(newEmail !== '' && { password: newEmail })
+					...(newEmail !== '' && { email: newEmail })
 				})
 			});
 
