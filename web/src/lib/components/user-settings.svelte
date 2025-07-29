@@ -81,11 +81,11 @@
 					type="password"
 				/>
 				<Input
-						bind:value={newPassword}
-						class="w-full"
-						id="password"
-						placeholder="Confirm new password"
-						type="password"
+					bind:value={newPassword}
+					class="w-full"
+					id="password"
+					placeholder="Confirm new password"
+					type="password"
 				/>
 			</div>
 		</div>
