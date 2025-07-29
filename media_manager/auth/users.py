@@ -1,7 +1,7 @@
 import contextlib
 import logging
 import uuid
-from typing import Optional
+from typing import Optional, Any
 
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models
@@ -45,6 +45,19 @@ else:
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
+
+    async def on_after_update(
+        self,
+        user: models.UP,
+        update_dict: dict[str, Any],
+        request: Optional[Request] = None,
+    ) -> None:
+        log.info(f"User {user.id} has been updated. Changes: {update_dict}")
+        if "is_superuser" in update_dict and update_dict["is_superuser"]:
+            log.info(f"User {user.id} has been granted superuser privileges.")
+        if "email" in update_dict:
+            updated_user = UserUpdate(is_verified=True)
+            await self.update(user=user, user_update=updated_user)
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         log.info(f"User {user.id} has registered.")
