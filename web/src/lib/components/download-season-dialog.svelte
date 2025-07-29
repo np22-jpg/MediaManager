@@ -45,13 +45,23 @@
 				credentials: 'include'
 			});
 
-			if (!response.ok) {
+			if (response.status === 409) {
+				const errorMessage = `There already is a Season File using the Filepath Suffix '${filePathSuffix}'. Try again with a different Filepath Suffix.`;
+				console.warn(errorMessage);
+				torrentsError = errorMessage;
+				if (dialogueState) toast.info(errorMessage);
+				return [];
+			}
+
+			if (!response.ok && response.status !== 409) {
 				const errorMessage = `Failed to download torrent for show ${show.id} and season ${selectedSeasonNumber}: ${response.statusText}`;
 				console.error(errorMessage);
 				torrentsError = errorMessage;
 				toast.error(errorMessage);
 				return false;
 			}
+
+
 
 			const data: PublicIndexerQueryResult[] = await response.json();
 			console.log('Downloading torrent:', data);

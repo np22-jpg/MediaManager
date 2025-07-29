@@ -38,8 +38,15 @@
 				},
 				credentials: 'include'
 			});
+			if (response.status === 409) {
+				const errorMessage = `There already is a Movie File using the Filepath Suffix '${filePathSuffix}'. Try again with a different Filepath Suffix.`;
+				console.warn(errorMessage);
+				torrentsError = errorMessage;
+				if (dialogueState) toast.info(errorMessage);
+				return [];
+			}
 
-			if (!response.ok) {
+			if (!response.ok && response.status !== 409) {
 				const errorMessage = `Failed to download torrent for movie ${movie.id}: ${response.statusText}`;
 				console.error(errorMessage);
 				torrentsError = errorMessage;
