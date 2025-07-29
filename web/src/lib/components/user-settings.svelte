@@ -80,13 +80,6 @@
 					placeholder="Keep empty to not change the password"
 					type="password"
 				/>
-				<Input
-					bind:value={newPassword}
-					class="w-full"
-					id="password"
-					placeholder="Confirm new password"
-					type="password"
-				/>
 			</div>
 		</div>
 		<div class="mt-8 flex justify-end gap-2">
