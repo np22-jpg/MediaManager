@@ -44,7 +44,7 @@ class Prowlarr(GenericIndexer):
                         IndexerQueryResult(
                             download_url=result["downloadUrl"]
                             if "downloadUrl" in result
-                            else result["magnetUrl"],
+                            else result["guid"],
                             title=result["sortTitle"],
                             seeders=result["seeders"],
                             flags=result["indexerFlags"],

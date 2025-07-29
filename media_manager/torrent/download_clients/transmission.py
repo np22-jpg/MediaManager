@@ -1,16 +1,13 @@
-import hashlib
 import logging
 
-import bencoder
-import requests
 import transmission_rpc
-
 from media_manager.config import AllEncompassingConfig
 from media_manager.indexer.schemas import IndexerQueryResult
 from media_manager.torrent.download_clients.abstractDownloadClient import (
     AbstractDownloadClient,
 )
 from media_manager.torrent.schemas import TorrentStatus, Torrent
+from media_manager.torrent.utils import get_torrent_hash
 
 log = logging.getLogger(__name__)
 
@@ -56,23 +53,8 @@ class TransmissionDownloadClient(AbstractDownloadClient):
         :return: The torrent object with calculated hash and initial status.
         """
         log.info(f"Attempting to download torrent: {indexer_result.title}")
-
-        try:
-            response = requests.get(str(indexer_result.download_url), timeout=30)
-            response.raise_for_status()
-            torrent_content = response.content
-        except Exception as e:
-            log.error(f"Failed to download torrent file: {e}")
-            raise
-
-        try:
-            decoded_content = bencoder.decode(torrent_content)
-            torrent_hash = hashlib.sha1(
-                bencoder.encode(decoded_content[b"info"])
-            ).hexdigest()
-        except Exception as e:
-            log.error(f"Failed to decode torrent file: {e}")
-            raise
+        torrent_hash = get_torrent_hash(torrent=indexer_result)
+        log.info(f"parsed torrent hash: {torrent_hash}")
         download_dir = (
             AllEncompassingConfig().misc.torrent_directory / indexer_result.title
         )
