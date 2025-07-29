@@ -21,7 +21,7 @@
 				credentials: 'include',
 				body: JSON.stringify({
 					...(newPassword !== '' && { password: newPassword }),
-					...(newEmail !== '' && { password: newEmail })
+					...(newEmail !== '' && { email: newEmail })
 				})
 			});
 
@@ -79,6 +79,13 @@
 					id="password"
 					placeholder="Keep empty to not change the password"
 					type="password"
+				/>
+				<Input
+						bind:value={newPassword}
+						class="w-full"
+						id="password"
+						placeholder="Confirm new password"
+						type="password"
 				/>
 			</div>
 		</div>
