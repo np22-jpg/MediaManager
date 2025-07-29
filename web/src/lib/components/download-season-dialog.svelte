@@ -61,8 +61,6 @@
 				return false;
 			}
 
-
-
 			const data: PublicIndexerQueryResult[] = await response.json();
 			console.log('Downloading torrent:', data);
 			toast.success('Torrent download started successfully!');
