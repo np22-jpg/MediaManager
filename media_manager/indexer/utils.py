@@ -138,10 +138,10 @@ def follow_redirects_to_final_torrent_url(initial_url: str) -> str | None:
                     break
                 else:
                     log.error(
-                        f"Reached unexpected non-HTTP/HTTPS/magnet URL: {final_url}"
+                        f"Reached unexpected non-HTTP/HTTPS/magnet URL: {redirect_url}"
                     )
                     raise RuntimeError(
-                        f"Reached unexpected non-HTTP/HTTPS/magnet URL: {final_url}"
+                        f"Reached unexpected non-HTTP/HTTPS/magnet URL: {redirect_url}"
                     )
             else:
                 # Not a redirect, so the current URL is the final one
