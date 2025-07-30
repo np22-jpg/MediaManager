@@ -5,6 +5,7 @@ import requests
 from media_manager.indexer.indexers.generic import GenericIndexer
 from media_manager.config import AllEncompassingConfig
 from media_manager.indexer.schemas import IndexerQueryResult
+from media_manager.indexer.utils import follow_redirects_to_final_torrent_url
 
 log = logging.getLogger(__name__)
 
@@ -38,13 +39,40 @@ class Prowlarr(GenericIndexer):
         if response.status_code == 200:
             result_list: list[IndexerQueryResult] = []
             for result in response.json():
-                is_torrent = result["protocol"] == "torrent"
-                if is_torrent:
+                if result["protocol"] == "torrent":
+                    initial_url = None
+                    if "downloadUrl" in result:
+                        log.info(f"Using download URL: {result['downloadUrl']}")
+                        initial_url = result["downloadUrl"]
+                    elif "magnetUrl" in result:
+                        log.info(
+                            f"Using magnet URL as fallback for download URL: {result['magnetUrl']}"
+                        )
+                        initial_url = result["magnetUrl"]
+                    elif "guid" in result:
+                        log.warning(
+                            f"Using guid as fallback for download URL: {result['guid']}"
+                        )
+                        initial_url = result["guid"]
+                    else:
+                        log.error(f"No valid download URL found for result: {result}")
+                        continue
+
+                    if not initial_url.startswith("magnet:"):
+                        try:
+                            final_download_url = follow_redirects_to_final_torrent_url(
+                                initial_url=initial_url
+                            )
+                        except RuntimeError as e:
+                            log.error(
+                                f"Failed to follow redirects for {initial_url}, falling back to the initial url as download url, error: {e}"
+                            )
+                            final_download_url = initial_url
+                    else:
+                        final_download_url = initial_url
                     result_list.append(
                         IndexerQueryResult(
-                            download_url=result["downloadUrl"]
-                            if "downloadUrl" in result
-                            else result["guid"],
+                            download_url=final_download_url,
                             title=result["sortTitle"],
                             seeders=result["seeders"],
                             flags=result["indexerFlags"],
