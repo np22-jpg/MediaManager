@@ -151,10 +151,9 @@ def follow_redirects_to_final_torrent_url(initial_url: str) -> str | None:
     except requests.exceptions.RequestException as e:
         log.error(f"An error occurred during the request: {e}")
         raise RuntimeError(f"An error occurred during the request: {e}")
-
-    if final_url is None:
-        log.error("Final URL could not be determined. Returning None.")
-        return None
+    if not final_url:
+        log.error("Final URL could not be determined.")
+        raise RuntimeError("Final URL could not be determined.")
     if final_url.startswith("http://") or final_url.startswith("https://"):
         log.info("Final URL protocol: HTTP/HTTPS")
     elif final_url.startswith("magnet:"):
