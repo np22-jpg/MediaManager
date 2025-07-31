@@ -49,11 +49,41 @@ Client secret provided by your OpenID Connect provider.
 
 - `configuration_endpoint`
 
-OpenID Connect configuration endpoint URL. Note the lack of a trailing slash - this is important.
+OpenID Connect configuration endpoint URL. Note the lack of a trailing slash - this is important. It usually ends with
+`.well-known/openid-configuration`.
 
 - `name`
 
 Display name for the OpenID Connect provider that will be shown on the login page.
+
+### Configuration for your OpenID Connect Provider
+
+#### Redirect URI
+
+The OpenID server will likely require a redirect URI. The exact path depends on the `name` of the OIDC provider. Note
+that the `name` is case-sensitive.
+
+```
+{FRONTEND_URL}/api/v1/auth/cookie/{OPENID_NAME}/callback
+```
+
+E.g.: I use `Authentik` as the `name`, thus the redirect URI would be:
+
+```
+https://mediamanager.example.com/api/v1/auth/cookie/Authentik/callback
+```
+
+#### Authentik Example {collapsible="true"}
+
+Here is an example configuration for the OpenID Connect provider for Authentik.
+
+![authentik-example-config.png](authentik-example-config.png)
+
+#### PocketID Example {collapsible="true"}
+
+Here is an example configuration for the OpenID Connect provider for PocketID.
+
+![pocketid-example-config.png](pocketid-example-config.png)
 
 ## Example Configuration
 
