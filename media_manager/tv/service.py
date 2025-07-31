@@ -37,7 +37,11 @@ from media_manager.exceptions import NotFoundError
 import pprint
 from pathlib import Path
 from media_manager.torrent.repository import TorrentRepository
-from media_manager.torrent.utils import import_file, import_torrent
+from media_manager.torrent.utils import (
+    import_file,
+    import_torrent,
+    remove_special_characters,
+)
 from media_manager.indexer.service import IndexerService
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
@@ -510,25 +514,27 @@ class TvService:
             f"Importing these {len(video_files)} files:\n" + pprint.pformat(video_files)
         )
         misc_config = AllEncompassingConfig().misc
-        show_file_path = (
-            misc_config.tv_directory
-            / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
+        show_directory_name = f"{remove_special_characters(show.name)} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
+        show_file_path = None
+        log.debug(
+            f"Show {show.name} without special characters: {remove_special_characters(show.name)}"
         )
+
         if show.library != "Default":
             for library in misc_config.tv_libraries:
                 if library.name == show.library:
                     log.info(
                         f"Using library {library.name} for show {show.name} ({show.year})"
                     )
-                    show_file_path = (
-                        Path(library.path)
-                        / f"{show.name} ({show.year})  [{show.metadata_provider}id-{show.external_id}]"
-                    )
+                    show_file_path = Path(library.path) / show_directory_name
                     break
             else:
                 log.warning(
                     f"Library {show.library} not defined in config, using default TV directory."
                 )
+                show_file_path = misc_config.tv_directory / show_directory_name
+        else:
+            show_file_path = misc_config.tv_directory / show_directory_name
 
         season_files = self.torrent_service.get_season_files_of_torrent(torrent=torrent)
         log.info(
@@ -543,9 +549,7 @@ class TvService:
             except Exception as e:
                 log.warning(f"Could not create path {season_path}: {e}")
             for episode in season.episodes:
-                episode_file_name = (
-                    f"{show.name} S{season.number:02d}E{episode.number:02d}"
-                )
+                episode_file_name = f"{remove_special_characters(show.name)} S{season.number:02d}E{episode.number:02d}"
                 if season_file.file_path_suffix != "":
                     episode_file_name += f" - {season_file.file_path_suffix}"
                 pattern = (

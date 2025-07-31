@@ -32,7 +32,11 @@ from media_manager.movies.repository import MovieRepository
 from media_manager.exceptions import NotFoundError
 import pprint
 from media_manager.torrent.repository import TorrentRepository
-from media_manager.torrent.utils import import_file, import_torrent
+from media_manager.torrent.utils import (
+    import_file,
+    import_torrent,
+    remove_special_characters,
+)
 from media_manager.indexer.service import IndexerService
 from media_manager.metadataProvider.abstractMetaDataProvider import (
     AbstractMetadataProvider,
@@ -473,7 +477,10 @@ class MovieService:
 
         movie_file_path = (
             misc_config.movie_directory
-            / f"{movie.name} ({movie.year})  [{movie.metadata_provider}id-{movie.external_id}]"
+            / f"{remove_special_characters(movie.name)} ({movie.year})  [{movie.metadata_provider}id-{movie.external_id}]"
+        )
+        log.debug(
+            f"Movie {movie.name} without special characters: {remove_special_characters(movie.name)}"
         )
         if movie.library != "Default":
             for library in misc_config.movie_libraries:
@@ -481,7 +488,7 @@ class MovieService:
                     log.debug(f"Using library {library.name} for movie {movie.name}")
                     movie_file_path = (
                         Path(library.path)
-                        / f"{movie.name} ({movie.year})  [{movie.metadata_provider}id-{movie.external_id}]"
+                        / f"{remove_special_characters(movie.name)} ({movie.year})  [{movie.metadata_provider}id-{movie.external_id}]"
                     )
                     break
             else:
@@ -502,7 +509,7 @@ class MovieService:
             except Exception as e:
                 log.warning(f"Could not create path {movie_file_path}: {e}")
 
-            movie_file_name = f"{movie.name} ({movie.year})"
+            movie_file_name = f"{remove_special_characters(movie.name)} ({movie.year})"
             if movie_file.file_path_suffix != "":
                 movie_file_name += f" - {movie_file.file_path_suffix}"
 
