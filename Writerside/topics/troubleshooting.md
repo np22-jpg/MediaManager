@@ -10,6 +10,7 @@
 
 <procedure title="I can't log in with OAuth/OIDC?" id="procedure-i-cannot-log-in-with-oauth">
     <step>Verify your OAuth provider's configuration. <a href="authentication-setup.md" anchor="openid-connect-settings-auth-openid-connect">See the OAuth documentation</a></step>
+    <step>Check if the callback URI you set in your OIDC providers settings is correct. <a href="authentication-setup.md" anchor="redirect-uri">See the callback URI documentation</a> </step>
     <step>Check the frontend url in your config file. It should match the URL you use to access MediaManager.</step>
 </procedure>
 
