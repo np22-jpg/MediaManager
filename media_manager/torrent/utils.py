@@ -162,4 +162,10 @@ def remove_special_characters(filename: str) -> str:
     :param filename: The original filename.
     :return: A sanitized version of the filename.
     """
-    return re.sub(r"([<>:\"/\\|?*])", "", filename)
+    # Remove invalid characters
+    sanitized = re.sub(r"([<>:\"/\\|?*])", "", filename)
+    
+    # Remove leading and trailing dots or spaces
+    sanitized = sanitized.strip(" .")
+    
+    return sanitized
