@@ -67,10 +67,14 @@ that the `name` is case-sensitive.
 {FRONTEND_URL}/api/v1/auth/cookie/{OPENID_NAME}/callback
 ```
 
-E.g.: I use `Authentik` as the `name`, thus the redirect URI would be:
+<warning>It is very important that you set the correct callback URI, otherwise it won't work!</warning>
+
+
+E.g.: I set `MyAuthProvider` as the `name` in the `[auth.openid_connect]` config section, thus the redirect URI would
+be:
 
 ```
-https://mediamanager.example.com/api/v1/auth/cookie/Authentik/callback
+https://mediamanager.example.com/api/v1/auth/cookie/MyAuthProvider/callback
 ```
 
 #### Authentik Example {collapsible="true"}
