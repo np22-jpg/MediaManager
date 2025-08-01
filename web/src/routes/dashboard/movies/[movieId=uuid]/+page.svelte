@@ -12,12 +12,8 @@
 	import DownloadMovieDialog from '$lib/components/download-movie-dialog.svelte';
 	import RequestMovieDialog from '$lib/components/request-movie-dialog.svelte';
 	import LibraryCombobox from '$lib/components/library-combobox.svelte';
-	import { Label } from '$lib/components/ui/label';
 	import { base } from '$app/paths';
-	import { Switch } from '$lib/components/ui/switch/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import RequestSeasonDialog from "$lib/components/request-season-dialog.svelte";
-	import DownloadSeasonDialog from "$lib/components/download-season-dialog.svelte";
 
 	let movie: PublicMovie = page.data.movie;
 	let user: () => User = getContext('user');
@@ -74,29 +70,36 @@
 				</div>
 			{/if}
 		</div>
-		<div class="w-full flex-auto rounded-xl bg-muted/50 p-4 md:w-1/4">
-			<p class="leading-7 [&:not(:first-child)]:mt-6">
-				{movie.overview}
-			</p>
+		<div class="h-full w-full flex-auto rounded-xl md:w-1/4">
+			<Card.Root class="h-full w-full">
+				<Card.Header>
+					<Card.Title>Overview</Card.Title>
+				</Card.Header>
+				<Card.Content>
+					<p class="leading-7 [&:not(:first-child)]:mt-6">
+						{movie.overview}
+					</p>
+				</Card.Content>
+			</Card.Root>
 		</div>
 		<div
-			class="flex w-full flex-auto flex-col items-center justify-start gap-2 rounded-xl bg-muted/50 p-4 md:w-1/3 md:max-w-[40em]"
+			class="flex h-full w-full flex-auto flex-col items-center justify-start gap-4 rounded-xl md:w-1/3 md:max-w-[40em]"
 		>
 			{#if user().is_superuser}
-				<Card.Root class="w-full">
+				<Card.Root class="w-full  flex-1">
 					<Card.Header>
 						<Card.Title>Administrator Controls</Card.Title>
 					</Card.Header>
-					<Card.Content class="flex flex-col gap-4 items-center">
+					<Card.Content class="flex flex-col items-center gap-4">
 						<LibraryCombobox media={movie} mediaType="movie" />
 					</Card.Content>
 				</Card.Root>
 			{/if}
-			<Card.Root class="w-full">
+			<Card.Root class="w-full  flex-1">
 				<Card.Header>
 					<Card.Title>Download Options</Card.Title>
 				</Card.Header>
-				<Card.Content class="flex flex-col gap-4 items-center">
+				<Card.Content class="flex flex-col items-center gap-4">
 					{#if user().is_superuser}
 						<DownloadMovieDialog {movie} />
 					{/if}
@@ -105,9 +108,15 @@
 			</Card.Root>
 		</div>
 	</div>
-	<div class="flex-1 rounded-xl bg-muted/50 p-4">
-		<div class="w-full overflow-x-auto">
-			<TorrentTable isShow={false} torrents={movie.torrents} />
-		</div>
+	<div class="flex-1 rounded-xl">
+		<Card.Root class="h-full w-full">
+			<Card.Header>
+				<Card.Title>Torrent Information</Card.Title>
+				<Card.Description>A list of all torrents associated with this movie.</Card.Description>
+			</Card.Header>
+			<Card.Content class="flex flex-col gap-4">
+				<TorrentTable isShow={false} torrents={movie.torrents} />
+			</Card.Content>
+		</Card.Root>
 	</div>
 </div>
