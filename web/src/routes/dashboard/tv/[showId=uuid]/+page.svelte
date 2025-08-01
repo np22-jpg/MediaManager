@@ -6,7 +6,7 @@
 	import { goto } from '$app/navigation';
 	import { ImageOff } from 'lucide-svelte';
 	import * as Table from '$lib/components/ui/table/index.js';
-	import { getContext } from 'svelte';
+	import { getContext, onMount } from 'svelte';
 	import type { PublicShow, RichShowTorrent, User } from '$lib/types.js';
 	import { getFullyQualifiedMediaName } from '$lib/utils';
 	import DownloadSeasonDialog from '$lib/components/download-season-dialog.svelte';
@@ -16,6 +16,7 @@
 	import RequestSeasonDialog from '$lib/components/request-season-dialog.svelte';
 	import MediaPicture from '$lib/components/media-picture.svelte';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
+	import { Switch } from '$lib/components/ui/switch/index.js';
 	import { toast } from 'svelte-sonner';
 	import { Label } from '$lib/components/ui/label';
 	import LibraryCombobox from '$lib/components/library-combobox.svelte';
@@ -25,13 +26,15 @@
 	let torrents: RichShowTorrent = page.data.torrentsData;
 	import { base } from '$app/paths';
 
+	let continuousDownloadEnabled = $state(show().continuous_download);
+
 	async function toggle_continuous_download() {
-		const urlString = `${apiUrl}/tv/shows/${show().id}/continuousDownload?continuous_download=${!show().continuous_download}`;
+		const urlString = `${apiUrl}/tv/shows/${show().id}/continuousDownload?continuous_download=${!continuousDownloadEnabled}`;
 		console.log(
 			'Toggling continuous download for show',
 			show().name,
 			'to',
-			!show().continuous_download
+			!continuousDownloadEnabled
 		);
 		const response = await fetch(urlString, {
 			method: 'POST',
@@ -41,10 +44,15 @@
 			const errorText = await response.text();
 			toast.error('Failed to toggle continuous download: ' + errorText);
 		} else {
-			show().continuous_download = !show().continuous_download;
+			continuousDownloadEnabled = !continuousDownloadEnabled;
 			toast.success('Continuous download toggled successfully.');
 		}
 	}
+
+	/*	$effect(()=>{
+		continuousDownloadEnabled;
+		toggle_continuous_download();
+	});*/
 </script>
 
 <svelte:head>
@@ -85,7 +93,7 @@
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
 	{getFullyQualifiedMediaName(show())}
 </h1>
-<div class="flex w-full flex-1 flex-col gap-4 p-4">
+<div class="mx-auto flex w-full flex-1 flex-col gap-4 p-4 md:max-w-[80em]">
 	<div class="flex flex-col gap-4 md:flex-row md:items-stretch">
 		<div class="w-full overflow-hidden rounded-xl bg-muted/50 md:w-1/3 md:max-w-sm">
 			{#if show().id}
@@ -103,30 +111,23 @@
 				{show().overview}
 			</p>
 		</div>
-		<div class="w-full flex-auto rounded-xl bg-muted/50 p-4 md:w-1/3">
+		<div
+			class="flex w-full flex-auto flex-col items-center justify-start gap-2 rounded-xl bg-muted/50 p-4 md:w-1/3 md:max-w-[40em]"
+		>
 			{#if user().is_superuser}
 				{#if !show().ended}
-					<div class="mx-1 my-2 block">
-						<Checkbox
-							checked={show().continuous_download}
-							onCheckedChange={() => {
-								toggle_continuous_download();
-							}}
+					<div class="flex items-center gap-3">
+						<Switch
+							bind:checked={() => continuousDownloadEnabled, toggle_continuous_download}
 							id="continuous-download-checkbox"
 						/>
 						<Label for="continuous-download-checkbox">
 							Enable automatic download of future seasons
 						</Label>
-						<hr />
 					</div>
 				{/if}
-				<div class="mx-1 my-2 block">
-					<LibraryCombobox media={show()} mediaType="tv" />
-					<Label for="library-combobox">Select Library for this show</Label>
-					<hr />
-				</div>
+				<LibraryCombobox media={show()} mediaType="tv" />
 				<DownloadSeasonDialog show={show()} />
-				<div class="my-2"></div>
 			{/if}
 			<RequestSeasonDialog show={show()} />
 		</div>

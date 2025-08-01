@@ -14,6 +14,7 @@
 	import LibraryCombobox from '$lib/components/library-combobox.svelte';
 	import { Label } from '$lib/components/ui/label';
 	import { base } from '$app/paths';
+	import { Switch } from '$lib/components/ui/switch/index.js';
 
 	let movie: PublicMovie = page.data.movie;
 	let user: () => User = getContext('user');
@@ -57,7 +58,7 @@
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
 	{getFullyQualifiedMediaName(movie)}
 </h1>
-<div class="flex w-full flex-1 flex-col gap-4 p-4">
+<div class="mx-auto flex w-full flex-1 flex-col gap-4 p-4 md:max-w-[80em]">
 	<div class="flex flex-col gap-4 md:flex-row md:items-stretch">
 		<div class="w-full overflow-hidden rounded-xl bg-muted/50 md:w-1/3 md:max-w-sm">
 			{#if movie.id}
@@ -75,24 +76,16 @@
 				{movie.overview}
 			</p>
 		</div>
-		<div class="w-full flex-auto rounded-xl bg-muted/50 p-4 md:w-1/3">
+		<div
+			class="flex w-full flex-auto flex-col items-center justify-start gap-2 rounded-xl bg-muted/50 p-4 md:w-1/3 md:max-w-[40em]"
+		>
 			{#if user().is_superuser}
-				<div class="mx-1 my-2 block">
-					<LibraryCombobox media={movie} mediaType="movie" />
-					<Label for="library-combobox">Select Library for this movie</Label>
-					<hr />
-				</div>
+				<LibraryCombobox media={movie} mediaType="movie" />
 				<DownloadMovieDialog {movie} />
-				<div class="my-4"></div>
 			{/if}
 			<RequestMovieDialog {movie} />
 		</div>
 	</div>
-	<!-- 	<div class="flex-1 rounded-xl bg-muted/50 p-4">
-            <div class="w-full overflow-x-auto">
-
-            </div>
-        </div> -->
 	<div class="flex-1 rounded-xl bg-muted/50 p-4">
 		<div class="w-full overflow-x-auto">
 			<TorrentTable isShow={false} torrents={movie.torrents} />
