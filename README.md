@@ -53,6 +53,7 @@ docker compose up -d
 
 <a href="https://fosstodon.org/@aljazmerzen"><img src="https://github.com/aljazerzen.png" width="80px" alt="Aljaž Mur Eržen" /></a>&nbsp;&nbsp;
 <a href="https://github.com/ldrrp"><img src="https://github.com/ldrrp.png" width="80px" alt="Luis Rodriguez" /></a>&nbsp;&nbsp;
+<a href="https://github.com/brandon-dacrib"><img src="https://github.com/brandon-dacrib.png" width="80px" alt="Brandon P." /></a>&nbsp;&nbsp;
 
 
 ## Star History
