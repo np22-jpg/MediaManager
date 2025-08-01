@@ -15,6 +15,9 @@
 	import { Label } from '$lib/components/ui/label';
 	import { base } from '$app/paths';
 	import { Switch } from '$lib/components/ui/switch/index.js';
+	import * as Card from '$lib/components/ui/card/index.js';
+	import RequestSeasonDialog from "$lib/components/request-season-dialog.svelte";
+	import DownloadSeasonDialog from "$lib/components/download-season-dialog.svelte";
 
 	let movie: PublicMovie = page.data.movie;
 	let user: () => User = getContext('user');
@@ -80,10 +83,26 @@
 			class="flex w-full flex-auto flex-col items-center justify-start gap-2 rounded-xl bg-muted/50 p-4 md:w-1/3 md:max-w-[40em]"
 		>
 			{#if user().is_superuser}
-				<LibraryCombobox media={movie} mediaType="movie" />
-				<DownloadMovieDialog {movie} />
+				<Card.Root class="w-full">
+					<Card.Header>
+						<Card.Title>Administrator Controls</Card.Title>
+					</Card.Header>
+					<Card.Content class="flex flex-col gap-4 items-center">
+						<LibraryCombobox media={movie} mediaType="movie" />
+					</Card.Content>
+				</Card.Root>
 			{/if}
-			<RequestMovieDialog {movie} />
+			<Card.Root class="w-full">
+				<Card.Header>
+					<Card.Title>Download Options</Card.Title>
+				</Card.Header>
+				<Card.Content class="flex flex-col gap-4 items-center">
+					{#if user().is_superuser}
+						<DownloadMovieDialog {movie} />
+					{/if}
+					<RequestMovieDialog {movie} />
+				</Card.Content>
+			</Card.Root>
 		</div>
 	</div>
 	<div class="flex-1 rounded-xl bg-muted/50 p-4">
