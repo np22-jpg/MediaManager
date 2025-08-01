@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import mimetypes
+import re
 from pathlib import Path
 import shutil
 
@@ -152,3 +153,19 @@ def get_torrent_hash(torrent: IndexerQueryResult) -> str:
             log.error(f"Failed to decode torrent file: {e}")
             raise
     return torrent_hash
+
+
+def remove_special_characters(filename: str) -> str:
+    """
+    Removes special characters from the filename to ensure it works with Jellyfin.
+
+    :param filename: The original filename.
+    :return: A sanitized version of the filename.
+    """
+    # Remove invalid characters
+    sanitized = re.sub(r"([<>:\"/\\|?*])", "", filename)
+    
+    # Remove leading and trailing dots or spaces
+    sanitized = sanitized.strip(" .")
+    
+    return sanitized
