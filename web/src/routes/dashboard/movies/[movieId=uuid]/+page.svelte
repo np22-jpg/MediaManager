@@ -4,7 +4,7 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { ImageOff } from 'lucide-svelte';
 	import { getContext } from 'svelte';
-	import type { PublicMovie, RichShowTorrent, User } from '$lib/types.js';
+	import type { PublicMovie, User } from '$lib/types.js';
 	import { getFullyQualifiedMediaName } from '$lib/utils';
 	import { page } from '$app/state';
 	import TorrentTable from '$lib/components/torrent-table.svelte';
@@ -17,7 +17,6 @@
 
 	let movie: PublicMovie = page.data.movie;
 	let user: () => User = getContext('user');
-	let torrents: RichShowTorrent = page.data.torrents;
 </script>
 
 <svelte:head>
@@ -96,7 +95,7 @@
         </div> -->
 	<div class="flex-1 rounded-xl bg-muted/50 p-4">
 		<div class="w-full overflow-x-auto">
-			<TorrentTable isShow={false} torrents={torrents.torrents} />
+			<TorrentTable isShow={false} torrents={movie.torrents} />
 		</div>
 	</div>
 </div>

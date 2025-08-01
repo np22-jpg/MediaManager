@@ -149,6 +149,7 @@ export interface PublicMovie {
 	id: string; // type: string, format: uuid
 	downloaded: boolean;
 	library: string;
+	torrents: Torrent[];
 }
 
 export interface Torrent {
