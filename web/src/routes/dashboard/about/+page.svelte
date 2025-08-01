@@ -51,11 +51,11 @@
 	</h2>
 	<p class="flex flex-wrap items-center justify-center gap-4">
 		<iframe
-			src="https://github.com/sponsors/maxdorninger/card"
-			title="Sponsor maxdorninger"
 			height="225"
-			width="600"
+			src="https://github.com/sponsors/maxdorninger/card"
 			style="border: 0;"
+			title="Sponsor maxdorninger"
+			width="600"
 		></iframe>
 	</p>
 
@@ -64,10 +64,13 @@
 	</h2>
 	<div class="flex flex-wrap items-center justify-center gap-4">
 		<a href="https://fosstodon.org/@aljazmerzen"
-			><img src="https://github.com/aljazerzen.png" width="80px" alt="Aljaž Mur Eržen" /></a
+			><img alt="Aljaž Mur Eržen" src="https://github.com/aljazerzen.png" width="80px" /></a
 		>&nbsp;&nbsp;
 		<a href="https://github.com/ldrrp"
-			><img src="https://github.com/ldrrp.png" width="80px" alt="Luis Rodriguez" /></a
+			><img alt="Luis Rodriguez" src="https://github.com/ldrrp.png" width="80px" /></a
+		>&nbsp;&nbsp;
+		<a href="https://github.com/brandon-dacrib"
+			><img alt="Brandon P." src="https://github.com/brandon-dacrib.png" width="80px" /></a
 		>&nbsp;&nbsp;
 	</div>
 
