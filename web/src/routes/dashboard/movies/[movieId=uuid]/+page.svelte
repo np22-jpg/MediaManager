@@ -76,7 +76,7 @@
 					<Card.Title>Overview</Card.Title>
 				</Card.Header>
 				<Card.Content>
-					<p class="leading-7 [&:not(:first-child)]:mt-6">
+					<p class="leading-7 not-first:mt-6">
 						{movie.overview}
 					</p>
 				</Card.Content>
