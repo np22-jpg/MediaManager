@@ -276,6 +276,8 @@
 						</Table.Body>
 					</Table.Root>
 				</div>
+				{:else}
+				<p>No torrents found!</p>
 			{/if}
 		</div>
 	</Dialog.Content>
