@@ -283,6 +283,7 @@
 								<Table.Head>Usenet</Table.Head>
 								<Table.Head>Seeders</Table.Head>
 								<Table.Head>Age</Table.Head>
+								<Table.Head>Score</Table.Head>
 								<Table.Head>Indexer Flags</Table.Head>
 								<Table.Head>Seasons</Table.Head>
 								<Table.Head class="text-right">Actions</Table.Head>
@@ -298,6 +299,7 @@
 									<Table.Cell
 										>{torrent.usenet ? formatSecondsToOptimalUnit(torrent.age) : 'N/A'}</Table.Cell
 									>
+									<Table.Cell>{torrent.score}</Table.Cell>
 									<Table.Cell>
 										{#each torrent.flags as flag}
 											<Badge variant="outline">{flag}</Badge>

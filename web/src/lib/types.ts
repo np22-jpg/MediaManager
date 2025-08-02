@@ -75,6 +75,7 @@ export interface PublicIndexerQueryResult {
 	size: number;
 	usenet: boolean;
 	age: number;
+	score: number;
 }
 
 export interface Season {
