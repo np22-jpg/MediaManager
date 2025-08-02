@@ -1,5 +1,5 @@
 <script lang="ts">
-	import LoginForm from '$lib/components/login-form.svelte';
+	import LoginCard from '$lib/components/login-card.svelte';
 	import { page } from '$app/state';
 	import {getContext} from "svelte";
 
@@ -15,4 +15,4 @@
 </svelte:head>
 
 
-<LoginForm oauthProvider={oauthProvider()} login={true} />
+<LoginCard oauthProvider={oauthProvider()} />
