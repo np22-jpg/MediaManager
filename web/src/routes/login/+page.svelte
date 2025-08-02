@@ -14,5 +14,6 @@
 	/>
 </svelte:head>
 
-
-<LoginCard oauthProvider={oauthProvider()} />
+<main>
+	<LoginCard oauthProvider={oauthProvider()} />
+</main>

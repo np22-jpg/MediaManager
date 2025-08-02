@@ -64,7 +64,7 @@
 <h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
 	{getFullyQualifiedMediaName(show())} Season {season.number}
 </h1>
-<div class="mx-auto flex w-full flex-1 flex-col gap-4 p-4 md:max-w-[80em]">
+<main class="mx-auto flex w-full flex-1 flex-col gap-4 p-4 md:max-w-[80em]">
 	<div class="flex flex-col gap-4 md:flex-row md:items-stretch">
 		<div class="w-full overflow-hidden rounded-xl bg-muted/50 md:w-1/3 md:max-w-sm">
 			<MediaPicture media={show()} />
@@ -155,4 +155,4 @@
 			</Card.Content>
 		</Card.Root>
 	</div>
-</div>
+</main>

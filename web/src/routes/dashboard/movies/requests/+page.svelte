@@ -40,9 +40,9 @@
 	</div>
 </header>
 
-<div class="mx-auto flex w-full flex-1 flex-col gap-4 p-4 md:max-w-[80em]">
+<main class="mx-auto flex w-full flex-1 flex-col gap-4 p-4 md:max-w-[80em]">
 	<h1 class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight lg:text-5xl">
 		Movie Requests
 	</h1>
 	<RequestsTable {requests} isShow={false} />
-</div>
+</main>
