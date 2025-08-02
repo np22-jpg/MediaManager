@@ -121,6 +121,7 @@
 					placeholder="m@example.com"
 					required
 					type="email"
+					autocomplete="email"
 				/>
 			</div>
 			<div class="grid gap-2">
@@ -130,7 +131,7 @@
 						Forgot your password?
 					</a>
 				</div>
-				<Input bind:value={password} id="password" required type="password" />
+				<Input bind:value={password} id="password" required type="password" autocomplete="current-password" />
 			</div>
 
 			{#if errorMessage}
@@ -168,4 +169,3 @@
 		</div>
 	</Card.Content>
 </Card.Root>
-

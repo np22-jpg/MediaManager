@@ -18,7 +18,7 @@
 	let errorMessage = $state('');
 	let successMessage = $state('');
 	let isLoading = $state(false);
-
+	let confirmPassword = $state('');
 	let {
 		oauthProvider
 	}: {
@@ -89,11 +89,16 @@
 					placeholder="m@example.com"
 					required
 					type="email"
+					autocomplete="email"
 				/>
 			</div>
 			<div class="grid gap-2">
 				<Label for="password">Password</Label>
-				<Input bind:value={password} id="password" required type="password" />
+				<Input bind:value={password} id="password" required type="password" autocomplete="new-password" />
+			</div>
+			<div class="grid gap-2">
+				<Label for="password">Confirm Password</Label>
+				<Input bind:value={confirmPassword} id="confirm-password" required type="password" autocomplete="new-password" />
 			</div>
 			{#if errorMessage}
 				<Alert.Root variant="destructive">
@@ -112,7 +117,7 @@
 			{#if isLoading}
 				<LoadingBar />
 			{/if}
-			<Button class="w-full" disabled={isLoading} type="submit">Create an account</Button>
+			<Button class="w-full" disabled={isLoading||password!==confirmPassword||password===''} type="submit">Create an account</Button>
 		</form>
 		{#await oauthProvider}
 			<LoadingBar />
