@@ -69,6 +69,9 @@
 		<a href="https://github.com/ldrrp"
 			><img alt="Luis Rodriguez" src="https://github.com/ldrrp.png" width="80px" /></a
 		>&nbsp;&nbsp;
+		<a href="https://github.com/SeimusS"
+			><img alt="SeimusS" src="https://github.com/SeimusS.png" width="80px" /></a
+		>&nbsp;&nbsp;
 		<a href="https://github.com/brandon-dacrib"
 			><img alt="Brandon P." src="https://github.com/brandon-dacrib.png" width="80px" /></a
 		>&nbsp;&nbsp;
