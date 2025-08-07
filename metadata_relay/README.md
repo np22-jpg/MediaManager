@@ -26,3 +26,14 @@ services:
     ports:
       - 8000:8000
 ````
+
+## Environment Variables
+
+| Name         | Default Value  | Description         |
+| ------------ | -------------- | ------------------- | 
+| VALKEY_HOST  | localhost      | Address/URL to DB   |
+| VALKEY_PORT  | 6379           | Port to DB          |
+| VALKEY_DB    | 0              | DB Name             |
+| TMDB_API_KEY | *unset*        | API Key for TMDB    |
+| TVDB_API_KEY | *unset*        | API Key for TVDB    |
+| LOG_LEVEL    | info           | Log Verbosity       |

@@ -91,11 +91,14 @@ docker compose up -d
 - [ ] add delete button for movies/TV shows
 - [ ] rework prowlarr module (select which indexers to use, etc.)
 - [ ] _maybe_ rework the logo
-- [ ] Port metadata relay to go
-- [ ] Enable musicbrainz support in metadata relay
-- [ ] Enable AniDB support in metadata relay
-  - [ ] Enable SeaDex support in metadata relay
-- [ ] Add support for new metadata sources in backend
+- [x] port metadata relay to go
+- [ ] enable musicbrainz support in metadata relay
+- [ ] enable AniDB support in metadata relay
+  - [ ] enable SeaDex support in metadata relay
+- [ ] add support for new metadata sources in backend
+- [ ] expand E2E metadata relay testing
+- [ ] expand Linting and formatting in metadata relay
+- [ ] _maybe_ enable automated PGO/BOLT building
 
 See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a full list of proposed features (and known issues).
 
