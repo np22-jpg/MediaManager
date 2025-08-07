@@ -8,7 +8,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-w -s" -trimpath -o metadata_relay .
+RUN CGO_ENABLED=0 GOOS=linux go build -v -a -installsuffix cgo -ldflags="-w -s" -trimpath -o metadata_relay .
 
 
 FROM docker.io/library/busybox:stable-musl AS runtime

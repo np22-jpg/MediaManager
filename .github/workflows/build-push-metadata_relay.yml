@@ -29,6 +29,7 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           version: v2.3
+          working-directory: "metadata_relay"
 
 
   build-and-push:

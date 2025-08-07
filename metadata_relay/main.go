@@ -6,10 +6,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"time"
 
 	"relay/app"
+	"relay/app/metrics"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // getLogLevel parses the VERBOSITY environment variable and returns the appropriate slog.Level
@@ -29,6 +33,43 @@ func getLogLevel() slog.Level {
 	}
 }
 
+// httpMetricsMiddleware wraps handlers to record HTTP metrics
+func httpMetricsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		
+		// Create a response writer wrapper to capture status code
+		ww := &responseWriterWrapper{ResponseWriter: w, statusCode: http.StatusOK}
+		
+		// Serve the request
+		next.ServeHTTP(ww, r)
+		
+		// Record metrics
+		duration := time.Since(start)
+		status := strconv.Itoa(ww.statusCode)
+		metrics.RecordHTTPRequest(r.Method, r.URL.Path, status, duration)
+		
+		slog.Debug("HTTP request completed",
+			"method", r.Method,
+			"path", r.URL.Path,
+			"status", ww.statusCode,
+			"duration", duration,
+			"remote_addr", r.RemoteAddr,
+		)
+	})
+}
+
+// responseWriterWrapper wraps http.ResponseWriter to capture status code
+type responseWriterWrapper struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rw *responseWriterWrapper) WriteHeader(code int) {
+	rw.statusCode = code
+	rw.ResponseWriter.WriteHeader(code)
+}
+
 func main() {
 	// Set up structured logger with configurable level
 	logLevel := getLogLevel()
@@ -43,9 +84,15 @@ func main() {
 	mux := http.NewServeMux()
 	app.RegisterRoutes(mux)
 
+	// Add Prometheus metrics endpoint (without middleware to avoid self-monitoring)
+	mux.Handle("/metrics", promhttp.Handler())
+
+	// Wrap with metrics middleware
+	handler := httpMetricsMiddleware(mux)
+
 	srv := &http.Server{
 		Addr:         ":8080",
-		Handler:      mux,
+		Handler:      handler,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,

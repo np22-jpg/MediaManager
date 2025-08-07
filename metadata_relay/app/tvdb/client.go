@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"relay/app/cache"
+	"relay/app/metrics"
 
 	"github.com/caarlos0/env/v11"
 )
@@ -57,17 +58,20 @@ type LoginResponse struct {
 // authenticate gets a new access token from TVDB
 func authenticate() error {
 	if apiKey == "" {
+		metrics.RecordAuthAttempt("tvdb", "failed")
 		return fmt.Errorf("TVDB API key not configured")
 	}
 
 	loginReq := LoginRequest{APIKey: apiKey}
 	jsonData, err := json.Marshal(loginReq)
 	if err != nil {
+		metrics.RecordAuthAttempt("tvdb", "failed")
 		return fmt.Errorf("failed to marshal login request: %w", err)
 	}
 
 	resp, err := http.Post(loginURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
+		metrics.RecordAuthAttempt("tvdb", "failed")
 		return fmt.Errorf("failed to authenticate: %w", err)
 	}
 	defer func() {
@@ -77,16 +81,27 @@ func authenticate() error {
 	}()
 
 	if resp.StatusCode != http.StatusOK {
+		metrics.RecordAuthAttempt("tvdb", "failed")
 		return fmt.Errorf("authentication failed with status %d", resp.StatusCode)
 	}
 
 	var loginResp LoginResponse
 	if err := json.NewDecoder(resp.Body).Decode(&loginResp); err != nil {
+		metrics.RecordAuthAttempt("tvdb", "failed")
 		return fmt.Errorf("failed to decode login response: %w", err)
 	}
 
 	accessToken = loginResp.Data.Token
 	tokenExpiry = time.Now().Add(23 * time.Hour) // TVDB tokens expire in 24h, refresh a bit early
+
+	// Record successful authentication and update token expiry metrics
+	metrics.RecordAuthAttempt("tvdb", "success")
+	metrics.UpdateAuthTokenExpiry("tvdb", tokenExpiry)
+
+	slog.Info("TVDB authentication successful",
+		"expires_at", tokenExpiry.Format(time.RFC3339),
+		"valid_for", time.Until(tokenExpiry).Round(time.Minute),
+	)
 
 	return nil
 }
