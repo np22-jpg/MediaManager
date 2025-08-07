@@ -96,9 +96,11 @@ docker compose up -d
 - [ ] enable AniDB support in metadata relay
   - [ ] enable SeaDex support in metadata relay
 - [ ] add support for new metadata sources in backend
+  - [ ] _maybe_ enable automated PGO/BOLT building
 - [ ] expand E2E metadata relay testing
 - [ ] expand Linting and formatting in metadata relay
-- [ ] _maybe_ enable automated PGO/BOLT building
+- [ ] Update metadata relay docs
+- [ ] Create a grafana dashboard for metadata relat
 
 See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a full list of proposed features (and known issues).
 
