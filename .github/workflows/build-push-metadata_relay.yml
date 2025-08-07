@@ -8,23 +8,29 @@ on:
       - 'v*.*.*'
     paths:
       - 'metadata_relay/**'
-      - '.github/workflows/python-lint_metadata_relay.yaml'
+      - '.github/workflows/build-push-metadata_relay.yml'
   pull_request:
     paths:
       - 'metadata_relay/**'
-      - '.github/workflows/python-lint_metadata_relay.yaml'
+      - '.github/workflows/build-push-metadata_relay.yml'
   workflow_dispatch:
 
 jobs:
   lint-code:
-    name: Lint Python Code
+    name: Lint Go Code
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/ruff-action@v3
+      - uses: actions/setup-go@v5
         with:
-          src: "./metadata_relay"
+          go-version: stable
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.3
+          working-directory: "metadata_relay"
+
 
   build-and-push:
     needs: lint-code

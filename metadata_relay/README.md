@@ -26,3 +26,28 @@ services:
     ports:
       - 8000:8000
 ````
+
+## Environment Variables
+
+| Name         | Default Value  | Description         |
+| ------------ | -------------- | ------------------- | 
+| VALKEY_HOST  | localhost      | Address/URL to DB   |
+| VALKEY_PORT  | 6379           | Port to DB          |
+| VALKEY_DB    | 0              | DB Name             |
+| TMDB_API_KEY | *unset*        | API Key for TMDB    |
+| TVDB_API_KEY | *unset*        | API Key for TVDB    |
+| LOG_LEVEL    | info           | Log Verbosity       |
+| PORT         | 8000           | Service port        |
+
+## metadata_relay-specific Roadmap
+
+- [x] port metadata relay to go
+- [ ] enable musicbrainz support in metadata relay
+- [ ] enable AniDB support in metadata relay
+  - [ ] enable SeaDex support in metadata relay
+- [ ] add support for new metadata sources in backend
+  - [ ] _maybe_ enable automated PGO/BOLT building
+- [ ] expand E2E metadata relay testing
+- [ ] expand Linting and formatting in metadata relay
+- [ ] Update metadata relay docs
+- [ ] Create a grafana dashboard for metadata relay
