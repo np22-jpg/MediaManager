@@ -43,3 +43,7 @@ __pycache__
 
 # Postgres
 /postgres
+
+# metadata_relay
+metadata_relay/relay
+metadata_relay-old
