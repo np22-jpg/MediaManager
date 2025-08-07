@@ -16,7 +16,7 @@ func writeErrorResponse(c *gin.Context, message string, statusCode int) {
 	c.JSON(statusCode, gin.H{"error": message})
 }
 
-// SearchArtistsHandler handles MusicBrainz artist search route
+// handles MusicBrainz artist search route
 func SearchArtistsHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz artist search route")
 
@@ -43,7 +43,7 @@ func SearchArtistsHandler(c *gin.Context) {
 	writeJSONResponse(c, result)
 }
 
-// GetArtistHandler handles MusicBrainz get artist route
+// handles MusicBrainz get artist route
 func GetArtistHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz get artist route")
 
@@ -63,7 +63,7 @@ func GetArtistHandler(c *gin.Context) {
 	writeJSONResponse(c, result)
 }
 
-// SearchReleaseGroupsHandler handles MusicBrainz release group search route
+// handles MusicBrainz release group search route
 func SearchReleaseGroupsHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz release group search route")
 
@@ -90,7 +90,7 @@ func SearchReleaseGroupsHandler(c *gin.Context) {
 	writeJSONResponse(c, result)
 }
 
-// GetReleaseGroupHandler handles MusicBrainz get release group route
+// handles MusicBrainz get release group route
 func GetReleaseGroupHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz get release group route")
 
@@ -110,7 +110,7 @@ func GetReleaseGroupHandler(c *gin.Context) {
 	writeJSONResponse(c, result)
 }
 
-// SearchReleasesHandler handles MusicBrainz release search route
+// handles MusicBrainz release search route
 func SearchReleasesHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz release search route")
 
@@ -137,7 +137,7 @@ func SearchReleasesHandler(c *gin.Context) {
 	writeJSONResponse(c, result)
 }
 
-// GetReleaseHandler handles MusicBrainz get release route
+// handles MusicBrainz get release route
 func GetReleaseHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz get release route")
 
@@ -157,7 +157,7 @@ func GetReleaseHandler(c *gin.Context) {
 	writeJSONResponse(c, result)
 }
 
-// SearchRecordingsHandler handles MusicBrainz recording search route
+// handles MusicBrainz recording search route
 func SearchRecordingsHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz recording search route")
 
@@ -184,7 +184,7 @@ func SearchRecordingsHandler(c *gin.Context) {
 	writeJSONResponse(c, result)
 }
 
-// GetRecordingHandler handles MusicBrainz get recording route
+// handles MusicBrainz get recording route
 func GetRecordingHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz get recording route")
 
@@ -204,7 +204,7 @@ func GetRecordingHandler(c *gin.Context) {
 	writeJSONResponse(c, result)
 }
 
-// BrowseArtistReleaseGroupsHandler handles browsing release groups for an artist
+// handles browsing release groups for an artist
 func BrowseArtistReleaseGroupsHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz browse artist release groups route")
 
@@ -231,7 +231,7 @@ func BrowseArtistReleaseGroupsHandler(c *gin.Context) {
 	writeJSONResponse(c, result)
 }
 
-// BrowseReleaseGroupReleasesHandler handles browsing releases for a release group
+// handles browsing releases for a release group
 func BrowseReleaseGroupReleasesHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz browse release group releases route")
 
@@ -258,7 +258,7 @@ func BrowseReleaseGroupReleasesHandler(c *gin.Context) {
 	writeJSONResponse(c, result)
 }
 
-// AdvancedSearchArtistsHandler handles advanced artist search with multiple fields
+// handles advanced artist search with multiple fields
 func AdvancedSearchArtistsHandler(c *gin.Context) {
 	slog.Debug("handling MusicBrainz advanced artist search route")
 

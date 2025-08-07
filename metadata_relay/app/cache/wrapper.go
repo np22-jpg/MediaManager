@@ -306,6 +306,11 @@ func extractContentMetrics(data any, operation string) (count int, contentType s
 
 // gets the remaining TTL for a cache key
 func getCacheRemainingTTL(ctx context.Context, cacheKey string) time.Duration {
+	// Return 0 if Redis client is not initialized
+	if redisClient == nil {
+		return 0
+	}
+
 	if ttl, err := redisClient.TTL(ctx, cacheKey).Result(); err == nil {
 		return ttl
 	}

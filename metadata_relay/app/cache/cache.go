@@ -67,8 +67,13 @@ func GenerateCacheKey(prefix string, params ...any) string {
 	return fmt.Sprintf("%x", hash.Sum64())
 }
 
-// retrieves cached data
+// retrievs cached data
 func GetCachedResponse(ctx context.Context, cacheKey string) (any, error) {
+	// Return cache miss if Redis client is not initialized
+	if redisClient == nil {
+		return nil, nil
+	}
+
 	cachedData, err := redisClient.Get(ctx, cacheKey).Result()
 	if err != nil {
 		if err == redis.Nil {
@@ -89,6 +94,11 @@ func GetCachedResponse(ctx context.Context, cacheKey string) (any, error) {
 
 // stores data in cache
 func SetCachedResponse(ctx context.Context, cacheKey string, data any, ttl time.Duration) error {
+	// Skip caching if Redis client is not initialized
+	if redisClient == nil {
+		return nil
+	}
+
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		slog.Error("error marshaling data for cache", "error", err)
