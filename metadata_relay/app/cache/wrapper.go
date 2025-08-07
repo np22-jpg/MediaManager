@@ -175,6 +175,8 @@ func extractProvider(prefix string) string {
 			return "tmdb"
 		case "tvdb", "TVDB":
 			return "tvdb"
+		case "musicbrainz", "MusicBrainz", "MUSICBRAINZ":
+			return "musicbrainz"
 		default:
 			return provider
 		}

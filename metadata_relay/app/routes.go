@@ -1,13 +1,14 @@
 package app
 
 import (
+	"relay/app/musicbrainz"
 	"relay/app/tmdb"
 	"relay/app/tvdb"
 
 	"github.com/gin-gonic/gin"
 )
 
-// registers all API routes
+// RegisterRoutes registers all API routes
 func RegisterRoutes(router *gin.Engine) {
 	// Root endpoint
 	router.GET("/", RootHandler)
@@ -53,6 +54,41 @@ func RegisterRoutes(router *gin.Engine) {
 			moviesGroup.GET("/trending", tvdb.TrendingMoviesHandler)
 			moviesGroup.GET("/search", tvdb.SearchMoviesHandler)
 			moviesGroup.GET("/:movieId", tvdb.GetMovieHandler)
+		}
+	}
+
+	// MusicBrainz endpoints group
+	musicbrainzGroup := router.Group("/musicbrainz")
+	{
+		// Artist endpoints
+		artistGroup := musicbrainzGroup.Group("/artists")
+		{
+			artistGroup.GET("/search", musicbrainz.SearchArtistsHandler)
+			artistGroup.GET("/search/advanced", musicbrainz.AdvancedSearchArtistsHandler)
+			artistGroup.GET("/:mbid", musicbrainz.GetArtistHandler)
+			artistGroup.GET("/:mbid/release-groups", musicbrainz.BrowseArtistReleaseGroupsHandler)
+		}
+
+		// Release Group endpoints
+		releaseGroupGroup := musicbrainzGroup.Group("/release-groups")
+		{
+			releaseGroupGroup.GET("/search", musicbrainz.SearchReleaseGroupsHandler)
+			releaseGroupGroup.GET("/:mbid", musicbrainz.GetReleaseGroupHandler)
+			releaseGroupGroup.GET("/:mbid/releases", musicbrainz.BrowseReleaseGroupReleasesHandler)
+		}
+
+		// Release endpoints
+		releaseGroup := musicbrainzGroup.Group("/releases")
+		{
+			releaseGroup.GET("/search", musicbrainz.SearchReleasesHandler)
+			releaseGroup.GET("/:mbid", musicbrainz.GetReleaseHandler)
+		}
+
+		// Recording endpoints
+		recordingGroup := musicbrainzGroup.Group("/recordings")
+		{
+			recordingGroup.GET("/search", musicbrainz.SearchRecordingsHandler)
+			recordingGroup.GET("/:mbid", musicbrainz.GetRecordingHandler)
 		}
 	}
 }

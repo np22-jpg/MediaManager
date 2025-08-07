@@ -12,6 +12,7 @@ import (
 	"relay/app"
 	"relay/app/cache"
 	"relay/app/metrics"
+	"relay/app/musicbrainz"
 	"relay/app/tmdb"
 	"relay/app/tvdb"
 
@@ -55,6 +56,7 @@ func main() {
 	// Initialize API clients
 	tmdb.InitTMDB(AppConfig.TMDBAPIKey)
 	tvdb.InitTVDB(AppConfig.TVDBAPIKey)
+	musicbrainz.InitMusicBrainz()
 
 	// Set up structured logger with configurable level
 	logLevel := AppConfig.GetLogLevel()
