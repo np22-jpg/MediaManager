@@ -1,26 +1,52 @@
 package app
 
-import "net/http"
+import "github.com/gin-gonic/gin"
 
-func RegisterRoutes(mux *http.ServeMux) {
+func RegisterRoutes(router *gin.Engine) {
 	// Root endpoint
-	mux.HandleFunc("/", HelloHandler)
+	router.GET("/", HelloHandler)
 
-	// TMDB endpoints
-	mux.HandleFunc("GET /tmdb/tv/trending", TMDBTrendingTVHandler)
-	mux.HandleFunc("GET /tmdb/tv/search", TMDBSearchTVHandler)
-	mux.HandleFunc("GET /tmdb/tv/shows/{showId}", TMDBGetTVShowHandler)
-	mux.HandleFunc("GET /tmdb/tv/shows/{showId}/{seasonNumber}", TMDBGetTVSeasonHandler)
-	mux.HandleFunc("GET /tmdb/movies/trending", TMDBTrendingMoviesHandler)
-	mux.HandleFunc("GET /tmdb/movies/search", TMDBSearchMoviesHandler)
-	mux.HandleFunc("GET /tmdb/movies/{movieId}", TMDBGetMovieHandler)
+	// TMDB endpoints group
+	tmdbGroup := router.Group("/tmdb")
+	{
+		// TV endpoints
+		tvGroup := tmdbGroup.Group("/tv")
+		{
+			tvGroup.GET("/trending", TMDBTrendingTVHandler)
+			tvGroup.GET("/search", TMDBSearchTVHandler)
+			tvGroup.GET("/shows/:showId", TMDBGetTVShowHandler)
+			tvGroup.GET("/shows/:showId/:seasonNumber", TMDBGetTVSeasonHandler)
+		}
 
-	// TVDB endpoints
-	mux.HandleFunc("GET /tvdb/tv/trending", TVDBTrendingTVHandler)
-	mux.HandleFunc("GET /tvdb/tv/search", TVDBSearchTVHandler)
-	mux.HandleFunc("GET /tvdb/tv/shows/{showId}", TVDBGetTVShowHandler)
-	mux.HandleFunc("GET /tvdb/tv/seasons/{seasonId}", TVDBGetTVSeasonHandler)
-	mux.HandleFunc("GET /tvdb/movies/trending", TVDBTrendingMoviesHandler)
-	mux.HandleFunc("GET /tvdb/movies/search", TVDBSearchMoviesHandler)
-	mux.HandleFunc("GET /tvdb/movies/{movieId}", TVDBGetMovieHandler)
+		// Movie endpoints
+		moviesGroup := tmdbGroup.Group("/movies")
+		{
+			moviesGroup.GET("/trending", TMDBTrendingMoviesHandler)
+			moviesGroup.GET("/search", TMDBSearchMoviesHandler)
+			moviesGroup.GET("/:movieId", TMDBGetMovieHandler)
+		}
+	}
+
+	// TVDB endpoints group
+	tvdbGroup := router.Group("/tvdb")
+	{
+		// TV endpoints
+		tvGroup := tvdbGroup.Group("/tv")
+		{
+			tvGroup.GET("/trending", TVDBTrendingTVHandler)
+			tvGroup.GET("/search", TVDBSearchTVHandler)
+			tvGroup.GET("/shows/:showId", TVDBGetTVShowHandler)
+		}
+
+		// Season endpoints
+		tvGroup.GET("/seasons/:seasonId", TVDBGetTVSeasonHandler)
+
+		// Movie endpoints
+		moviesGroup := tvdbGroup.Group("/movies")
+		{
+			moviesGroup.GET("/trending", TVDBTrendingMoviesHandler)
+			moviesGroup.GET("/search", TVDBSearchMoviesHandler)
+			moviesGroup.GET("/:movieId", TVDBGetMovieHandler)
+		}
+	}
 }

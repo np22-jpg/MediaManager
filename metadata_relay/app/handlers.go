@@ -1,315 +1,291 @@
 package app
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
 
 	"relay/app/tmdb"
 	"relay/app/tvdb"
+
+	"github.com/gin-gonic/gin"
 )
 
-func HelloHandler(w http.ResponseWriter, r *http.Request) {
-	// Only respond to the exact root path
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-
-	slog.Debug("handling hello route", "method", r.Method, "path", r.URL.Path)
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(map[string]string{"message": "Hello World"}); err != nil {
-		slog.Error("failed to encode JSON response", "error", err)
-	}
+func HelloHandler(c *gin.Context) {
+	slog.Debug("handling hello route", "method", c.Request.Method, "path", c.Request.URL.Path)
+	c.JSON(http.StatusOK, gin.H{"message": "Hello World"})
 }
 
-func writeJSONResponse(w http.ResponseWriter, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		slog.Error("failed to encode JSON response", "error", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
+func writeJSONResponse(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusOK, data)
 }
 
-func writeErrorResponse(w http.ResponseWriter, message string, statusCode int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	if err := json.NewEncoder(w).Encode(map[string]string{"error": message}); err != nil {
-		slog.Error("failed to encode error response", "error", err)
-	}
+func writeErrorResponse(c *gin.Context, message string, statusCode int) {
+	c.JSON(statusCode, gin.H{"error": message})
 }
 
 // TMDB Handlers
 
-func TMDBTrendingTVHandler(w http.ResponseWriter, r *http.Request) {
+func TMDBTrendingTVHandler(c *gin.Context) {
 	slog.Debug("handling TMDB trending TV route")
 
-	result, err := tmdb.GetTrendingTV(r.Context())
+	result, err := tmdb.GetTrendingTV(c.Request.Context())
 	if err != nil {
 		slog.Error("failed to get trending TV", "error", err)
-		writeErrorResponse(w, "Failed to fetch trending TV shows", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to fetch trending TV shows", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TMDBSearchTVHandler(w http.ResponseWriter, r *http.Request) {
+func TMDBSearchTVHandler(c *gin.Context) {
 	slog.Debug("handling TMDB search TV route")
 
-	query := r.URL.Query().Get("query")
+	query := c.Query("query")
 	if query == "" {
-		writeErrorResponse(w, "query parameter is required", http.StatusBadRequest)
+		writeErrorResponse(c, "query parameter is required", http.StatusBadRequest)
 		return
 	}
 
 	page := 1
-	if pageStr := r.URL.Query().Get("page"); pageStr != "" {
+	if pageStr := c.Query("page"); pageStr != "" {
 		if p, err := strconv.Atoi(pageStr); err == nil {
 			page = p
 		}
 	}
 
-	result, err := tmdb.SearchTV(r.Context(), query, page)
+	result, err := tmdb.SearchTV(c.Request.Context(), query, page)
 	if err != nil {
 		slog.Error("failed to search TV", "error", err)
-		writeErrorResponse(w, "Failed to search TV shows", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to search TV shows", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TMDBGetTVShowHandler(w http.ResponseWriter, r *http.Request) {
+func TMDBGetTVShowHandler(c *gin.Context) {
 	slog.Debug("handling TMDB get TV show route")
 
-	showIDStr := r.PathValue("showId")
-	showID, err := strconv.Atoi(showIDStr)
+	showID, err := strconv.Atoi(c.Param("showId"))
 	if err != nil {
-		writeErrorResponse(w, "Invalid show ID", http.StatusBadRequest)
+		writeErrorResponse(c, "Invalid show ID", http.StatusBadRequest)
 		return
 	}
 
-	result, err := tmdb.GetTVShow(r.Context(), showID)
+	result, err := tmdb.GetTVShow(c.Request.Context(), showID)
 	if err != nil {
 		slog.Error("failed to get TV show", "error", err)
-		writeErrorResponse(w, "Failed to fetch TV show", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to fetch TV show", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TMDBGetTVSeasonHandler(w http.ResponseWriter, r *http.Request) {
+func TMDBGetTVSeasonHandler(c *gin.Context) {
 	slog.Debug("handling TMDB get TV season route")
 
-	showIDStr := r.PathValue("showId")
-	seasonNumberStr := r.PathValue("seasonNumber")
-
-	showID, err := strconv.Atoi(showIDStr)
+	showID, err := strconv.Atoi(c.Param("showId"))
 	if err != nil {
-		writeErrorResponse(w, "Invalid show ID", http.StatusBadRequest)
+		writeErrorResponse(c, "Invalid show ID", http.StatusBadRequest)
 		return
 	}
 
-	seasonNumber, err := strconv.Atoi(seasonNumberStr)
+	seasonNumber, err := strconv.Atoi(c.Param("seasonNumber"))
 	if err != nil {
-		writeErrorResponse(w, "Invalid season number", http.StatusBadRequest)
+		writeErrorResponse(c, "Invalid season number", http.StatusBadRequest)
 		return
 	}
 
-	result, err := tmdb.GetTVSeason(r.Context(), showID, seasonNumber)
+	result, err := tmdb.GetTVSeason(c.Request.Context(), showID, seasonNumber)
 	if err != nil {
 		slog.Error("failed to get TV season", "error", err)
-		writeErrorResponse(w, "Failed to fetch TV season", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to fetch TV season", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TMDBTrendingMoviesHandler(w http.ResponseWriter, r *http.Request) {
+func TMDBTrendingMoviesHandler(c *gin.Context) {
 	slog.Debug("handling TMDB trending movies route")
 
-	result, err := tmdb.GetTrendingMovies(r.Context())
+	result, err := tmdb.GetTrendingMovies(c.Request.Context())
 	if err != nil {
 		slog.Error("failed to get trending movies", "error", err)
-		writeErrorResponse(w, "Failed to fetch trending movies", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to fetch trending movies", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TMDBSearchMoviesHandler(w http.ResponseWriter, r *http.Request) {
+func TMDBSearchMoviesHandler(c *gin.Context) {
 	slog.Debug("handling TMDB search movies route")
 
-	query := r.URL.Query().Get("query")
+	query := c.Query("query")
 	if query == "" {
-		writeErrorResponse(w, "query parameter is required", http.StatusBadRequest)
+		writeErrorResponse(c, "query parameter is required", http.StatusBadRequest)
 		return
 	}
 
 	page := 1
-	if pageStr := r.URL.Query().Get("page"); pageStr != "" {
+	if pageStr := c.Query("page"); pageStr != "" {
 		if p, err := strconv.Atoi(pageStr); err == nil {
 			page = p
 		}
 	}
 
-	result, err := tmdb.SearchMovies(r.Context(), query, page)
+	result, err := tmdb.SearchMovies(c.Request.Context(), query, page)
 	if err != nil {
 		slog.Error("failed to search movies", "error", err)
-		writeErrorResponse(w, "Failed to search movies", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to search movies", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TMDBGetMovieHandler(w http.ResponseWriter, r *http.Request) {
+func TMDBGetMovieHandler(c *gin.Context) {
 	slog.Debug("handling TMDB get movie route")
 
-	movieIDStr := r.PathValue("movieId")
-	movieID, err := strconv.Atoi(movieIDStr)
+	movieID, err := strconv.Atoi(c.Param("movieId"))
 	if err != nil {
-		writeErrorResponse(w, "Invalid movie ID", http.StatusBadRequest)
+		writeErrorResponse(c, "Invalid movie ID", http.StatusBadRequest)
 		return
 	}
 
-	result, err := tmdb.GetMovie(r.Context(), movieID)
+	result, err := tmdb.GetMovie(c.Request.Context(), movieID)
 	if err != nil {
 		slog.Error("failed to get movie", "error", err)
-		writeErrorResponse(w, "Failed to fetch movie", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to fetch movie", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
 // TVDB Handlers
 
-func TVDBTrendingTVHandler(w http.ResponseWriter, r *http.Request) {
+func TVDBTrendingTVHandler(c *gin.Context) {
 	slog.Debug("handling TVDB trending TV route")
 
-	result, err := tvdb.GetTrendingTV(r.Context())
+	result, err := tvdb.GetTrendingTV(c.Request.Context())
 	if err != nil {
 		slog.Error("failed to get trending TV", "error", err)
-		writeErrorResponse(w, "Failed to fetch trending TV shows", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to fetch trending TV shows", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TVDBSearchTVHandler(w http.ResponseWriter, r *http.Request) {
+func TVDBSearchTVHandler(c *gin.Context) {
 	slog.Debug("handling TVDB search TV route")
 
-	query := r.URL.Query().Get("query")
+	query := c.Query("query")
 	if query == "" {
-		writeErrorResponse(w, "query parameter is required", http.StatusBadRequest)
+		writeErrorResponse(c, "query parameter is required", http.StatusBadRequest)
 		return
 	}
 
-	result, err := tvdb.SearchTV(r.Context(), query)
+	result, err := tvdb.SearchTV(c.Request.Context(), query)
 	if err != nil {
 		slog.Error("failed to search TV", "error", err)
-		writeErrorResponse(w, "Failed to search TV shows", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to search TV shows", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TVDBGetTVShowHandler(w http.ResponseWriter, r *http.Request) {
+func TVDBGetTVShowHandler(c *gin.Context) {
 	slog.Debug("handling TVDB get TV show route")
 
-	showIDStr := r.PathValue("showId")
-	showID, err := strconv.Atoi(showIDStr)
+	showID, err := strconv.Atoi(c.Param("showId"))
 	if err != nil {
-		writeErrorResponse(w, "Invalid show ID", http.StatusBadRequest)
+		writeErrorResponse(c, "Invalid show ID", http.StatusBadRequest)
 		return
 	}
 
-	result, err := tvdb.GetTVShow(r.Context(), showID)
+	result, err := tvdb.GetTVShow(c.Request.Context(), showID)
 	if err != nil {
 		slog.Error("failed to get TV show", "error", err)
-		writeErrorResponse(w, "Failed to fetch TV show", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to fetch TV show", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TVDBGetTVSeasonHandler(w http.ResponseWriter, r *http.Request) {
+func TVDBGetTVSeasonHandler(c *gin.Context) {
 	slog.Debug("handling TVDB get TV season route")
 
-	seasonIDStr := r.PathValue("seasonId")
-	seasonID, err := strconv.Atoi(seasonIDStr)
+	seasonID, err := strconv.Atoi(c.Param("seasonId"))
 	if err != nil {
-		writeErrorResponse(w, "Invalid season ID", http.StatusBadRequest)
+		writeErrorResponse(c, "Invalid season ID", http.StatusBadRequest)
 		return
 	}
 
-	result, err := tvdb.GetTVSeason(r.Context(), seasonID)
+	result, err := tvdb.GetTVSeason(c.Request.Context(), seasonID)
 	if err != nil {
 		slog.Error("failed to get TV season", "error", err)
-		writeErrorResponse(w, "Failed to fetch TV season", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to fetch TV season", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TVDBTrendingMoviesHandler(w http.ResponseWriter, r *http.Request) {
+func TVDBTrendingMoviesHandler(c *gin.Context) {
 	slog.Debug("handling TVDB trending movies route")
 
-	result, err := tvdb.GetTrendingMovies(r.Context())
+	result, err := tvdb.GetTrendingMovies(c.Request.Context())
 	if err != nil {
 		slog.Error("failed to get trending movies", "error", err)
-		writeErrorResponse(w, "Failed to fetch trending movies", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to fetch trending movies", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TVDBSearchMoviesHandler(w http.ResponseWriter, r *http.Request) {
+func TVDBSearchMoviesHandler(c *gin.Context) {
 	slog.Debug("handling TVDB search movies route")
 
-	query := r.URL.Query().Get("query")
+	query := c.Query("query")
 	if query == "" {
-		writeErrorResponse(w, "query parameter is required", http.StatusBadRequest)
+		writeErrorResponse(c, "query parameter is required", http.StatusBadRequest)
 		return
 	}
 
-	result, err := tvdb.SearchMovies(r.Context(), query)
+	result, err := tvdb.SearchMovies(c.Request.Context(), query)
 	if err != nil {
 		slog.Error("failed to search movies", "error", err)
-		writeErrorResponse(w, "Failed to search movies", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to search movies", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }
 
-func TVDBGetMovieHandler(w http.ResponseWriter, r *http.Request) {
+func TVDBGetMovieHandler(c *gin.Context) {
 	slog.Debug("handling TVDB get movie route")
 
-	movieIDStr := r.PathValue("movieId")
-	movieID, err := strconv.Atoi(movieIDStr)
+	movieID, err := strconv.Atoi(c.Param("movieId"))
 	if err != nil {
-		writeErrorResponse(w, "Invalid movie ID", http.StatusBadRequest)
+		writeErrorResponse(c, "Invalid movie ID", http.StatusBadRequest)
 		return
 	}
 
-	result, err := tvdb.GetMovie(r.Context(), movieID)
+	result, err := tvdb.GetMovie(c.Request.Context(), movieID)
 	if err != nil {
 		slog.Error("failed to get movie", "error", err)
-		writeErrorResponse(w, "Failed to fetch movie", http.StatusInternalServerError)
+		writeErrorResponse(c, "Failed to fetch movie", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(w, result)
+	writeJSONResponse(c, result)
 }

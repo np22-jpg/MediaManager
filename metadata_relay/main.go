@@ -13,6 +13,7 @@ import (
 	"relay/app"
 	"relay/app/metrics"
 
+	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -33,41 +34,27 @@ func getLogLevel() slog.Level {
 	}
 }
 
-// httpMetricsMiddleware wraps handlers to record HTTP metrics
-func httpMetricsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// ginMetricsMiddleware wraps Gin handlers to record HTTP metrics
+func ginMetricsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		start := time.Now()
-		
-		// Create a response writer wrapper to capture status code
-		ww := &responseWriterWrapper{ResponseWriter: w, statusCode: http.StatusOK}
-		
-		// Serve the request
-		next.ServeHTTP(ww, r)
-		
+
+		// Process request
+		c.Next()
+
 		// Record metrics
 		duration := time.Since(start)
-		status := strconv.Itoa(ww.statusCode)
-		metrics.RecordHTTPRequest(r.Method, r.URL.Path, status, duration)
-		
+		status := strconv.Itoa(c.Writer.Status())
+		metrics.RecordHTTPRequest(c.Request.Method, c.FullPath(), status, duration)
+
 		slog.Debug("HTTP request completed",
-			"method", r.Method,
-			"path", r.URL.Path,
-			"status", ww.statusCode,
+			"method", c.Request.Method,
+			"path", c.FullPath(),
+			"status", c.Writer.Status(),
 			"duration", duration,
-			"remote_addr", r.RemoteAddr,
+			"remote_addr", c.ClientIP(),
 		)
-	})
-}
-
-// responseWriterWrapper wraps http.ResponseWriter to capture status code
-type responseWriterWrapper struct {
-	http.ResponseWriter
-	statusCode int
-}
-
-func (rw *responseWriterWrapper) WriteHeader(code int) {
-	rw.statusCode = code
-	rw.ResponseWriter.WriteHeader(code)
+	}
 }
 
 func main() {
@@ -80,19 +67,31 @@ func main() {
 
 	slog.Info("starting server")
 
-	// Build the router
-	mux := http.NewServeMux()
-	app.RegisterRoutes(mux)
+	// Set Gin mode based on log level
+	if logLevel == slog.LevelDebug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	// Create Gin router
+	router := gin.New()
+
+	// Add Gin's default middleware
+	router.Use(gin.Logger(), gin.Recovery())
+
+	// Add our metrics middleware
+	router.Use(ginMetricsMiddleware())
+
+	// Register routes
+	app.RegisterRoutes(router)
 
 	// Add Prometheus metrics endpoint (without middleware to avoid self-monitoring)
-	mux.Handle("/metrics", promhttp.Handler())
-
-	// Wrap with metrics middleware
-	handler := httpMetricsMiddleware(mux)
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	srv := &http.Server{
 		Addr:         ":8080",
-		Handler:      handler,
+		Handler:      router,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
