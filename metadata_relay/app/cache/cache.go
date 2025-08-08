@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hash/fnv"
 	"log/slog"
@@ -14,7 +15,8 @@ import (
 
 var redisClient *redis.Client
 
-// initializes the Redis/Valkey client with the provided configuration
+// InitCache initializes the Redis/Valkey client with the provided configuration
+// and tests the connection to ensure cache service availability.
 func InitCache(host string, port, db int) {
 	redisClient = redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%d", host, port),
@@ -47,7 +49,7 @@ func InitCache(host string, port, db int) {
 				version = strings.TrimSpace(strings.Split(line, ":")[1])
 				serverType = "Valkey"
 			} else if strings.HasPrefix(line, "server_name:") && strings.Contains(line, "valkey") {
-				// Confirm this is Valkey (NOTE: Valkey reports a redis version for compat reasons)
+				// Confirm this is Valkey (NOTE: Valkey reports a redis version for compatibility reasons)
 				serverType = "Valkey"
 			} else if strings.HasPrefix(line, "redis_version:") && serverType == "Redis" {
 				// Only use redis_version if we haven't found Valkey info
@@ -59,7 +61,8 @@ func InitCache(host string, port, db int) {
 	}
 }
 
-// reates a cache key from prefix and parameters
+// GenerateCacheKey creates a cache key from prefix and parameters using FNV hash
+// to ensure consistent and collision-resistant key generation.
 func GenerateCacheKey(prefix string, params ...any) string {
 	keyData := fmt.Sprintf("%s:%v", prefix, params)
 	hash := fnv.New64a()
@@ -67,7 +70,8 @@ func GenerateCacheKey(prefix string, params ...any) string {
 	return fmt.Sprintf("%x", hash.Sum64())
 }
 
-// retrievs cached data
+// GetCachedResponse retrieves cached data from Redis and deserializes it.
+// Returns nil for cache misses or unmarshaling errors.
 func GetCachedResponse(ctx context.Context, cacheKey string) (any, error) {
 	// Return cache miss if Redis client is not initialized
 	if redisClient == nil {
@@ -92,7 +96,8 @@ func GetCachedResponse(ctx context.Context, cacheKey string) (any, error) {
 	return result, nil
 }
 
-// stores data in cache
+// SetCachedResponse stores data in cache with the specified TTL.
+// Serializes data to JSON before storage.
 func SetCachedResponse(ctx context.Context, cacheKey string, data any, ttl time.Duration) error {
 	// Skip caching if Redis client is not initialized
 	if redisClient == nil {
@@ -111,4 +116,27 @@ func SetCachedResponse(ctx context.Context, cacheKey string, data any, ttl time.
 	}
 
 	return nil
+}
+
+// GetString retrieves a raw string value. Returns (value, true, nil) on hit; ("", false, nil) on miss.
+func GetString(ctx context.Context, key string) (string, bool, error) {
+	if redisClient == nil {
+		return "", false, nil
+	}
+	val, err := redisClient.Get(ctx, key).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return "", false, nil
+		}
+		return "", false, err
+	}
+	return val, true, nil
+}
+
+// SetString stores a raw string value with an optional TTL (0 for no expiry).
+func SetString(ctx context.Context, key, value string, ttl time.Duration) error {
+	if redisClient == nil {
+		return nil
+	}
+	return redisClient.Set(ctx, key, value, ttl).Err()
 }

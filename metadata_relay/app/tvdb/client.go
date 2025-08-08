@@ -13,31 +13,31 @@ import (
 	"relay/app/metrics"
 )
 
-const (
-	baseURL  = "https://api4.thetvdb.com/v4"
-	loginURL = "https://api4.thetvdb.com/v4/login"
-)
-
 var (
+	baseURL     string
+	loginURL    string
 	apiKey      string
 	accessToken string
 	tokenExpiry time.Time
 )
 
-// initializes the TVDB client with the provided API key
-func InitTVDB(key string) {
+// InitTVDB initializes the TVDB client with the provided API key and base URL.
+// Logs a warning if the API key is not configured.
+func InitTVDB(key, url string) {
 	apiKey = key
+	baseURL = url
+	loginURL = url
 	if apiKey == "" {
-		fmt.Printf("WARNING: TVDB_API_KEY environment variable is not set\n")
+		fmt.Printf("WARNING: TVDB_API_KEY environment variable is not set. /tvdb/* endpoints will be dysfunctional.\n")
 	}
 }
 
-// represents the login request structure
+// LoginRequest represents the login request structure for TVDB authentication.
 type LoginRequest struct {
 	APIKey string `json:"apikey"`
 }
 
-// represents the login response structure
+// LoginResponse represents the login response structure from TVDB.
 type LoginResponse struct {
 	Status string `json:"status"`
 	Data   struct {
@@ -45,7 +45,7 @@ type LoginResponse struct {
 	} `json:"data"`
 }
 
-// gets a new access token from TVDB
+// authenticate gets a new access token from TVDB API and updates token expiry.
 func authenticate() error {
 	if apiKey == "" {
 		metrics.RecordAuthAttempt("tvdb", "failed")
@@ -59,7 +59,7 @@ func authenticate() error {
 		return fmt.Errorf("failed to marshal login request: %w", err)
 	}
 
-	resp, err := http.Post(loginURL, "application/json", bytes.NewBuffer(jsonData))
+	resp, err := http.Post(loginURL+"/login", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		metrics.RecordAuthAttempt("tvdb", "failed")
 		return fmt.Errorf("failed to authenticate: %w", err)

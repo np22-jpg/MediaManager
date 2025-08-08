@@ -1,7 +1,10 @@
 package app
 
 import (
-	"relay/app/musicbrainz"
+	"relay/app/anidb"
+	"relay/app/music/musicbrainz"
+	"relay/app/music/theaudiodb"
+	"relay/app/seadex"
 	"relay/app/tmdb"
 	"relay/app/tvdb"
 
@@ -9,7 +12,7 @@ import (
 )
 
 // RegisterRoutes registers all API routes
-func RegisterRoutes(router *gin.Engine) {
+func RegisterRoutes(router *gin.Engine, musicBrainzEnabled bool, seadexEnabled bool, anidbEnabled bool) {
 	// Root endpoint
 	router.GET("/", RootHandler)
 
@@ -57,38 +60,68 @@ func RegisterRoutes(router *gin.Engine) {
 		}
 	}
 
-	// MusicBrainz endpoints group
-	musicbrainzGroup := router.Group("/musicbrainz")
-	{
-		// Artist endpoints
-		artistGroup := musicbrainzGroup.Group("/artists")
+	// SeaDx endpoints group (conditional)
+	if seadexEnabled {
+		seadexGroup := router.Group("/seadx")
 		{
-			artistGroup.GET("/search", musicbrainz.SearchArtistsHandler)
-			artistGroup.GET("/search/advanced", musicbrainz.AdvancedSearchArtistsHandler)
-			artistGroup.GET("/:mbid", musicbrainz.GetArtistHandler)
-			artistGroup.GET("/:mbid/release-groups", musicbrainz.BrowseArtistReleaseGroupsHandler)
+			seadexGroup.GET("/search", seadex.SearchEntriesHandler)
+			seadexGroup.GET("/entries/:id", seadex.GetEntryByIDHandler)
+			seadexGroup.GET("/anilist/:anilistId", seadex.GetEntryByAnilistIDHandler)
+			seadexGroup.GET("/trending", seadex.GetTrendingEntriesHandler)
+			seadexGroup.GET("/release-groups", seadex.GetEntriesByReleaseGroupHandler)
+			seadexGroup.GET("/trackers", seadex.GetEntriesByTrackerHandler)
 		}
+	}
 
-		// Release Group endpoints
-		releaseGroupGroup := musicbrainzGroup.Group("/release-groups")
+	// AniDB endpoints group (conditional)
+	if anidbEnabled {
+		anidbGroup := router.Group("/anidb")
 		{
-			releaseGroupGroup.GET("/search", musicbrainz.SearchReleaseGroupsHandler)
-			releaseGroupGroup.GET("/:mbid", musicbrainz.GetReleaseGroupHandler)
-			releaseGroupGroup.GET("/:mbid/releases", musicbrainz.BrowseReleaseGroupReleasesHandler)
+			anidbGroup.GET("/anime/:id", anidb.GetAnimeByIDHandler)
+			anidbGroup.GET("/hot", anidb.GetHotAnimeHandler)
+			anidbGroup.GET("/recommendations", anidb.GetRandomRecommendationHandler)
+			anidbGroup.GET("/similar", anidb.GetRandomSimilarHandler)
+			anidbGroup.GET("/main", anidb.GetMainPageDataHandler)
 		}
+	}
 
-		// Release endpoints
-		releaseGroup := musicbrainzGroup.Group("/releases")
-		{
-			releaseGroup.GET("/search", musicbrainz.SearchReleasesHandler)
-			releaseGroup.GET("/:mbid", musicbrainz.GetReleaseHandler)
-		}
+	// TheAudioDB endpoints (independent of MusicBrainz)
+	theaudiodb.RegisterRoutes(router)
 
-		// Recording endpoints
-		recordingGroup := musicbrainzGroup.Group("/recordings")
+	// MusicBrainz endpoints group (conditional)
+	if musicBrainzEnabled {
+		musicbrainzGroup := router.Group("/musicbrainz")
 		{
-			recordingGroup.GET("/search", musicbrainz.SearchRecordingsHandler)
-			recordingGroup.GET("/:mbid", musicbrainz.GetRecordingHandler)
+			// Artist endpoints
+			artistGroup := musicbrainzGroup.Group("/artists")
+			{
+				artistGroup.GET("/search", musicbrainz.SearchArtistsHandler)
+				artistGroup.GET("/search/advanced", musicbrainz.AdvancedSearchArtistsHandler)
+				artistGroup.GET("/:mbid", musicbrainz.GetArtistHandler)
+				artistGroup.GET("/:mbid/release-groups", musicbrainz.BrowseArtistReleaseGroupsHandler)
+			}
+
+			// Release Group endpoints
+			releaseGroupGroup := musicbrainzGroup.Group("/release-groups")
+			{
+				releaseGroupGroup.GET("/search", musicbrainz.SearchReleaseGroupsHandler)
+				releaseGroupGroup.GET("/:mbid", musicbrainz.GetReleaseGroupHandler)
+				releaseGroupGroup.GET("/:mbid/releases", musicbrainz.BrowseReleaseGroupReleasesHandler)
+			}
+
+			// Release endpoints
+			releaseGroup := musicbrainzGroup.Group("/releases")
+			{
+				releaseGroup.GET("/search", musicbrainz.SearchReleasesHandler)
+				releaseGroup.GET("/:mbid", musicbrainz.GetReleaseHandler)
+			}
+
+			// Recording endpoints
+			recordingGroup := musicbrainzGroup.Group("/recordings")
+			{
+				recordingGroup.GET("/search", musicbrainz.SearchRecordingsHandler)
+				recordingGroup.GET("/:mbid", musicbrainz.GetRecordingHandler)
+			}
 		}
 	}
 }

@@ -3,32 +3,305 @@ package musicbrainz
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log/slog"
-	"os"
+	"net/http"
+	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
 	"relay/app/cache"
+	"relay/app/music"
+	"relay/app/music/typesense"
 
 	_ "github.com/lib/pq"
 )
 
 var db *sql.DB
+var spotifyClient *music.SpotifyClient
+var lyricsClient *music.LRCLibClient
+var mediaDir string
 
-// InitMusicBrainz initializes the MusicBrainz PostgreSQL connection
-func InitMusicBrainz() {
+// Typesense-related variables and functions that reference the typesense package
+var typesenseClient interface{} // This will be set by InitTypesense
+
+// IsReady checks if both MusicBrainz and Typesense are configured and ready
+func IsReady() bool {
+	return typesense.IsReady()
+}
+
+// InitTypesense initializes the Typesense client and creates collections
+func InitTypesense(host, port, apiKey string, timeout time.Duration) error {
+	err := typesense.InitTypesense(host, port, apiKey, timeout)
+	if err == nil {
+		typesenseClient = true // Just a marker that it's initialized
+	}
+	return err
+}
+
+// ApplyTunables sets the sync tunables for Typesense operations
+func ApplyTunables(t typesense.SyncTunables) {
+	typesense.ApplyTunables(t)
+}
+
+// Index functions that delegate to the typesense package
+func IndexArtists() error {
+	return typesense.IndexArtists()
+}
+
+func IndexReleaseGroups() error {
+	return typesense.IndexReleaseGroups()
+}
+
+func IndexReleases() error {
+	return typesense.IndexReleases()
+}
+
+func IndexRecordings() error {
+	return typesense.IndexRecordings()
+}
+
+// Search functions that delegate to the typesense package
+func SearchArtistsTypesense(ctx context.Context, query string, limit int) (any, error) {
+	return typesense.SearchArtistsTypesense(ctx, query, limit)
+}
+
+func SearchReleaseGroupsTypesense(ctx context.Context, query string, limit int) (any, error) {
+	return typesense.SearchReleaseGroupsTypesense(ctx, query, limit)
+}
+
+func SearchReleasesTypesense(ctx context.Context, query string, limit int) (any, error) {
+	return typesense.SearchReleasesTypesense(ctx, query, limit)
+}
+
+func SearchRecordingsTypesense(ctx context.Context, query string, limit int) (any, error) {
+	return typesense.SearchRecordingsTypesense(ctx, query, limit)
+}
+
+func GetArtistTypesense(ctx context.Context, mbid string) (any, error) {
+	return typesense.GetArtistTypesense(ctx, mbid)
+}
+
+// SetSpotifyClient injects a Spotify client used to fetch images stored on disk.
+func SetSpotifyClient(c *music.SpotifyClient) { spotifyClient = c }
+
+// SetLyricsClient injects an LRCLib client used to fetch lyrics stored on disk.
+func SetLyricsClient(c *music.LRCLibClient) { lyricsClient = c }
+
+// SetMediaDir configures on-disk media directory used for images and lyrics.
+func SetMediaDir(dir string) { mediaDir = dir }
+
+var httpClient = &http.Client{Timeout: 6 * time.Second}
+
+// Database structures for URL relationships
+type ArtistURLRelation struct {
+	URL      string `db:"url"`
+	LinkType string `db:"link_type"`
+	TypeName string `db:"type_name"`
+	Ended    bool   `db:"ended"`
+}
+
+// WikidataEntity represents a Wikidata entity response
+type WikidataEntity struct {
+	Entities map[string]struct {
+		SiteLinks map[string]struct {
+			Site  string `json:"site"`
+			Title string `json:"title"`
+			URL   string `json:"url"`
+		} `json:"sitelinks"`
+	} `json:"entities"`
+}
+
+var wikidataIDRegex = regexp.MustCompile(`/wiki/(Q\d+)$`)
+
+// fetchArtistURLsFromDB retrieves URL relationships for an artist from PostgreSQL database
+func fetchArtistURLsFromDB(ctx context.Context, mbid string) ([]ArtistURLRelation, error) {
+	if mbid == "" {
+		return nil, fmt.Errorf("empty MBID")
+	}
+
+	query := `
+		SELECT 
+			u.url,
+			lt.gid as link_type,
+			lt.name as type_name,
+			lar.ended
+		FROM artist a
+		JOIN l_artist_url lar ON a.id = lar.entity0
+		JOIN url u ON lar.entity1 = u.id
+		JOIN link l ON lar.link = l.id
+		JOIN link_type lt ON l.link_type = lt.id
+		WHERE a.gid = $1
+		ORDER BY lt.name
+	`
+
+	rows, err := db.QueryContext(ctx, query, mbid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query URL relationships: %w", err)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	var relations []ArtistURLRelation
+	for rows.Next() {
+		var rel ArtistURLRelation
+		err := rows.Scan(&rel.URL, &rel.LinkType, &rel.TypeName, &rel.Ended)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan URL relationship: %w", err)
+		}
+		relations = append(relations, rel)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating URL relationships: %w", err)
+	}
+
+	return relations, nil
+}
+
+// extractWikidataID extracts Wikidata ID from URL relationships
+func extractWikidataID(relations []ArtistURLRelation) string {
+	for _, relation := range relations {
+		if relation.TypeName == "wikidata" && !relation.Ended {
+			matches := wikidataIDRegex.FindStringSubmatch(relation.URL)
+			if len(matches) > 1 {
+				return matches[1]
+			}
+		}
+	}
+	return ""
+}
+
+// fetchWikipediaPageFromWikidata retrieves Wikipedia page title from Wikidata ID
+func fetchWikipediaPageFromWikidata(ctx context.Context, wikidataID string) (string, error) {
+	if wikidataID == "" {
+		return "", fmt.Errorf("empty Wikidata ID")
+	}
+
+	endpoint := fmt.Sprintf("https://www.wikidata.org/wiki/Special:EntityData/%s.json", wikidataID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", "MetadataRelay/1.0 (https://github.com/your-org/metadata-relay)")
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to make request: %w", err)
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("wikidata API returned status %d", resp.StatusCode)
+	}
+
+	var entity WikidataEntity
+	if err := json.NewDecoder(resp.Body).Decode(&entity); err != nil {
+		return "", fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	// Look for English Wikipedia sitelink
+	if entityData, ok := entity.Entities[wikidataID]; ok {
+		if enwiki, ok := entityData.SiteLinks["enwiki"]; ok {
+			return enwiki.Title, nil
+		}
+	}
+
+	return "", fmt.Errorf("no English Wikipedia page found")
+}
+
+// fetchWikipediaFromMusicBrainz fetches Wikipedia info via PostgreSQL URL relationships
+func fetchWikipediaFromMusicBrainz(ctx context.Context, mbid string) (summary string, pageURL string, err error) {
+	result, err := cache.NewCache("musicbrainz_wikipedia").TTL(7*24*time.Hour).Wrap(func() (any, error) {
+		// Get URL relationships from database
+		relations, err := fetchArtistURLsFromDB(ctx, mbid)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch URL relationships: %w", err)
+		}
+
+		// Extract Wikidata ID
+		wikidataID := extractWikidataID(relations)
+		if wikidataID == "" {
+			return nil, fmt.Errorf("no Wikidata link found")
+		}
+
+		// Get Wikipedia page title from Wikidata
+		pageTitle, err := fetchWikipediaPageFromWikidata(ctx, wikidataID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get Wikipedia page from Wikidata: %w", err)
+		}
+
+		// Fetch Wikipedia summary
+		sum, link, err := fetchWikipediaSummary(ctx, pageTitle)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch Wikipedia summary: %w", err)
+		}
+
+		return map[string]string{
+			"summary": sum,
+			"url":     link,
+		}, nil
+	})(ctx, mbid)
+
+	if err != nil {
+		return "", "", err
+	}
+
+	data := result.(map[string]string)
+	return data["summary"], data["url"], nil
+}
+
+// fetchWikipediaSummary best-effort retrieves a summary and canonical URL for a title from Wikipedia.
+func fetchWikipediaSummary(ctx context.Context, title string) (summary string, pageURL string, err error) {
+	if title == "" {
+		return "", "", fmt.Errorf("empty title")
+	}
+	t := strings.ReplaceAll(title, " ", "_")
+	endpoint := "https://en.wikipedia.org/api/rest_v1/page/summary/" + url.PathEscape(t)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	req.Header.Set("Accept", "application/json")
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return "", "", err
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+	if resp.StatusCode != http.StatusOK {
+		return "", "", fmt.Errorf("wikipedia http %d", resp.StatusCode)
+	}
+	var out struct {
+		Extract     string `json:"extract"`
+		ContentURLs struct {
+			Desktop struct {
+				Page string `json:"page"`
+			} `json:"desktop"`
+		} `json:"content_urls"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return "", "", err
+	}
+	return out.Extract, out.ContentURLs.Desktop.Page, nil
+}
+
+// InitMusicBrainz initializes the MusicBrainz PostgreSQL connection with proper
+// connection pooling and timeout settings.
+func InitMusicBrainz(connStr string) {
+	// Check if required connection parameters are missing
+	if connStr == "host= port=5432 user=musicbrainz password=musicbrainz dbname= sslmode=disable" {
+		fmt.Printf("WARNING: MUSICBRAINZ_DB_HOST and MUSICBRAINZ_DB_NAME environment variables are not set.\n")
+		fmt.Printf("Music endpoints will not be available.\n")
+		return
+	}
+
 	var err error
-
-	// Get configuration from environment variables with defaults
-	host := getEnvOrDefault("MUSICBRAINZ_DB_HOST", "192.168.10.202")
-	port := getEnvOrDefault("MUSICBRAINZ_DB_PORT", "5432")
-	user := getEnvOrDefault("MUSICBRAINZ_DB_USER", "musicbrainz")
-	password := getEnvOrDefault("MUSICBRAINZ_DB_PASSWORD", "musicbrainz")
-	dbname := getEnvOrDefault("MUSICBRAINZ_DB_NAME", "musicbrainz_db")
-
-	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
 
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
@@ -36,7 +309,10 @@ func InitMusicBrainz() {
 		return
 	}
 
-	// Test the connection
+	// Set the database connection for the typesense package
+	typesense.SetDB(db)
+
+	// Test the connection with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -45,101 +321,12 @@ func InitMusicBrainz() {
 		return
 	}
 
-	// Set connection pool settings
+	// Set connection pool settings for optimal performance
 	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(5)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
-	fmt.Printf("Connected to MusicBrainz PostgreSQL database at %s:%s\n", host, port)
-}
-
-// getEnvOrDefault returns the environment variable value or a default value if not set
-func getEnvOrDefault(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
-} // SearchArtists searches for artists using PostgreSQL full-text search
-func SearchArtists(ctx context.Context, query string, limit int) (any, error) {
-	return cache.NewCache("musicbrainz_artist_search").TTL(24*time.Hour).Wrap(func() (any, error) {
-		// Simplified search query with better performance
-		searchQuery := `
-			SELECT DISTINCT
-				a.gid,
-				a.name,
-				a.sort_name,
-				a.type as artist_type,
-				ac.name as area_name,
-				a.begin_date_year,
-				a.end_date_year,
-				a.ended,
-				a.comment,
-				CASE 
-					WHEN a.name ILIKE $1 || '%' THEN 1
-					WHEN a.name ILIKE '%' || $1 || '%' THEN 2
-					WHEN a.sort_name ILIKE $1 || '%' THEN 3
-					WHEN aa.name ILIKE $1 || '%' THEN 4
-					ELSE 5
-				END as sort_order
-			FROM artist a
-			LEFT JOIN area ac ON a.area = ac.id
-			LEFT JOIN artist_alias aa ON aa.artist = a.id
-			WHERE (
-				a.name ILIKE '%' || $1 || '%' OR
-				a.sort_name ILIKE '%' || $1 || '%' OR
-				aa.name ILIKE '%' || $1 || '%'
-			)
-			ORDER BY sort_order, a.name
-			LIMIT $2
-		`
-
-		rows, err := db.QueryContext(ctx, searchQuery, query, limit)
-		if err != nil {
-			return nil, fmt.Errorf("failed to search artists: %w", err)
-		}
-		defer rows.Close()
-
-		var artists []map[string]any
-		for rows.Next() {
-			var gid, name, sortName, artistType, areaName, comment sql.NullString
-			var beginYear, endYear sql.NullInt32
-			var ended sql.NullBool
-			var sortOrder int
-
-			err := rows.Scan(&gid, &name, &sortName, &artistType, &areaName, &beginYear, &endYear, &ended, &comment, &sortOrder)
-			if err != nil {
-				continue
-			}
-
-			artist := map[string]any{
-				"id":             gid.String,
-				"name":           name.String,
-				"sort-name":      sortName.String,
-				"type":           artistType.String,
-				"area":           areaName.String,
-				"begin-area":     areaName.String,
-				"ended":          ended.Bool,
-				"disambiguation": comment.String,
-				"score":          100, // Static score for simplified query
-			}
-
-			if beginYear.Valid {
-				artist["life-span"] = map[string]any{
-					"begin": fmt.Sprintf("%d", beginYear.Int32),
-				}
-				if endYear.Valid {
-					artist["life-span"].(map[string]any)["end"] = fmt.Sprintf("%d", endYear.Int32)
-				}
-			}
-
-			artists = append(artists, artist)
-		}
-
-		return map[string]any{
-			"artists": artists,
-			"count":   len(artists),
-		}, nil
-	})(ctx, query, limit)
+	slog.Info("Connected to MusicBrainz PostgreSQL database")
 }
 
 // GetArtist gets a specific artist by MBID
@@ -194,80 +381,39 @@ func GetArtist(ctx context.Context, mbid string) (any, error) {
 			}
 		}
 
+		// Wikipedia summary via MusicBrainz URL relationships (cached)
+		if gid.String != "" {
+			if sum, link, err := fetchWikipediaFromMusicBrainz(ctx, gid.String); err == nil {
+				if sum != "" {
+					artist["wikipedia-summary"] = sum
+				}
+				if link != "" {
+					artist["wikipedia-url"] = link
+				}
+			} else {
+				// Fallback to name-based Wikipedia search
+				if name.String != "" {
+					if sum, link, err := fetchWikipediaSummary(ctx, name.String); err == nil {
+						if sum != "" {
+							artist["wikipedia-summary"] = sum
+						}
+						if link != "" {
+							artist["wikipedia-url"] = link
+						}
+					}
+				}
+			}
+		}
+
+		// Spotify image (stored on disk under /media)
+		if spotifyClient != nil && mediaDir != "" && name.String != "" {
+			if path, err := spotifyClient.DownloadArtistImage(ctx, name.String, mediaDir); err == nil && path != "" {
+				artist["image-url"] = "/media/spotify/artists/" + url.PathEscape(name.String) + ".jpg"
+			}
+		}
+
 		return artist, nil
 	})(ctx, mbid)
-}
-
-// SearchReleaseGroups searches for release groups using PostgreSQL full-text search
-func SearchReleaseGroups(ctx context.Context, query string, limit int) (any, error) {
-	return cache.NewCache("musicbrainz_release_group_search").TTL(24*time.Hour).Wrap(func() (any, error) {
-		// Simplified query with better performance
-		searchQuery := `
-			SELECT DISTINCT
-				rg.gid,
-				rg.name,
-				rg.type as release_group_type,
-				a.name as artist_name,
-				a.gid as artist_id,
-				rg.comment,
-				CASE 
-					WHEN rg.name ILIKE $1 || '%' THEN 1
-					WHEN rg.name ILIKE '%' || $1 || '%' THEN 2
-					WHEN a.name ILIKE $1 || '%' THEN 3
-					ELSE 4
-				END as sort_order
-			FROM release_group rg
-			JOIN artist_credit_name acn ON rg.artist_credit = acn.artist_credit
-			JOIN artist a ON acn.artist = a.id
-			WHERE (
-				rg.name ILIKE '%' || $1 || '%' OR
-				a.name ILIKE '%' || $1 || '%'
-			)
-			ORDER BY sort_order, rg.name
-			LIMIT $2
-		`
-
-		rows, err := db.QueryContext(ctx, searchQuery, query, limit)
-		if err != nil {
-			return nil, fmt.Errorf("failed to search release groups: %w", err)
-		}
-		defer rows.Close()
-
-		var releaseGroups []map[string]any
-		for rows.Next() {
-			var rgGid, rgName, rgType, artistName, artistGid, comment sql.NullString
-			var sortOrder int
-
-			err := rows.Scan(&rgGid, &rgName, &rgType, &artistName, &artistGid, &comment, &sortOrder)
-			if err != nil {
-				continue
-			}
-
-			releaseGroup := map[string]any{
-				"id":           rgGid.String,
-				"title":        rgName.String,
-				"primary-type": rgType.String,
-				"artist-credit": []map[string]any{
-					{
-						"name": artistName.String,
-						"artist": map[string]any{
-							"id":   artistGid.String,
-							"name": artistName.String,
-						},
-					},
-				},
-				"disambiguation": comment.String,
-				"score":          100, // Static score for simplified query
-			}
-
-			releaseGroups = append(releaseGroups, releaseGroup)
-		}
-
-		return map[string]any{
-			"release-groups": releaseGroups,
-			"count":          len(releaseGroups),
-		}, nil
-	})(ctx, query, limit)
 }
 
 // GetReleaseGroup gets a specific release group by MBID
@@ -317,87 +463,6 @@ func GetReleaseGroup(ctx context.Context, mbid string) (any, error) {
 
 		return releaseGroup, nil
 	})(ctx, mbid)
-}
-
-// SearchReleases searches for releases using PostgreSQL full-text search
-func SearchReleases(ctx context.Context, query string, limit int) (any, error) {
-	return cache.NewCache("musicbrainz_release_search").TTL(24*time.Hour).Wrap(func() (any, error) {
-		// Priority: 1. Release name, 2. Artist name, 3. Release group name
-		searchQuery := `
-			SELECT DISTINCT
-				r.gid,
-				r.name,
-				r.status,
-				a.name as artist_name,
-				a.gid as artist_id,
-				rg.name as release_group_name,
-				rg.gid as release_group_id,
-				r.comment,
-				ts_rank_cd(
-					setweight(to_tsvector('english', COALESCE(r.name, '')), 'A') ||
-					setweight(to_tsvector('english', COALESCE(a.name, '')), 'B') ||
-					setweight(to_tsvector('english', COALESCE(rg.name, '')), 'C'),
-					plainto_tsquery('english', $1)
-				) as rank
-			FROM release r
-			JOIN artist_credit_name acn ON r.artist_credit = acn.artist_credit
-			JOIN artist a ON acn.artist = a.id
-			LEFT JOIN release_group rg ON r.release_group = rg.id
-			WHERE (
-				to_tsvector('english', COALESCE(r.name, '')) @@ plainto_tsquery('english', $1) OR
-				to_tsvector('english', COALESCE(a.name, '')) @@ plainto_tsquery('english', $1) OR
-				to_tsvector('english', COALESCE(rg.name, '')) @@ plainto_tsquery('english', $1)
-			)
-			GROUP BY r.id, r.gid, r.name, r.status, a.name, a.gid, rg.name, rg.gid, r.comment
-			ORDER BY rank DESC, r.name
-			LIMIT $2
-		`
-
-		rows, err := db.QueryContext(ctx, searchQuery, query, limit)
-		if err != nil {
-			return nil, fmt.Errorf("failed to search releases: %w", err)
-		}
-		defer rows.Close()
-
-		var releases []map[string]any
-		for rows.Next() {
-			var releaseGid, releaseName, releaseStatus, artistName, artistGid, rgName, rgGid, comment sql.NullString
-			var rank float64
-
-			err := rows.Scan(&releaseGid, &releaseName, &releaseStatus, &artistName, &artistGid, &rgName, &rgGid, &comment, &rank)
-			if err != nil {
-				continue
-			}
-
-			release := map[string]any{
-				"id":     releaseGid.String,
-				"title":  releaseName.String,
-				"status": releaseStatus.String,
-				"artist-credit": []map[string]any{
-					{
-						"name": artistName.String,
-						"artist": map[string]any{
-							"id":   artistGid.String,
-							"name": artistName.String,
-						},
-					},
-				},
-				"release-group": map[string]any{
-					"id":    rgGid.String,
-					"title": rgName.String,
-				},
-				"disambiguation": comment.String,
-				"score":          int(rank * 100),
-			}
-
-			releases = append(releases, release)
-		}
-
-		return map[string]any{
-			"releases": releases,
-			"count":    len(releases),
-		}, nil
-	})(ctx, query, limit)
 }
 
 // GetRelease gets a specific release by MBID
@@ -456,82 +521,6 @@ func GetRelease(ctx context.Context, mbid string) (any, error) {
 	})(ctx, mbid)
 }
 
-// SearchRecordings searches for recordings using PostgreSQL full-text search
-func SearchRecordings(ctx context.Context, query string, limit int) (any, error) {
-	return cache.NewCache("musicbrainz_recording_search").TTL(24*time.Hour).Wrap(func() (any, error) {
-		// Simplified query with better performance
-		searchQuery := `
-			SELECT DISTINCT
-				rec.gid,
-				rec.name,
-				rec.length,
-				a.name as artist_name,
-				a.gid as artist_id,
-				rec.comment,
-				CASE 
-					WHEN rec.name ILIKE $1 || '%' THEN 1
-					WHEN rec.name ILIKE '%' || $1 || '%' THEN 2
-					WHEN a.name ILIKE $1 || '%' THEN 3
-					ELSE 4
-				END as sort_order
-			FROM recording rec
-			JOIN artist_credit_name acn ON rec.artist_credit = acn.artist_credit
-			JOIN artist a ON acn.artist = a.id
-			WHERE (
-				rec.name ILIKE '%' || $1 || '%' OR
-				a.name ILIKE '%' || $1 || '%'
-			)
-			ORDER BY sort_order, rec.name
-			LIMIT $2
-		`
-
-		rows, err := db.QueryContext(ctx, searchQuery, query, limit)
-		if err != nil {
-			return nil, fmt.Errorf("failed to search recordings: %w", err)
-		}
-		defer rows.Close()
-
-		var recordings []map[string]any
-		for rows.Next() {
-			var recGid, recName, artistName, artistGid, comment sql.NullString
-			var length sql.NullInt64
-			var sortOrder int
-
-			err := rows.Scan(&recGid, &recName, &length, &artistName, &artistGid, &comment, &sortOrder)
-			if err != nil {
-				continue
-			}
-
-			recording := map[string]any{
-				"id":    recGid.String,
-				"title": recName.String,
-				"artist-credit": []map[string]any{
-					{
-						"name": artistName.String,
-						"artist": map[string]any{
-							"id":   artistGid.String,
-							"name": artistName.String,
-						},
-					},
-				},
-				"disambiguation": comment.String,
-				"score":          100, // Static score for simplified query
-			}
-
-			if length.Valid {
-				recording["length"] = length.Int64
-			}
-
-			recordings = append(recordings, recording)
-		}
-
-		return map[string]any{
-			"recordings": recordings,
-			"count":      len(recordings),
-		}, nil
-	})(ctx, query, limit)
-}
-
 // GetRecording gets a specific recording by MBID
 func GetRecording(ctx context.Context, mbid string) (any, error) {
 	return cache.NewCache("musicbrainz_recording").TTL(7*24*time.Hour).Wrap(func() (any, error) {
@@ -581,6 +570,14 @@ func GetRecording(ctx context.Context, mbid string) (any, error) {
 			recording["length"] = length.Int64
 		}
 
+		// Lyrics via LRCLib (stored on disk)
+		if lyricsClient != nil && mediaDir != "" && artistName.String != "" && recName.String != "" {
+			if path, err := lyricsClient.FetchLyrics(ctx, artistName.String, recName.String, mediaDir); err == nil && path != "" {
+				// public URL pointing to static media
+				recording["lyrics-url"] = "/media/lyrics/" + url.PathEscape(artistName.String+" - "+recName.String) + ".lrc"
+			}
+		}
+
 		return recording, nil
 	})(ctx, mbid)
 }
@@ -608,7 +605,11 @@ func BrowseArtistReleaseGroups(ctx context.Context, artistMbid string, limit int
 		if err != nil {
 			return nil, fmt.Errorf("failed to browse artist release groups: %w", err)
 		}
-		defer rows.Close()
+		defer func() {
+			if closeErr := rows.Close(); closeErr != nil {
+				slog.Warn("failed to close rows", "error", closeErr)
+			}
+		}()
 
 		var releaseGroups []map[string]any
 		for rows.Next() {
@@ -671,7 +672,11 @@ func BrowseReleaseGroupReleases(ctx context.Context, releaseGroupMbid string, li
 		if err != nil {
 			return nil, fmt.Errorf("failed to browse release group releases: %w", err)
 		}
-		defer rows.Close()
+		defer func() {
+			if closeErr := rows.Close(); closeErr != nil {
+				slog.Warn("failed to close rows", "error", closeErr)
+			}
+		}()
 
 		var releases []map[string]any
 		for rows.Next() {
@@ -774,7 +779,11 @@ func AdvancedSearchArtists(ctx context.Context, artistName, area, beginDate, end
 		if err != nil {
 			return nil, fmt.Errorf("failed to perform advanced artist search: %w", err)
 		}
-		defer rows.Close()
+		defer func() {
+			if closeErr := rows.Close(); closeErr != nil {
+				slog.Warn("failed to close rows", "error", closeErr)
+			}
+		}()
 
 		var artists []map[string]any
 		for rows.Next() {

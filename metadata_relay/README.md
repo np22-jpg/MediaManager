@@ -1,16 +1,11 @@
-# MetadataRelay
+# MediaManager Metadata Relay
 
 This is a service that provides metadata for movies, TV shows, and music. It caches the metadata to not overload the TMDB and TVDB APIs and uses a local MusicBrainz PostgreSQL mirror for music metadata. This service is used by MediaManager to fetch metadata for movies, TV shows, and music. I (the developer) run a public instance of this service at https://metadata-relay.maxid.me, but you can also run your own instance.
 
-## Supported APIs
+## Docker Compose Example
 
-- **TMDB** - Movies and TV Shows metadata
-- **TVDB** - Movies and TV Shows metadata (alternative source)
-- **MusicBrainz** - Music metadata (artists, albums, releases, recordings) via PostgreSQL mirror
-
-## Example Docker Compose Configuration
-
-````yaml
+```yaml
+version: '3.8'
 services:
   valkey:
     image: valkey/valkey:latest
@@ -18,55 +13,76 @@ services:
     container_name: valkey
     expose:
       - 6379
-  metadata_relay:
+  metadata-relay:
     image: ghcr.io/maxdorninger/mediamanager/metadata_relay:latest
     restart: always
     environment:
-      - TMDB_API_KEY=  # you need not provide a TMDB API key, if you only want to use TVDB metadata, or the other way around
-      - TVDB_API_KEY=
-      - VALKEY_HOST=valkey
-    container_name: metadata_relay
+      - CACHE_HOST=redis
+      - TMDB_API_KEY=${TMDB_API_KEY} # you need not provide a TMDB API key, if you only want to use TVDB metadata, or the other way around
+      - TVDB_API_KEY=${TVDB_API_KEY}
     ports:
-      - 8000:8000
-````
+      - "8000:8000"
+    depends_on:
+      - valkey
+```
+
 
 ## Environment Variables
 
-| Name                    | Default Value  | Description                      |
-| ----------------------- | -------------- | -------------------------------- | 
-| VALKEY_HOST             | localhost      | Address/URL to DB                |
-| VALKEY_PORT             | 6379           | Port to DB                       |
-| VALKEY_DB               | 0              | DB Name                          |
-| TMDB_API_KEY            | *unset*        | API Key for TMDB                 |
-| TVDB_API_KEY            | *unset*        | API Key for TVDB                 |
-| MUSICBRAINZ_DB_HOST     | 192.168.10.202 | MusicBrainz PostgreSQL host      |
-| MUSICBRAINZ_DB_PORT     | 5432           | MusicBrainz PostgreSQL port      |
-| MUSICBRAINZ_DB_USER     | musicbrainz    | MusicBrainz database username    |
-| MUSICBRAINZ_DB_PASSWORD | musicbrainz    | MusicBrainz database password    |
-| MUSICBRAINZ_DB_NAME     | musicbrainz_db | MusicBrainz database name        |
-| LOG_LEVEL               | info           | Log Verbosity                    |
-| PORT                    | 8000           | Service port                     |
+| Name                      | Default                                   | Required | Description |
+|---------------------------|-------------------------------------------|----------|-------------|
+| LOG_LEVEL                 | info                                       | No       | Log verbosity (debug, info, warn, error) |
+| PORT                      | 8000                                       | No       | Service port |
+| VALKEY_HOST               | localhost                                  | No       | Cache DB host |
+| VALKEY_PORT               | 6379                                       | No       | Cache DB port |
+| VALKEY_DB                 | 0                                          | No       | Cache DB number |
+| TMDB_API_KEY              | unset                                      | No       | TMDB API key |
+| TMDB_BASE_URL             | https://api.themoviedb.org/3               | No       | TMDB base URL |
+| TVDB_API_KEY              | unset                                      | No       | TVDB API key |
+| TVDB_BASE_URL             | https://api4.thetvdb.com/v4                | No       | TVDB base URL |
+| SEADX_BASE_URL            | https://releases.moe/api                   | No       | SeaDx anime torrent index base URL |
+| ANIDB_BASE_URL            | http://api.anidb.info:9001/httpapi         | No       | AniDB anime database base URL |
+| ANIDB_CLIENT              | unset                                      | No³      | AniDB client name (required for AniDB endpoints) |
+| ANIDB_CLIENT_VER          | 1                                          | No       | AniDB client version |
+| THEAUDIODB_API_KEY        | unset                                      | No       | TheAudioDB API key (use "2" for testing) |
+| THEAUDIODB_BASE_URL       | https://www.theaudiodb.com/api/v1/json      | No       | TheAudioDB base URL |
+| MEDIA_DIR                 | ./media                                    | No       | On-disk directory to store images and lyrics; served at /media |
+| SPOTIFY_CLIENT_ID         | unset                                      | No       | Spotify Client ID (for fetching artist images) |
+| SPOTIFY_CLIENT_SECRET     | unset                                      | No       | Spotify Client Secret (for fetching artist images) |
+| LRCLIB_BASE_URL           | https://lrclib.net/api                     | No       | LRCLib base URL (for fetching synced lyrics) |
+| MUSICBRAINZ_DB_HOST       | unset                                      | No¹      | MusicBrainz PostgreSQL host |
+| MUSICBRAINZ_DB_PORT       | 5432                                       | No       | MusicBrainz PostgreSQL port |
+| MUSICBRAINZ_DB_USER       | musicbrainz                                | No       | MusicBrainz database username |
+| MUSICBRAINZ_DB_PASSWORD   | musicbrainz                                | No       | MusicBrainz database password |
+| MUSICBRAINZ_DB_NAME       | unset                                      | No¹      | MusicBrainz database name |
+| TYPESENSE_HOST            | localhost                                  | No       | Typesense server host |
+| TYPESENSE_PORT            | 8108                                       | No       | Typesense server port |
+| TYPESENSE_API_KEY         | unset                                      | No²      | Typesense API key |
+| TYPESENSE_TIMEOUT         | 60s                                        | No       | Typesense HTTP client timeout |
+| SYNC_ENABLED              | true                                       | No       | Enable background sync scheduler |
+| SYNC_INTERVAL             | 24h                                        | No       | How often the scheduler runs |
+| SYNC_ENTITIES             | artists,release-groups,releases,recordings | No       | Entities to sync for `sync all` and scheduler (artists, release-groups, releases, recordings) |
+| SYNC_SKIP_UNCHANGED       | true                                       | No       | Skip sending unchanged docs to Typesense (uses cache fingerprints) |
+| SYNC_DB_PAGE_SIZE         | 8000                                       | No       | Rows fetched per DB page per shard |
+| SYNC_SHARD_PARALLELISM    | (CPU)                                      | No       | Parallel DB reader shards per entity |
+| SYNC_IMPORT_BATCH_SIZE    | 2000                                       | No       | Documents per Typesense import call |
+| SYNC_IMPORT_WORKERS       | (CPU)                                      | No       | Concurrent Typesense import workers per entity |
+| SYNC_IMPORT_MAX_RETRIES   | 3                                          | No       | Retries per failed import chunk |
+| SYNC_IMPORT_BACKOFF       | 400ms                                      | No       | Initial backoff for retries |
+| SYNC_IMPORT_GLOBAL_LIMIT  | unset                                      | No       | Global cap on concurrent import requests across entities |
 
-## metadata_relay-specific Roadmap
-
-- [x] port metadata relay to go
-- [x] enable musicbrainz support in metadata relay
-  - [x] use a pg db mirror instead of the public API
-- [ ] enable AniDB support in metadata relay
-  - [ ] enable SeaDex support in metadata relay
-- [ ] add support for new metadata sources in backend
-  - [ ] _maybe_ enable automated PGO/BOLT building
-- [ ] expand E2E metadata relay testing
-- [ ] expand Linting and formatting in metadata relay
-- [ ] Update metadata relay docs
-- [ ] Create a grafana dashboard for metadata relay
+**Notes:**
+1. Both `MUSICBRAINZ_DB_HOST` and `MUSICBRAINZ_DB_NAME` are required to enable MusicBrainz endpoints. If either is missing, MusicBrainz endpoints will not be available (404).
+2. `TYPESENSE_API_KEY` is required only if you want to enable search functionality. Without it, MusicBrainz endpoints return 503 for search operations.
+3. `ANIDB_CLIENT` is required to enable AniDB endpoints. Choose a unique client name for your application.
+4. `THEAUDIODB_API_KEY` can be set to `2` for public testing (rate-limited by TheAudioDB). Leaving it unset disables TheAudioDB endpoints.
 
 ## API Endpoints
 
 ### MusicBrainz Endpoints
 
 #### Artists
-- `GET /musicbrainz/artists/search?query={query}&limit={limit}` - Search for artists using PostgreSQL full-text search
+- `GET /musicbrainz/artists/search?query={query}&limit={limit}` - Search for artists using typesense
 - `GET /musicbrainz/artists/search/advanced?artist={name}&area={area}&begin={date}&end={date}&limit={limit}` - Advanced artist search with field-specific queries
 - `GET /musicbrainz/artists/{mbid}` - Get artist by MBID
 - `GET /musicbrainz/artists/{mbid}/release-groups?limit={limit}` - Browse artist's release groups
@@ -110,32 +126,32 @@ services:
 - `GET /tvdb/movies/search?query={query}` - Search for movies
 - `GET /tvdb/movies/{movieId}` - Get movie details by ID
 
-### Notes
+### SeaDx Endpoints
 
-- **TMDB**: Supports pagination with `page` parameter for search endpoints
-- **TVDB**: No pagination parameters needed for search endpoints
-- **MusicBrainz**: 
-  - Supports `limit` parameter (1-100) for controlling result count
-  - Uses PostgreSQL full-text search with weighted ranking:
-    1. Primary content (song/album names, artist names) - highest priority
-    2. Secondary content (artist sort names, aliases) - medium priority  
-    3. Related content (release group names) - lower priority
-  - Search results include relevance scores based on text matching quality
-  - Connects to local PostgreSQL mirror for faster, more reliable access
-- All endpoints return JSON responses
+#### Anime Torrents
+- `GET /seadx/search?query={query}&page={page}&perPage={perPage}` - Search anime torrent entries
+- `GET /seadx/entries/{id}` - Get anime entry details by ID
+- `GET /seadx/anilist/{anilistId}` - Get anime entry by AniList ID
+- `GET /seadx/trending?limit={limit}` - Get trending anime entries
+- `GET /seadx/release-groups?group={group}` - Filter by release group/fansub
+- `GET /seadx/trackers?tracker={tracker}` - Filter by tracker
 
-## Hosting musicbrainz
-The musicbrainz endpoint does not use sir/solr, instead opting for postgress fulltext search.
+### AniDB Endpoints
 
-To host it, you must run the official [db server](https://github.com/metabrainz/musicbrainz-docker/tree/master).
+#### Anime Database
+- `GET /anidb/anime/{id}` - Get anime details by AniDB ID
+- `GET /anidb/hot` - Get hot/trending anime
+- `GET /anidb/recommendations` - Get random anime recommendations
+- `GET /anidb/similar` - Get random similar anime pairs
+- `GET /anidb/main` - Get main page data (hot anime + recommendations)
 
-For example:
-```bash
-git clone https://github.com/metabrainz/musicbrainz-docker.git
-cd musicbrainz-docker
-admin/configure with alt-db-only-mirror
-docker compose build
-docker compose run --rm musicbrainz createdb.sh -fetch
-```
+### TheAudioDB Endpoints
 
-This will create a pg database and a redis database, as well as a few other services. The pg database mirror alone is 50 GB as of Aug 7, 2025.
+- `GET /theaudiodb/artist?name={name}` - Lookup artist info by name (uses TheAudioDB; requires THEAUDIODB_API_KEY; public test key is "2")
+- `GET /theaudiodb/artist/{mbid}` - Lookup artist info by MusicBrainz ID (prioritized caching: 7-day TTL)
+- `GET /theaudiodb/album/{mbid}` - Lookup album info by MusicBrainz release group ID (prioritized caching: 7-day TTL)
+- `GET /theaudiodb/track/{mbid}` - Lookup track info by MusicBrainz recording ID (prioritized caching: 7-day TTL)
+
+### System Endpoints
+- `GET /` - Service status and information
+- `GET /metrics` - Prometheus metrics

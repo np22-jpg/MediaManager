@@ -12,18 +12,19 @@ import (
 	"relay/app/metrics"
 )
 
-// wraps a function with caching functionality
+// CachedFunc wraps a function with caching functionality, providing automatic
+// cache lookup, metrics recording, and structured logging for API calls.
 func CachedFunc[T any](prefix string, ttl time.Duration, fn func() (T, error)) func(context.Context, ...any) (T, error) {
 	return func(ctx context.Context, params ...any) (T, error) {
 		var zero T
 		cacheKey := GenerateCacheKey(prefix, params...)
 
-		// Extract meaningful info from prefix and params for logging
+		// Extract meaningful information from prefix and params for logging
 		operation := extractOperation(prefix)
 		provider := extractProvider(prefix)
 		paramDetails := formatParams(params)
 
-		// Try cache first
+		// Try to retrieve from cache first
 		start := time.Now()
 		if cached, err := GetCachedResponse(ctx, cacheKey); err == nil && cached != nil {
 			duration := time.Since(start)
@@ -31,10 +32,10 @@ func CachedFunc[T any](prefix string, ttl time.Duration, fn func() (T, error)) f
 			// Record cache hit metrics
 			metrics.RecordCacheHit(operation, provider, duration)
 
-			// Get cache TTL info
+			// Get cache TTL information
 			ttlRemaining := getCacheRemainingTTL(ctx, cacheKey)
 
-			// Try to extract content info from cached data
+			// Try to extract content information from cached data
 			contentInfo := extractContentInfo(cached)
 
 			slog.Info("cache hit",
@@ -50,7 +51,7 @@ func CachedFunc[T any](prefix string, ttl time.Duration, fn func() (T, error)) f
 			if result, ok := cached.(T); ok {
 				return result, nil
 			}
-			// If type assertion fails, fall through to actual call
+			// If type assertion fails, fall through to actual API call
 			slog.Warn("cache type mismatch, falling back to API call",
 				"operation", operation,
 				"provider", provider,
@@ -74,7 +75,7 @@ func CachedFunc[T any](prefix string, ttl time.Duration, fn func() (T, error)) f
 			"cache_check_time", cacheCheckDuration,
 		)
 
-		// Call the actual function
+		// Call the actual function and measure API response time
 		apiStart := time.Now()
 		result, err := fn()
 		apiDuration := time.Since(apiStart)
@@ -98,10 +99,10 @@ func CachedFunc[T any](prefix string, ttl time.Duration, fn func() (T, error)) f
 		// Record successful API call metrics
 		metrics.RecordAPIRequest(provider, operation, "success", apiDuration)
 
-		// Extract info about what we're caching
+		// Extract information about what we're caching for logging
 		resultInfo := extractContentInfo(result)
 
-		// Cache the result
+		// Cache the result for future requests
 		cacheStart := time.Now()
 		if err := SetCachedResponse(ctx, cacheKey, result, ttl); err != nil {
 			slog.Error("failed to cache response",
@@ -117,10 +118,10 @@ func CachedFunc[T any](prefix string, ttl time.Duration, fn func() (T, error)) f
 		} else {
 			cacheDuration := time.Since(cacheStart)
 
-			// Record successful cache store
+			// Record successful cache store operation
 			metrics.RecordCacheStore(operation, provider, cacheDuration)
 
-			// Record content metrics
+			// Record content metrics for monitoring purposes
 			count, contentType := extractContentMetrics(result, operation)
 			if count > 0 {
 				metrics.RecordContentItems(provider, contentType, count)
@@ -145,7 +146,8 @@ func CachedFunc[T any](prefix string, ttl time.Duration, fn func() (T, error)) f
 	}
 }
 
-// extracts the operation type from the cache prefix
+// extractOperation extracts the operation type from the cache prefix.
+// Example: "tmdb:search" -> "search"
 func extractOperation(prefix string) string {
 	if prefix == "" {
 		return "unknown"
@@ -159,7 +161,8 @@ func extractOperation(prefix string) string {
 	return prefix
 }
 
-// extracts the provider from the cache prefix
+// extractProvider extracts the provider name from the cache prefix and normalizes it.
+// Example: "TMDB:search" -> "tmdb"
 func extractProvider(prefix string) string {
 	if prefix == "" {
 		return "unknown"
@@ -169,7 +172,7 @@ func extractProvider(prefix string) string {
 	parts := strings.Split(prefix, ":")
 	if len(parts) > 0 {
 		provider := parts[0]
-		// Normalize common provider names
+		// Normalize common provider names to lowercase
 		switch provider {
 		case "tmdb", "TMDB":
 			return "tmdb"
@@ -184,7 +187,8 @@ func extractProvider(prefix string) string {
 	return "unknown"
 }
 
-// creates a readable string from parameters
+// formatParams creates a human-readable string representation of function parameters
+// for logging purposes.
 func formatParams(params []any) string {
 	if len(params) == 0 {
 		return "none"
@@ -210,7 +214,8 @@ func formatParams(params []any) string {
 	return strings.Join(parts, ", ")
 }
 
-// extracts meaningful info from cached content
+// extractContentInfo extracts meaningful information from cached content for logging.
+// Attempts to parse common API response fields like titles, names, and result counts.
 func extractContentInfo(data any) string {
 	// Try to convert to JSON and extract relevant fields
 	if jsonData, err := json.Marshal(data); err == nil {
@@ -218,11 +223,11 @@ func extractContentInfo(data any) string {
 		if err := json.Unmarshal(jsonData, &parsed); err == nil {
 			var info []string
 
-			// Check for common fields in TMDB/TVDB responses
+			// Check for common fields in TMDB/TVDB API responses
 			if results, ok := parsed["results"].([]any); ok {
 				info = append(info, fmt.Sprintf("results=%d", len(results)))
 
-				// Try to get title/name from first result
+				// Try to get title/name from the first result for context
 				if len(results) > 0 {
 					if first, ok := results[0].(map[string]any); ok {
 						if title, ok := first["title"].(string); ok && title != "" {
@@ -233,7 +238,7 @@ func extractContentInfo(data any) string {
 					}
 				}
 			} else {
-				// Single item response
+				// Handle single item responses
 				if title, ok := parsed["title"].(string); ok && title != "" {
 					info = append(info, fmt.Sprintf("title=%q", title))
 				} else if name, ok := parsed["name"].(string); ok && name != "" {
@@ -254,26 +259,27 @@ func extractContentInfo(data any) string {
 	return fmt.Sprintf("type=%T", data)
 }
 
-// extracts content count and type for metrics
+// extractContentMetrics extracts content count and type information for metrics recording.
+// Analyzes API responses to determine content type (movie, TV show) and item count.
 func extractContentMetrics(data any, operation string) (count int, contentType string) {
 	contentType = "unknown"
 	count = 0
 
-	// Try to convert to JSON and extract metrics info
+	// Try to convert to JSON and extract metrics information
 	if jsonData, err := json.Marshal(data); err == nil {
 		var parsed map[string]any
 		if err := json.Unmarshal(jsonData, &parsed); err == nil {
-			// Check for results array (search/trending responses)
+			// Check for results array (typical in search/trending responses)
 			if results, ok := parsed["results"].([]any); ok {
 				count = len(results)
 
-				// Determine content type from operation or first result
+				// Determine content type from operation name or first result
 				if strings.Contains(operation, "movie") || strings.Contains(operation, "trending") {
 					contentType = "movie"
 				} else if strings.Contains(operation, "tv") || strings.Contains(operation, "series") {
 					contentType = "tv"
 				} else if len(results) > 0 {
-					// Try to determine from first result
+					// Try to determine content type from the first result structure
 					if first, ok := results[0].(map[string]any); ok {
 						if _, hasTitle := first["title"]; hasTitle {
 							contentType = "movie"
@@ -283,14 +289,14 @@ func extractContentMetrics(data any, operation string) (count int, contentType s
 					}
 				}
 			} else {
-				// Single item response
+				// Handle single item responses
 				count = 1
 				if strings.Contains(operation, "movie") {
 					contentType = "movie"
 				} else if strings.Contains(operation, "tv") || strings.Contains(operation, "series") {
 					contentType = "tv"
 				} else {
-					// Try to determine from content
+					// Try to determine content type from response structure
 					if _, hasTitle := parsed["title"]; hasTitle {
 						contentType = "movie"
 					} else if _, hasName := parsed["name"]; hasName {
@@ -304,7 +310,8 @@ func extractContentMetrics(data any, operation string) (count int, contentType s
 	return count, contentType
 }
 
-// gets the remaining TTL for a cache key
+// getCacheRemainingTTL retrieves the remaining time-to-live for a cache key.
+// Returns 0 if Redis client is not initialized or if TTL retrieval fails.
 func getCacheRemainingTTL(ctx context.Context, cacheKey string) time.Duration {
 	// Return 0 if Redis client is not initialized
 	if redisClient == nil {

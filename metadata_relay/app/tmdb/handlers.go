@@ -5,38 +5,32 @@ import (
 	"net/http"
 	"strconv"
 
+	"relay/app/common"
+
 	"github.com/gin-gonic/gin"
 )
 
-func writeJSONResponse(c *gin.Context, data any) {
-	c.JSON(http.StatusOK, data)
-}
-
-func writeErrorResponse(c *gin.Context, message string, statusCode int) {
-	c.JSON(statusCode, gin.H{"error": message})
-}
-
-// handles TMDB trending TV route
+// TrendingTVHandler handles TMDB trending TV shows endpoint.
 func TrendingTVHandler(c *gin.Context) {
 	slog.Debug("handling TMDB trending TV route")
 
 	result, err := GetTrendingTV(c.Request.Context())
 	if err != nil {
 		slog.Error("failed to get trending TV", "error", err)
-		writeErrorResponse(c, "Failed to fetch trending TV shows", http.StatusInternalServerError)
+		common.WriteErrorResponse(c, "Failed to fetch trending TV shows", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(c, result)
+	common.WriteJSONResponse(c, result)
 }
 
-// handles TMDB search TV route
+// SearchTVHandler handles TMDB TV show search endpoint with query and pagination.
 func SearchTVHandler(c *gin.Context) {
 	slog.Debug("handling TMDB search TV route")
 
 	query := c.Query("query")
 	if query == "" {
-		writeErrorResponse(c, "query parameter is required", http.StatusBadRequest)
+		common.WriteErrorResponse(c, "query parameter is required", http.StatusBadRequest)
 		return
 	}
 
@@ -50,80 +44,80 @@ func SearchTVHandler(c *gin.Context) {
 	result, err := SearchTV(c.Request.Context(), query, page)
 	if err != nil {
 		slog.Error("failed to search TV", "error", err)
-		writeErrorResponse(c, "Failed to search TV shows", http.StatusInternalServerError)
+		common.WriteErrorResponse(c, "Failed to search TV shows", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(c, result)
+	common.WriteJSONResponse(c, result)
 }
 
-// handles TMDB get TV show route
+// GetTVShowHandler handles TMDB individual TV show details endpoint.
 func GetTVShowHandler(c *gin.Context) {
 	slog.Debug("handling TMDB get TV show route")
 
 	showID, err := strconv.Atoi(c.Param("showId"))
 	if err != nil {
-		writeErrorResponse(c, "Invalid show ID", http.StatusBadRequest)
+		common.WriteErrorResponse(c, "Invalid show ID", http.StatusBadRequest)
 		return
 	}
 
 	result, err := GetTVShow(c.Request.Context(), showID)
 	if err != nil {
 		slog.Error("failed to get TV show", "error", err)
-		writeErrorResponse(c, "Failed to fetch TV show", http.StatusInternalServerError)
+		common.WriteErrorResponse(c, "Failed to fetch TV show", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(c, result)
+	common.WriteJSONResponse(c, result)
 }
 
-// handles TMDB get TV season route
+// GetTVSeasonHandler handles TMDB TV season details endpoint.
 func GetTVSeasonHandler(c *gin.Context) {
 	slog.Debug("handling TMDB get TV season route")
 
 	showID, err := strconv.Atoi(c.Param("showId"))
 	if err != nil {
-		writeErrorResponse(c, "Invalid show ID", http.StatusBadRequest)
+		common.WriteErrorResponse(c, "Invalid show ID", http.StatusBadRequest)
 		return
 	}
 
 	seasonNumber, err := strconv.Atoi(c.Param("seasonNumber"))
 	if err != nil {
-		writeErrorResponse(c, "Invalid season number", http.StatusBadRequest)
+		common.WriteErrorResponse(c, "Invalid season number", http.StatusBadRequest)
 		return
 	}
 
 	result, err := GetTVSeason(c.Request.Context(), showID, seasonNumber)
 	if err != nil {
 		slog.Error("failed to get TV season", "error", err)
-		writeErrorResponse(c, "Failed to fetch TV season", http.StatusInternalServerError)
+		common.WriteErrorResponse(c, "Failed to fetch TV season", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(c, result)
+	common.WriteJSONResponse(c, result)
 }
 
-// handles TMDB trending movies route
+// TrendingMoviesHandler handles TMDB trending movies endpoint.
 func TrendingMoviesHandler(c *gin.Context) {
 	slog.Debug("handling TMDB trending movies route")
 
 	result, err := GetTrendingMovies(c.Request.Context())
 	if err != nil {
 		slog.Error("failed to get trending movies", "error", err)
-		writeErrorResponse(c, "Failed to fetch trending movies", http.StatusInternalServerError)
+		common.WriteErrorResponse(c, "Failed to fetch trending movies", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(c, result)
+	common.WriteJSONResponse(c, result)
 }
 
-// handles TMDB search movies route
+// SearchMoviesHandler handles TMDB movie search endpoint with query and pagination.
 func SearchMoviesHandler(c *gin.Context) {
 	slog.Debug("handling TMDB search movies route")
 
 	query := c.Query("query")
 	if query == "" {
-		writeErrorResponse(c, "query parameter is required", http.StatusBadRequest)
+		common.WriteErrorResponse(c, "query parameter is required", http.StatusBadRequest)
 		return
 	}
 
@@ -137,29 +131,29 @@ func SearchMoviesHandler(c *gin.Context) {
 	result, err := SearchMovies(c.Request.Context(), query, page)
 	if err != nil {
 		slog.Error("failed to search movies", "error", err)
-		writeErrorResponse(c, "Failed to search movies", http.StatusInternalServerError)
+		common.WriteErrorResponse(c, "Failed to search movies", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(c, result)
+	common.WriteJSONResponse(c, result)
 }
 
-// handles TMDB get movie route
+// GetMovieHandler handles TMDB individual movie details endpoint.
 func GetMovieHandler(c *gin.Context) {
 	slog.Debug("handling TMDB get movie route")
 
 	movieID, err := strconv.Atoi(c.Param("movieId"))
 	if err != nil {
-		writeErrorResponse(c, "Invalid movie ID", http.StatusBadRequest)
+		common.WriteErrorResponse(c, "Invalid movie ID", http.StatusBadRequest)
 		return
 	}
 
 	result, err := GetMovie(c.Request.Context(), movieID)
 	if err != nil {
 		slog.Error("failed to get movie", "error", err)
-		writeErrorResponse(c, "Failed to fetch movie", http.StatusInternalServerError)
+		common.WriteErrorResponse(c, "Failed to fetch movie", http.StatusInternalServerError)
 		return
 	}
 
-	writeJSONResponse(c, result)
+	common.WriteJSONResponse(c, result)
 }

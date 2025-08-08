@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	// Cache metrics
+	// Cache metrics for monitoring cache performance
 	CacheHits = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "metadata_relay_cache_hits_total",
@@ -51,7 +51,7 @@ var (
 		[]string{"operation", "provider"},
 	)
 
-	// API metrics
+	// API metrics for external provider request monitoring
 	APIRequestDuration = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "metadata_relay_api_request_duration_seconds",
@@ -77,7 +77,7 @@ var (
 		[]string{"provider", "endpoint", "error_type"},
 	)
 
-	// Authentication metrics (for TVDB)
+	// Authentication metrics for tracking auth attempts (e.g., TVDB token refresh)
 	AuthenticationAttempts = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "metadata_relay_auth_attempts_total",
@@ -94,7 +94,7 @@ var (
 		[]string{"provider"},
 	)
 
-	// HTTP metrics
+	// HTTP metrics for monitoring incoming requests to the relay service
 	HTTPRequestDuration = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "metadata_relay_http_request_duration_seconds",
@@ -112,7 +112,7 @@ var (
 		[]string{"method", "endpoint", "status"},
 	)
 
-	// Content metrics
+	// Content metrics for tracking the volume of data returned
 	ContentItemsReturned = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "metadata_relay_content_items_returned",
@@ -123,51 +123,51 @@ var (
 	)
 )
 
-// records a cache hit with timing information
+// RecordCacheHit records a cache hit with timing information for performance monitoring.
 func RecordCacheHit(operation, provider string, duration time.Duration) {
 	CacheHits.WithLabelValues(operation, provider).Inc()
 	CacheRetrievalDuration.WithLabelValues(operation, provider, "hit").Observe(duration.Seconds())
 }
 
-// records a cache miss with timing information
+// RecordCacheMiss records a cache miss with timing information for performance monitoring.
 func RecordCacheMiss(operation, provider string, duration time.Duration) {
 	CacheMisses.WithLabelValues(operation, provider).Inc()
 	CacheRetrievalDuration.WithLabelValues(operation, provider, "miss").Observe(duration.Seconds())
 }
 
-// records cache storage timing
+// RecordCacheStore records cache storage timing for monitoring cache write performance.
 func RecordCacheStore(operation, provider string, duration time.Duration) {
 	CacheStoreDuration.WithLabelValues(operation, provider).Observe(duration.Seconds())
 }
 
-// records an API request with timing and status
+// RecordAPIRequest records an API request with timing and status for external provider monitoring.
 func RecordAPIRequest(provider, endpoint, status string, duration time.Duration) {
 	APIRequestsTotal.WithLabelValues(provider, endpoint, status).Inc()
 	APIRequestDuration.WithLabelValues(provider, endpoint, status).Observe(duration.Seconds())
 }
 
-// records an API error
+// RecordAPIError records an API error for tracking external provider reliability.
 func RecordAPIError(provider, endpoint, errorType string) {
 	APIErrors.WithLabelValues(provider, endpoint, errorType).Inc()
 }
 
-// records an authentication attempt
+// RecordAuthAttempt records an authentication attempt for tracking auth success/failure rates.
 func RecordAuthAttempt(provider, status string) {
 	AuthenticationAttempts.WithLabelValues(provider, status).Inc()
 }
 
-// updates the token expiry timestamp
+// UpdateAuthTokenExpiry updates the token expiry timestamp for monitoring token freshness.
 func UpdateAuthTokenExpiry(provider string, expiry time.Time) {
 	AuthTokenExpiry.WithLabelValues(provider).Set(float64(expiry.Unix()))
 }
 
-// records an HTTP request to the relay
+// RecordHTTPRequest records an HTTP request to the relay for monitoring service usage.
 func RecordHTTPRequest(method, endpoint, status string, duration time.Duration) {
 	HTTPRequestsTotal.WithLabelValues(method, endpoint, status).Inc()
 	HTTPRequestDuration.WithLabelValues(method, endpoint, status).Observe(duration.Seconds())
 }
 
-// records the number of content items returned
+// RecordContentItems records the number of content items returned for monitoring data volume.
 func RecordContentItems(provider, contentType string, count int) {
 	ContentItemsReturned.WithLabelValues(provider, contentType).Observe(float64(count))
 }

@@ -13,21 +13,22 @@ import (
 	"relay/app/cache"
 )
 
-const (
-	baseURL = "https://api.themoviedb.org/3"
+var (
+	baseURL string
+	apiKey  string
 )
 
-var apiKey string
-
-// initializes the TMDB client with the provided API key
-func InitTMDB(key string) {
+// InitTMDB initializes the TMDB client with the provided API key and base URL.
+// Logs a warning if the API key is not configured.
+func InitTMDB(key, url string) {
 	apiKey = key
+	baseURL = url
 	if apiKey == "" {
-		fmt.Printf("WARNING: TMDB_API_KEY environment variable is not set\n")
+		fmt.Printf("WARNING: TMDB_API_KEY environment variable is not set. /tmdb/* endpoints will be dysfunctional.\n")
 	}
 }
 
-// represents the trending API response structure
+// TrendingResponse represents the trending API response structure from TMDB.
 type TrendingResponse struct {
 	Page         int              `json:"page"`
 	Results      []map[string]any `json:"results"`
@@ -35,7 +36,7 @@ type TrendingResponse struct {
 	TotalResults int              `json:"total_results"`
 }
 
-// represents the search API response structure
+// SearchResponse represents the search API response structure from TMDB.
 type SearchResponse struct {
 	Page         int              `json:"page"`
 	Results      []map[string]any `json:"results"`
@@ -43,7 +44,8 @@ type SearchResponse struct {
 	TotalResults int              `json:"total_results"`
 }
 
-// makeRequest makes an HTTP request to TMDB API
+// makeRequest makes an HTTP request to TMDB API with proper error handling
+// and response validation.
 func makeRequest(endpoint string, params url.Values) (any, error) {
 	if apiKey == "" {
 		return nil, fmt.Errorf("TMDB API key not configured")
@@ -74,7 +76,7 @@ func makeRequest(endpoint string, params url.Values) (any, error) {
 	return result, nil
 }
 
-// gets trending TV shows
+// GetTrendingTV gets trending TV shows from TMDB with caching for 2 hours.
 func GetTrendingTV(ctx context.Context) (any, error) {
 	return cache.NewCache("tmdb_tv_trending").TTL(2 * time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
@@ -82,7 +84,7 @@ func GetTrendingTV(ctx context.Context) (any, error) {
 	})(ctx)
 }
 
-// searches for TV shows
+// SearchTV searches for TV shows with query and pagination, cached for 4 hours.
 func SearchTV(ctx context.Context, query string, page int) (any, error) {
 	return cache.NewCache("tmdb_tv_search").TTL(4*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
@@ -93,7 +95,7 @@ func SearchTV(ctx context.Context, query string, page int) (any, error) {
 	})(ctx, query, page)
 }
 
-// gets a specific TV show by ID
+// GetTVShow gets a specific TV show by ID with 12-hour caching.
 func GetTVShow(ctx context.Context, showID int) (any, error) {
 	return cache.NewCache("tmdb_tv_show").TTL(12*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
@@ -101,7 +103,7 @@ func GetTVShow(ctx context.Context, showID int) (any, error) {
 	})(ctx, showID)
 }
 
-// gets a specific season of a TV show
+// GetTVSeason gets a specific season of a TV show with 8-hour caching.
 func GetTVSeason(ctx context.Context, showID, seasonNumber int) (any, error) {
 	return cache.NewCache("tmdb_tv_season").TTL(8*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
@@ -109,7 +111,7 @@ func GetTVSeason(ctx context.Context, showID, seasonNumber int) (any, error) {
 	})(ctx, showID, seasonNumber)
 }
 
-// gets trending movies
+// GetTrendingMovies gets trending movies from TMDB with 2-hour caching.
 func GetTrendingMovies(ctx context.Context) (any, error) {
 	return cache.NewCache("tmdb_movies_trending").TTL(2 * time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
@@ -117,7 +119,7 @@ func GetTrendingMovies(ctx context.Context) (any, error) {
 	})(ctx)
 }
 
-// searches for movies
+// SearchMovies searches for movies with query and pagination, cached for 4 hours.
 func SearchMovies(ctx context.Context, query string, page int) (any, error) {
 	return cache.NewCache("tmdb_movies_search").TTL(4*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
@@ -128,7 +130,7 @@ func SearchMovies(ctx context.Context, query string, page int) (any, error) {
 	})(ctx, query, page)
 }
 
-// gets a specific movie by ID
+// GetMovie gets a specific movie by ID with 8-hour caching.
 func GetMovie(ctx context.Context, movieID int) (any, error) {
 	return cache.NewCache("tmdb_movie").TTL(8*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}

@@ -16,6 +16,25 @@ on:
   workflow_dispatch:
 
 jobs:
+  format-check:
+    name: Check Go Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Check formatting
+        run: |
+          cd metadata_relay
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "The following files are not formatted:"
+            gofmt -s -l .
+            echo "Please run 'gofmt -s -w .' to format your code."
+            exit 1
+          fi
+
   lint-code:
     name: Lint Go Code
     runs-on: ubuntu-latest
@@ -31,9 +50,31 @@ jobs:
           version: v2.3
           working-directory: "metadata_relay"
 
+  # Tests require the full musicbrainz db + a fully indexed typesense
+  # This would take hours and likely max out the storage space
+  # given on a GH hosted GHA runner.
+  # For now, tests are configured to pass even if this software is unavailable.
+
+  test:
+    name: Run Go Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Run tests
+        run: |
+          cd metadata_relay
+          go test -v ./...
+      - name: Run tests with race detection
+        run: |
+          cd metadata_relay
+          go test -race -v ./...
 
   build-and-push:
-    needs: lint-code
+    needs: [format-check, lint-code, test]
     runs-on: ubuntu-latest
     permissions:
       contents: read

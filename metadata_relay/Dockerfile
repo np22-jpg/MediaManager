@@ -8,7 +8,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -v -a -installsuffix cgo -ldflags="-w -s" -trimpath -o metadata_relay .
+RUN CGO_ENABLED=0 GOOS=linux go build -v -a -installsuffix cgo -trimpath -o metadata_relay .
 
 
 FROM docker.io/library/busybox:stable-musl AS runtime
@@ -27,11 +27,11 @@ RUN chmod +x /app/metadata_relay
 USER 1000:1000
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8000/ || exit 1
 
 # Run the application
 CMD ["/app/metadata_relay"]
