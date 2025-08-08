@@ -3,7 +3,6 @@ module relay
 go 1.24.5
 
 require (
-	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/lib/pq v1.10.9
 	github.com/prometheus/client_golang v1.23.0
 	github.com/typesense/typesense-go/v2 v2.0.0
@@ -13,6 +12,7 @@ require (
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect

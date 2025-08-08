@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"log/slog"
 	"strings"
 	"time"
 
-	"github.com/cespare/xxhash/v2"
 	"github.com/valkey-io/valkey-go"
 )
 
@@ -66,11 +66,13 @@ func InitCache(host string, port, db int) {
 	}
 }
 
-// GenerateCacheKey creates a cache key from prefix and parameters using xxHash
+// GenerateCacheKey creates a cache key from prefix and parameters using FNV-1a
 // to ensure consistent and collision-resistant key generation.
 func GenerateCacheKey(prefix string, params ...any) string {
 	keyData := fmt.Sprintf("%s:%v", prefix, params)
-	hash := xxhash.Sum64String(keyData)
+	h := fnv.New64a()
+	h.Write([]byte(keyData))
+	hash := h.Sum64()
 	return fmt.Sprintf("%x", hash)
 }
 
