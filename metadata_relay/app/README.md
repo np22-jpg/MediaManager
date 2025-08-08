@@ -4,7 +4,7 @@
 This application now uses the standard `net/http` library with a custom router implementation that supports path parameters and middleware chaining. Previously, Gin was used for better performance, but during migration testing, the performance difference was minimal in real-world scenarios. The custom router provides the needed functionality without external dependencies. If throughput becomes a problem in the future, moving to [fiber](https://gofiber.io/) might be considered.
 
 ## Metrics
-For metrics, it was decided to go with `prometheus/client_golang` for simplicity; however, it is quite large. In the future, ways to make it less impactful might be considered. That being said, the existing Docker image is already pretty small.
+For metrics, it was decided to go with `VictoriaMetrics/metrics` for its lightweight footprint and excellent performance. This replaced the previous `prometheus/client_golang` which was quite large. VictoriaMetrics provides a smaller binary size, lower memory usage, and faster metric operations while maintaining full Prometheus compatibility for scraping.
 
 ## Docker 
 The Docker image consists of a static version of this program, which is then loaded into busybox. This provides a nice list of CLI utilities alongside the main program. It is distroless in the sense that there is no package manager, and it runs rootless. Further hardening should be considered, though.

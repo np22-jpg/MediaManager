@@ -22,7 +22,7 @@ import (
 	"relay/app/tmdb"
 	"relay/app/tvdb"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/VictoriaMetrics/metrics"
 )
 
 // runSyncCommand handles the sync command for indexing MusicBrainz data to Typesense.
@@ -309,7 +309,9 @@ func main() {
 
 	// Create metrics server
 	metricsRouter := http.NewServeMux()
-	metricsRouter.Handle("/metrics", promhttp.Handler())
+	metricsRouter.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
+		metrics.WritePrometheus(w, true)
+	})
 
 	// Graceful shutdown setup
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
