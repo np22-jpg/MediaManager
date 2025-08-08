@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/typesense/typesense-go/v2/typesense/api"
+	"github.com/typesense/typesense-go/v3/typesense/api"
 )
 
 // High-performance sharded sync
@@ -68,9 +68,9 @@ func max(a, b int) int {
 
 // indexChunk imports a chunk to Typesense with retries
 func indexChunk(ctx context.Context, collection string, docs []interface{}) error {
-	stringPtr := func(s string) *string { return &s }
 	intPtr := func(i int) *int { return &i }
-	params := &api.ImportDocumentsParams{Action: stringPtr("upsert"), BatchSize: intPtr(importBatchSize)}
+	actionPtr := func(a api.IndexAction) *api.IndexAction { return &a }
+	params := &api.ImportDocumentsParams{Action: actionPtr(api.Upsert), BatchSize: intPtr(importBatchSize)}
 
 	var attempt int
 	var lastErr error

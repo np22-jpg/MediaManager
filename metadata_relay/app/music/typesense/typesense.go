@@ -9,8 +9,8 @@ import (
 
 	"relay/app/cache"
 
-	"github.com/typesense/typesense-go/v2/typesense"
-	"github.com/typesense/typesense-go/v2/typesense/api"
+	"github.com/typesense/typesense-go/v3/typesense"
+	"github.com/typesense/typesense-go/v3/typesense/api"
 )
 
 var typesenseClient *typesense.Client
