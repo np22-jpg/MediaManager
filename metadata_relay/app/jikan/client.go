@@ -114,7 +114,7 @@ func makeRequest(endpoint string) (any, error) {
 	return result, nil
 }
 
-// GetAnimeByID retrieves anime information by MyAnimeList ID with 8-hour caching.
+// GetAnimeByID retrieves anime information by MAL ID with 8-hour caching.
 func GetAnimeByID(ctx context.Context, animeID int) (any, error) {
 	return cache.NewCache("jikan_anime_by_id").TTL(8*time.Hour).Wrap(func() (any, error) {
 		return makeRequest(fmt.Sprintf("/anime/%d", animeID))

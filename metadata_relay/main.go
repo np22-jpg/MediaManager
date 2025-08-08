@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"relay/app"
-	"relay/app/anidb"
 	"relay/app/cache"
 	"relay/app/jikan"
 	"relay/app/music"
@@ -221,18 +220,7 @@ func main() {
 		slog.Info("SeaDx not configured - skipping")
 	}
 
-	// Initialize AniDB conditionally
-	var anidbEnabled bool
-	if app.AppConfig.IsAniDBConfigured() {
-		anidb.InitAniDB(app.AppConfig.AniDBBaseURL, app.AppConfig.AniDBClient, app.AppConfig.AniDBClientVer)
-		anidbEnabled = true
-		slog.Info("AniDB initialized successfully")
-	} else {
-		anidbEnabled = false
-		slog.Info("AniDB not configured - skipping")
-	}
-
-	// Initialize Jikan (MyAnimeList API alternative)
+	// Initialize Jikan
 	var jikanEnabled bool
 	if app.AppConfig.JikanBaseURL != "" {
 		jikan.InitJikan(app.AppConfig.JikanBaseURL)
@@ -317,7 +305,7 @@ func main() {
 	}
 
 	// Mount app routes
-	app.RegisterRoutes(router, musicBrainzEnabled, seadexEnabled, anidbEnabled, jikanEnabled)
+	app.RegisterRoutes(router, musicBrainzEnabled, seadexEnabled, jikanEnabled)
 
 	// Create metrics server
 	metricsRouter := http.NewServeMux()

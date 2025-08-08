@@ -1,7 +1,6 @@
 package app
 
 import (
-	"relay/app/anidb"
 	"relay/app/jikan"
 	"relay/app/music/musicbrainz"
 	"relay/app/music/theaudiodb"
@@ -11,7 +10,7 @@ import (
 )
 
 // RegisterRoutes registers all API routes
-func RegisterRoutes(router *Router, musicBrainzEnabled bool, seadexEnabled bool, anidbEnabled bool, jikanEnabled bool) {
+func RegisterRoutes(router *Router, musicBrainzEnabled bool, seadexEnabled bool, jikanEnabled bool) {
 	// Root endpoint
 	router.GET("/", RootHandler)
 
@@ -43,16 +42,7 @@ func RegisterRoutes(router *Router, musicBrainzEnabled bool, seadexEnabled bool,
 		router.GET("/seadx/trackers", seadex.GetEntriesByTrackerHandler)
 	}
 
-	// AniDB endpoints (conditional)
-	if anidbEnabled {
-		router.GET("/anidb/anime/{id}", anidb.GetAnimeByIDHandler)
-		router.GET("/anidb/hot", anidb.GetHotAnimeHandler)
-		router.GET("/anidb/recommendations", anidb.GetRandomRecommendationHandler)
-		router.GET("/anidb/similar", anidb.GetRandomSimilarHandler)
-		router.GET("/anidb/main", anidb.GetMainPageDataHandler)
-	}
-
-	// Jikan endpoints (MyAnimeList API alternative - conditional)
+	// Jikan endpoints (conditional)
 	if jikanEnabled {
 		router.GET("/jikan/anime/{id}", jikan.GetAnimeByIDHandler)
 		router.GET("/jikan/top", jikan.GetTopAnimeHandler)

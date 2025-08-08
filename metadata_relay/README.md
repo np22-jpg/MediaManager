@@ -30,8 +30,8 @@ services:
 
 ## Environment Variables
 
-| Name                      | Default                                   | Required | Description |
-|---------------------------|-------------------------------------------|----------|-------------|
+| Name                      | Default                                    | Required | Description |
+|---------------------------|--------------------------------------------|----------|-------------|
 | LOG_LEVEL                 | info                                       | No       | Log verbosity (debug, info, warn, error) |
 | PORT                      | 8000                                       | No       | Service port |
 | METRICS_PORT              | 9090                                       | No       | Metrics server port |
@@ -42,13 +42,10 @@ services:
 | TMDB_BASE_URL             | https://api.themoviedb.org/3               | No       | TMDB base URL |
 | TVDB_API_KEY              | unset                                      | No       | TVDB API key |
 | TVDB_BASE_URL             | https://api4.thetvdb.com/v4                | No       | TVDB base URL |
-| SEADX_BASE_URL            | https://releases.moe/api                   | No       | SeaDx anime torrent index base URL |
-| ANIDB_BASE_URL            | http://api.anidb.info:9001/httpapi         | No       | AniDB anime database base URL |
-| ANIDB_CLIENT              | unset                                      | No³      | AniDB client name (required for AniDB endpoints) |
-| ANIDB_CLIENT_VER          | 1                                          | No       | AniDB client version |
-| JIKAN_BASE_URL            | https://api.jikan.moe/v4                   | No       | Jikan (MyAnimeList) API base URL - alternative to AniDB |
+| SEADX_BASE_URL            | https://releases.moe/api                   | No       | SeaDx anime service index base URL |
+| JIKAN_BASE_URL            | https://api.jikan.moe/v4                   | No       | Jikan base URL |
 | THEAUDIODB_API_KEY        | unset                                      | No       | TheAudioDB API key (use "2" for testing) |
-| THEAUDIODB_BASE_URL       | https://www.theaudiodb.com/api/v1/json      | No       | TheAudioDB base URL |
+| THEAUDIODB_BASE_URL       | https://www.theaudiodb.com/api/v1/json     | No       | TheAudioDB base URL |
 | MEDIA_DIR                 | ./media                                    | No       | On-disk directory to store images and lyrics; served at /media |
 | SPOTIFY_CLIENT_ID         | unset                                      | No       | Spotify Client ID (for fetching artist images) |
 | SPOTIFY_CLIENT_SECRET     | unset                                      | No       | Spotify Client Secret (for fetching artist images) |
@@ -77,10 +74,8 @@ services:
 **Notes:**
 1. Both `MUSICBRAINZ_DB_HOST` and `MUSICBRAINZ_DB_NAME` are required to enable MusicBrainz endpoints. If either is missing, MusicBrainz endpoints will not be available (404).
 2. `TYPESENSE_API_KEY` is required only if you want to enable search functionality. Without it, MusicBrainz endpoints return 503 for search operations.
-3. `ANIDB_CLIENT` is required to enable AniDB endpoints. Choose a unique client name for your application.
-4. `THEAUDIODB_API_KEY` can be set to `2` for public testing (rate-limited by TheAudioDB). Leaving it unset disables TheAudioDB endpoints. Note that image fetching via MBID *requires* a premium API key.
-5. Jikan is enabled by default and requires no API key. It provides better rate limits (60 requests/minute) compared to AniDB (1 request per 2 seconds) and offers additional features like search functionality.
-ols.
+3. `THEAUDIODB_API_KEY` can be set to `2` for public testing (rate-limited by TheAudioDB). Leaving it unset disables TheAudioDB endpoints. Note that image fetching via MBID *requires* a premium API key.
+4. Jikan is enabled by default and requires no API key. 
 
 ## API Endpoints
 
@@ -133,27 +128,18 @@ ols.
 
 ### SeaDx Endpoints
 
-#### Anime Torrents
-- `GET /seadx/search?query={query}&page={page}&perPage={perPage}` - Search anime torrent entries
+#### Anime
+- `GET /seadx/search?query={query}&page={page}&perPage={perPage}` - Search anime entries
 - `GET /seadx/entries/{id}` - Get anime entry details by ID
 - `GET /seadx/anilist/{anilistId}` - Get anime entry by AniList ID
 - `GET /seadx/trending?limit={limit}` - Get trending anime entries
 - `GET /seadx/release-groups?group={group}` - Filter by release group/fansub
 - `GET /seadx/trackers?tracker={tracker}` - Filter by tracker
 
-### AniDB Endpoints
-
-#### Anime Database
-- `GET /anidb/anime/{id}` - Get anime details by AniDB ID
-- `GET /anidb/hot` - Get hot/trending anime
-- `GET /anidb/recommendations` - Get random anime recommendations
-- `GET /anidb/similar` - Get random similar anime pairs
-- `GET /anidb/main` - Get main page data (hot anime + recommendations)
-
 ### Jikan Endpoints
 
-#### Anime Database (Alternative to AniDB with better rate limits)
-- `GET /jikan/anime/{id}` - Get anime details by MyAnimeList ID
+#### Anime Database
+- `GET /jikan/anime/{id}` - Get anime details by MAL ID
 - `GET /jikan/top` - Get top-rated anime
 - `GET /jikan/seasonal` - Get current season anime
 - `GET /jikan/search?q={query}&page={page}` - Search for anime by title

@@ -37,15 +37,10 @@ type Config struct {
 	// LRCLib (lyrics)
 	LRCLibBaseURL string
 
-	// SeaDx (anime torrents)
+	// SeaDx (anime)
 	SeaDxBaseURL string
 
-	// AniDB (anime database)
-	AniDBBaseURL   string
-	AniDBClient    string
-	AniDBClientVer string
-
-	// Jikan (MyAnimeList API alternative to AniDB)
+	// Jikan
 	JikanBaseURL string
 
 	// Media storage directory (on disk, do not cache images in Redis)
@@ -140,10 +135,6 @@ func LoadConfig() error {
 		LRCLibBaseURL: getEnv("LRCLIB_BASE_URL", "https://lrclib.net/api"),
 
 		SeaDxBaseURL: getEnv("SEADX_BASE_URL", "https://releases.moe/api"),
-
-		AniDBBaseURL:   getEnv("ANIDB_BASE_URL", "http://api.anidb.info:9001/httpapi"),
-		AniDBClient:    getEnv("ANIDB_CLIENT", ""),
-		AniDBClientVer: getEnv("ANIDB_CLIENT_VER", "1"),
 
 		JikanBaseURL: getEnv("JIKAN_BASE_URL", "https://api.jikan.moe/v4"),
 
@@ -240,11 +231,6 @@ func (c *Config) IsTypesenseConfigured() bool {
 // IsSeaDxConfigured checks if SeaDx is configured (has base URL).
 func (c *Config) IsSeaDxConfigured() bool {
 	return c.SeaDxBaseURL != ""
-}
-
-// IsAniDBConfigured checks if AniDB is configured (requires client name).
-func (c *Config) IsAniDBConfigured() bool {
-	return c.AniDBClient != ""
 }
 
 // GetSyncInterval returns the sync interval duration, defaulting to 24 hours if parsing fails.
