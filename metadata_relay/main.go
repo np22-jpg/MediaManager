@@ -7,14 +7,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"sync"
 	"time"
 
 	"relay/app"
 	"relay/app/anidb"
 	"relay/app/cache"
-	"relay/app/metrics"
+	"relay/app/jikan"
 	"relay/app/music"
 	"relay/app/music/musicbrainz"
 	"relay/app/music/theaudiodb"
@@ -24,7 +23,6 @@ import (
 	"relay/app/tmdb"
 	"relay/app/tvdb"
 
-	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -234,6 +232,19 @@ func main() {
 		slog.Info("AniDB not configured - skipping")
 	}
 
+	// Initialize Jikan (MyAnimeList API alternative)
+	var jikanEnabled bool
+	if app.AppConfig.JikanBaseURL != "" {
+		jikan.InitJikan(app.AppConfig.JikanBaseURL)
+		jikanEnabled = true
+		slog.Info("Jikan initialized successfully")
+	} else {
+		slog.Info("Jikan not configured - using default settings")
+		// Still enable Jikan with default settings as it requires no API key
+		jikan.InitJikan("")
+		jikanEnabled = true
+	}
+
 	// Initialize MusicBrainz conditionally
 	var musicBrainzEnabled bool
 	// Always try to initialize MusicBrainz (similar to TMDB/TVDB)
@@ -288,25 +299,13 @@ func main() {
 
 	slog.Info("starting server")
 
-	// Set Gin mode based on log level
-	if logLevel == slog.LevelDebug {
-		gin.SetMode(gin.DebugMode)
-	} else {
-		gin.SetMode(gin.ReleaseMode)
-	}
+	// Create HTTP router
+	router := app.NewRouter()
 
-	// Create Gin router
-	router := gin.New()
-
-	// Add Gin's default middleware
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
-
-	// Add custom metrics middleware
-	router.Use(ginMetricsMiddleware())
-
-	// Add Prometheus metrics endpoint
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	// Add middleware
+	router.Use(app.LoggingMiddleware())
+	router.Use(app.RecoveryMiddleware())
+	router.Use(app.MetricsMiddleware())
 
 	// Serve media directory statically (images, lyrics files)
 	// Ensure media dir exists
@@ -314,65 +313,76 @@ func main() {
 		if err := os.MkdirAll(app.AppConfig.MediaDir, 0o755); err != nil {
 			slog.Warn("failed to create media dir", "dir", app.AppConfig.MediaDir, "error", err)
 		}
-		router.Static("/media", app.AppConfig.MediaDir)
+		router.Handle("/media/", http.StripPrefix("/media/", http.FileServer(http.Dir(app.AppConfig.MediaDir))))
 	}
 
 	// Mount app routes
-	app.RegisterRoutes(router, musicBrainzEnabled, seadexEnabled, anidbEnabled)
+	app.RegisterRoutes(router, musicBrainzEnabled, seadexEnabled, anidbEnabled, jikanEnabled)
+
+	// Create metrics server
+	metricsRouter := http.NewServeMux()
+	metricsRouter.Handle("/metrics", promhttp.Handler())
 
 	// Graceful shutdown setup
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
+	// Main server
 	srv := &http.Server{
 		Addr:    app.AppConfig.GetServerAddr(),
 		Handler: router,
 	}
 
-	// Start server in a goroutine
+	// Metrics server
+	metricsSrv := &http.Server{
+		Addr:    app.AppConfig.GetMetricsAddr(),
+		Handler: metricsRouter,
+	}
+
+	// Start servers in goroutines
+	var wg sync.WaitGroup
+	wg.Add(2)
+
 	go func() {
+		defer wg.Done()
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			slog.Error("Failed to start server", "error", err)
+			slog.Error("Failed to start main server", "error", err)
 		}
 	}()
 
-	slog.Info("Server started", "address", app.AppConfig.GetServerAddr())
+	go func() {
+		defer wg.Done()
+		if err := metricsSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			slog.Error("Failed to start metrics server", "error", err)
+		}
+	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server
+	slog.Info("Servers started", "main_address", app.AppConfig.GetServerAddr(), "metrics_address", app.AppConfig.GetMetricsAddr())
+
+	// Wait for interrupt signal to gracefully shutdown the servers
 	<-ctx.Done()
 
 	// The context is canceled, now attempt graceful shutdown
-	slog.Info("Server is shutting down...")
+	slog.Info("Servers are shutting down...")
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := srv.Shutdown(shutdownCtx); err != nil {
-		slog.Error("Server forced to shutdown", "error", err)
-	}
+	// Shutdown both servers
+	go func() {
+		if err := srv.Shutdown(shutdownCtx); err != nil {
+			slog.Error("Main server forced to shutdown", "error", err)
+		}
+	}()
 
-	slog.Info("Server exited")
-}
+	go func() {
+		if err := metricsSrv.Shutdown(shutdownCtx); err != nil {
+			slog.Error("Metrics server forced to shutdown", "error", err)
+		}
+	}()
 
-// ginMetricsMiddleware wraps Gin handlers to record HTTP metrics and provides
-// structured logging for all HTTP requests.
-func ginMetricsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		start := time.Now()
+	// Wait for both servers to finish
+	wg.Wait()
 
-		// Process request
-		c.Next()
-
-		// Record metrics
-		duration := time.Since(start)
-		status := strconv.Itoa(c.Writer.Status())
-		metrics.RecordHTTPRequest(c.Request.Method, c.FullPath(), status, duration)
-
-		slog.Debug("HTTP request completed",
-			"method", c.Request.Method,
-			"path", c.FullPath(),
-			"status", status,
-			"duration", duration,
-		)
-	}
+	slog.Info("Servers exited")
 }

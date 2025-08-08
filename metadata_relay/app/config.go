@@ -3,88 +3,174 @@ package app
 import (
 	"fmt"
 	"log/slog"
+	"os"
+	"strconv"
 	"strings"
 	"time"
-
-	"github.com/caarlos0/env/v11"
 )
 
 // Config holds all application configuration settings loaded from environment variables.
 type Config struct {
-	LogLevel string `env:"LOG_LEVEL" envDefault:"info"`
-	Port     string `env:"PORT" envDefault:"8000"`
+	LogLevel string
+	Port     string
 
-	CacheHost string `env:"VALKEY_HOST" envDefault:"localhost"`
-	CachePort int    `env:"VALKEY_PORT" envDefault:"6379"`
-	CacheDB   int    `env:"VALKEY_DB" envDefault:"0"`
+	// Metrics server configuration
+	MetricsPort string
 
-	TMDBAPIKey  string `env:"TMDB_API_KEY"`
-	TMDBBaseURL string `env:"TMDB_BASE_URL" envDefault:"https://api.themoviedb.org/3"`
-	TVDBAPIKey  string `env:"TVDB_API_KEY"`
-	TVDBBaseURL string `env:"TVDB_BASE_URL" envDefault:"https://api4.thetvdb.com/v4"`
+	CacheHost string
+	CachePort int
+	CacheDB   int
+
+	TMDBAPIKey  string
+	TMDBBaseURL string
+	TVDBAPIKey  string
+	TVDBBaseURL string
 
 	// TheAudioDB Configuration
-	TheAudioDBAPIKey  string `env:"THEAUDIODB_API_KEY"`
-	TheAudioDBBaseURL string `env:"THEAUDIODB_BASE_URL" envDefault:"https://www.theaudiodb.com/api/v1/json"`
+	TheAudioDBAPIKey  string
+	TheAudioDBBaseURL string
 
 	// Spotify (for images)
-	SpotifyClientID     string `env:"SPOTIFY_CLIENT_ID"`
-	SpotifyClientSecret string `env:"SPOTIFY_CLIENT_SECRET"`
+	SpotifyClientID     string
+	SpotifyClientSecret string
 
 	// LRCLib (lyrics)
-	LRCLibBaseURL string `env:"LRCLIB_BASE_URL" envDefault:"https://lrclib.net/api"`
+	LRCLibBaseURL string
 
 	// SeaDx (anime torrents)
-	SeaDxBaseURL string `env:"SEADX_BASE_URL" envDefault:"https://releases.moe/api"`
+	SeaDxBaseURL string
 
 	// AniDB (anime database)
-	AniDBBaseURL   string `env:"ANIDB_BASE_URL" envDefault:"http://api.anidb.info:9001/httpapi"`
-	AniDBClient    string `env:"ANIDB_CLIENT"`
-	AniDBClientVer string `env:"ANIDB_CLIENT_VER" envDefault:"1"`
+	AniDBBaseURL   string
+	AniDBClient    string
+	AniDBClientVer string
+
+	// Jikan (MyAnimeList API alternative to AniDB)
+	JikanBaseURL string
 
 	// Media storage directory (on disk, do not cache images in Redis)
-	MediaDir string `env:"MEDIA_DIR" envDefault:"./media"`
+	MediaDir string
 
 	// MusicBrainz PostgreSQL Configuration
-	MusicBrainzDBHost     string `env:"MUSICBRAINZ_DB_HOST"`
-	MusicBrainzDBPort     string `env:"MUSICBRAINZ_DB_PORT" envDefault:"5432"`
-	MusicBrainzDBUser     string `env:"MUSICBRAINZ_DB_USER" envDefault:"musicbrainz"`
-	MusicBrainzDBPassword string `env:"MUSICBRAINZ_DB_PASSWORD" envDefault:"musicbrainz"`
-	MusicBrainzDBName     string `env:"MUSICBRAINZ_DB_NAME"`
+	MusicBrainzDBHost     string
+	MusicBrainzDBPort     string
+	MusicBrainzDBUser     string
+	MusicBrainzDBPassword string
+	MusicBrainzDBName     string
 
 	// Typesense Configuration
-	TypesenseHost   string `env:"TYPESENSE_HOST" envDefault:"localhost"`
-	TypesensePort   string `env:"TYPESENSE_PORT" envDefault:"8108"`
-	TypesenseAPIKey string `env:"TYPESENSE_API_KEY"`
+	TypesenseHost   string
+	TypesensePort   string
+	TypesenseAPIKey string
 	// HTTP timeout for Typesense client operations (e.g., bulk imports)
-	TypesenseTimeout string `env:"TYPESENSE_TIMEOUT" envDefault:"60s"`
+	TypesenseTimeout string
 
 	// Sync Configuration
-	SyncInterval string `env:"SYNC_INTERVAL" envDefault:"24h"` // How often to sync data to Typesense
-	SyncEnabled  bool   `env:"SYNC_ENABLED" envDefault:"true"` // Toggle background sync scheduler
+	SyncInterval string // How often to sync data to Typesense
+	SyncEnabled  bool   // Toggle background sync scheduler
 	// Comma-separated list of entities to sync when target is "all" or scheduler runs
 	// Allowed values: artists, release-groups, releases, recordings
-	SyncEntities string `env:"SYNC_ENTITIES" envDefault:"artists,release-groups,releases,recordings"`
+	SyncEntities string
 	// If true, attempts to skip unchanged documents during sync using a content fingerprint cache
-	SyncSkipUnchanged bool `env:"SYNC_SKIP_UNCHANGED" envDefault:"true"`
+	SyncSkipUnchanged bool
 
 	// Sync Performance Tunables
-	SyncDBPageSize       int    `env:"SYNC_DB_PAGE_SIZE" envDefault:"8000"`
-	SyncShardParallelism int    `env:"SYNC_SHARD_PARALLELISM"` // default derived from CPU if 0
-	SyncImportBatchSize  int    `env:"SYNC_IMPORT_BATCH_SIZE" envDefault:"2000"`
-	SyncImportWorkers    int    `env:"SYNC_IMPORT_WORKERS"` // default derived from CPU if 0
-	SyncImportMaxRetries int    `env:"SYNC_IMPORT_MAX_RETRIES" envDefault:"3"`
-	SyncImportBackoff    string `env:"SYNC_IMPORT_BACKOFF" envDefault:"400ms"`
+	SyncDBPageSize       int
+	SyncShardParallelism int
+	SyncImportBatchSize  int
+	SyncImportWorkers    int
+	SyncImportMaxRetries int
+	SyncImportBackoff    string
 	// Global cap across all entities for concurrent Typesense import requests
-	SyncImportGlobalLimit int `env:"SYNC_IMPORT_GLOBAL_LIMIT"`
+	SyncImportGlobalLimit int
 }
 
 var AppConfig Config
 
+// getEnv returns environment variable value or default if not set
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+// getEnvInt returns environment variable as int or default if not set or invalid
+func getEnvInt(key string, defaultValue int) int {
+	if value := os.Getenv(key); value != "" {
+		if parsed, err := strconv.Atoi(value); err == nil {
+			return parsed
+		}
+	}
+	return defaultValue
+}
+
+// getEnvBool returns environment variable as bool or default if not set or invalid
+func getEnvBool(key string, defaultValue bool) bool {
+	if value := os.Getenv(key); value != "" {
+		if parsed, err := strconv.ParseBool(value); err == nil {
+			return parsed
+		}
+	}
+	return defaultValue
+}
+
 // LoadConfig parses environment variables and loads the application configuration.
 func LoadConfig() error {
-	if err := env.Parse(&AppConfig); err != nil {
-		return err
+	AppConfig = Config{
+		LogLevel:    getEnv("LOG_LEVEL", "info"),
+		Port:        getEnv("PORT", "8000"),
+		MetricsPort: getEnv("METRICS_PORT", "9090"),
+
+		CacheHost: getEnv("VALKEY_HOST", "localhost"),
+		CachePort: getEnvInt("VALKEY_PORT", 6379),
+		CacheDB:   getEnvInt("VALKEY_DB", 0),
+
+		TMDBAPIKey:  getEnv("TMDB_API_KEY", ""),
+		TMDBBaseURL: getEnv("TMDB_BASE_URL", "https://api.themoviedb.org/3"),
+		TVDBAPIKey:  getEnv("TVDB_API_KEY", ""),
+		TVDBBaseURL: getEnv("TVDB_BASE_URL", "https://api4.thetvdb.com/v4"),
+
+		TheAudioDBAPIKey:  getEnv("THEAUDIODB_API_KEY", ""),
+		TheAudioDBBaseURL: getEnv("THEAUDIODB_BASE_URL", "https://www.theaudiodb.com/api/v1/json"),
+
+		SpotifyClientID:     getEnv("SPOTIFY_CLIENT_ID", ""),
+		SpotifyClientSecret: getEnv("SPOTIFY_CLIENT_SECRET", ""),
+
+		LRCLibBaseURL: getEnv("LRCLIB_BASE_URL", "https://lrclib.net/api"),
+
+		SeaDxBaseURL: getEnv("SEADX_BASE_URL", "https://releases.moe/api"),
+
+		AniDBBaseURL:   getEnv("ANIDB_BASE_URL", "http://api.anidb.info:9001/httpapi"),
+		AniDBClient:    getEnv("ANIDB_CLIENT", ""),
+		AniDBClientVer: getEnv("ANIDB_CLIENT_VER", "1"),
+
+		JikanBaseURL: getEnv("JIKAN_BASE_URL", "https://api.jikan.moe/v4"),
+
+		MediaDir: getEnv("MEDIA_DIR", "./media"),
+
+		MusicBrainzDBHost:     getEnv("MUSICBRAINZ_DB_HOST", ""),
+		MusicBrainzDBPort:     getEnv("MUSICBRAINZ_DB_PORT", "5432"),
+		MusicBrainzDBUser:     getEnv("MUSICBRAINZ_DB_USER", "musicbrainz"),
+		MusicBrainzDBPassword: getEnv("MUSICBRAINZ_DB_PASSWORD", "musicbrainz"),
+		MusicBrainzDBName:     getEnv("MUSICBRAINZ_DB_NAME", ""),
+
+		TypesenseHost:    getEnv("TYPESENSE_HOST", "localhost"),
+		TypesensePort:    getEnv("TYPESENSE_PORT", "8108"),
+		TypesenseAPIKey:  getEnv("TYPESENSE_API_KEY", ""),
+		TypesenseTimeout: getEnv("TYPESENSE_TIMEOUT", "60s"),
+
+		SyncInterval:          getEnv("SYNC_INTERVAL", "24h"),
+		SyncEnabled:           getEnvBool("SYNC_ENABLED", true),
+		SyncEntities:          getEnv("SYNC_ENTITIES", "artists,release-groups,releases,recordings"),
+		SyncSkipUnchanged:     getEnvBool("SYNC_SKIP_UNCHANGED", true),
+		SyncDBPageSize:        getEnvInt("SYNC_DB_PAGE_SIZE", 8000),
+		SyncShardParallelism:  getEnvInt("SYNC_SHARD_PARALLELISM", 0),
+		SyncImportBatchSize:   getEnvInt("SYNC_IMPORT_BATCH_SIZE", 2000),
+		SyncImportWorkers:     getEnvInt("SYNC_IMPORT_WORKERS", 0),
+		SyncImportMaxRetries:  getEnvInt("SYNC_IMPORT_MAX_RETRIES", 3),
+		SyncImportBackoff:     getEnv("SYNC_IMPORT_BACKOFF", "400ms"),
+		SyncImportGlobalLimit: getEnvInt("SYNC_IMPORT_GLOBAL_LIMIT", 0),
 	}
 	return nil
 }
@@ -109,6 +195,11 @@ func (c *Config) GetLogLevel() slog.Level {
 // GetServerAddr returns the server address in host:port format.
 func (c *Config) GetServerAddr() string {
 	return ":" + c.Port
+}
+
+// GetMetricsAddr returns the metrics server address in host:port format.
+func (c *Config) GetMetricsAddr() string {
+	return ":" + c.MetricsPort
 }
 
 // GetCacheAddr returns the cache address in host:port format.

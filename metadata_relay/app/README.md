@@ -1,7 +1,7 @@
 # IMPLEMENTATION NOTES
 
 ## Web Server
-As a whole, gin was chosen over net/http in hopes of obtaining better performance. During testing, net/http did mildly underperform compared to gin, but those tests were microbenchmarks and taken in a manner that was not super scientific. In the future, it might be worthwhile to go back to net/http. If throughput ends up being a problem, moving to [fiber](https://gofiber.io/) might be a good idea.
+This application now uses the standard `net/http` library with a custom router implementation that supports path parameters and middleware chaining. Previously, Gin was used for better performance, but during migration testing, the performance difference was minimal in real-world scenarios. The custom router provides the needed functionality without external dependencies. If throughput becomes a problem in the future, moving to [fiber](https://gofiber.io/) might be considered.
 
 ## Metrics
 For metrics, it was decided to go with `prometheus/client_golang` for simplicity; however, it is quite large. In the future, ways to make it less impactful might be considered. That being said, the existing Docker image is already pretty small.
@@ -46,7 +46,4 @@ Right now, the tests are set up to automatically pass, even when a metabrainz/ty
 ## Future
 - hardcover support
 - PGO
-- swap from gin to net/http
-- remove caarlos0/env
 - get the debug packages out of the build
-- metrics should be on another address

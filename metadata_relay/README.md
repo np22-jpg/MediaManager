@@ -21,7 +21,8 @@ services:
       - TMDB_API_KEY=${TMDB_API_KEY} # you need not provide a TMDB API key, if you only want to use TVDB metadata, or the other way around
       - TVDB_API_KEY=${TVDB_API_KEY}
     ports:
-      - "8000:8000"
+      - "8000:8000"   # Main API server
+      - "9090:9090"   # Metrics server
     depends_on:
       - valkey
 ```
@@ -33,6 +34,7 @@ services:
 |---------------------------|-------------------------------------------|----------|-------------|
 | LOG_LEVEL                 | info                                       | No       | Log verbosity (debug, info, warn, error) |
 | PORT                      | 8000                                       | No       | Service port |
+| METRICS_PORT              | 9090                                       | No       | Metrics server port |
 | VALKEY_HOST               | localhost                                  | No       | Cache DB host |
 | VALKEY_PORT               | 6379                                       | No       | Cache DB port |
 | VALKEY_DB                 | 0                                          | No       | Cache DB number |
@@ -44,6 +46,7 @@ services:
 | ANIDB_BASE_URL            | http://api.anidb.info:9001/httpapi         | No       | AniDB anime database base URL |
 | ANIDB_CLIENT              | unset                                      | No³      | AniDB client name (required for AniDB endpoints) |
 | ANIDB_CLIENT_VER          | 1                                          | No       | AniDB client version |
+| JIKAN_BASE_URL            | https://api.jikan.moe/v4                   | No       | Jikan (MyAnimeList) API base URL - alternative to AniDB |
 | THEAUDIODB_API_KEY        | unset                                      | No       | TheAudioDB API key (use "2" for testing) |
 | THEAUDIODB_BASE_URL       | https://www.theaudiodb.com/api/v1/json      | No       | TheAudioDB base URL |
 | MEDIA_DIR                 | ./media                                    | No       | On-disk directory to store images and lyrics; served at /media |
@@ -75,7 +78,9 @@ services:
 1. Both `MUSICBRAINZ_DB_HOST` and `MUSICBRAINZ_DB_NAME` are required to enable MusicBrainz endpoints. If either is missing, MusicBrainz endpoints will not be available (404).
 2. `TYPESENSE_API_KEY` is required only if you want to enable search functionality. Without it, MusicBrainz endpoints return 503 for search operations.
 3. `ANIDB_CLIENT` is required to enable AniDB endpoints. Choose a unique client name for your application.
-4. `THEAUDIODB_API_KEY` can be set to `2` for public testing (rate-limited by TheAudioDB). Leaving it unset disables TheAudioDB endpoints.
+4. `THEAUDIODB_API_KEY` can be set to `2` for public testing (rate-limited by TheAudioDB). Leaving it unset disables TheAudioDB endpoints. Note that image fetching via MBID *requires* a premium API key.
+5. Jikan is enabled by default and requires no API key. It provides better rate limits (60 requests/minute) compared to AniDB (1 request per 2 seconds) and offers additional features like search functionality.
+ols.
 
 ## API Endpoints
 
@@ -145,6 +150,16 @@ services:
 - `GET /anidb/similar` - Get random similar anime pairs
 - `GET /anidb/main` - Get main page data (hot anime + recommendations)
 
+### Jikan Endpoints
+
+#### Anime Database (Alternative to AniDB with better rate limits)
+- `GET /jikan/anime/{id}` - Get anime details by MyAnimeList ID
+- `GET /jikan/top` - Get top-rated anime
+- `GET /jikan/seasonal` - Get current season anime
+- `GET /jikan/search?q={query}&page={page}` - Search for anime by title
+- `GET /jikan/anime/{id}/recommendations` - Get anime recommendations for specific anime
+- `GET /jikan/random` - Get random anime recommendation
+
 ### TheAudioDB Endpoints
 
 - `GET /theaudiodb/artist?name={name}` - Lookup artist info by name (uses TheAudioDB; requires THEAUDIODB_API_KEY; public test key is "2")
@@ -154,4 +169,7 @@ services:
 
 ### System Endpoints
 - `GET /` - Service status and information
-- `GET /metrics` - Prometheus metrics
+- `GET /metrics` - Prometheus metrics (served on separate metrics port for security)
+- `GET /media/*` - Static file serving for images and lyrics
+
+**Note**: The `/metrics` endpoint is served on the dedicated metrics port (default 9090) to isolate monitoring traffic from the main API.

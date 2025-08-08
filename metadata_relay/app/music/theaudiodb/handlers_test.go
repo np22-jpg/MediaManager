@@ -5,18 +5,17 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/gin-gonic/gin"
 )
 
 func TestSearchArtistHandler_NoClient(t *testing.T) {
 	// reset client
 	client = nil
-	r := gin.New()
-	r.GET("/theaudiodb/artist", SearchArtistHandler)
+
 	req := httptest.NewRequest(http.MethodGet, "/theaudiodb/artist?name=abc", nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+
+	SearchArtistHandler(w, req)
+
 	if w.Code != http.StatusServiceUnavailable {
 		t.Fatalf("expected 503, got %d", w.Code)
 	}
@@ -25,11 +24,12 @@ func TestSearchArtistHandler_NoClient(t *testing.T) {
 func TestSearchArtistHandler_BadRequest(t *testing.T) {
 	// Set dummy client so we can test 400 path
 	client = &Client{BaseURL: "x", APIKey: "y"}
-	r := gin.New()
-	r.GET("/theaudiodb/artist", SearchArtistHandler)
+
 	req := httptest.NewRequest(http.MethodGet, "/theaudiodb/artist", nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+
+	SearchArtistHandler(w, req)
+
 	if w.Code != http.StatusBadRequest {
 		t.Fatalf("expected 400, got %d", w.Code)
 	}
@@ -45,11 +45,11 @@ func TestSearchArtistHandler_OK(t *testing.T) {
 	c := &Client{BaseURL: "http://example", APIKey: "2", HTTP: mockHTTP{handler: mux}}
 	SetClient(c)
 
-	r := gin.New()
-	r.GET("/theaudiodb/artist", SearchArtistHandler)
 	req := httptest.NewRequest(http.MethodGet, "/theaudiodb/artist?name=A", nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+
+	SearchArtistHandler(w, req)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
@@ -58,11 +58,12 @@ func TestSearchArtistHandler_OK(t *testing.T) {
 func TestGetArtistByMBIDHandler_NoClient(t *testing.T) {
 	// reset client
 	client = nil
-	r := gin.New()
-	r.GET("/theaudiodb/artist/:mbid", GetArtistByMBIDHandler)
+
 	req := httptest.NewRequest(http.MethodGet, "/theaudiodb/artist/12345", nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+
+	GetArtistByMBIDHandler(w, req)
+
 	if w.Code != http.StatusServiceUnavailable {
 		t.Fatalf("expected 503, got %d", w.Code)
 	}
@@ -85,11 +86,11 @@ func TestGetArtistByMBIDHandler_OK(t *testing.T) {
 	c := &Client{BaseURL: "http://example", APIKey: "2", HTTP: mockHTTP{handler: mux}}
 	SetClient(c)
 
-	r := gin.New()
-	r.GET("/theaudiodb/artist/:mbid", GetArtistByMBIDHandler)
 	req := httptest.NewRequest(http.MethodGet, "/theaudiodb/artist/12345", nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+
+	GetArtistByMBIDHandler(w, req)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
@@ -98,11 +99,12 @@ func TestGetArtistByMBIDHandler_OK(t *testing.T) {
 func TestGetAlbumByMBIDHandler_NoClient(t *testing.T) {
 	// reset client
 	client = nil
-	r := gin.New()
-	r.GET("/theaudiodb/album/:mbid", GetAlbumByMBIDHandler)
+
 	req := httptest.NewRequest(http.MethodGet, "/theaudiodb/album/67890", nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+
+	GetAlbumByMBIDHandler(w, req)
+
 	if w.Code != http.StatusServiceUnavailable {
 		t.Fatalf("expected 503, got %d", w.Code)
 	}
@@ -126,11 +128,11 @@ func TestGetAlbumByMBIDHandler_OK(t *testing.T) {
 	c := &Client{BaseURL: "http://example", APIKey: "2", HTTP: mockHTTP{handler: mux}}
 	SetClient(c)
 
-	r := gin.New()
-	r.GET("/theaudiodb/album/:mbid", GetAlbumByMBIDHandler)
 	req := httptest.NewRequest(http.MethodGet, "/theaudiodb/album/67890", nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+
+	GetAlbumByMBIDHandler(w, req)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}
@@ -139,11 +141,12 @@ func TestGetAlbumByMBIDHandler_OK(t *testing.T) {
 func TestGetTrackByMBIDHandler_NoClient(t *testing.T) {
 	// reset client
 	client = nil
-	r := gin.New()
-	r.GET("/theaudiodb/track/:mbid", GetTrackByMBIDHandler)
+
 	req := httptest.NewRequest(http.MethodGet, "/theaudiodb/track/99999", nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+
+	GetTrackByMBIDHandler(w, req)
+
 	if w.Code != http.StatusServiceUnavailable {
 		t.Fatalf("expected 503, got %d", w.Code)
 	}
@@ -170,11 +173,11 @@ func TestGetTrackByMBIDHandler_OK(t *testing.T) {
 	c := &Client{BaseURL: "http://example", APIKey: "2", HTTP: mockHTTP{handler: mux}}
 	SetClient(c)
 
-	r := gin.New()
-	r.GET("/theaudiodb/track/:mbid", GetTrackByMBIDHandler)
 	req := httptest.NewRequest(http.MethodGet, "/theaudiodb/track/99999", nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+
+	GetTrackByMBIDHandler(w, req)
+
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", w.Code)
 	}

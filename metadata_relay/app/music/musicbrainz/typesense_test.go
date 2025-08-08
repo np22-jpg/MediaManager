@@ -5,9 +5,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestTypesenseIntegration(t *testing.T) {
@@ -24,23 +21,37 @@ func TestTypesenseIntegration(t *testing.T) {
 			t.Skip("Typesense search failed (service may be unavailable):", err)
 		}
 
-		require.NoError(t, err)
-		assert.NotNil(t, result)
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		if result == nil {
+			t.Fatal("Expected non-nil value")
+		}
 
 		// Check result structure
 		resultMap, ok := result.(map[string]any)
-		require.True(t, ok, "Result should be a map")
+		if !ok {
+			t.Fatal("Result should be a map")
+		}
 
 		artists, ok := resultMap["artists"]
-		require.True(t, ok, "Result should contain 'artists' key")
+		if !ok {
+			t.Fatal("Result should contain 'artists' key")
+		}
 
 		artistList, ok := artists.([]map[string]any)
-		require.True(t, ok, "Artists should be a slice of maps")
+		if !ok {
+			t.Fatal("Artists should be a slice of maps")
+		}
 
 		if len(artistList) > 0 {
 			artist := artistList[0]
-			assert.Contains(t, artist, "id", "Artist should have an ID")
-			assert.Contains(t, artist, "name", "Artist should have a name")
+			if _, ok := artist["id"]; !ok {
+				t.Error("Artist should have an ID")
+			}
+			if _, ok := artist["name"]; !ok {
+				t.Error("Artist should have a name")
+			}
 		}
 	})
 
@@ -50,23 +61,37 @@ func TestTypesenseIntegration(t *testing.T) {
 			t.Skip("Typesense search failed (service may be unavailable):", err)
 		}
 
-		require.NoError(t, err)
-		assert.NotNil(t, result)
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		if result == nil {
+			t.Fatal("Expected non-nil result")
+		}
 
 		// Check result structure
 		resultMap, ok := result.(map[string]any)
-		require.True(t, ok, "Result should be a map")
+		if !ok {
+			t.Fatal("Result should be a map")
+		}
 
 		releaseGroups, ok := resultMap["release-groups"]
-		require.True(t, ok, "Result should contain 'release-groups' key")
+		if !ok {
+			t.Fatal("Result should contain 'release-groups' key")
+		}
 
 		rgList, ok := releaseGroups.([]map[string]any)
-		require.True(t, ok, "Release groups should be a slice of maps")
+		if !ok {
+			t.Fatal("Release groups should be a slice of maps")
+		}
 
 		if len(rgList) > 0 {
 			rg := rgList[0]
-			assert.Contains(t, rg, "id", "Release group should have an ID")
-			assert.Contains(t, rg, "title", "Release group should have a title")
+			if _, ok := rg["id"]; !ok {
+				t.Error("Release group should have an ID")
+			}
+			if _, ok := rg["title"]; !ok {
+				t.Error("Release group should have a title")
+			}
 		}
 	})
 
@@ -76,23 +101,37 @@ func TestTypesenseIntegration(t *testing.T) {
 			t.Skip("Typesense search failed (service may be unavailable):", err)
 		}
 
-		require.NoError(t, err)
-		assert.NotNil(t, result)
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		if result == nil {
+			t.Fatal("Expected non-nil result")
+		}
 
 		// Check result structure
 		resultMap, ok := result.(map[string]any)
-		require.True(t, ok, "Result should be a map")
+		if !ok {
+			t.Fatal("Result should be a map")
+		}
 
 		recordings, ok := resultMap["recordings"]
-		require.True(t, ok, "Result should contain 'recordings' key")
+		if !ok {
+			t.Fatal("Result should contain 'recordings' key")
+		}
 
 		recList, ok := recordings.([]map[string]any)
-		require.True(t, ok, "Recordings should be a slice of maps")
+		if !ok {
+			t.Fatal("Recordings should be a slice of maps")
+		}
 
 		if len(recList) > 0 {
 			rec := recList[0]
-			assert.Contains(t, rec, "id", "Recording should have an ID")
-			assert.Contains(t, rec, "title", "Recording should have a title")
+			if _, ok := rec["id"]; !ok {
+				t.Error("Recording should have an ID")
+			}
+			if _, ok := rec["title"]; !ok {
+				t.Error("Recording should have a title")
+			}
 		}
 	})
 }
@@ -107,14 +146,22 @@ func TestTypesenseNotConfigured(t *testing.T) {
 
 	t.Run("SearchArtistsFailsGracefully", func(t *testing.T) {
 		result, err := SearchArtistsTypesense(ctx, "Beatles", 5)
-		assert.Error(t, err)
-		assert.Nil(t, result)
+		if err == nil {
+			t.Error("Expected error when Typesense not configured")
+		}
+		if result != nil {
+			t.Error("Expected nil result when Typesense not configured")
+		}
 	})
 
 	t.Run("IndexingFailsGracefully", func(t *testing.T) {
 		err := IndexArtists()
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "not ready")
+		if err == nil {
+			t.Error("Expected error when Typesense not configured")
+		}
+		if !strings.Contains(err.Error(), "not ready") {
+			t.Errorf("Expected error to contain 'not ready', got: %s", err.Error())
+		}
 	})
 }
 
@@ -128,7 +175,9 @@ func TestSyncFunctions(t *testing.T) {
 		if err != nil {
 			t.Skip("Indexing failed (database may be unavailable):", err)
 		}
-		assert.NoError(t, err)
+		if err != nil {
+			t.Errorf("IndexArtists() error = %v", err)
+		}
 	})
 
 	t.Run("IndexReleaseGroups", func(t *testing.T) {
@@ -136,7 +185,9 @@ func TestSyncFunctions(t *testing.T) {
 		if err != nil {
 			t.Skip("Indexing failed (database may be unavailable):", err)
 		}
-		assert.NoError(t, err)
+		if err != nil {
+			t.Errorf("IndexReleaseGroups() error = %v", err)
+		}
 	})
 
 	t.Run("IndexRecordings", func(t *testing.T) {
@@ -144,7 +195,9 @@ func TestSyncFunctions(t *testing.T) {
 		if err != nil {
 			t.Skip("Indexing failed (database may be unavailable):", err)
 		}
-		assert.NoError(t, err)
+		if err != nil {
+			t.Errorf("IndexRecordings() error = %v", err)
+		}
 	})
 }
 
@@ -160,32 +213,44 @@ func TestTypesenseConnectionFailure(t *testing.T) {
 	t.Run("IsReady_WithoutTypesense", func(t *testing.T) {
 		// Even with database, should return false without Typesense
 		ready := IsReady()
-		assert.False(t, ready, "IsReady should return false when Typesense is not initialized")
+		if ready {
+			t.Error("IsReady should return false when Typesense is not initialized")
+		}
 	})
 
 	t.Run("InitTypesense_InvalidHost", func(t *testing.T) {
 		// Try to initialize with invalid host - should fail gracefully
 		err := InitTypesense("nonexistent.host", "8108", "invalid_api_key", 2*time.Second)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to connect to Typesense")
+		if err == nil {
+			t.Error("Expected error for invalid host")
+		}
+		if !strings.Contains(err.Error(), "failed to connect to Typesense") {
+			t.Errorf("Expected error to contain 'failed to connect to Typesense', got: %s", err.Error())
+		}
 	})
 
 	t.Run("InitTypesense_InvalidPort", func(t *testing.T) {
 		// Try to initialize with invalid port - should fail gracefully
 		err := InitTypesense("localhost", "99999", "invalid_api_key", 2*time.Second)
-		assert.Error(t, err)
-		assert.True(t,
-			strings.Contains(err.Error(), "failed to connect to Typesense") ||
-				strings.Contains(err.Error(), "connection refused") ||
-				strings.Contains(err.Error(), "invalid port"),
-			"Error should be about connection failure: %v", err)
+		if err == nil {
+			t.Error("Expected error for invalid port")
+		}
+		if !strings.Contains(err.Error(), "failed to connect to Typesense") &&
+			!strings.Contains(err.Error(), "connection refused") &&
+			!strings.Contains(err.Error(), "invalid port") {
+			t.Errorf("Error should be about connection failure: %v", err)
+		}
 	})
 
 	t.Run("InitTypesense_EmptyConfig", func(t *testing.T) {
 		// Try to initialize with empty configuration
 		err := InitTypesense("", "", "", 2*time.Second)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to connect to Typesense")
+		if err == nil {
+			t.Error("Expected error for empty config")
+		}
+		if !strings.Contains(err.Error(), "failed to connect to Typesense") {
+			t.Errorf("Expected error to contain 'failed to connect to Typesense', got: %s", err.Error())
+		}
 	})
 }
 
@@ -200,42 +265,58 @@ func TestTypesenseSearchWithoutConnection(t *testing.T) {
 
 	t.Run("SearchArtistsTypesense_NoConnection", func(t *testing.T) {
 		result, err := SearchArtistsTypesense(ctx, "test artist", 10)
-		assert.Error(t, err)
-		assert.Nil(t, result)
-		assert.True(t,
-			strings.Contains(err.Error(), "typesense") ||
-				strings.Contains(err.Error(), "nil"),
-			"Error should mention Typesense or nil client: %v", err)
+		if err == nil {
+			t.Error("Expected error when no Typesense connection")
+		}
+		if result != nil {
+			t.Error("Expected nil result when no Typesense connection")
+		}
+		if !strings.Contains(err.Error(), "typesense") &&
+			!strings.Contains(err.Error(), "nil") {
+			t.Errorf("Error should mention Typesense or nil client: %v", err)
+		}
 	})
 
 	t.Run("SearchReleaseGroupsTypesense_NoConnection", func(t *testing.T) {
 		result, err := SearchReleaseGroupsTypesense(ctx, "test album", 10)
-		assert.Error(t, err)
-		assert.Nil(t, result)
-		assert.True(t,
-			strings.Contains(err.Error(), "typesense") ||
-				strings.Contains(err.Error(), "nil"),
-			"Error should mention Typesense or nil client: %v", err)
+		if err == nil {
+			t.Error("Expected error when no Typesense connection")
+		}
+		if result != nil {
+			t.Error("Expected nil result when no Typesense connection")
+		}
+		if !strings.Contains(err.Error(), "typesense") &&
+			!strings.Contains(err.Error(), "nil") {
+			t.Errorf("Error should mention Typesense or nil client: %v", err)
+		}
 	})
 
 	t.Run("SearchRecordingsTypesense_NoConnection", func(t *testing.T) {
 		result, err := SearchRecordingsTypesense(ctx, "test song", 10)
-		assert.Error(t, err)
-		assert.Nil(t, result)
-		assert.True(t,
-			strings.Contains(err.Error(), "typesense") ||
-				strings.Contains(err.Error(), "nil"),
-			"Error should mention Typesense or nil client: %v", err)
+		if err == nil {
+			t.Error("Expected error when no Typesense connection")
+		}
+		if result != nil {
+			t.Error("Expected nil result when no Typesense connection")
+		}
+		if !strings.Contains(err.Error(), "typesense") &&
+			!strings.Contains(err.Error(), "nil") {
+			t.Errorf("Error should mention Typesense or nil client: %v", err)
+		}
 	})
 
 	t.Run("GetArtistTypesense_NoConnection", func(t *testing.T) {
 		result, err := GetArtistTypesense(ctx, "123e4567-e89b-12d3-a456-426614174000")
-		assert.Error(t, err)
-		assert.Nil(t, result)
-		assert.True(t,
-			strings.Contains(err.Error(), "typesense") ||
-				strings.Contains(err.Error(), "nil"),
-			"Error should mention Typesense or nil client: %v", err)
+		if err == nil {
+			t.Error("Expected error when no Typesense connection")
+		}
+		if result != nil {
+			t.Error("Expected nil result when no Typesense connection")
+		}
+		if !strings.Contains(err.Error(), "typesense") &&
+			!strings.Contains(err.Error(), "nil") {
+			t.Errorf("Error should mention Typesense or nil client: %v", err)
+		}
 	})
 }
 
@@ -295,12 +376,22 @@ func TestTypesenseConnectionScenarios(t *testing.T) {
 			err := InitTypesense(tc.host, tc.port, tc.apiKey, 2*time.Second)
 
 			if tc.expectError {
-				assert.Error(t, err)
-				assert.Contains(t, err.Error(), tc.errorContains)
-				assert.False(t, IsReady(), "IsReady should return false after failed initialization")
+				if err == nil {
+					t.Error("Expected error for test case:", tc.name)
+				}
+				if !strings.Contains(err.Error(), tc.errorContains) {
+					t.Errorf("Expected error to contain '%s', got: %s", tc.errorContains, err.Error())
+				}
+				if IsReady() {
+					t.Error("IsReady should return false after failed initialization")
+				}
 			} else {
-				assert.NoError(t, err)
-				assert.True(t, IsReady(), "IsReady should return true after successful initialization")
+				if err != nil {
+					t.Errorf("Unexpected error for test case %s: %v", tc.name, err)
+				}
+				if !IsReady() {
+					t.Error("IsReady should return true after successful initialization")
+				}
 			}
 		})
 	}

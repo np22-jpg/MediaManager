@@ -1,19 +1,21 @@
 package theaudiodb
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-// RegisterRoutes wires TheAudioDB endpoints into the main router.
-func RegisterRoutes(router *gin.Engine) {
-	group := router.Group("/theaudiodb")
-	{
-		// Name-based search (existing)
-		group.GET("/artist", SearchArtistHandler)
+// RouterInterface represents the interface for our custom router
+type RouterInterface interface {
+	GET(pattern string, handler http.HandlerFunc)
+}
 
-		// MBID-based lookups (new, with prioritized caching)
-		group.GET("/artist/:mbid", GetArtistByMBIDHandler)
-		group.GET("/album/:mbid", GetAlbumByMBIDHandler)
-		group.GET("/track/:mbid", GetTrackByMBIDHandler)
-	}
+// RegisterRoutes wires TheAudioDB endpoints into the main router.
+func RegisterRoutes(router RouterInterface) {
+	// Name-based search (existing)
+	router.GET("/theaudiodb/artist", SearchArtistHandler)
+
+	// MBID-based lookups (new, with prioritized caching)
+	router.GET("/theaudiodb/artist/{mbid}", GetArtistByMBIDHandler)
+	router.GET("/theaudiodb/album/{mbid}", GetAlbumByMBIDHandler)
+	router.GET("/theaudiodb/track/{mbid}", GetTrackByMBIDHandler)
 }
