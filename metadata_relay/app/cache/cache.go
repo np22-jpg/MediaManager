@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"hash/fnv"
 	"log/slog"
 	"strings"
 	"time"
 
+	"github.com/cespare/xxhash/v2"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -61,13 +61,12 @@ func InitCache(host string, port, db int) {
 	}
 }
 
-// GenerateCacheKey creates a cache key from prefix and parameters using FNV hash
+// GenerateCacheKey creates a cache key from prefix and parameters using xxHash
 // to ensure consistent and collision-resistant key generation.
 func GenerateCacheKey(prefix string, params ...any) string {
 	keyData := fmt.Sprintf("%s:%v", prefix, params)
-	hash := fnv.New64a()
-	hash.Write([]byte(keyData))
-	return fmt.Sprintf("%x", hash.Sum64())
+	hash := xxhash.Sum64String(keyData)
+	return fmt.Sprintf("%x", hash)
 }
 
 // GetCachedResponse retrieves cached data from Redis and deserializes it.
