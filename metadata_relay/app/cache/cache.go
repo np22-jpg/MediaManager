@@ -3,40 +3,45 @@ package cache
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
 	"time"
 
 	"github.com/cespare/xxhash/v2"
-	"github.com/redis/go-redis/v9"
+	"github.com/valkey-io/valkey-go"
 )
 
-var redisClient *redis.Client
+var valkeyClient valkey.Client
 
 // InitCache initializes the Redis/Valkey client with the provided configuration
 // and tests the connection to ensure cache service availability.
 func InitCache(host string, port, db int) {
-	redisClient = redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%s:%d", host, port),
-		DB:   db,
+	client, err := valkey.NewClient(valkey.ClientOption{
+		InitAddress: []string{fmt.Sprintf("%s:%d", host, port)},
+		SelectDB:    db,
 	})
+	if err != nil {
+		fmt.Printf("ERROR: Failed to create Valkey client: %v\n", err)
+		panic("Cache service unavailable")
+	}
+	valkeyClient = client
 
 	// Test the connection and error if not available
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	if err := redisClient.Ping(ctx).Err(); err != nil {
+	if err := valkeyClient.Do(ctx, valkeyClient.B().Ping().Build()).Error(); err != nil {
 		fmt.Printf("ERROR: Valkey/Redis is not available at %s:%d - %v\n", host, port, err)
 		panic("Cache service unavailable")
 	}
 
 	// Get server info to display version and confirmation
-	info, err := redisClient.Info(ctx, "server").Result()
-	if err != nil {
-		fmt.Printf("WARNING: Connected to cache at %s:%d but could not get server info: %v\n", host, port, err)
+	infoResp := valkeyClient.Do(ctx, valkeyClient.B().Info().Section("server").Build())
+	if infoResp.Error() != nil {
+		fmt.Printf("WARNING: Connected to cache at %s:%d but could not get server info: %v\n", host, port, infoResp.Error())
 	} else {
+		info, _ := infoResp.ToString()
 		// Extract version and server type from info string
 		version := "unknown"
 		serverType := "Redis"
@@ -72,17 +77,23 @@ func GenerateCacheKey(prefix string, params ...any) string {
 // GetCachedResponse retrieves cached data from Redis and deserializes it.
 // Returns nil for cache misses or unmarshaling errors.
 func GetCachedResponse(ctx context.Context, cacheKey string) (any, error) {
-	// Return cache miss if Redis client is not initialized
-	if redisClient == nil {
+	// Return cache miss if Valkey client is not initialized
+	if valkeyClient == nil {
 		return nil, nil
 	}
 
-	cachedData, err := redisClient.Get(ctx, cacheKey).Result()
-	if err != nil {
-		if err == redis.Nil {
+	resp := valkeyClient.Do(ctx, valkeyClient.B().Get().Key(cacheKey).Build())
+	if resp.Error() != nil {
+		if valkey.IsValkeyNil(resp.Error()) {
 			return nil, nil // Cache miss
 		}
-		slog.Error("error getting cached response", "error", err)
+		slog.Error("error getting cached response", "error", resp.Error())
+		return nil, resp.Error()
+	}
+
+	cachedData, err := resp.ToString()
+	if err != nil {
+		slog.Error("error converting cached data to string", "error", err)
 		return nil, err
 	}
 
@@ -98,8 +109,8 @@ func GetCachedResponse(ctx context.Context, cacheKey string) (any, error) {
 // SetCachedResponse stores data in cache with the specified TTL.
 // Serializes data to JSON before storage.
 func SetCachedResponse(ctx context.Context, cacheKey string, data any, ttl time.Duration) error {
-	// Skip caching if Redis client is not initialized
-	if redisClient == nil {
+	// Skip caching if Valkey client is not initialized
+	if valkeyClient == nil {
 		return nil
 	}
 
@@ -109,7 +120,14 @@ func SetCachedResponse(ctx context.Context, cacheKey string, data any, ttl time.
 		return err
 	}
 
-	if err := redisClient.Set(ctx, cacheKey, jsonData, ttl).Err(); err != nil {
+	var cmd valkey.Completed
+	if ttl > 0 {
+		cmd = valkeyClient.B().Setex().Key(cacheKey).Seconds(int64(ttl.Seconds())).Value(string(jsonData)).Build()
+	} else {
+		cmd = valkeyClient.B().Set().Key(cacheKey).Value(string(jsonData)).Build()
+	}
+
+	if err := valkeyClient.Do(ctx, cmd).Error(); err != nil {
 		slog.Error("error setting cached response", "error", err)
 		return err
 	}
@@ -119,14 +137,18 @@ func SetCachedResponse(ctx context.Context, cacheKey string, data any, ttl time.
 
 // GetString retrieves a raw string value. Returns (value, true, nil) on hit; ("", false, nil) on miss.
 func GetString(ctx context.Context, key string) (string, bool, error) {
-	if redisClient == nil {
+	if valkeyClient == nil {
 		return "", false, nil
 	}
-	val, err := redisClient.Get(ctx, key).Result()
-	if err != nil {
-		if errors.Is(err, redis.Nil) {
+	resp := valkeyClient.Do(ctx, valkeyClient.B().Get().Key(key).Build())
+	if resp.Error() != nil {
+		if valkey.IsValkeyNil(resp.Error()) {
 			return "", false, nil
 		}
+		return "", false, resp.Error()
+	}
+	val, err := resp.ToString()
+	if err != nil {
 		return "", false, err
 	}
 	return val, true, nil
@@ -134,8 +156,14 @@ func GetString(ctx context.Context, key string) (string, bool, error) {
 
 // SetString stores a raw string value with an optional TTL (0 for no expiry).
 func SetString(ctx context.Context, key, value string, ttl time.Duration) error {
-	if redisClient == nil {
+	if valkeyClient == nil {
 		return nil
 	}
-	return redisClient.Set(ctx, key, value, ttl).Err()
+	var cmd valkey.Completed
+	if ttl > 0 {
+		cmd = valkeyClient.B().Setex().Key(key).Seconds(int64(ttl.Seconds())).Value(value).Build()
+	} else {
+		cmd = valkeyClient.B().Set().Key(key).Value(value).Build()
+	}
+	return valkeyClient.Do(ctx, cmd).Error()
 }

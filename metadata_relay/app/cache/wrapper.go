@@ -311,15 +311,22 @@ func extractContentMetrics(data any, operation string) (count int, contentType s
 }
 
 // getCacheRemainingTTL retrieves the remaining time-to-live for a cache key.
-// Returns 0 if Redis client is not initialized or if TTL retrieval fails.
+// Returns 0 if Valkey client is not initialized or if TTL retrieval fails.
 func getCacheRemainingTTL(ctx context.Context, cacheKey string) time.Duration {
-	// Return 0 if Redis client is not initialized
-	if redisClient == nil {
+	// Return 0 if Valkey client is not initialized
+	if valkeyClient == nil {
 		return 0
 	}
 
-	if ttl, err := redisClient.TTL(ctx, cacheKey).Result(); err == nil {
-		return ttl
+	resp := valkeyClient.Do(ctx, valkeyClient.B().Ttl().Key(cacheKey).Build())
+	if resp.Error() != nil {
+		return 0
 	}
-	return 0
+
+	ttlSeconds, err := resp.AsInt64()
+	if err != nil || ttlSeconds < 0 {
+		return 0
+	}
+
+	return time.Duration(ttlSeconds) * time.Second
 }
