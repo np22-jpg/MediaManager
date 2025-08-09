@@ -1,4 +1,4 @@
-package typesense
+package meilisearch
 
 import (
 	"context"
@@ -9,22 +9,20 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/typesense/typesense-go/v3/typesense/api"
 )
 
 // High-performance sharded sync
 // - Parallel DB readers (shards) per entity using id ranges
-// - Concurrent Typesense import workers with retries & backoff
+// - Concurrent Meilisearch import workers with retries & backoff
 // - Bounded channels for backpressure
 
 // Tunables (consider promoting to env/config if needed)
 var (
-	importBatchSize   = 2000                          // docs per Typesense import request
-	importWorkers     = max(4, runtime.GOMAXPROCS(0)) // concurrent Typesense import workers
+	importBatchSize   = 2000                          // docs per Meilisearch import request
+	importWorkers     = max(4, runtime.GOMAXPROCS(0)) // concurrent Meilisearch import workers
 	importMaxRetries  = 3                             // retries per import chunk
 	importBackoffBase = 400 * time.Millisecond        // initial backoff
-	// optional global cap across all entities to avoid overwhelming Typesense
+	// optional global cap across all entities to avoid overwhelming Meilisearch
 	importGlobalLimit int
 	globalImportSem   chan struct{}
 )
@@ -66,12 +64,8 @@ func max(a, b int) int {
 	return b
 }
 
-// indexChunk imports a chunk to Typesense with retries
-func indexChunk(ctx context.Context, collection string, docs []interface{}) error {
-	intPtr := func(i int) *int { return &i }
-	actionPtr := func(a api.IndexAction) *api.IndexAction { return &a }
-	params := &api.ImportDocumentsParams{Action: actionPtr(api.Upsert), BatchSize: intPtr(importBatchSize)}
-
+// indexChunk imports a chunk to Meilisearch with retries
+func indexChunk(ctx context.Context, indexName string, docs []interface{}) error {
 	var attempt int
 	var lastErr error
 	backoff := importBackoffBase
@@ -79,7 +73,7 @@ func indexChunk(ctx context.Context, collection string, docs []interface{}) erro
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
-		_, err := ImportDocuments(ctx, collection, docs, params)
+		err := ImportDocuments(ctx, indexName, docs)
 		if err == nil {
 			return nil
 		}
@@ -88,7 +82,7 @@ func indexChunk(ctx context.Context, collection string, docs []interface{}) erro
 		if attempt > importMaxRetries {
 			break
 		}
-		slog.Warn("import retry", "collection", collection, "attempt", attempt, "error", err)
+		slog.Warn("import retry", "index", indexName, "attempt", attempt, "error", err)
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -99,44 +93,44 @@ func indexChunk(ctx context.Context, collection string, docs []interface{}) erro
 	return fmt.Errorf("exhausted retries: %w", lastErr)
 }
 
-// IndexArtists performs a full sync of artists from MusicBrainz to Typesense
+// IndexArtists performs a full sync of artists from MusicBrainz to Meilisearch
 func IndexArtists() error {
 	if !IsReady() {
-		return fmt.Errorf("MusicBrainz or Typesense not ready")
+		return fmt.Errorf("MusicBrainz or Meilisearch not ready")
 	}
 	slog.Info("Indexing artists...")
 	return indexEntities("artists", buildArtistQuery, transformArtist)
 }
 
-// IndexReleaseGroups performs a full sync of release groups from MusicBrainz to Typesense
+// IndexReleaseGroups performs a full sync of release groups from MusicBrainz to Meilisearch
 func IndexReleaseGroups() error {
 	if !IsReady() {
-		return fmt.Errorf("MusicBrainz or Typesense not ready")
+		return fmt.Errorf("MusicBrainz or Meilisearch not ready")
 	}
 	slog.Info("Indexing release groups...")
 	return indexEntities("release_groups", buildReleaseGroupQuery, transformReleaseGroup)
 }
 
-// IndexReleases performs a full sync of releases from MusicBrainz to Typesense
+// IndexReleases performs a full sync of releases from MusicBrainz to Meilisearch
 func IndexReleases() error {
 	if !IsReady() {
-		return fmt.Errorf("MusicBrainz or Typesense not ready")
+		return fmt.Errorf("MusicBrainz or Meilisearch not ready")
 	}
 	slog.Info("Indexing releases...")
 	return indexEntities("releases", buildReleaseQuery, transformRelease)
 }
 
-// IndexRecordings performs a full sync of recordings from MusicBrainz to Typesense
+// IndexRecordings performs a full sync of recordings from MusicBrainz to Meilisearch
 func IndexRecordings() error {
 	if !IsReady() {
-		return fmt.Errorf("MusicBrainz or Typesense not ready")
+		return fmt.Errorf("MusicBrainz or Meilisearch not ready")
 	}
 	slog.Info("Indexing recordings...")
 	return indexEntities("recordings", buildRecordingQuery, transformRecording)
 }
 
 // Generic indexing function that can handle any entity type
-func indexEntities(collection string, queryBuilder func() string, transformer func(*sql.Rows) (map[string]interface{}, error)) error {
+func indexEntities(indexName string, queryBuilder func() string, transformer func(*sql.Rows) (map[string]interface{}, error)) error {
 	ctx := context.Background()
 
 	// Get total count for progress tracking
@@ -147,7 +141,7 @@ func indexEntities(collection string, queryBuilder func() string, transformer fu
 		return fmt.Errorf("failed to get total count: %w", err)
 	}
 
-	slog.Info("Starting index", "collection", collection, "total", total)
+	slog.Info("Starting index", "index", indexName, "total", total)
 
 	// Create channels for coordination
 	docsCh := make(chan []interface{}, importWorkers*2)
@@ -162,15 +156,15 @@ func indexEntities(collection string, queryBuilder func() string, transformer fu
 			for docs := range docsCh {
 				if globalImportSem != nil {
 					globalImportSem <- struct{}{}
-					if err := indexChunk(ctx, collection, docs); err != nil {
-						slog.Error("import chunk failed", "collection", collection, "error", err)
+					if err := indexChunk(ctx, indexName, docs); err != nil {
+						slog.Error("import chunk failed", "index", indexName, "error", err)
 					} else {
 						atomic.AddInt64(&imported, int64(len(docs)))
 					}
 					<-globalImportSem
 				} else {
-					if err := indexChunk(ctx, collection, docs); err != nil {
-						slog.Error("import chunk failed", "collection", collection, "error", err)
+					if err := indexChunk(ctx, indexName, docs); err != nil {
+						slog.Error("import chunk failed", "index", indexName, "error", err)
 					} else {
 						atomic.AddInt64(&imported, int64(len(docs)))
 					}
@@ -188,7 +182,7 @@ func indexEntities(collection string, queryBuilder func() string, transformer fu
 		return err
 	}
 
-	slog.Info("Completed indexing", "collection", collection, "imported", atomic.LoadInt64(&imported))
+	slog.Info("Completed indexing", "index", indexName, "imported", atomic.LoadInt64(&imported))
 	return nil
 }
 

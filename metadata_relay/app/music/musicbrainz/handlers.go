@@ -27,13 +27,13 @@ func GetURLParam(r *http.Request, key string) string {
 	return ""
 }
 
-// handles MusicBrainz artist search route using Typesense
+// handles MusicBrainz artist search route using Meilisearch
 func SearchArtistsHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Debug("handling MusicBrainz artist search route")
 
-	// Check if Typesense is available
-	if typesenseClient == nil {
-		common.WriteErrorResponse(w, "Search is not available - Typesense is not configured", http.StatusServiceUnavailable)
+	// Check if Meilisearch is available
+	if meilisearchClient == nil {
+		common.WriteErrorResponse(w, "Search is not available - Meilisearch is not configured", http.StatusServiceUnavailable)
 		return
 	}
 
@@ -50,7 +50,7 @@ func SearchArtistsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	result, err := SearchArtistsTypesense(r.Context(), query, limit)
+	result, err := SearchArtistsMeilisearch(r.Context(), query, limit)
 	if err != nil {
 		slog.Error("failed to search artists", "error", err)
 		common.WriteErrorResponse(w, "Failed to search artists", http.StatusInternalServerError)
@@ -80,13 +80,13 @@ func GetArtistHandler(w http.ResponseWriter, r *http.Request) {
 	common.WriteJSONResponse(w, result)
 }
 
-// handles MusicBrainz release group search route using Typesense
+// handles MusicBrainz release group search route using Meilisearch
 func SearchReleaseGroupsHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Debug("handling MusicBrainz release group search route")
 
-	// Check if Typesense is available
-	if typesenseClient == nil {
-		common.WriteErrorResponse(w, "Search is not available - Typesense is not configured", http.StatusServiceUnavailable)
+	// Check if Meilisearch is available
+	if meilisearchClient == nil {
+		common.WriteErrorResponse(w, "Search is not available - Meilisearch is not configured", http.StatusServiceUnavailable)
 		return
 	}
 
@@ -103,7 +103,7 @@ func SearchReleaseGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	result, err := SearchReleaseGroupsTypesense(r.Context(), query, limit)
+	result, err := SearchReleaseGroupsMeilisearch(r.Context(), query, limit)
 	if err != nil {
 		slog.Error("failed to search release groups", "error", err)
 		common.WriteErrorResponse(w, "Failed to search release groups", http.StatusInternalServerError)
@@ -150,12 +150,12 @@ func SearchReleasesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Prefer Typesense search for releases
-	if typesenseClient == nil {
-		common.WriteErrorResponse(w, "Search is not available - Typesense is not configured", http.StatusServiceUnavailable)
+	// Prefer Meilisearch search for releases
+	if meilisearchClient == nil {
+		common.WriteErrorResponse(w, "Search is not available - Meilisearch is not configured", http.StatusServiceUnavailable)
 		return
 	}
-	result, err := SearchReleasesTypesense(r.Context(), query, limit)
+	result, err := SearchReleasesMeilisearch(r.Context(), query, limit)
 	if err != nil {
 		slog.Error("failed to search releases", "error", err)
 		common.WriteErrorResponse(w, "Failed to search releases", http.StatusInternalServerError)
@@ -185,13 +185,13 @@ func GetReleaseHandler(w http.ResponseWriter, r *http.Request) {
 	common.WriteJSONResponse(w, result)
 }
 
-// handles MusicBrainz recording search route using Typesense
+// handles MusicBrainz recording search route using Meilisearch
 func SearchRecordingsHandler(w http.ResponseWriter, r *http.Request) {
 	slog.Debug("handling MusicBrainz recording search route")
 
-	// Check if Typesense is available
-	if typesenseClient == nil {
-		common.WriteErrorResponse(w, "Search is not available - Typesense is not configured", http.StatusServiceUnavailable)
+	// Check if Meilisearch is available
+	if meilisearchClient == nil {
+		common.WriteErrorResponse(w, "Search is not available - Meilisearch is not configured", http.StatusServiceUnavailable)
 		return
 	}
 
@@ -208,7 +208,7 @@ func SearchRecordingsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	result, err := SearchRecordingsTypesense(r.Context(), query, limit)
+	result, err := SearchRecordingsMeilisearch(r.Context(), query, limit)
 	if err != nil {
 		slog.Error("failed to search recordings", "error", err)
 		common.WriteErrorResponse(w, "Failed to search recordings", http.StatusInternalServerError)

@@ -54,12 +54,12 @@ type Config struct {
 	MusicBrainzDBPassword string
 	MusicBrainzDBName     string
 
-	// Typesense Configuration
-	TypesenseHost   string
-	TypesensePort   string
-	TypesenseAPIKey string
-	// HTTP timeout for Typesense client operations (e.g., bulk imports)
-	TypesenseTimeout string
+	// Meilisearch Configuration
+	MeilisearchHost   string
+	MeilisearchPort   string
+	MeilisearchAPIKey string
+	// HTTP timeout for Meilisearch client operations (e.g., bulk imports)
+	MeilisearchTimeout string
 
 	// Sync Configuration
 	SyncInterval string // How often to sync data to Typesense
@@ -148,10 +148,10 @@ func LoadConfig() error {
 		MusicBrainzDBPassword: getEnv("MUSICBRAINZ_DB_PASSWORD", "musicbrainz"),
 		MusicBrainzDBName:     getEnv("MUSICBRAINZ_DB_NAME", ""),
 
-		TypesenseHost:    getEnv("TYPESENSE_HOST", "localhost"),
-		TypesensePort:    getEnv("TYPESENSE_PORT", "8108"),
-		TypesenseAPIKey:  getEnv("TYPESENSE_API_KEY", ""),
-		TypesenseTimeout: getEnv("TYPESENSE_TIMEOUT", "60s"),
+		MeilisearchHost:    getEnv("MEILISEARCH_HOST", "localhost"),
+		MeilisearchPort:    getEnv("MEILISEARCH_PORT", "7700"),
+		MeilisearchAPIKey:  getEnv("MEILISEARCH_API_KEY", ""),
+		MeilisearchTimeout: getEnv("MEILISEARCH_TIMEOUT", "60s"),
 
 		SyncInterval:          getEnv("SYNC_INTERVAL", "24h"),
 		SyncEnabled:           getEnvBool("SYNC_ENABLED", true),
@@ -206,14 +206,14 @@ func (c *Config) GetMusicBrainzConnStr() string {
 		c.MusicBrainzDBHost, c.MusicBrainzDBPort, c.MusicBrainzDBUser, c.MusicBrainzDBPassword, c.MusicBrainzDBName)
 }
 
-// GetTypesenseURL returns the Typesense server URL.
-func (c *Config) GetTypesenseURL() string {
-	return fmt.Sprintf("http://%s:%s", c.TypesenseHost, c.TypesensePort)
+// GetMeilisearchURL returns the Meilisearch server URL.
+func (c *Config) GetMeilisearchURL() string {
+	return fmt.Sprintf("http://%s:%s", c.MeilisearchHost, c.MeilisearchPort)
 }
 
-// GetTypesenseTimeout parses the Typesense HTTP client timeout.
-func (c *Config) GetTypesenseTimeout() time.Duration {
-	d, err := time.ParseDuration(c.TypesenseTimeout)
+// GetMeilisearchTimeout parses the Meilisearch HTTP client timeout.
+func (c *Config) GetMeilisearchTimeout() time.Duration {
+	d, err := time.ParseDuration(c.MeilisearchTimeout)
 	if err != nil || d <= 0 {
 		return 60 * time.Second
 	}
@@ -225,9 +225,9 @@ func (c *Config) IsMusicBrainzConfigured() bool {
 	return c.MusicBrainzDBHost != "" && c.MusicBrainzDBName != ""
 }
 
-// IsTypesenseConfigured checks if Typesense is configured (requires API key).
-func (c *Config) IsTypesenseConfigured() bool {
-	return c.TypesenseAPIKey != ""
+// IsMeilisearchConfigured checks if Meilisearch is configured (requires API key).
+func (c *Config) IsMeilisearchConfigured() bool {
+	return c.MeilisearchAPIKey != ""
 }
 
 // IsSeaDxConfigured checks if SeaDx is configured (has base URL).
