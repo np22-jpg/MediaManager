@@ -13,9 +13,9 @@ import (
 	"relay/app"
 	"relay/app/cache"
 	"relay/app/music"
+	"relay/app/music/meilisearch"
 	"relay/app/music/musicbrainz"
 	"relay/app/music/theaudiodb"
-	"relay/app/music/typesense"
 	"relay/app/seadex"
 	sched "relay/app/sync"
 	"relay/app/tmdb"
@@ -24,7 +24,7 @@ import (
 	"github.com/VictoriaMetrics/metrics"
 )
 
-// runSyncCommand handles the sync command for indexing MusicBrainz data to Typesense.
+// runSyncCommand handles the sync command for indexing MusicBrainz data to Meilisearch.
 // This is a standalone operation that can be run independently of the web server.
 // Supports targeted sync operations with optional entity type arguments.
 func runSyncCommand() {
@@ -52,27 +52,21 @@ func runSyncCommand() {
 	// Initialize MusicBrainz database connection
 	musicbrainz.InitMusicBrainz(app.AppConfig.GetMusicBrainzConnStr())
 
-	// Check if Typesense is configured
-	if !app.AppConfig.IsTypesenseConfigured() {
-		slog.Error("Typesense is not configured - cannot run sync")
+	// Check if Meilisearch is configured
+	if !app.AppConfig.IsMeilisearchConfigured() {
+		slog.Error("Meilisearch is not configured - cannot run sync")
 		os.Exit(1)
 	}
 
-	// Initialize Typesense client
-	err := musicbrainz.InitTypesense(app.AppConfig.TypesenseHost, app.AppConfig.TypesensePort, app.AppConfig.TypesenseAPIKey, app.AppConfig.GetTypesenseTimeout())
+	// Initialize Meilisearch client
+	err := musicbrainz.InitMeilisearch(app.AppConfig.MeilisearchHost, app.AppConfig.MeilisearchPort, app.AppConfig.MeilisearchAPIKey, app.AppConfig.GetMeilisearchTimeout())
 	if err != nil {
-		slog.Error("failed to initialize Typesense", "error", err)
+		slog.Error("failed to initialize Meilisearch", "error", err)
 		os.Exit(1)
 	}
 
 	// Apply sync tunables from config
-	musicbrainz.ApplyTunables(typesense.SyncTunables{
-		ImportBatchSize:   app.AppConfig.GetSyncImportBatchSize(),
-		ImportWorkers:     app.AppConfig.GetSyncImportWorkers(),
-		ImportMaxRetries:  app.AppConfig.GetSyncImportMaxRetries(),
-		ImportBackoff:     app.AppConfig.GetSyncImportBackoff(),
-		ImportGlobalLimit: app.AppConfig.GetSyncImportGlobalLimit(),
-	})
+	// Note: Meilisearch doesn't need complex sync tunables like Typesense did
 
 	// Determine what to sync based on command arguments
 	var syncTarget string
@@ -82,12 +76,12 @@ func runSyncCommand() {
 		syncTarget = "all"
 	}
 
-	slog.Info("Starting data sync to Typesense", "target", syncTarget)
+	slog.Info("Starting data sync to Meilisearch", "target", syncTarget)
 
 	switch syncTarget {
 	case "artists":
 		slog.Info("Indexing artists...")
-		if err := musicbrainz.IndexArtists(); err != nil {
+		if err := meilisearch.IndexArtists(); err != nil {
 			slog.Error("failed to index artists", "error", err)
 			os.Exit(1)
 		}
@@ -95,7 +89,7 @@ func runSyncCommand() {
 
 	case "release-groups":
 		slog.Info("Indexing release groups...")
-		if err := musicbrainz.IndexReleaseGroups(); err != nil {
+		if err := meilisearch.IndexReleaseGroups(); err != nil {
 			slog.Error("failed to index release groups", "error", err)
 			os.Exit(1)
 		}
@@ -103,7 +97,7 @@ func runSyncCommand() {
 
 	case "releases":
 		slog.Info("Indexing releases...")
-		if err := musicbrainz.IndexReleases(); err != nil {
+		if err := meilisearch.IndexReleases(); err != nil {
 			slog.Error("failed to index releases", "error", err)
 			os.Exit(1)
 		}
@@ -111,7 +105,7 @@ func runSyncCommand() {
 
 	case "recordings":
 		slog.Info("Indexing recordings...")
-		if err := musicbrainz.IndexRecordings(); err != nil {
+		if err := meilisearch.IndexRecordings(); err != nil {
 			slog.Error("failed to index recordings", "error", err)
 			os.Exit(1)
 		}
@@ -137,13 +131,13 @@ func runSyncCommand() {
 		for _, e := range entities {
 			switch e {
 			case "artists":
-				go run("artists", musicbrainz.IndexArtists)
+				go run("artists", meilisearch.IndexArtists)
 			case "release-groups":
-				go run("release-groups", musicbrainz.IndexReleaseGroups)
+				go run("release-groups", meilisearch.IndexReleaseGroups)
 			case "releases":
-				go run("releases", musicbrainz.IndexReleases)
+				go run("releases", meilisearch.IndexReleases)
 			case "recordings":
-				go run("recordings", musicbrainz.IndexRecordings)
+				go run("recordings", meilisearch.IndexRecordings)
 			default:
 				wg.Done()
 				slog.Warn("Unknown entity in SYNC_ENTITIES - skipping", "entity", e)
@@ -231,28 +225,21 @@ func main() {
 		slog.Info("MusicBrainz initialized successfully")
 	}
 
-	// Initialize Typesense conditionally (only if MusicBrainz is also enabled)
+	// Initialize Meilisearch conditionally (only if MusicBrainz is also enabled)
 	if musicBrainzEnabled {
-		if !app.AppConfig.IsTypesenseConfigured() {
-			slog.Warn("Typesense is not configured - search will not be available")
+		if !app.AppConfig.IsMeilisearchConfigured() {
+			slog.Warn("Meilisearch is not configured - search will not be available")
 		} else {
-			err := musicbrainz.InitTypesense(app.AppConfig.TypesenseHost, app.AppConfig.TypesensePort, app.AppConfig.TypesenseAPIKey, app.AppConfig.GetTypesenseTimeout())
+			err := musicbrainz.InitMeilisearch(app.AppConfig.MeilisearchHost, app.AppConfig.MeilisearchPort, app.AppConfig.MeilisearchAPIKey, app.AppConfig.GetMeilisearchTimeout())
 			if err != nil {
-				slog.Error("failed to initialize Typesense (configured but connection failed)", "error", err)
+				slog.Error("failed to initialize Meilisearch (configured but connection failed)", "error", err)
 				os.Exit(1)
 			}
-			slog.Info("Typesense initialized successfully")
+			slog.Info("Meilisearch initialized successfully")
 
-			// Start sync scheduler if both MusicBrainz and Typesense are available and sync is enabled
+			// Start sync scheduler if both MusicBrainz and Meilisearch are available and sync is enabled
 			if musicbrainz.IsReady() && app.AppConfig.IsSyncEnabled() {
-				// Ensure tunables applied for scheduler-run syncs
-				musicbrainz.ApplyTunables(typesense.SyncTunables{
-					ImportBatchSize:   app.AppConfig.GetSyncImportBatchSize(),
-					ImportWorkers:     app.AppConfig.GetSyncImportWorkers(),
-					ImportMaxRetries:  app.AppConfig.GetSyncImportMaxRetries(),
-					ImportBackoff:     app.AppConfig.GetSyncImportBackoff(),
-					ImportGlobalLimit: app.AppConfig.GetSyncImportGlobalLimit(),
-				})
+				// Note: Meilisearch doesn't need the complex sync tunables that Typesense did
 				syncScheduler := sched.NewScheduler(app.AppConfig.GetSyncInterval())
 				syncScheduler.Start()
 

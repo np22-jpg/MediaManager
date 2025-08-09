@@ -7,18 +7,18 @@ import (
 	"time"
 )
 
-func TestTypesenseIntegration(t *testing.T) {
-	// Skip if Typesense is not configured
+func TestMeilisearchIntegration(t *testing.T) {
+	// Skip if Meilisearch is not configured
 	if !IsReady() {
-		t.Skip("Typesense or MusicBrainz not configured - skipping integration tests")
+		t.Skip("Meilisearch or MusicBrainz not configured - skipping integration tests")
 	}
 
 	ctx := context.Background()
 
 	t.Run("SearchArtists", func(t *testing.T) {
-		result, err := SearchArtistsTypesense(ctx, "Beatles", 5)
+		result, err := SearchArtistsMeilisearch(ctx, "Beatles", 5)
 		if err != nil {
-			t.Skip("Typesense search failed (service may be unavailable):", err)
+			t.Skip("Meilisearch search failed (service may be unavailable):", err)
 		}
 
 		if err != nil {
@@ -56,9 +56,9 @@ func TestTypesenseIntegration(t *testing.T) {
 	})
 
 	t.Run("SearchReleaseGroups", func(t *testing.T) {
-		result, err := SearchReleaseGroupsTypesense(ctx, "Abbey Road", 5)
+		result, err := SearchReleaseGroupsMeilisearch(ctx, "Abbey Road", 5)
 		if err != nil {
-			t.Skip("Typesense search failed (service may be unavailable):", err)
+			t.Skip("Meilisearch search failed (service may be unavailable):", err)
 		}
 
 		if err != nil {
@@ -96,9 +96,9 @@ func TestTypesenseIntegration(t *testing.T) {
 	})
 
 	t.Run("SearchRecordings", func(t *testing.T) {
-		result, err := SearchRecordingsTypesense(ctx, "Come Together", 5)
+		result, err := SearchRecordingsMeilisearch(ctx, "Come Together", 5)
 		if err != nil {
-			t.Skip("Typesense search failed (service may be unavailable):", err)
+			t.Skip("Meilisearch search failed (service may be unavailable):", err)
 		}
 
 		if err != nil {
@@ -136,38 +136,38 @@ func TestTypesenseIntegration(t *testing.T) {
 	})
 }
 
-func TestTypesenseNotConfigured(t *testing.T) {
-	// This test ensures proper handling when Typesense is not available
+func TestMeilisearchNotConfigured(t *testing.T) {
+	// This test ensures proper handling when Meilisearch is not available
 	if IsReady() {
-		t.Skip("Typesense is configured - skipping not-configured test")
+		t.Skip("Meilisearch is configured - skipping not-configured test")
 	}
 
 	ctx := context.Background()
 
 	t.Run("SearchArtistsFailsGracefully", func(t *testing.T) {
-		result, err := SearchArtistsTypesense(ctx, "Beatles", 5)
+		result, err := SearchArtistsMeilisearch(ctx, "Beatles", 5)
 		if err == nil {
-			t.Error("Expected error when Typesense not configured")
+			t.Error("Expected error when Meilisearch not configured")
 		}
 		if result != nil {
-			t.Error("Expected nil result when Typesense not configured")
+			t.Error("Expected nil result when Meilisearch not configured")
 		}
 	})
 
 	t.Run("IndexingFailsGracefully", func(t *testing.T) {
 		err := IndexArtists()
 		if err == nil {
-			t.Error("Expected error when Typesense not configured")
+			t.Error("Expected error when Meilisearch not configured")
 		}
-		if !strings.Contains(err.Error(), "not ready") {
-			t.Errorf("Expected error to contain 'not ready', got: %s", err.Error())
+		if !strings.Contains(err.Error(), "not ready") && !strings.Contains(err.Error(), "not initialized") {
+			t.Errorf("Expected error to contain 'not ready' or 'not initialized', got: %s", err.Error())
 		}
 	})
 }
 
 func TestSyncFunctions(t *testing.T) {
 	if !IsReady() {
-		t.Skip("MusicBrainz or Typesense not configured - skipping sync tests")
+		t.Skip("MusicBrainz or Meilisearch not configured - skipping sync tests")
 	}
 
 	t.Run("IndexArtists", func(t *testing.T) {
@@ -201,130 +201,130 @@ func TestSyncFunctions(t *testing.T) {
 	})
 }
 
-// TestTypesenseConnectionFailure tests graceful degradation when Typesense is unavailable
-func TestTypesenseConnectionFailure(t *testing.T) {
-	// Test with invalid Typesense configuration
-	originalClient := typesenseClient
-	defer func() { typesenseClient = originalClient }()
+// TestMeilisearchConnectionFailure tests graceful degradation when Meilisearch is unavailable
+func TestMeilisearchConnectionFailure(t *testing.T) {
+	// Test with invalid Meilisearch configuration
+	originalClient := meilisearchClient
+	defer func() { meilisearchClient = originalClient }()
 
 	// Clear the client to simulate initialization failure
-	typesenseClient = nil
+	meilisearchClient = nil
 
-	t.Run("IsReady_WithoutTypesense", func(t *testing.T) {
-		// Even with database, should return false without Typesense
+	t.Run("IsReady_WithoutMeilisearch", func(t *testing.T) {
+		// Even with database, should return false without Meilisearch
 		ready := IsReady()
 		if ready {
-			t.Error("IsReady should return false when Typesense is not initialized")
+			t.Error("IsReady should return false when Meilisearch is not initialized")
 		}
 	})
 
-	t.Run("InitTypesense_InvalidHost", func(t *testing.T) {
+	t.Run("InitMeilisearch_InvalidHost", func(t *testing.T) {
 		// Try to initialize with invalid host - should fail gracefully
-		err := InitTypesense("nonexistent.host", "8108", "invalid_api_key", 2*time.Second)
+		err := InitMeilisearch("nonexistent.host", "7700", "invalid_api_key", 2*time.Second)
 		if err == nil {
 			t.Error("Expected error for invalid host")
 		}
-		if !strings.Contains(err.Error(), "failed to connect to Typesense") {
-			t.Errorf("Expected error to contain 'failed to connect to Typesense', got: %s", err.Error())
+		if !strings.Contains(err.Error(), "failed to connect to Meilisearch") {
+			t.Errorf("Expected error to contain 'failed to connect to Meilisearch', got: %s", err.Error())
 		}
 	})
 
-	t.Run("InitTypesense_InvalidPort", func(t *testing.T) {
+	t.Run("InitMeilisearch_InvalidPort", func(t *testing.T) {
 		// Try to initialize with invalid port - should fail gracefully
-		err := InitTypesense("localhost", "99999", "invalid_api_key", 2*time.Second)
+		err := InitMeilisearch("localhost", "99999", "invalid_api_key", 2*time.Second)
 		if err == nil {
 			t.Error("Expected error for invalid port")
 		}
-		if !strings.Contains(err.Error(), "failed to connect to Typesense") &&
+		if !strings.Contains(err.Error(), "failed to connect to Meilisearch") &&
 			!strings.Contains(err.Error(), "connection refused") &&
 			!strings.Contains(err.Error(), "invalid port") {
 			t.Errorf("Error should be about connection failure: %v", err)
 		}
 	})
 
-	t.Run("InitTypesense_EmptyConfig", func(t *testing.T) {
+	t.Run("InitMeilisearch_EmptyConfig", func(t *testing.T) {
 		// Try to initialize with empty configuration
-		err := InitTypesense("", "", "", 2*time.Second)
+		err := InitMeilisearch("", "", "", 2*time.Second)
 		if err == nil {
 			t.Error("Expected error for empty config")
 		}
-		if !strings.Contains(err.Error(), "failed to connect to Typesense") {
-			t.Errorf("Expected error to contain 'failed to connect to Typesense', got: %s", err.Error())
+		if !strings.Contains(err.Error(), "failed to connect to Meilisearch") {
+			t.Errorf("Expected error to contain 'failed to connect to Meilisearch', got: %s", err.Error())
 		}
 	})
 }
 
-// TestTypesenseSearchWithoutConnection tests search functions when Typesense is not available
-func TestTypesenseSearchWithoutConnection(t *testing.T) {
-	// Save original client and set to nil to simulate unavailable Typesense
-	originalClient := typesenseClient
-	defer func() { typesenseClient = originalClient }()
+// TestMeilisearchSearchWithoutConnection tests search functions when Meilisearch is not available
+func TestMeilisearchSearchWithoutConnection(t *testing.T) {
+	// Save original client and set to nil to simulate unavailable Meilisearch
+	originalClient := meilisearchClient
+	defer func() { meilisearchClient = originalClient }()
 
-	typesenseClient = nil
+	meilisearchClient = nil
 	ctx := context.Background()
 
-	t.Run("SearchArtistsTypesense_NoConnection", func(t *testing.T) {
-		result, err := SearchArtistsTypesense(ctx, "test artist", 10)
+	t.Run("SearchArtistsMeilisearch_NoConnection", func(t *testing.T) {
+		result, err := SearchArtistsMeilisearch(ctx, "test artist", 10)
 		if err == nil {
-			t.Error("Expected error when no Typesense connection")
+			t.Error("Expected error when no Meilisearch connection")
 		}
 		if result != nil {
-			t.Error("Expected nil result when no Typesense connection")
+			t.Error("Expected nil result when no Meilisearch connection")
 		}
-		if !strings.Contains(err.Error(), "typesense") &&
+		if !strings.Contains(err.Error(), "meilisearch") &&
 			!strings.Contains(err.Error(), "nil") {
-			t.Errorf("Error should mention Typesense or nil client: %v", err)
+			t.Errorf("Error should mention Meilisearch or nil client: %v", err)
 		}
 	})
 
-	t.Run("SearchReleaseGroupsTypesense_NoConnection", func(t *testing.T) {
-		result, err := SearchReleaseGroupsTypesense(ctx, "test album", 10)
+	t.Run("SearchReleaseGroupsMeilisearch_NoConnection", func(t *testing.T) {
+		result, err := SearchReleaseGroupsMeilisearch(ctx, "test album", 10)
 		if err == nil {
-			t.Error("Expected error when no Typesense connection")
+			t.Error("Expected error when no Meilisearch connection")
 		}
 		if result != nil {
-			t.Error("Expected nil result when no Typesense connection")
+			t.Error("Expected nil result when no Meilisearch connection")
 		}
-		if !strings.Contains(err.Error(), "typesense") &&
+		if !strings.Contains(err.Error(), "meilisearch") &&
 			!strings.Contains(err.Error(), "nil") {
-			t.Errorf("Error should mention Typesense or nil client: %v", err)
+			t.Errorf("Error should mention Meilisearch or nil client: %v", err)
 		}
 	})
 
-	t.Run("SearchRecordingsTypesense_NoConnection", func(t *testing.T) {
-		result, err := SearchRecordingsTypesense(ctx, "test song", 10)
+	t.Run("SearchRecordingsMeilisearch_NoConnection", func(t *testing.T) {
+		result, err := SearchRecordingsMeilisearch(ctx, "test song", 10)
 		if err == nil {
-			t.Error("Expected error when no Typesense connection")
+			t.Error("Expected error when no Meilisearch connection")
 		}
 		if result != nil {
-			t.Error("Expected nil result when no Typesense connection")
+			t.Error("Expected nil result when no Meilisearch connection")
 		}
-		if !strings.Contains(err.Error(), "typesense") &&
+		if !strings.Contains(err.Error(), "meilisearch") &&
 			!strings.Contains(err.Error(), "nil") {
-			t.Errorf("Error should mention Typesense or nil client: %v", err)
+			t.Errorf("Error should mention Meilisearch or nil client: %v", err)
 		}
 	})
 
-	t.Run("GetArtistTypesense_NoConnection", func(t *testing.T) {
-		result, err := GetArtistTypesense(ctx, "123e4567-e89b-12d3-a456-426614174000")
+	t.Run("GetArtistMeilisearch_NoConnection", func(t *testing.T) {
+		result, err := GetArtistMeilisearch(ctx, "123e4567-e89b-12d3-a456-426614174000")
 		if err == nil {
-			t.Error("Expected error when no Typesense connection")
+			t.Error("Expected error when no Meilisearch connection")
 		}
 		if result != nil {
-			t.Error("Expected nil result when no Typesense connection")
+			t.Error("Expected nil result when no Meilisearch connection")
 		}
-		if !strings.Contains(err.Error(), "typesense") &&
+		if !strings.Contains(err.Error(), "meilisearch") &&
 			!strings.Contains(err.Error(), "nil") {
-			t.Errorf("Error should mention Typesense or nil client: %v", err)
+			t.Errorf("Error should mention Meilisearch or nil client: %v", err)
 		}
 	})
 }
 
-// TestTypesenseConnectionScenarios tests connection failures with different scenarios
-func TestTypesenseConnectionScenarios(t *testing.T) {
+// TestMeilisearchConnectionScenarios tests connection failures with different scenarios
+func TestMeilisearchConnectionScenarios(t *testing.T) {
 	// Save original state
-	originalClient := typesenseClient
-	defer func() { typesenseClient = originalClient }()
+	originalClient := meilisearchClient
+	defer func() { meilisearchClient = originalClient }()
 
 	testCases := []struct {
 		name          string
@@ -340,23 +340,23 @@ func TestTypesenseConnectionScenarios(t *testing.T) {
 			port:          "99999",
 			apiKey:        "test_key",
 			expectError:   true,
-			errorContains: "failed to connect to Typesense",
+			errorContains: "failed to connect to Meilisearch",
 		},
 		{
 			name:          "nonexistent_host",
-			host:          "nonexistent.typesense.host",
-			port:          "8108",
+			host:          "nonexistent.meilisearch.host",
+			port:          "7700",
 			apiKey:        "test_key",
 			expectError:   true,
-			errorContains: "failed to connect to Typesense",
+			errorContains: "failed to connect to Meilisearch",
 		},
 		{
 			name:          "empty_host",
 			host:          "",
-			port:          "8108",
+			port:          "7700",
 			apiKey:        "test_key",
 			expectError:   true,
-			errorContains: "failed to connect to Typesense",
+			errorContains: "failed to connect to Meilisearch",
 		},
 		{
 			name:          "empty_port",
@@ -364,16 +364,16 @@ func TestTypesenseConnectionScenarios(t *testing.T) {
 			port:          "",
 			apiKey:        "test_key",
 			expectError:   true,
-			errorContains: "failed to connect to Typesense",
+			errorContains: "failed to connect to Meilisearch",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Reset client for each test
-			typesenseClient = nil
+			meilisearchClient = nil
 
-			err := InitTypesense(tc.host, tc.port, tc.apiKey, 2*time.Second)
+			err := InitMeilisearch(tc.host, tc.port, tc.apiKey, 2*time.Second)
 
 			if tc.expectError {
 				if err == nil {

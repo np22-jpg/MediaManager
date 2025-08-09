@@ -14,7 +14,7 @@ import (
 
 	"relay/app/cache"
 	"relay/app/music"
-	"relay/app/music/typesense"
+	"relay/app/music/meilisearch"
 
 	_ "github.com/lib/pq"
 )
@@ -24,64 +24,59 @@ var spotifyClient *music.SpotifyClient
 var lyricsClient *music.LRCLibClient
 var mediaDir string
 
-// Typesense-related variables and functions that reference the typesense package
-var typesenseClient interface{} // This will be set by InitTypesense
+// Meilisearch-related variables and functions that reference the meilisearch package
+var meilisearchClient interface{} // This will be set by InitMeilisearch
 
-// IsReady checks if both MusicBrainz and Typesense are configured and ready
+// IsReady checks if both MusicBrainz and Meilisearch are configured and ready
 func IsReady() bool {
-	return typesense.IsReady()
+	return meilisearch.IsReady()
 }
 
-// InitTypesense initializes the Typesense client and creates collections
-func InitTypesense(host, port, apiKey string, timeout time.Duration) error {
-	err := typesense.InitTypesense(host, port, apiKey, timeout)
+// InitMeilisearch initializes the Meilisearch client and creates indexes
+func InitMeilisearch(host, port, apiKey string, timeout time.Duration) error {
+	err := meilisearch.InitMeilisearch(host, port, apiKey, timeout)
 	if err == nil {
-		typesenseClient = true // Just a marker that it's initialized
+		meilisearchClient = true // Just a marker that it's initialized
 	}
 	return err
 }
 
-// ApplyTunables sets the sync tunables for Typesense operations
-func ApplyTunables(t typesense.SyncTunables) {
-	typesense.ApplyTunables(t)
-}
-
-// Index functions that delegate to the typesense package
+// Index functions that delegate to the meilisearch package
 func IndexArtists() error {
-	return typesense.IndexArtists()
+	return meilisearch.IndexArtists()
 }
 
 func IndexReleaseGroups() error {
-	return typesense.IndexReleaseGroups()
+	return meilisearch.IndexReleaseGroups()
 }
 
 func IndexReleases() error {
-	return typesense.IndexReleases()
+	return meilisearch.IndexReleases()
 }
 
 func IndexRecordings() error {
-	return typesense.IndexRecordings()
+	return meilisearch.IndexRecordings()
 }
 
-// Search functions that delegate to the typesense package
-func SearchArtistsTypesense(ctx context.Context, query string, limit int) (any, error) {
-	return typesense.SearchArtistsTypesense(ctx, query, limit)
+// Search functions that delegate to the meilisearch package
+func SearchArtistsMeilisearch(ctx context.Context, query string, limit int) (any, error) {
+	return meilisearch.SearchArtistsMeilisearch(ctx, query, limit)
 }
 
-func SearchReleaseGroupsTypesense(ctx context.Context, query string, limit int) (any, error) {
-	return typesense.SearchReleaseGroupsTypesense(ctx, query, limit)
+func SearchReleaseGroupsMeilisearch(ctx context.Context, query string, limit int) (any, error) {
+	return meilisearch.SearchReleaseGroupsMeilisearch(ctx, query, limit)
 }
 
-func SearchReleasesTypesense(ctx context.Context, query string, limit int) (any, error) {
-	return typesense.SearchReleasesTypesense(ctx, query, limit)
+func SearchReleasesMeilisearch(ctx context.Context, query string, limit int) (any, error) {
+	return meilisearch.SearchReleasesMeilisearch(ctx, query, limit)
 }
 
-func SearchRecordingsTypesense(ctx context.Context, query string, limit int) (any, error) {
-	return typesense.SearchRecordingsTypesense(ctx, query, limit)
+func SearchRecordingsMeilisearch(ctx context.Context, query string, limit int) (any, error) {
+	return meilisearch.SearchRecordingsMeilisearch(ctx, query, limit)
 }
 
-func GetArtistTypesense(ctx context.Context, mbid string) (any, error) {
-	return typesense.GetArtistTypesense(ctx, mbid)
+func GetArtistMeilisearch(ctx context.Context, mbid string) (any, error) {
+	return meilisearch.GetArtistMeilisearch(ctx, mbid)
 }
 
 // SetSpotifyClient injects a Spotify client used to fetch images stored on disk.
@@ -309,8 +304,8 @@ func InitMusicBrainz(connStr string) {
 		return
 	}
 
-	// Set the database connection for the typesense package
-	typesense.SetDB(db)
+	// Set the database connection for the meilisearch package
+	meilisearch.SetDB(db)
 
 	// Test the connection with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

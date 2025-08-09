@@ -141,7 +141,7 @@ func GetEntryByAnilistID(ctx context.Context, anilistID int) (any, error) {
 func GetTrendingEntries(ctx context.Context, limit int) (any, error) {
 	return cache.NewCache("seadx_trending").TTL(2*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
-		params.Set("expand", "trs") // Expand torrent records for more useful data
+		params.Set("expand", "trs")    // Expand torrent records for more useful data
 		params.Set("sort", "-updated") // Sort by recently updated
 		if limit > 0 {
 			params.Set("perPage", fmt.Sprintf("%d", limit))

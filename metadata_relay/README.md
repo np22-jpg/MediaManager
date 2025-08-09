@@ -56,25 +56,25 @@ services:
 | MUSICBRAINZ_DB_USER       | musicbrainz                                | No       | MusicBrainz database username |
 | MUSICBRAINZ_DB_PASSWORD   | musicbrainz                                | No       | MusicBrainz database password |
 | MUSICBRAINZ_DB_NAME       | unset                                      | No¹      | MusicBrainz database name |
-| TYPESENSE_HOST            | localhost                                  | No       | Typesense server host |
-| TYPESENSE_PORT            | 8108                                       | No       | Typesense server port |
-| TYPESENSE_API_KEY         | unset                                      | No²      | Typesense API key |
-| TYPESENSE_TIMEOUT         | 60s                                        | No       | Typesense HTTP client timeout |
+| MEILISEARCH_HOST          | localhost                                  | No       | Meilisearch server host |
+| MEILISEARCH_PORT          | 7700                                       | No       | Meilisearch server port |
+| MEILISEARCH_API_KEY       | unset                                      | No²      | Meilisearch API key |
+| MEILISEARCH_TIMEOUT       | 60s                                        | No       | Meilisearch HTTP client timeout |
 | SYNC_ENABLED              | true                                       | No       | Enable background sync scheduler |
 | SYNC_INTERVAL             | 24h                                        | No       | How often the scheduler runs |
 | SYNC_ENTITIES             | artists,release-groups,releases,recordings | No       | Entities to sync for `sync all` and scheduler (artists, release-groups, releases, recordings) |
-| SYNC_SKIP_UNCHANGED       | true                                       | No       | Skip sending unchanged docs to Typesense (uses cache fingerprints) |
+| SYNC_SKIP_UNCHANGED       | true                                       | No       | Skip sending unchanged docs to Meilisearch (uses cache fingerprints) |
 | SYNC_DB_PAGE_SIZE         | 8000                                       | No       | Rows fetched per DB page per shard |
 | SYNC_SHARD_PARALLELISM    | (CPU)                                      | No       | Parallel DB reader shards per entity |
-| SYNC_IMPORT_BATCH_SIZE    | 2000                                       | No       | Documents per Typesense import call |
-| SYNC_IMPORT_WORKERS       | (CPU)                                      | No       | Concurrent Typesense import workers per entity |
+| SYNC_IMPORT_BATCH_SIZE    | 2000                                       | No       | Documents per Meilisearch import call |
+| SYNC_IMPORT_WORKERS       | (CPU)                                      | No       | Concurrent Meilisearch import workers per entity |
 | SYNC_IMPORT_MAX_RETRIES   | 3                                          | No       | Retries per failed import chunk |
 | SYNC_IMPORT_BACKOFF       | 400ms                                      | No       | Initial backoff for retries |
 | SYNC_IMPORT_GLOBAL_LIMIT  | unset                                      | No       | Global cap on concurrent import requests across entities |
 
 **Notes:**
 1. Both `MUSICBRAINZ_DB_HOST` and `MUSICBRAINZ_DB_NAME` are required to enable MusicBrainz endpoints. If either is missing, MusicBrainz endpoints will not be available (404).
-2. `TYPESENSE_API_KEY` is required only if you want to enable search functionality. Without it, MusicBrainz endpoints return 503 for search operations.
+2. `MEILISEARCH_API_KEY` is required only if you want to enable search functionality. Without it, MusicBrainz endpoints return 503 for search operations.
 3. `THEAUDIODB_API_KEY` can be set to `2` for public testing (rate-limited by TheAudioDB). Leaving it unset disables TheAudioDB endpoints. Note that image fetching via MBID *requires* a premium API key.
 4. AniList is enabled by default and requires no API key or configuration. 
 
@@ -83,7 +83,7 @@ services:
 ### MusicBrainz Endpoints
 
 #### Artists
-- `GET /musicbrainz/artists/search?query={query}&limit={limit}` - Search for artists using typesense
+- `GET /musicbrainz/artists/search?query={query}&limit={limit}` - Search for artists using Meilisearch
 - `GET /musicbrainz/artists/search/advanced?artist={name}&area={area}&begin={date}&end={date}&limit={limit}` - Advanced artist search with field-specific queries
 - `GET /musicbrainz/artists/{mbid}` - Get artist by MBID
 - `GET /musicbrainz/artists/{mbid}/release-groups?limit={limit}` - Browse artist's release groups
