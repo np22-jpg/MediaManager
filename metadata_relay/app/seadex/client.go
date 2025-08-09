@@ -43,6 +43,9 @@ type EntryRecord struct {
 }
 
 // TorrentRecord represents a single torrent record within a SeaDex entry.
+// For Nyaa torrents, the URL field contains the page URL (e.g., "https://nyaa.si/view/1895730")
+// and can be converted to a direct torrent download URL by changing "view" to "download"
+// and appending ".torrent" (e.g., "https://nyaa.si/download/1895730.torrent").
 type TorrentRecord struct {
 	ID             string   `json:"id"`
 	CollectionID   string   `json:"collection_id"`
@@ -100,6 +103,7 @@ func makeRequest(endpoint string, params url.Values) (any, error) {
 func SearchEntries(ctx context.Context, query string, page int, perPage int) (any, error) {
 	return cache.NewCache("seadx_search_entries").TTL(4*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
+		params.Set("expand", "trs") // Expand torrent records for more useful data
 		if query != "" {
 			// SeaDex uses PocketBase-style filtering
 			params.Set("filter", fmt.Sprintf("(collection_name ~ '%s' || torrents.release_group ~ '%s')", query, query))
@@ -117,7 +121,9 @@ func SearchEntries(ctx context.Context, query string, page int, perPage int) (an
 // GetEntryByID retrieves an entry by its ID with 8-hour caching.
 func GetEntryByID(ctx context.Context, id string) (any, error) {
 	return cache.NewCache("seadx_entry_by_id").TTL(8*time.Hour).Wrap(func() (any, error) {
-		return makeRequest("/"+id, nil)
+		params := url.Values{}
+		params.Set("expand", "trs") // Expand torrent records for more useful data
+		return makeRequest("/"+id, params)
 	})(ctx, id)
 }
 
@@ -125,7 +131,8 @@ func GetEntryByID(ctx context.Context, id string) (any, error) {
 func GetEntryByAnilistID(ctx context.Context, anilistID int) (any, error) {
 	return cache.NewCache("seadx_entry_by_anilist").TTL(8*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
-		params.Set("filter", fmt.Sprintf("anilist_id = %d", anilistID))
+		params.Set("expand", "trs") // Expand torrent records for more useful data
+		params.Set("filter", fmt.Sprintf("alID = %d", anilistID))
 		return makeRequest("", params)
 	})(ctx, anilistID)
 }
@@ -134,6 +141,7 @@ func GetEntryByAnilistID(ctx context.Context, anilistID int) (any, error) {
 func GetTrendingEntries(ctx context.Context, limit int) (any, error) {
 	return cache.NewCache("seadx_trending").TTL(2*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
+		params.Set("expand", "trs") // Expand torrent records for more useful data
 		params.Set("sort", "-updated") // Sort by recently updated
 		if limit > 0 {
 			params.Set("perPage", fmt.Sprintf("%d", limit))
@@ -146,6 +154,7 @@ func GetTrendingEntries(ctx context.Context, limit int) (any, error) {
 func GetEntriesByReleaseGroup(ctx context.Context, releaseGroup string) (any, error) {
 	return cache.NewCache("seadx_by_release_group").TTL(6*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
+		params.Set("expand", "trs") // Expand torrent records for more useful data
 		params.Set("filter", fmt.Sprintf("torrents.release_group ~ '%s'", releaseGroup))
 		return makeRequest("", params)
 	})(ctx, releaseGroup)
@@ -155,6 +164,7 @@ func GetEntriesByReleaseGroup(ctx context.Context, releaseGroup string) (any, er
 func GetEntriesByTracker(ctx context.Context, tracker string) (any, error) {
 	return cache.NewCache("seadx_by_tracker").TTL(6*time.Hour).Wrap(func() (any, error) {
 		params := url.Values{}
+		params.Set("expand", "trs") // Expand torrent records for more useful data
 		params.Set("filter", fmt.Sprintf("torrents.tracker ~ '%s'", tracker))
 		return makeRequest("", params)
 	})(ctx, tracker)
