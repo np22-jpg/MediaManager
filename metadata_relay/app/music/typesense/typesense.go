@@ -116,7 +116,6 @@ func createCollections() error {
 			{Name: "release_group_name", Type: "string", Facet: boolPtr(false), Index: boolPtr(true)},
 			{Name: "release_group_mbid", Type: "string", Facet: boolPtr(false), Index: boolPtr(true)},
 			{Name: "comment", Type: "string", Facet: boolPtr(false), Index: boolPtr(true), Optional: boolPtr(true)},
-			{Name: "date_year", Type: "int32", Facet: boolPtr(true), Index: boolPtr(true), Optional: boolPtr(true)},
 		},
 		DefaultSortingField: stringPtr("name"),
 	}
@@ -335,9 +334,6 @@ func SearchReleasesTypesense(ctx context.Context, query string, limit int) (any,
 				}
 				if comment, ok := (*doc)["comment"]; ok {
 					release["disambiguation"] = comment
-				}
-				if yr, ok := (*doc)["date_year"]; ok {
-					release["date-year"] = yr
 				}
 
 				releases = append(releases, release)

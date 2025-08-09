@@ -251,7 +251,7 @@ func buildArtistQuery() string {
 		LEFT JOIN artist_type at ON a.type = at.id
 		LEFT JOIN area ar ON a.area = ar.id
 		LEFT JOIN artist_alias alias ON a.id = alias.artist
-		GROUP BY a.gid, a.name, a.sort_name, at.name, ar.name, 
+		GROUP BY a.id, a.gid, a.name, a.sort_name, at.name, ar.name, 
 				 a.begin_date_year, a.end_date_year, a.ended, a.comment
 		ORDER BY a.id
 	`
@@ -271,7 +271,7 @@ func buildReleaseQuery() string {
 		SELECT r.gid, r.name, rs.name as status, 
 			   a.name as artist_name, a.gid as artist_mbid,
 			   rg.name as release_group_name, rg.gid as release_group_mbid,
-			   r.comment, EXTRACT(YEAR FROM r.date_year) as date_year
+			   r.comment
 		FROM release r
 		LEFT JOIN release_status rs ON r.status = rs.id
 		LEFT JOIN artist_credit ac ON r.artist_credit = ac.id
@@ -358,10 +358,9 @@ func transformReleaseGroup(rows *sql.Rows) (map[string]interface{}, error) {
 func transformRelease(rows *sql.Rows) (map[string]interface{}, error) {
 	var mbid, name, comment sql.NullString
 	var status, artistName, artistMbid, releaseGroupName, releaseGroupMbid sql.NullString
-	var dateYear sql.NullInt64
 
 	err := rows.Scan(&mbid, &name, &status, &artistName, &artistMbid,
-		&releaseGroupName, &releaseGroupMbid, &comment, &dateYear)
+		&releaseGroupName, &releaseGroupMbid, &comment)
 	if err != nil {
 		return nil, err
 	}
@@ -388,9 +387,6 @@ func transformRelease(rows *sql.Rows) (map[string]interface{}, error) {
 	}
 	if comment.Valid {
 		doc["comment"] = comment.String
-	}
-	if dateYear.Valid {
-		doc["date_year"] = dateYear.Int64
 	}
 
 	return doc, nil
