@@ -43,7 +43,9 @@ That being said, their web API, even when self-hosted, is apparently quite slow,
 ## Tests
 Right now, the tests are set up to automatically pass, even when a metabrainz/typesense server is not available. To run full integration tests, set the `INTEGRATION_TESTS` env var to "true".
 
+## Anime
+Right now, the current setup is to use SeaDex (to get the releases) and anilist (to get the actual metadata). Previously, AniDB was used but it has extremely severe rate limits. In other cataloging software, this is a near-showstopper, and means individual users have to access their public API to get around their rate limits. From there, we tried Jikan, but ultimately ended up on anilist, as SeaDex has the metadata for it.
+
 ## Future
 - hardcover support
 - PGO
-- get the debug packages out of the build

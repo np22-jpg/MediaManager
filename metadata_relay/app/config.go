@@ -40,8 +40,9 @@ type Config struct {
 	// SeaDx (anime)
 	SeaDxBaseURL string
 
-	// Jikan
-	JikanBaseURL string
+	// AniList Configuration
+	AniListGraphQLURL string
+	AniListUserAgent  string
 
 	// Media storage directory (on disk, do not cache images in Redis)
 	MediaDir string
@@ -136,7 +137,8 @@ func LoadConfig() error {
 
 		SeaDxBaseURL: getEnv("SEADX_BASE_URL", "https://releases.moe/api"),
 
-		JikanBaseURL: getEnv("JIKAN_BASE_URL", "https://api.jikan.moe/v4"),
+		AniListGraphQLURL: getEnv("ANILIST_GRAPHQL_URL", "https://graphql.anilist.co"),
+		AniListUserAgent:  getEnv("ANILIST_USER_AGENT", "MediaManager-Relay/1.0"),
 
 		MediaDir: getEnv("MEDIA_DIR", "./media"),
 

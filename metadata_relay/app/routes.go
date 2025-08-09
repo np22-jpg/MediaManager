@@ -1,7 +1,7 @@
 package app
 
 import (
-	"relay/app/jikan"
+	"relay/app/anilist"
 	"relay/app/music/musicbrainz"
 	"relay/app/music/theaudiodb"
 	"relay/app/seadex"
@@ -10,10 +10,7 @@ import (
 )
 
 // RegisterRoutes registers all API routes
-func RegisterRoutes(router *Router, musicBrainzEnabled bool, seadexEnabled bool, jikanEnabled bool) {
-	// Root endpoint
-	router.GET("/", RootHandler)
-
+func RegisterRoutes(router *Router, musicBrainzEnabled bool, seadexEnabled bool, anilistEnabled bool) {
 	// TMDB endpoints
 	router.GET("/tmdb/tv/trending", tmdb.TrendingTVHandler)
 	router.GET("/tmdb/tv/search", tmdb.SearchTVHandler)
@@ -32,6 +29,15 @@ func RegisterRoutes(router *Router, musicBrainzEnabled bool, seadexEnabled bool,
 	router.GET("/tvdb/movies/search", tvdb.SearchMoviesHandler)
 	router.GET("/tvdb/movies/{movieId}", tvdb.GetMovieHandler)
 
+	// AniList endpoints (conditional) - GraphQL to REST bridge
+	if anilistEnabled {
+		router.GET("/anilist/anime/{id}", anilist.GetMediaByIDHandler)
+		router.GET("/anilist/manga/{id}", anilist.GetMediaByIDHandler)
+		router.GET("/anilist/search", anilist.SearchMediaHandler)
+		router.GET("/anilist/trending/anime", anilist.GetTrendingAnimeHandler)
+		router.GET("/anilist/seasonal", anilist.GetSeasonalAnimeHandler)
+	}
+
 	// SeaDx endpoints (conditional)
 	if seadexEnabled {
 		router.GET("/seadx/search", seadex.SearchEntriesHandler)
@@ -40,16 +46,6 @@ func RegisterRoutes(router *Router, musicBrainzEnabled bool, seadexEnabled bool,
 		router.GET("/seadx/trending", seadex.GetTrendingEntriesHandler)
 		router.GET("/seadx/release-groups", seadex.GetEntriesByReleaseGroupHandler)
 		router.GET("/seadx/trackers", seadex.GetEntriesByTrackerHandler)
-	}
-
-	// Jikan endpoints (conditional)
-	if jikanEnabled {
-		router.GET("/jikan/anime/{id}", jikan.GetAnimeByIDHandler)
-		router.GET("/jikan/top", jikan.GetTopAnimeHandler)
-		router.GET("/jikan/seasonal", jikan.GetSeasonalAnimeHandler)
-		router.GET("/jikan/search", jikan.SearchAnimeHandler)
-		router.GET("/jikan/anime/{id}/recommendations", jikan.GetAnimeRecommendationsHandler)
-		router.GET("/jikan/random", jikan.GetRandomAnimeHandler)
 	}
 
 	// TheAudioDB endpoints (independent of MusicBrainz)
@@ -69,4 +65,7 @@ func RegisterRoutes(router *Router, musicBrainzEnabled bool, seadexEnabled bool,
 		router.GET("/musicbrainz/recordings/search", musicbrainz.SearchRecordingsHandler)
 		router.GET("/musicbrainz/recordings/{mbid}", musicbrainz.GetRecordingHandler)
 	}
+
+	// Root endpoint (register last to avoid path conflicts)
+	router.GET("/", RootHandler)
 }

@@ -12,7 +12,6 @@ import (
 
 	"relay/app"
 	"relay/app/cache"
-	"relay/app/jikan"
 	"relay/app/music"
 	"relay/app/music/musicbrainz"
 	"relay/app/music/theaudiodb"
@@ -220,19 +219,6 @@ func main() {
 		slog.Info("SeaDx not configured - skipping")
 	}
 
-	// Initialize Jikan
-	var jikanEnabled bool
-	if app.AppConfig.JikanBaseURL != "" {
-		jikan.InitJikan(app.AppConfig.JikanBaseURL)
-		jikanEnabled = true
-		slog.Info("Jikan initialized successfully")
-	} else {
-		slog.Info("Jikan not configured - using default settings")
-		// Still enable Jikan with default settings as it requires no API key
-		jikan.InitJikan("")
-		jikanEnabled = true
-	}
-
 	// Initialize MusicBrainz conditionally
 	var musicBrainzEnabled bool
 	// Always try to initialize MusicBrainz (similar to TMDB/TVDB)
@@ -295,6 +281,13 @@ func main() {
 	router.Use(app.RecoveryMiddleware())
 	router.Use(app.MetricsMiddleware())
 
+	// AniList is always enabled as it requires no configuration
+	anilistEnabled := true
+	slog.Info("AniList enabled (no configuration required)")
+
+	// Mount app routes
+	app.RegisterRoutes(router, musicBrainzEnabled, seadexEnabled, anilistEnabled)
+
 	// Serve media directory statically (images, lyrics files)
 	// Ensure media dir exists
 	if app.AppConfig.MediaDir != "" {
@@ -303,9 +296,6 @@ func main() {
 		}
 		router.Handle("/media/", http.StripPrefix("/media/", http.FileServer(http.Dir(app.AppConfig.MediaDir))))
 	}
-
-	// Mount app routes
-	app.RegisterRoutes(router, musicBrainzEnabled, seadexEnabled, jikanEnabled)
 
 	// Create metrics server
 	metricsRouter := http.NewServeMux()

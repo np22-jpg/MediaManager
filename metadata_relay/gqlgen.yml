@@ -1,0 +1,16 @@
+# gqlgen config for AniList client generation
+schema:
+  - app/anilist/schema.graphql
+
+exec:
+  filename: app/anilist/generated.go
+  package: anilist
+
+model:
+  filename: app/anilist/models_gen.go
+  package: anilist
+
+resolver:
+  filename: app/anilist/resolver.go
+  package: anilist
+  type: Resolver

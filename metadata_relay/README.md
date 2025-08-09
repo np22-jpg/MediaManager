@@ -1,6 +1,6 @@
 # MediaManager Metadata Relay
 
-This is a service that provides metadata for movies, TV shows, and music. It caches the metadata to not overload the TMDB and TVDB APIs and uses a local MusicBrainz PostgreSQL mirror for music metadata. This service is used by MediaManager to fetch metadata for movies, TV shows, and music. I (the developer) run a public instance of this service at https://metadata-relay.maxid.me, but you can also run your own instance.
+This is a service that provides metadata for movies, TV shows, anime, and music. It caches the metadata to not overload the APIs and uses a local MusicBrainz PostgreSQL mirror for music metadata. This service is used by MediaManager to fetch metadata for movies, TV shows, anime, and music. I (the developer) run a public instance of this service at https://metadata-relay.maxid.me, but you can also run your own instance.
 
 ## Docker Compose Example
 
@@ -18,8 +18,8 @@ services:
     restart: always
     environment:
       - CACHE_HOST=redis
-      - TMDB_API_KEY=${TMDB_API_KEY} # you need not provide a TMDB API key, if you only want to use TVDB metadata, or the other way around
-      - TVDB_API_KEY=${TVDB_API_KEY}
+      - TMDB_API_KEY=${TMDB_API_KEY} # Optional: for movie/TV metadata
+      - TVDB_API_KEY=${TVDB_API_KEY} # Optional: for TV metadata
     ports:
       - "8000:8000"   # Main API server
       - "9090:9090"   # Metrics server
@@ -43,7 +43,8 @@ services:
 | TVDB_API_KEY              | unset                                      | No       | TVDB API key |
 | TVDB_BASE_URL             | https://api4.thetvdb.com/v4                | No       | TVDB base URL |
 | SEADX_BASE_URL            | https://releases.moe/api                   | No       | SeaDx anime service index base URL |
-| JIKAN_BASE_URL            | https://api.jikan.moe/v4                   | No       | Jikan base URL |
+| ANILIST_GRAPHQL_URL       | https://graphql.anilist.co                 | No       | AniList GraphQL API endpoint |
+| ANILIST_USER_AGENT        | MediaManager-Relay/1.0                    | No       | User agent for AniList API requests |
 | THEAUDIODB_API_KEY        | unset                                      | No       | TheAudioDB API key (use "2" for testing) |
 | THEAUDIODB_BASE_URL       | https://www.theaudiodb.com/api/v1/json     | No       | TheAudioDB base URL |
 | MEDIA_DIR                 | ./media                                    | No       | On-disk directory to store images and lyrics; served at /media |
@@ -75,7 +76,7 @@ services:
 1. Both `MUSICBRAINZ_DB_HOST` and `MUSICBRAINZ_DB_NAME` are required to enable MusicBrainz endpoints. If either is missing, MusicBrainz endpoints will not be available (404).
 2. `TYPESENSE_API_KEY` is required only if you want to enable search functionality. Without it, MusicBrainz endpoints return 503 for search operations.
 3. `THEAUDIODB_API_KEY` can be set to `2` for public testing (rate-limited by TheAudioDB). Leaving it unset disables TheAudioDB endpoints. Note that image fetching via MBID *requires* a premium API key.
-4. Jikan is enabled by default and requires no API key. 
+4. AniList is enabled by default and requires no API key or configuration. 
 
 ## API Endpoints
 
@@ -126,6 +127,15 @@ services:
 - `GET /tvdb/movies/search?query={query}` - Search for movies
 - `GET /tvdb/movies/{movieId}` - Get movie details by ID
 
+### AniList Endpoints
+
+#### Anime & Manga Database (GraphQL-to-REST)
+- `GET /anilist/anime/{id}` - Get anime details by AniList ID
+- `GET /anilist/manga/{id}` - Get manga details by AniList ID
+- `GET /anilist/search?q={query}&type=anime|manga&page={page}&per_page={perPage}` - Search for anime/manga by title
+- `GET /anilist/trending/anime?page={page}&per_page={perPage}` - Get trending anime
+- `GET /anilist/seasonal?year={year}&season=winter|spring|summer|fall&page={page}&per_page={perPage}` - Get seasonal anime
+
 ### SeaDx Endpoints
 
 #### Anime
@@ -135,16 +145,6 @@ services:
 - `GET /seadx/trending?limit={limit}` - Get trending anime entries
 - `GET /seadx/release-groups?group={group}` - Filter by release group/fansub
 - `GET /seadx/trackers?tracker={tracker}` - Filter by tracker
-
-### Jikan Endpoints
-
-#### Anime Database
-- `GET /jikan/anime/{id}` - Get anime details by MAL ID
-- `GET /jikan/top` - Get top-rated anime
-- `GET /jikan/seasonal` - Get current season anime
-- `GET /jikan/search?q={query}&page={page}` - Search for anime by title
-- `GET /jikan/anime/{id}/recommendations` - Get anime recommendations for specific anime
-- `GET /jikan/random` - Get random anime recommendation
 
 ### TheAudioDB Endpoints
 

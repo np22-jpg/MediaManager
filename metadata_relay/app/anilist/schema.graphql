@@ -1,0 +1,226 @@
+# AniList GraphQL Schema (subset for our needs)
+
+type Query {
+  Media(id: Int, search: String, type: MediaType): Media
+  Page(page: Int, perPage: Int): Page
+}
+
+type Page {
+  pageInfo: PageInfo
+  media: [Media]
+}
+
+type PageInfo {
+  total: Int
+  currentPage: Int
+  lastPage: Int
+  hasNextPage: Boolean
+  perPage: Int
+}
+
+type Media {
+  id: Int!
+  title: MediaTitle
+  type: MediaType
+  format: MediaFormat
+  status: MediaStatus
+  description: String
+  startDate: FuzzyDate
+  endDate: FuzzyDate
+  season: MediaSeason
+  seasonYear: Int
+  episodes: Int
+  duration: Int
+  chapters: Int
+  volumes: Int
+  genres: [String]
+  averageScore: Int
+  meanScore: Int
+  popularity: Int
+  favourites: Int
+  hashtag: String
+  isAdult: Boolean
+  coverImage: MediaCoverImage
+  bannerImage: String
+  studios: StudioConnection
+  staff: StaffConnection
+  characters: CharacterConnection
+  relations: MediaConnection
+  recommendations: RecommendationConnection
+  externalLinks: [MediaExternalLink]
+  streamingEpisodes: [MediaStreamingEpisode]
+  trailer: MediaTrailer
+  tags: [MediaTag]
+  nextAiringEpisode: AiringSchedule
+}
+
+type MediaTitle {
+  romaji: String
+  english: String
+  native: String
+}
+
+type FuzzyDate {
+  year: Int
+  month: Int
+  day: Int
+}
+
+type MediaCoverImage {
+  extraLarge: String
+  large: String
+  medium: String
+  color: String
+}
+
+type MediaTrailer {
+  id: String
+  site: String
+  thumbnail: String
+}
+
+type MediaTag {
+  id: Int!
+  name: String!
+  description: String
+  category: String
+  rank: Int
+  isGeneralSpoiler: Boolean
+  isMediaSpoiler: Boolean
+  isAdult: Boolean
+}
+
+type StudioConnection {
+  nodes: [Studio]
+}
+
+type Studio {
+  id: Int!
+  name: String!
+  isAnimationStudio: Boolean
+}
+
+type StaffConnection {
+  nodes: [Staff]
+}
+
+type Staff {
+  id: Int!
+  name: StaffName
+  image: StaffImage
+}
+
+type StaffName {
+  full: String
+  native: String
+}
+
+type StaffImage {
+  large: String
+  medium: String
+}
+
+type CharacterConnection {
+  nodes: [Character]
+}
+
+type Character {
+  id: Int!
+  name: CharacterName
+  image: CharacterImage
+}
+
+type CharacterName {
+  full: String
+  native: String
+}
+
+type CharacterImage {
+  large: String
+  medium: String
+}
+
+type MediaConnection {
+  nodes: [Media]
+}
+
+type RecommendationConnection {
+  nodes: [Recommendation]
+}
+
+type Recommendation {
+  id: Int!
+  rating: Int
+  userRating: RecommendationRating
+  mediaRecommendation: Media
+}
+
+type MediaExternalLink {
+  id: Int!
+  url: String!
+  site: String!
+  type: ExternalLinkType
+  language: String
+  color: String
+  icon: String
+}
+
+type MediaStreamingEpisode {
+  title: String
+  thumbnail: String
+  url: String
+  site: String
+}
+
+type AiringSchedule {
+  id: Int!
+  airingAt: Int!
+  timeUntilAiring: Int!
+  episode: Int!
+  mediaId: Int!
+}
+
+enum MediaType {
+  ANIME
+  MANGA
+}
+
+enum MediaFormat {
+  TV
+  TV_SHORT
+  MOVIE
+  SPECIAL
+  OVA
+  ONA
+  MUSIC
+  MANGA
+  NOVEL
+  ONE_SHOT
+}
+
+enum MediaStatus {
+  FINISHED
+  RELEASING
+  NOT_YET_RELEASED
+  CANCELLED
+  HIATUS
+}
+
+enum MediaSeason {
+  WINTER
+  SPRING
+  SUMMER
+  FALL
+}
+
+enum ExternalLinkType {
+  INFO
+  STREAMING
+  SOCIAL
+}
+
+enum RecommendationRating {
+  NO_RATING
+  RATE_UP
+  RATE_DOWN
+}
