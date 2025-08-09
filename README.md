@@ -91,6 +91,10 @@ docker compose up -d
 - [ ] add delete button for movies/TV shows
 - [ ] rework prowlarr module (select which indexers to use, etc.)
 - [ ] _maybe_ rework the logo
+- [ ] music support
+- [ ] dedicated anime support complete with SeaDex support
+- [ ] calendar view for releases
+- [ ] dictionarry database support
 
 See the [open issues](hhttps://maxdorninger.github.io/MediaManager/issues) for a full list of proposed features (and known issues).
 
